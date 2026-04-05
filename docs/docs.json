@@ -1379,7 +1379,6 @@
                       "gateway/openai-http-api",
                       "gateway/openresponses-http-api",
                       "gateway/tools-invoke-http-api",
-                      "gateway/cli-backends",
                       "gateway/local-models"
                     ]
                   },
@@ -2738,7 +2737,6 @@
                       "ja-JP/gateway/openai-http-api",
                       "ja-JP/gateway/openresponses-http-api",
                       "ja-JP/gateway/tools-invoke-http-api",
-                      "ja-JP/gateway/cli-backends",
                       "ja-JP/gateway/local-models"
                     ]
                   },
@@ -3482,7 +3480,6 @@
                       "es/gateway/openai-http-api",
                       "es/gateway/openresponses-http-api",
                       "es/gateway/tools-invoke-http-api",
-                      "es/gateway/cli-backends",
                       "es/gateway/local-models"
                     ]
                   },
@@ -4226,7 +4223,6 @@
                       "pt-BR/gateway/openai-http-api",
                       "pt-BR/gateway/openresponses-http-api",
                       "pt-BR/gateway/tools-invoke-http-api",
-                      "pt-BR/gateway/cli-backends",
                       "pt-BR/gateway/local-models"
                     ]
                   },
@@ -4970,7 +4966,6 @@
                       "ko/gateway/openai-http-api",
                       "ko/gateway/openresponses-http-api",
                       "ko/gateway/tools-invoke-http-api",
-                      "ko/gateway/cli-backends",
                       "ko/gateway/local-models"
                     ]
                   },
@@ -5714,7 +5709,6 @@
                       "de/gateway/openai-http-api",
                       "de/gateway/openresponses-http-api",
                       "de/gateway/tools-invoke-http-api",
-                      "de/gateway/cli-backends",
                       "de/gateway/local-models"
                     ]
                   },
@@ -6458,7 +6452,6 @@
                       "fr/gateway/openai-http-api",
                       "fr/gateway/openresponses-http-api",
                       "fr/gateway/tools-invoke-http-api",
-                      "fr/gateway/cli-backends",
                       "fr/gateway/local-models"
                     ]
                   },
@@ -7202,7 +7195,6 @@
                       "ar/gateway/openai-http-api",
                       "ar/gateway/openresponses-http-api",
                       "ar/gateway/tools-invoke-http-api",
-                      "ar/gateway/cli-backends",
                       "ar/gateway/local-models"
                     ]
                   },
@@ -7946,7 +7938,6 @@
                       "it/gateway/openai-http-api",
                       "it/gateway/openresponses-http-api",
                       "it/gateway/tools-invoke-http-api",
-                      "it/gateway/cli-backends",
                       "it/gateway/local-models"
                     ]
                   },
@@ -8690,7 +8681,6 @@
                       "tr/gateway/openai-http-api",
                       "tr/gateway/openresponses-http-api",
                       "tr/gateway/tools-invoke-http-api",
-                      "tr/gateway/cli-backends",
                       "tr/gateway/local-models"
                     ]
                   },
@@ -9434,7 +9424,6 @@
                       "uk/gateway/openai-http-api",
                       "uk/gateway/openresponses-http-api",
                       "uk/gateway/tools-invoke-http-api",
-                      "uk/gateway/cli-backends",
                       "uk/gateway/local-models"
                     ]
                   },
@@ -10178,7 +10167,6 @@
                       "id/gateway/openai-http-api",
                       "id/gateway/openresponses-http-api",
                       "id/gateway/tools-invoke-http-api",
-                      "id/gateway/cli-backends",
                       "id/gateway/local-models"
                     ]
                   },
@@ -10922,7 +10910,6 @@
                       "pl/gateway/openai-http-api",
                       "pl/gateway/openresponses-http-api",
                       "pl/gateway/tools-invoke-http-api",
-                      "pl/gateway/cli-backends",
                       "pl/gateway/local-models"
                     ]
                   },

@@ -1,0 +1,64 @@
+---
+read_when:
+    - 스크립트에서 하나의 에이전트 턴을 실행하려는 경우(선택적으로 응답 전달)
+summary: Gateway를 통해 하나의 에이전트 턴을 보내는 `openclaw agent`용 CLI 참조
+title: agent
+x-i18n:
+    generated_at: "2026-04-05T12:37:12Z"
+    model: gpt-5.4
+    provider: openai
+    source_hash: 0627f943bc7f3556318008f76dc6150788cf06927dccdc7d2681acb98f257d56
+    source_path: cli/agent.md
+    workflow: 15
+---
+
+# `openclaw agent`
+
+Gateway를 통해 에이전트 턴을 실행합니다(임베디드 실행에는 `--local` 사용).
+구성된 에이전트를 직접 대상으로 지정하려면 `--agent <id>`를 사용하세요.
+
+다음 세션 선택자 중 하나 이상을 전달해야 합니다.
+
+- `--to <dest>`
+- `--session-id <id>`
+- `--agent <id>`
+
+관련 항목:
+
+- 에이전트 전송 도구: [Agent send](/tools/agent-send)
+
+## 옵션
+
+- `-m, --message <text>`: 필수 메시지 본문
+- `-t, --to <dest>`: 세션 키를 도출하는 데 사용되는 수신자
+- `--session-id <id>`: 명시적 세션 ID
+- `--agent <id>`: 에이전트 ID, 라우팅 바인딩을 재정의함
+- `--thinking <off|minimal|low|medium|high|xhigh>`: 에이전트 사고 수준
+- `--verbose <on|off>`: 세션에 대해 verbose 수준을 유지
+- `--channel <channel>`: 전달 채널, 생략하면 기본 세션 채널 사용
+- `--reply-to <target>`: 전달 대상 재정의
+- `--reply-channel <channel>`: 전달 채널 재정의
+- `--reply-account <id>`: 전달 계정 재정의
+- `--local`: 임베디드 에이전트를 직접 실행(플러그인 레지스트리 사전 로드 후)
+- `--deliver`: 선택한 채널/대상으로 응답 다시 전송
+- `--timeout <seconds>`: 에이전트 시간 제한 재정의(기본값 600 또는 config 값)
+- `--json`: JSON 출력
+
+## 예시
+
+```bash
+openclaw agent --to +15555550123 --message "status update" --deliver
+openclaw agent --agent ops --message "Summarize logs"
+openclaw agent --session-id 1234 --message "Summarize inbox" --thinking medium
+openclaw agent --to +15555550123 --message "Trace logs" --verbose on --json
+openclaw agent --agent ops --message "Generate report" --deliver --reply-channel slack --reply-to "#reports"
+openclaw agent --agent ops --message "Run locally" --local
+```
+
+## 참고
+
+- Gateway 모드는 Gateway 요청이 실패하면 임베디드 에이전트로 대체됩니다. 처음부터 임베디드 실행을 강제하려면 `--local`을 사용하세요.
+- `--local`은 여전히 먼저 플러그인 레지스트리를 사전 로드하므로, 플러그인이 제공하는 provider, 도구, 채널을 임베디드 실행 중에도 계속 사용할 수 있습니다.
+- `--channel`, `--reply-channel`, `--reply-account`는 세션 라우팅이 아니라 응답 전달에 영향을 줍니다.
+- 이 명령이 `models.json` 재생성을 트리거하면, SecretRef로 관리되는 provider 자격 증명은 해석된 시크릿 평문이 아니라 비시크릿 마커(예: env var 이름, `secretref-env:ENV_VAR_NAME`, 또는 `secretref-managed`)로 유지됩니다.
+- 마커 쓰기는 소스 권위적입니다. OpenClaw는 해석된 런타임 시크릿 값이 아니라 활성 소스 config 스냅샷의 마커를 유지합니다.

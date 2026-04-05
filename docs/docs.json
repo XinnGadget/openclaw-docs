@@ -1088,7 +1088,7 @@
                       "concepts/memory-qmd",
                       "concepts/memory-honcho",
                       "concepts/memory-search",
-                      "concepts/memory-dreaming"
+                      "concepts/dreaming"
                     ]
                   },
                   "concepts/compaction"
@@ -2447,7 +2447,7 @@
                       "ja-JP/concepts/memory-qmd",
                       "ja-JP/concepts/memory-honcho",
                       "ja-JP/concepts/memory-search",
-                      "ja-JP/concepts/memory-dreaming"
+                      "ja-JP/concepts/dreaming"
                     ]
                   },
                   "ja-JP/concepts/compaction"
@@ -3191,7 +3191,7 @@
                       "es/concepts/memory-qmd",
                       "es/concepts/memory-honcho",
                       "es/concepts/memory-search",
-                      "es/concepts/memory-dreaming"
+                      "es/concepts/dreaming"
                     ]
                   },
                   "es/concepts/compaction"
@@ -3935,7 +3935,7 @@
                       "pt-BR/concepts/memory-qmd",
                       "pt-BR/concepts/memory-honcho",
                       "pt-BR/concepts/memory-search",
-                      "pt-BR/concepts/memory-dreaming"
+                      "pt-BR/concepts/dreaming"
                     ]
                   },
                   "pt-BR/concepts/compaction"
@@ -4679,7 +4679,7 @@
                       "ko/concepts/memory-qmd",
                       "ko/concepts/memory-honcho",
                       "ko/concepts/memory-search",
-                      "ko/concepts/memory-dreaming"
+                      "ko/concepts/dreaming"
                     ]
                   },
                   "ko/concepts/compaction"
@@ -5423,7 +5423,7 @@
                       "de/concepts/memory-qmd",
                       "de/concepts/memory-honcho",
                       "de/concepts/memory-search",
-                      "de/concepts/memory-dreaming"
+                      "de/concepts/dreaming"
                     ]
                   },
                   "de/concepts/compaction"
@@ -6167,7 +6167,7 @@
                       "fr/concepts/memory-qmd",
                       "fr/concepts/memory-honcho",
                       "fr/concepts/memory-search",
-                      "fr/concepts/memory-dreaming"
+                      "fr/concepts/dreaming"
                     ]
                   },
                   "fr/concepts/compaction"
@@ -6911,7 +6911,7 @@
                       "ar/concepts/memory-qmd",
                       "ar/concepts/memory-honcho",
                       "ar/concepts/memory-search",
-                      "ar/concepts/memory-dreaming"
+                      "ar/concepts/dreaming"
                     ]
                   },
                   "ar/concepts/compaction"
@@ -7655,7 +7655,7 @@
                       "it/concepts/memory-qmd",
                       "it/concepts/memory-honcho",
                       "it/concepts/memory-search",
-                      "it/concepts/memory-dreaming"
+                      "it/concepts/dreaming"
                     ]
                   },
                   "it/concepts/compaction"
@@ -8399,7 +8399,7 @@
                       "tr/concepts/memory-qmd",
                       "tr/concepts/memory-honcho",
                       "tr/concepts/memory-search",
-                      "tr/concepts/memory-dreaming"
+                      "tr/concepts/dreaming"
                     ]
                   },
                   "tr/concepts/compaction"
@@ -9143,7 +9143,7 @@
                       "id/concepts/memory-qmd",
                       "id/concepts/memory-honcho",
                       "id/concepts/memory-search",
-                      "id/concepts/memory-dreaming"
+                      "id/concepts/dreaming"
                     ]
                   },
                   "id/concepts/compaction"
@@ -9887,7 +9887,7 @@
                       "pl/concepts/memory-qmd",
                       "pl/concepts/memory-honcho",
                       "pl/concepts/memory-search",
-                      "pl/concepts/memory-dreaming"
+                      "pl/concepts/dreaming"
                     ]
                   },
                   "pl/concepts/compaction"

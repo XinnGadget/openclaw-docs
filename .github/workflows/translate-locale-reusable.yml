@@ -97,7 +97,7 @@ jobs:
           from pathlib import Path
 
           source_hash_re = re.compile(r'^x-i18n:\n(?:  .*\n)*?  source_hash: ([0-9a-f]{64})$', re.M)
-          generated_dirs = {"zh-CN", "ja-JP", "es", "pt-BR", "ko", "de", "fr", "ar"}
+          generated_dirs = {"zh-CN", "ja-JP", "es", "pt-BR", "ko", "de", "fr", "ar", "it", "tr", "id", "pl"}
           locale = os.environ["LOCALE"]
           pending_path = Path(".openclaw-sync") / f"docs-i18n-{os.environ['LOCALE_SLUG']}.txt"
 

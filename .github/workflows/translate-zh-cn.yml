@@ -81,11 +81,28 @@ jobs:
               path.rmdir()
           PY
 
-      - name: Build docs file list
+      - name: Build pending docs file list
+        id: pending
         run: |
           python - <<'PY'
+          import hashlib
+          import os
+          import re
           from pathlib import Path
-          files = []
+
+          source_hash_re = re.compile(r'^x-i18n:\n(?:  .*\n)*?  source_hash: ([0-9a-f]{64})$', re.M)
+
+          def stored_source_hash(path: Path) -> str:
+            if not path.exists():
+              return ""
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            match = source_hash_re.search(text)
+            if not match:
+              return ""
+            return match.group(1).strip()
+
+          all_files = []
+          pending_files = []
           for path in Path("docs").rglob("*"):
             if not path.is_file():
               continue
@@ -98,12 +115,24 @@ jobs:
               continue
             if rel.startswith("docs/.generated/"):
               continue
-            files.append(str(path.resolve()))
+            all_files.append(str(path.resolve()))
+
+            rel_doc = path.relative_to("docs")
+            zh_path = Path("docs") / "zh-CN" / rel_doc
+            source_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+            if stored_source_hash(zh_path) != source_hash:
+              pending_files.append(str(path.resolve()))
+
           Path(".openclaw-sync").mkdir(exist_ok=True)
-          Path(".openclaw-sync/docs-i18n-files.txt").write_text("\n".join(files) + "\n")
+          Path(".openclaw-sync/docs-i18n-files.txt").write_text("\n".join(pending_files) + ("\n" if pending_files else ""))
+          print(f"all_docs={len(all_files)} pending_docs={len(pending_files)}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+            fh.write(f"all_count={len(all_files)}\n")
+            fh.write(f"pending_count={len(pending_files)}\n")
           PY
 
       - name: Translate changed docs into zh-CN
+        if: steps.pending.outputs.pending_count != '0'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENCLAW_DOCS_I18N_OPENAI_API_KEY }}
           OPENCLAW_DOCS_I18N_PROVIDER: openai

@@ -1,21 +1,21 @@
 ---
 read_when:
-    - 你想在 OpenClaw 中使用 Google Gemini 模型
+    - 你想将 Google Gemini 模型与 OpenClaw 一起使用
     - 你需要 API 密钥认证流程
 summary: Google Gemini 设置（API 密钥、图像生成、媒体理解、Web 搜索）
 title: Google（Gemini）
 x-i18n:
-    generated_at: "2026-04-05T18:14:58Z"
+    generated_at: "2026-04-05T22:22:59Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 0df5bcbd98e2c1dafea3e9919e9793533ba785120b24f1db12e8e35b1ad23083
+    source_hash: c0dc6413ca67e0fe274c7fc1182cf220252aae31266a72e0b251a319d4dd286e
     source_path: providers/google.md
     workflow: 15
 ---
 
 # Google（Gemini）
 
-Google 插件通过 Google AI Studio 提供对 Gemini 模型的访问，以及通过 Gemini Grounding 提供图像生成、媒体理解（图像/音频/视频）和 Web 搜索功能。
+Google 插件通过 Google AI Studio 提供对 Gemini 模型的访问，以及通过 Gemini Grounding 提供图像生成、媒体理解（图像/音频/视频）和 Web 搜索。
 
 - 提供商：`google`
 - 认证：`GEMINI_API_KEY` 或 `GOOGLE_API_KEY`
@@ -52,7 +52,7 @@ openclaw onboard --non-interactive \
 
 ## 功能
 
-| 功能 | 支持情况 |
+| 能力 | 支持情况 |
 | ---------------------- | ----------------- |
 | 聊天补全 | 是 |
 | 图像生成 | 是 |
@@ -60,16 +60,16 @@ openclaw onboard --non-interactive \
 | 音频转录 | 是 |
 | 视频理解 | 是 |
 | Web 搜索（Grounding） | 是 |
-| Thinking/推理 | 是（Gemini 3.1+） |
+| 思考/推理 | 是（Gemini 3.1+） |
 
 ## 直接复用 Gemini 缓存
 
-对于直接 Gemini API 运行（`api: "google-generative-ai"`），OpenClaw 现在会将已配置的 `cachedContent` 句柄透传到 Gemini 请求中。
+对于直接调用 Gemini API 的运行（`api: "google-generative-ai"`），OpenClaw 现在会将已配置的 `cachedContent` 句柄透传给 Gemini 请求。
 
-- 使用 `cachedContent` 或旧版 `cached_content` 为每个模型或全局参数进行配置
-- 如果两者都存在，则 `cachedContent` 优先
+- 可使用 `cachedContent` 或旧版 `cached_content` 为每个模型或全局配置参数
+- 如果两者同时存在，则以 `cachedContent` 为准
 - 示例值：`cachedContents/prebuilt-context`
-- Gemini 缓存命中的用量会从上游 `cachedContentTokenCount` 规范化为 OpenClaw `cacheRead`
+- Gemini 的缓存命中用量会从上游的 `cachedContentTokenCount` 规范化为 OpenClaw 的 `cacheRead`
 
 示例：
 
@@ -98,8 +98,49 @@ openclaw onboard --non-interactive \
 - 编辑模式：已启用，最多支持 5 张输入图像
 - 几何控制：`size`、`aspectRatio` 和 `resolution`
 
-图像生成、媒体理解和 Gemini Grounding 都保持使用 `google` 提供商 ID。
+图像生成、媒体理解和 Gemini Grounding 都保持使用 `google` 提供商 id。
+
+要将 Google 用作默认图像提供商：
+
+```json5
+{
+  agents: {
+    defaults: {
+      imageGenerationModel: {
+        primary: "google/gemini-3.1-flash-image-preview",
+      },
+    },
+  },
+}
+```
+
+有关共享工具参数、提供商选择和故障转移行为，请参阅 [Image Generation](/zh-CN/tools/image-generation)。
+
+## 视频生成
+
+内置的 `google` 插件还会通过共享的 `video_generate` 工具注册视频生成功能。
+
+- 默认视频模型：`google/veo-3.1-fast-generate-preview`
+- 模式：文生视频、图生视频，以及单视频参考流程
+- 支持 `aspectRatio`、`resolution` 和 `audio`
+- 当前时长限制：**4 到 8 秒**
+
+要将 Google 用作默认视频提供商：
+
+```json5
+{
+  agents: {
+    defaults: {
+      videoGenerationModel: {
+        primary: "google/veo-3.1-fast-generate-preview",
+      },
+    },
+  },
+}
+```
+
+有关共享工具参数、提供商选择和故障转移行为，请参阅 [Video Generation](/zh-CN/tools/video-generation)。
 
 ## 环境说明
 
-如果 Gateway 网关以守护进程（launchd/systemd）方式运行，请确保 `GEMINI_API_KEY` 对该进程可用（例如，在 `~/.openclaw/.env` 中，或通过 `env.shellEnv`）。
+如果 Gateway 网关 作为守护进程运行（launchd/systemd），请确保该进程可以访问 `GEMINI_API_KEY`（例如，在 `~/.openclaw/.env` 中设置，或通过 `env.shellEnv` 提供）。

@@ -1,0 +1,197 @@
+name: Translate Locale Reusable
+
+on:
+  workflow_call:
+    inputs:
+      locale:
+        required: true
+        type: string
+      locale_slug:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  translate:
+    name: Translate ${{ inputs.locale }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: translate-${{ inputs.locale_slug }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout publish repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read source metadata
+        id: meta
+        run: |
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const path = ".openclaw-sync/source.json";
+          const data = JSON.parse(fs.readFileSync(path, "utf8"));
+          if (!data.repository || !data.sha) {
+            throw new Error(`invalid source metadata in ${path}`);
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `repository=${data.repository}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `sha=${data.sha}\n`);
+          NODE
+
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.meta.outputs.repository }}
+          ref: ${{ steps.meta.outputs.sha }}
+          path: source
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Prune stale locale pages
+        env:
+          LOCALE: ${{ inputs.locale }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          root = Path("docs")
+          locale_root = root / os.environ["LOCALE"]
+          if not locale_root.exists():
+            raise SystemExit(0)
+          for path in sorted(locale_root.rglob("*"), reverse=True):
+            if path.is_dir():
+              if not any(path.iterdir()):
+                path.rmdir()
+              continue
+            rel = path.relative_to(locale_root)
+            source = root / rel
+            if not source.exists():
+              path.unlink()
+          for path in sorted(locale_root.rglob("*"), reverse=True):
+            if path.is_dir() and not any(path.iterdir()):
+              path.rmdir()
+          PY
+
+      - name: Build pending docs file list
+        id: pending
+        env:
+          LOCALE: ${{ inputs.locale }}
+          LOCALE_SLUG: ${{ inputs.locale_slug }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          import re
+          from pathlib import Path
+
+          source_hash_re = re.compile(r'^x-i18n:\n(?:  .*\n)*?  source_hash: ([0-9a-f]{64})$', re.M)
+          generated_dirs = {"zh-CN", "ja-JP", "es", "pt-BR", "ko", "de", "fr"}
+          locale = os.environ["LOCALE"]
+          pending_path = Path(".openclaw-sync") / f"docs-i18n-{os.environ['LOCALE_SLUG']}.txt"
+
+          def stored_source_hash(path: Path) -> str:
+            if not path.exists():
+              return ""
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            match = source_hash_re.search(text)
+            if not match:
+              return ""
+            return match.group(1).strip()
+
+          all_files = []
+          pending_files = []
+          for path in Path("docs").rglob("*"):
+            if not path.is_file():
+              continue
+            if path.suffix.lower() not in {".md", ".mdx"}:
+              continue
+            rel = path.relative_to("docs")
+            parts = rel.parts
+            if parts and parts[0] in generated_dirs:
+              continue
+            if rel.as_posix().startswith(".generated/"):
+              continue
+            all_files.append(str(path.resolve()))
+            locale_path = Path("docs") / locale / rel
+            source_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+            if stored_source_hash(locale_path) != source_hash:
+              pending_files.append(str(path.resolve()))
+
+          pending_path.parent.mkdir(exist_ok=True)
+          pending_path.write_text("\n".join(pending_files) + ("\n" if pending_files else ""))
+          print(f"all_docs={len(all_files)} pending_docs={len(pending_files)}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+            fh.write(f"all_count={len(all_files)}\n")
+            fh.write(f"pending_count={len(pending_files)}\n")
+          PY
+
+      - name: Translate changed docs into locale
+        if: steps.pending.outputs.pending_count != '0'
+        env:
+          LOCALE: ${{ inputs.locale }}
+          LOCALE_SLUG: ${{ inputs.locale_slug }}
+          OPENAI_API_KEY: ${{ secrets.OPENCLAW_DOCS_I18N_OPENAI_API_KEY }}
+          OPENCLAW_DOCS_I18N_PROVIDER: openai
+          OPENCLAW_DOCS_I18N_MODEL: gpt-5.4
+          OPENCLAW_DOCS_I18N_PROMPT_TIMEOUT: 10m
+        run: |
+          pending_file=".openclaw-sync/docs-i18n-${LOCALE_SLUG}.txt"
+          if [ ! -s "${pending_file}" ]; then
+            echo "No docs files found."
+            exit 0
+          fi
+
+          mapfile -t DOC_FILES < "${pending_file}"
+          attempt=1
+          max_attempts=5
+          while [ "$attempt" -le "$max_attempts" ]; do
+            echo "docs-i18n attempt $attempt/$max_attempts"
+            if (
+              cd source/scripts/docs-i18n
+              go run . \
+                --docs "$GITHUB_WORKSPACE/docs" \
+                --lang "${LOCALE}" \
+                --src en \
+                --mode doc \
+                --thinking low \
+                --parallel 8 \
+                "${DOC_FILES[@]}"
+            ); then
+              exit 0
+            fi
+
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              echo "docs-i18n failed after $max_attempts attempts"
+              exit 1
+            fi
+
+            attempt=$((attempt + 1))
+            sleep 5
+          done
+
+      - name: Commit locale refresh
+        env:
+          LOCALE: ${{ inputs.locale }}
+        run: |
+          if git diff --quiet -- "docs/${LOCALE}" "docs/.i18n/${LOCALE}.tm.jsonl"; then
+            echo "No ${LOCALE} translation changes."
+            exit 0
+          fi
+
+          git config user.name "openclaw-docs-i18n[bot]"
+          git config user.email "openclaw-docs-i18n[bot]@users.noreply.github.com"
+          git add "docs/${LOCALE}" "docs/.i18n/${LOCALE}.tm.jsonl"
+          git commit -m "chore(i18n): refresh ${LOCALE} translations"
+          git push origin HEAD:main

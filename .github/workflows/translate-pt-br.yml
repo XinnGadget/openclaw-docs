@@ -1,11 +1,11 @@
-name: Translate zh-CN
+name: Translate pt-BR
 
 on:
   repository_dispatch:
     types:
-      - translate-zh-cn-release
+      - translate-pt-br-release
   schedule:
-    - cron: "17 3 * * *"
+    - cron: "47 4 * * *"
   workflow_dispatch:
 
 permissions:
@@ -15,6 +15,6 @@ jobs:
   translate:
     uses: ./.github/workflows/translate-locale-reusable.yml
     with:
-      locale: zh-CN
-      locale_slug: zh-cn
+      locale: pt-BR
+      locale_slug: pt-br
     secrets: inherit

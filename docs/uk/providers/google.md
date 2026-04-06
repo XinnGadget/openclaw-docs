@@ -5,10 +5,10 @@ read_when:
 summary: Налаштування Google Gemini (ключ API, генерація зображень, розуміння медіа, вебпошук)
 title: Google (Gemini)
 x-i18n:
-    generated_at: "2026-04-05T22:23:02Z"
+    generated_at: "2026-04-06T00:51:57Z"
     model: gpt-5.4
     provider: openai
-    source_hash: c0dc6413ca67e0fe274c7fc1182cf220252aae31266a72e0b251a319d4dd286e
+    source_hash: 358d33a68275b01ebd916a3621dd651619cb9a1d062e2fb6196a7f3c501c015a
     source_path: providers/google.md
     workflow: 15
 ---
@@ -58,6 +58,7 @@ openclaw onboard --non-interactive \
 | ---------------------- | ----------------- |
 | Завершення чату        | Так               |
 | Генерація зображень    | Так               |
+| Генерація музики       | Так               |
 | Розуміння зображень    | Так               |
 | Транскрибування аудіо  | Так               |
 | Розуміння відео        | Так               |
@@ -67,14 +68,14 @@ openclaw onboard --non-interactive \
 ## Пряме повторне використання кешу Gemini
 
 Для прямих запусків Gemini API (`api: "google-generative-ai"`) OpenClaw тепер
-передає налаштований дескриптор `cachedContent` у запити Gemini.
+передає налаштований дескриптор `cachedContent` у запити до Gemini.
 
-- Налаштуйте параметри для окремої моделі або глобально, використовуючи
-  `cachedContent` або застарілий `cached_content`
+- Налаштовуйте параметри для окремої моделі або глобально за допомогою
+  `cachedContent` або застарілого `cached_content`
 - Якщо присутні обидва, пріоритет має `cachedContent`
 - Приклад значення: `cachedContents/prebuilt-context`
 - Використання Gemini cache-hit нормалізується в OpenClaw як `cacheRead` з
-  вихідного `cachedContentTokenCount`
+  вхідного `cachedContentTokenCount`
 
 Приклад:
 
@@ -104,8 +105,8 @@ openclaw onboard --non-interactive \
 - Режим редагування: увімкнено, до 5 вхідних зображень
 - Керування геометрією: `size`, `aspectRatio` і `resolution`
 
-Генерація зображень, розуміння медіа та Gemini Grounding усі залишаються на
-ідентифікаторі провайдера `google`.
+Генерація зображень, розуміння медіа та Gemini Grounding усе ще використовують
+ідентифікатор провайдера `google`.
 
 Щоб використовувати Google як провайдера зображень за замовчуванням:
 
@@ -121,8 +122,8 @@ openclaw onboard --non-interactive \
 }
 ```
 
-Див. [Генерація зображень](/uk/tools/image-generation) щодо спільних параметрів
-інструмента, вибору провайдера та поведінки резервного перемикання.
+Див. [Генерація зображень](/uk/tools/image-generation), щоб дізнатися про спільні
+параметри інструмента, вибір провайдера та поведінку аварійного перемикання.
 
 ## Генерація відео
 
@@ -130,7 +131,7 @@ openclaw onboard --non-interactive \
 інструмент `video_generate`.
 
 - Модель відео за замовчуванням: `google/veo-3.1-fast-generate-preview`
-- Режими: text-to-video, image-to-video і потоки з посиланням на одне відео
+- Режими: text-to-video, image-to-video і потоки з одним еталонним відео
 - Підтримує `aspectRatio`, `resolution` і `audio`
 - Поточне обмеження тривалості: **від 4 до 8 секунд**
 
@@ -148,11 +149,40 @@ openclaw onboard --non-interactive \
 }
 ```
 
-Див. [Генерація відео](/uk/tools/video-generation) щодо спільних параметрів
-інструмента, вибору провайдера та поведінки резервного перемикання.
+Див. [Генерація відео](/uk/tools/video-generation), щоб дізнатися про спільні
+параметри інструмента, вибір провайдера та поведінку аварійного перемикання.
 
-## Примітка про середовище
+## Генерація музики
+
+Вбудований плагін `google` також реєструє генерацію музики через спільний
+інструмент `music_generate`.
+
+- Модель музики за замовчуванням: `google/lyria-3-clip-preview`
+- Також підтримує `google/lyria-3-pro-preview`
+- Керування запитом: `lyrics` і `instrumental`
+- Формат виводу: `mp3` за замовчуванням, а також `wav` для `google/lyria-3-pro-preview`
+- Еталонні вхідні дані: до 10 зображень
+- Запуски на основі сесій відокремлюються через спільний потік завдань/стану, включно з `action: "status"`
+
+Щоб використовувати Google як музичного провайдера за замовчуванням:
+
+```json5
+{
+  agents: {
+    defaults: {
+      musicGenerationModel: {
+        primary: "google/lyria-3-clip-preview",
+      },
+    },
+  },
+}
+```
+
+Див. [Генерація музики](/uk/tools/music-generation), щоб дізнатися про спільні
+параметри інструмента, вибір провайдера та поведінку аварійного перемикання.
+
+## Примітка щодо середовища
 
 Якщо Gateway працює як демон (launchd/systemd), переконайтеся, що `GEMINI_API_KEY`
-доступний для цього процесу (наприклад, у `~/.openclaw/.env` або через
+доступний цьому процесу (наприклад, у `~/.openclaw/.env` або через
 `env.shellEnv`).

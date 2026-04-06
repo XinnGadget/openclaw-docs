@@ -1,54 +1,54 @@
 ---
 read_when:
-    - Açık onaylarla deterministik çok adımlı iş akışları istiyorsunuz
-    - Önceki adımları yeniden çalıştırmadan bir iş akışını sürdürmeniz gerekiyor
-summary: Yeniden başlatılabilir onay geçitlerine sahip OpenClaw için türlendirilmiş iş akışı çalışma zamanı.
+    - Açık onaylarla belirleyici çok adımlı iş akışları istediğinizde
+    - Önceki adımları yeniden çalıştırmadan bir iş akışına devam etmeniz gerektiğinde
+summary: Açık onay kapılarına sahip, devam ettirilebilir OpenClaw için türlenmiş iş akışı çalışma zamanı.
 title: Lobster
 x-i18n:
-    generated_at: "2026-04-05T14:13:22Z"
+    generated_at: "2026-04-06T03:14:02Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 82718c15d571406ad6f1507de22a528fdab873edfc6aafae10742e500f6a5eda
+    source_hash: c1014945d104ef8fdca0d30be89e35136def1b274c6403b06de29e8502b8124b
     source_path: tools/lobster.md
     workflow: 15
 ---
 
 # Lobster
 
-Lobster, OpenClaw'un çok adımlı araç dizilerini açık onay kontrol noktalarıyla tek bir deterministik işlem olarak çalıştırmasını sağlayan bir iş akışı kabuğudur.
+Lobster, OpenClaw'ın çok adımlı araç dizilerini açık onay kontrol noktalarıyla tek, belirleyici bir işlem olarak çalıştırmasını sağlayan bir iş akışı kabuğudur.
 
-Lobster, ayrılmış arka plan çalışmasının bir üstünde yer alan bir yazım katmanıdır. Tek tek görevlerin üzerindeki akış düzenlemesi için [Task Flow](/tr/automation/taskflow) (`openclaw tasks flow`) bölümüne bakın. Görev etkinlik kaydı için [`openclaw tasks`](/tr/automation/tasks) bölümüne bakın.
+Lobster, ayrılmış arka plan işinin bir yazarlık katmanı üzerindedir. Bireysel görevlerin üzerindeki akış orkestrasyonu için [Task Flow](/tr/automation/taskflow) (`openclaw tasks flow`) bölümüne bakın. Görev etkinlik defteri için [`openclaw tasks`](/tr/automation/tasks) bölümüne bakın.
 
-## Kanca
+## Hook
 
-Asistanınız, kendisini yöneten araçları oluşturabilir. Bir iş akışı isteyin, 30 dakika sonra tek çağrıyla çalışan bir CLI'niz ve işlem hatlarınız olur. Lobster eksik parçadır: deterministik işlem hatları, açık onaylar ve sürdürülebilir durum.
+Asistanınız, kendisini yöneten araçları oluşturabilir. Bir iş akışı isteyin; 30 dakika sonra tek çağrı olarak çalışan bir CLI ve boru hatlarına sahip olun. Lobster eksik parçadır: belirleyici boru hatları, açık onaylar ve devam ettirilebilir durum.
 
 ## Neden
 
-Bugün karmaşık iş akışları birçok ileri geri araç çağrısı gerektirir. Her çağrı token maliyeti oluşturur ve LLM her adımı düzenlemek zorundadır. Lobster bu düzenlemeyi türlendirilmiş bir çalışma zamanına taşır:
+Bugün karmaşık iş akışları çok sayıda ileri geri araç çağrısı gerektirir. Her çağrı token maliyeti oluşturur ve LLM her adımı orkestre etmek zorunda kalır. Lobster bu orkestrasyonu türlenmiş bir çalışma zamanına taşır:
 
 - **Birçok çağrı yerine tek çağrı**: OpenClaw tek bir Lobster araç çağrısı çalıştırır ve yapılandırılmış bir sonuç alır.
-- **Yerleşik onaylar**: Yan etkiler (e-posta gönderme, yorum gönderme) açıkça onaylanana kadar iş akışını durdurur.
-- **Sürdürülebilir**: Durdurulan iş akışları bir token döndürür; her şeyi yeniden çalıştırmadan onaylayıp sürdürebilirsiniz.
+- **Onaylar yerleşik**: Yan etkiler (e-posta gönderme, yorum gönderme) açıkça onaylanana kadar iş akışını durdurur.
+- **Devam ettirilebilir**: Durdurulmuş iş akışları bir token döndürür; her şeyi yeniden çalıştırmadan onaylayıp devam edebilirsiniz.
 
 ## Düz programlar yerine neden bir DSL?
 
-Lobster kasıtlı olarak küçüktür. Amaç "yeni bir dil" değil, birinci sınıf onaylara ve sürdürme token'larına sahip, öngörülebilir ve yapay zeka dostu bir işlem hattı tanımıdır.
+Lobster kasıtlı olarak küçüktür. Amaç "yeni bir dil" değil; birinci sınıf onaylara ve devam token'larına sahip, öngörülebilir, AI dostu bir boru hattı tanımıdır.
 
-- **Onaylama/sürdürme yerleşiktir**: Normal bir program bir insandan istem alabilir, ancak bu çalışma zamanını kendiniz icat etmeden dayanıklı bir token ile _duraklayıp sürdüremez_.
-- **Determinism + denetlenebilirlik**: İşlem hatları veridir, bu yüzden günlüğe kaydetmek, fark almak, yeniden oynatmak ve gözden geçirmek kolaydır.
-- **Yapay zeka için kısıtlı yüzey**: Küçük bir dil bilgisi + JSON aktarımı, “yaratıcı” kod yollarını azaltır ve doğrulamayı gerçekçi hale getirir.
-- **Güvenlik politikası içine gömülüdür**: Zaman aşımları, çıktı sınırları, sandbox kontrolleri ve izin listeleri her betik tarafından değil, çalışma zamanı tarafından uygulanır.
-- **Hâlâ programlanabilir**: Her adım herhangi bir CLI veya betiği çağırabilir. JS/TS istiyorsanız koddan `.lobster` dosyaları oluşturun.
+- **Onaylama/devam ettirme yerleşiktir**: Normal bir program bir insana sorabilir, ancak bu çalışma zamanını kendiniz icat etmeden kalıcı bir token ile _duraklayıp devam edemez_.
+- **Belirleyicilik + denetlenebilirlik**: Boru hatları veridir, bu yüzden günlüklemek, farklarını almak, yeniden oynatmak ve gözden geçirmek kolaydır.
+- **AI için sınırlı yüzey**: Küçük bir dil bilgisi + JSON borulama, “yaratıcı” kod yollarını azaltır ve doğrulamayı gerçekçi kılar.
+- **Güvenlik ilkesi yerleşiktir**: Zaman aşımları, çıktı sınırları, sandbox kontrolleri ve allowlist'ler çalışma zamanı tarafından uygulanır; her script tarafından değil.
+- **Yine de programlanabilir**: Her adım herhangi bir CLI veya script çağırabilir. JS/TS istiyorsanız `.lobster` dosyalarını koddan üretin.
 
 ## Nasıl çalışır
 
-OpenClaw yerel `lobster` CLI'sini **tool mode** içinde başlatır ve stdout'tan bir JSON zarfı ayrıştırır.
-İşlem hattı onay için duraklarsa, araç daha sonra devam edebilmeniz için bir `resumeToken` döndürür.
+OpenClaw, Lobster iş akışlarını gömülü bir runner kullanarak **süreç içinde** çalıştırır. Harici bir CLI alt süreci oluşturulmaz; iş akışı motoru gateway süreci içinde yürütülür ve doğrudan bir JSON zarfı döndürür.
+Boru hattı onay için duraklarsa, araç daha sonra devam edebilmeniz için bir `resumeToken` döndürür.
 
-## Desen: küçük CLI + JSON aktarımı + onaylar
+## Desen: küçük CLI + JSON boruları + onaylar
 
-JSON konuşan küçük komutlar oluşturun, sonra bunları tek bir Lobster çağrısında zincirleyin. (Aşağıdaki komut adları örnektir — kendi adlarınızla değiştirin.)
+JSON konuşan küçük komutlar oluşturun, sonra bunları tek bir Lobster çağrısında zincirleyin. (Aşağıdaki komut adları örnektir — kendinizinkilerle değiştirin.)
 
 ```bash
 inbox list --json
@@ -64,7 +64,7 @@ inbox apply --json
 }
 ```
 
-İşlem hattı onay isterse, token ile sürdürün:
+Boru hattısı onay isterse, token ile devam edin:
 
 ```json
 {
@@ -74,20 +74,20 @@ inbox apply --json
 }
 ```
 
-Yapay zeka iş akışını tetikler; Lobster adımları yürütür. Onay geçitleri yan etkileri açık ve denetlenebilir tutar.
+AI iş akışını tetikler; Lobster adımları yürütür. Onay kapıları yan etkileri açık ve denetlenebilir tutar.
 
-Örnek: girdi öğelerini araç çağrılarına eşleyin:
+Örnek: girdi öğelerini araç çağrılarına eşleme:
 
 ```bash
 gog.gmail.search --query 'newer_than:1d' \
   | openclaw.invoke --tool message --action send --each --item-key message --args-json '{"provider":"telegram","to":"..."}'
 ```
 
-## Yalnızca JSON LLM adımları (`llm-task`)
+## Yalnızca JSON LLM adımları (llm-task)
 
 **Yapılandırılmış bir LLM adımı** gerektiren iş akışları için isteğe bağlı
-`llm-task` eklenti aracını etkinleştirin ve Lobster içinden çağırın. Bu, modelle sınıflandırma/özetleme/taslak oluşturma yaparken iş akışını
-deterministik tutar.
+`llm-task` plugin aracını etkinleştirin ve bunu Lobster içinden çağırın. Bu, iş akışını
+belirleyici tutarken yine de bir modelle sınıflandırma/özetleme/taslak oluşturma yapmanızı sağlar.
 
 Aracı etkinleştirin:
 
@@ -109,7 +109,7 @@ Aracı etkinleştirin:
 }
 ```
 
-Bunu bir işlem hattında kullanın:
+Bunu bir boru hattında kullanın:
 
 ```lobster
 openclaw.invoke --tool llm-task --action json --args-json '{
@@ -132,7 +132,7 @@ Ayrıntılar ve yapılandırma seçenekleri için [LLM Task](/tr/tools/llm-task)
 
 ## İş akışı dosyaları (.lobster)
 
-Lobster, `name`, `args`, `steps`, `env`, `condition` ve `approval` alanlarına sahip YAML/JSON iş akışı dosyalarını çalıştırabilir. OpenClaw araç çağrılarında `pipeline` alanını dosya yoluna ayarlayın.
+Lobster, `name`, `args`, `steps`, `env`, `condition` ve `approval` alanlarına sahip YAML/JSON iş akışı dosyalarını çalıştırabilir. OpenClaw araç çağrılarında `pipeline` değerini dosya yolu olarak ayarlayın.
 
 ```yaml
 name: inbox-triage
@@ -158,17 +158,19 @@ steps:
 Notlar:
 
 - `stdin: $step.stdout` ve `stdin: $step.json`, önceki bir adımın çıktısını geçirir.
-- `condition` (veya `when`), adımları `$step.approved` üzerinde koşullandırabilir.
+- `condition` (veya `when`), adımları `$step.approved` üzerinde kapılayabilir.
 
 ## Lobster'ı yükleyin
 
-Lobster CLI'yi OpenClaw Gateway'i çalıştıran **aynı ana makineye** kurun ([Lobster deposuna](https://github.com/openclaw/lobster) bakın) ve `lobster` komutunun `PATH` üzerinde olduğundan emin olun.
+Paketlenmiş Lobster iş akışları süreç içinde çalışır; ayrı bir `lobster` ikili dosyası gerekmez. Gömülü runner, Lobster plugin'i ile birlikte gelir.
+
+Geliştirme veya harici boru hatları için bağımsız Lobster CLI'a ihtiyacınız varsa, bunu [Lobster repo](https://github.com/openclaw/lobster) üzerinden yükleyin ve `lobster` komutunun `PATH` üzerinde olduğundan emin olun.
 
 ## Aracı etkinleştirin
 
-Lobster, **isteğe bağlı** bir eklenti aracıdır (varsayılan olarak etkin değildir).
+Lobster, **isteğe bağlı** bir plugin aracıdır (varsayılan olarak etkin değildir).
 
-Önerilen (eklemeli, güvenli):
+Önerilen (toplamalı, güvenli):
 
 ```json
 {
@@ -195,11 +197,11 @@ Veya ajan başına:
 }
 ```
 
-Kısıtlayıcı izin listesi modunda çalıştırmayı amaçlamıyorsanız `tools.allow: ["lobster"]` kullanmaktan kaçının.
+Kısıtlayıcı allowlist modunda çalışmayı amaçlamıyorsanız `tools.allow: ["lobster"]` kullanmaktan kaçının.
 
-Not: izin listeleri isteğe bağlı eklentiler için katılımlıdır. İzin listeniz yalnızca
-`lobster` gibi eklenti araçlarını adlandırıyorsa OpenClaw çekirdek araçları etkin tutar. Çekirdek
-araçları kısıtlamak için çekirdek araçları veya istediğiniz grupları da izin listesine ekleyin.
+Not: allowlist'ler isteğe bağlı plugin'ler için isteğe bağlı katılımla çalışır. Allowlist'iniz yalnızca
+`lobster` gibi plugin araçlarını adlandırıyorsa, OpenClaw çekirdek araçları etkin tutar. Çekirdek
+araçları kısıtlamak için allowlist'e istediğiniz çekirdek araçları veya grupları da ekleyin.
 
 ## Örnek: E-posta sınıflandırma
 
@@ -226,7 +228,7 @@ Lobster ile:
 }
 ```
 
-Bir JSON zarfı döndürür (kesilmiş):
+Bir JSON zarfı döndürür (kısaltılmış):
 
 ```json
 {
@@ -242,7 +244,7 @@ Bir JSON zarfı döndürür (kesilmiş):
 }
 ```
 
-Kullanıcı onaylar → sürdür:
+Kullanıcı onaylar → devam et:
 
 ```json
 {
@@ -252,13 +254,13 @@ Kullanıcı onaylar → sürdür:
 }
 ```
 
-Tek iş akışı. Deterministik. Güvenli.
+Tek iş akışı. Belirleyici. Güvenli.
 
 ## Araç parametreleri
 
 ### `run`
 
-Bir işlem hattını tool mode içinde çalıştırın.
+Bir boru hattını araç modunda çalıştırın.
 
 ```json
 {
@@ -270,7 +272,7 @@ Bir işlem hattını tool mode içinde çalıştırın.
 }
 ```
 
-Bağımsız değişkenlerle bir iş akışı dosyası çalıştırın:
+Argümanlarla bir iş akışı dosyası çalıştırın:
 
 ```json
 {
@@ -282,7 +284,7 @@ Bağımsız değişkenlerle bir iş akışı dosyası çalıştırın:
 
 ### `resume`
 
-Onaydan sonra durdurulmuş bir iş akışını sürdürün.
+Onaydan sonra durdurulmuş bir iş akışına devam edin.
 
 ```json
 {
@@ -294,9 +296,9 @@ Onaydan sonra durdurulmuş bir iş akışını sürdürün.
 
 ### İsteğe bağlı girdiler
 
-- `cwd`: İşlem hattı için göreli çalışma dizini (mevcut süreç çalışma dizini içinde kalmalıdır).
-- `timeoutMs`: Alt süreç bu süreyi aşarsa sonlandırılır (varsayılan: 20000).
-- `maxStdoutBytes`: stdout bu boyutu aşarsa alt süreç sonlandırılır (varsayılan: 512000).
+- `cwd`: Boru hattısı için göreli çalışma dizini (gateway çalışma dizini içinde kalmalıdır).
+- `timeoutMs`: İş akışı bu süreyi aşarsa iptal edin (varsayılan: 20000).
+- `maxStdoutBytes`: Çıktı bu boyutu aşarsa iş akışını iptal edin (varsayılan: 512000).
 - `argsJson`: `lobster run --args-json` komutuna geçirilen JSON dizgesi (yalnızca iş akışı dosyaları).
 
 ## Çıktı zarfı
@@ -304,52 +306,52 @@ Onaydan sonra durdurulmuş bir iş akışını sürdürün.
 Lobster, üç durumdan biriyle bir JSON zarfı döndürür:
 
 - `ok` → başarıyla tamamlandı
-- `needs_approval` → duraklatıldı; sürdürmek için `requiresApproval.resumeToken` gerekir
+- `needs_approval` → duraklatıldı; devam etmek için `requiresApproval.resumeToken` gerekir
 - `cancelled` → açıkça reddedildi veya iptal edildi
 
 Araç, zarfı hem `content` içinde (güzel biçimlendirilmiş JSON) hem de `details` içinde (ham nesne) gösterir.
 
 ## Onaylar
 
-`requiresApproval` varsa istemi inceleyin ve karar verin:
+`requiresApproval` mevcutsa istemi inceleyin ve karar verin:
 
-- `approve: true` → sürdür ve yan etkileri devam ettir
-- `approve: false` → iptal et ve iş akışını sonlandır
+- `approve: true` → devam edin ve yan etkileri sürdürün
+- `approve: false` → iş akışını iptal edin ve sonlandırın
 
-Özel `jq`/heredoc yapıştırıcısı olmadan onay isteklerine bir JSON önizlemesi eklemek için `approve --preview-from-stdin --limit N` kullanın. Sürdürme token'ları artık küçüktür: Lobster iş akışı sürdürme durumunu kendi durum dizini altında saklar ve küçük bir token anahtarı geri verir.
+Özel jq/heredoc yapıştırıcısı olmadan onay isteklerine bir JSON önizlemesi eklemek için `approve --preview-from-stdin --limit N` kullanın. Devam token'ları artık küçüktür: Lobster iş akışı devam durumunu kendi durum dizini altında saklar ve küçük bir token anahtarı geri verir.
 
 ## OpenProse
 
-OpenProse, Lobster ile iyi eşleşir: çok ajanlı hazırlığı düzenlemek için `/prose` kullanın, ardından deterministik onaylar için bir Lobster işlem hattı çalıştırın. Bir Prose programı Lobster'a ihtiyaç duyuyorsa alt ajanlar için `lobster` aracına `tools.subagents.tools` üzerinden izin verin. Bkz. [OpenProse](/tr/prose).
+OpenProse, Lobster ile iyi eşleşir: çok ajanlı hazırlığı orkestre etmek için `/prose` kullanın, ardından belirleyici onaylar için bir Lobster boru hattı çalıştırın. Bir Prose programının Lobster'a ihtiyacı varsa, alt ajanlar için `tools.subagents.tools` üzerinden `lobster` aracına izin verin. Bkz. [OpenProse](/tr/prose).
 
 ## Güvenlik
 
-- **Yalnızca yerel alt süreç** — eklentinin kendisinden ağ çağrısı yoktur.
-- **Gizli bilgi yok** — Lobster OAuth yönetmez; bunu yapan OpenClaw araçlarını çağırır.
-- **Sandbox farkındalığı** — araç bağlamı sandbox içine alınmışsa devre dışı bırakılır.
-- **Sertleştirilmiş** — `PATH` üzerindeki sabit yürütülebilir ad (`lobster`); zaman aşımları ve çıktı sınırları uygulanır.
+- **Yalnızca yerel süreç içi** — iş akışları gateway süreci içinde yürütülür; plugin'in kendisinden ağ çağrısı yapılmaz.
+- **Sır yok** — Lobster OAuth yönetmez; bunu yapan OpenClaw araçlarını çağırır.
+- **Sandbox farkındalıklı** — araç bağlamı sandbox içindeyken devre dışıdır.
+- **Sertleştirilmiş** — zaman aşımları ve çıktı sınırları gömülü runner tarafından uygulanır.
 
 ## Sorun giderme
 
-- **`lobster subprocess timed out`** → `timeoutMs` değerini artırın veya uzun bir işlem hattını bölün.
+- **`lobster timed out`** → `timeoutMs` değerini artırın veya uzun bir boru hattını bölün.
 - **`lobster output exceeded maxStdoutBytes`** → `maxStdoutBytes` değerini artırın veya çıktı boyutunu azaltın.
-- **`lobster returned invalid JSON`** → işlem hattının tool mode içinde çalıştığından ve yalnızca JSON yazdırdığından emin olun.
-- **`lobster failed (code …)`** → stderr'yi incelemek için aynı işlem hattını bir terminalde çalıştırın.
+- **`lobster returned invalid JSON`** → boru hattının araç modunda çalıştığından ve yalnızca JSON yazdırdığından emin olun.
+- **`lobster failed`** → gömülü runner hata ayrıntıları için gateway günlüklerini kontrol edin.
 
 ## Daha fazla bilgi
 
-- [Plugins](/tools/plugin)
-- [Plugin tool authoring](/tr/plugins/building-plugins#registering-agent-tools)
+- [Plugin'ler](/tr/tools/plugin)
+- [Plugin aracı yazımı](/tr/plugins/building-plugins#registering-agent-tools)
 
-## Örnek olay: topluluk iş akışları
+## Vaka çalışması: topluluk iş akışları
 
-Herkese açık bir örnek: üç Markdown kasasını (kişisel, partner, paylaşılan) yöneten bir “second brain” CLI + Lobster işlem hatları. CLI; istatistikler, gelen kutusu listeleri ve bayat taramaları için JSON üretir; Lobster ise bu komutları `weekly-review`, `inbox-triage`, `memory-consolidation` ve `shared-task-sync` gibi iş akışlarında, her biri onay geçitleriyle, zincirler. Yapay zeka mevcut olduğunda değerlendirmeyi (sınıflandırma) üstlenir, mevcut olmadığında ise deterministik kurallara geri döner.
+Genel bir örnek: üç Markdown kasasını (kişisel, partner, paylaşılan) yöneten “second brain” CLI + Lobster boru hatları. CLI; istatistikler, gelen kutusu listeleri ve bayat taramalar için JSON üretir; Lobster ise bu komutları `weekly-review`, `inbox-triage`, `memory-consolidation` ve `shared-task-sync` gibi iş akışlarına zincirler; her biri onay kapılarına sahiptir. AI, mümkün olduğunda yargı işini (kategorizasyon) üstlenir; mümkün olmadığında belirleyici kurallara geri döner.
 
-- Başlık: [https://x.com/plattenschieber/status/2014508656335770033](https://x.com/plattenschieber/status/2014508656335770033)
-- Depo: [https://github.com/bloomedai/brain-cli](https://github.com/bloomedai/brain-cli)
+- İleti dizisi: [https://x.com/plattenschieber/status/2014508656335770033](https://x.com/plattenschieber/status/2014508656335770033)
+- Repo: [https://github.com/bloomedai/brain-cli](https://github.com/bloomedai/brain-cli)
 
 ## İlgili
 
-- [Automation & Tasks](/tr/automation) — Lobster iş akışlarını zamanlama
-- [Automation Overview](/tr/automation) — tüm otomasyon mekanizmaları
-- [Tools Overview](/tr/tools) — kullanılabilir tüm ajan araçları
+- [Otomasyon ve Görevler](/tr/automation) — Lobster iş akışlarını zamanlama
+- [Otomasyon Genel Bakışı](/tr/automation) — tüm otomasyon mekanizmaları
+- [Araçlar Genel Bakışı](/tr/tools) — kullanılabilir tüm ajan araçları

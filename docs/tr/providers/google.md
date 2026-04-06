@@ -1,27 +1,26 @@
 ---
 read_when:
-    - OpenClaw ile Google Gemini modellerini kullanmak istediğinizde
-    - API anahtarı veya OAuth kimlik doğrulama akışına ihtiyaç duyduğunuzda
-summary: Google Gemini kurulumu (API anahtarı + OAuth, görüntü oluşturma, medya anlama, web arama)
+    - OpenClaw ile Google Gemini modellerini kullanmak istiyorsunuz
+    - API anahtarı auth akışına ihtiyacınız var
+summary: Google Gemini kurulumu (API anahtarı, görsel oluşturma, medya anlama, web search)
 title: Google (Gemini)
 x-i18n:
-    generated_at: "2026-04-05T14:03:56Z"
+    generated_at: "2026-04-06T03:11:22Z"
     model: gpt-5.4
     provider: openai
-    source_hash: fa3c4326e83fad277ae4c2cb9501b6e89457afcfa7e3e1d57ae01c9c0c6846e2
+    source_hash: 358d33a68275b01ebd916a3621dd651619cb9a1d062e2fb6196a7f3c501c015a
     source_path: providers/google.md
     workflow: 15
 ---
 
 # Google (Gemini)
 
-Google plugin'i, Google AI Studio üzerinden Gemini modellerine erişim sağlar; ayrıca
-Gemini Grounding üzerinden görüntü oluşturma, medya anlama (görüntü/ses/video) ve web aramayı da destekler.
+Google plugin’i, Google AI Studio üzerinden Gemini modellerine erişim sağlar; ayrıca
+Gemini Grounding aracılığıyla görsel oluşturma, medya anlama (görsel/ses/video) ve web search de sunar.
 
-- Sağlayıcı: `google`
-- Kimlik doğrulama: `GEMINI_API_KEY` veya `GOOGLE_API_KEY`
+- Provider: `google`
+- Auth: `GEMINI_API_KEY` veya `GOOGLE_API_KEY`
 - API: Google Gemini API
-- Alternatif sağlayıcı: `google-gemini-cli` (OAuth)
 
 ## Hızlı başlangıç
 
@@ -52,69 +51,30 @@ openclaw onboard --non-interactive \
   --gemini-api-key "$GEMINI_API_KEY"
 ```
 
-## OAuth (Gemini CLI)
-
-Alternatif bir sağlayıcı olan `google-gemini-cli`, API anahtarı yerine PKCE OAuth kullanır.
-Bu, resmi olmayan bir entegrasyondur; bazı kullanıcılar hesap
-kısıtlamaları bildirmektedir. Riski size aittir.
-
-- Varsayılan model: `google-gemini-cli/gemini-3.1-pro-preview`
-- Takma ad: `gemini-cli`
-- Kurulum ön koşulu: yerel Gemini CLI'nin `gemini` olarak kullanılabilir olması
-  - Homebrew: `brew install gemini-cli`
-  - npm: `npm install -g @google/gemini-cli`
-- Giriş:
-
-```bash
-openclaw models auth login --provider google-gemini-cli --set-default
-```
-
-Ortam değişkenleri:
-
-- `OPENCLAW_GEMINI_OAUTH_CLIENT_ID`
-- `OPENCLAW_GEMINI_OAUTH_CLIENT_SECRET`
-
-(Veya `GEMINI_CLI_*` varyantları.)
-
-Girişten sonra Gemini CLI OAuth istekleri başarısız olursa gateway host üzerinde
-`GOOGLE_CLOUD_PROJECT` veya `GOOGLE_CLOUD_PROJECT_ID` ayarlayın ve
-yeniden deneyin.
-
-Tarayıcı akışı başlamadan önce giriş başarısız olursa yerel `gemini`
-komutunun kurulu ve `PATH` üzerinde olduğundan emin olun. OpenClaw hem Homebrew kurulumlarını
-hem de genel npm kurulumlarını, yaygın Windows/npm düzenleri dahil, destekler.
-
-Gemini CLI JSON kullanım notları:
-
-- Yanıt metni CLI JSON `response` alanından gelir.
-- CLI `usage` alanını boş bıraktığında kullanım, `stats` alanına geri döner.
-- `stats.cached`, OpenClaw `cacheRead` içine normalize edilir.
-- `stats.input` yoksa OpenClaw giriş token'larını
-  `stats.input_tokens - stats.cached` üzerinden türetir.
-
 ## Yetenekler
 
 | Yetenek                | Destek durumu     |
 | ---------------------- | ----------------- |
-| Sohbet tamamlama       | Evet              |
-| Görüntü oluşturma      | Evet              |
-| Görüntü anlama         | Evet              |
-| Ses transkripsiyonu    | Evet              |
+| Sohbet tamamlamaları   | Evet              |
+| Görsel oluşturma       | Evet              |
+| Müzik oluşturma        | Evet              |
+| Görsel anlama          | Evet              |
+| Ses yazıya dökme       | Evet              |
 | Video anlama           | Evet              |
-| Web arama (Grounding)  | Evet              |
-| Düşünme/muhakeme       | Evet (Gemini 3.1+) |
+| Web search (Grounding) | Evet              |
+| Thinking/reasoning     | Evet (Gemini 3.1+) |
 
 ## Doğrudan Gemini önbellek yeniden kullanımı
 
 Doğrudan Gemini API çalıştırmaları için (`api: "google-generative-ai"`), OpenClaw artık
 yapılandırılmış bir `cachedContent` tanıtıcısını Gemini isteklerine iletir.
 
-- Model başına veya genel parametreleri
-  `cachedContent` ya da eski `cached_content` ile yapılandırın
-- Her ikisi de varsa `cachedContent` önceliklidir
+- Model başına veya global parametreleri `cachedContent` ya da eski
+  `cached_content` ile yapılandırın
+- Her ikisi de mevcutsa `cachedContent` kazanır
 - Örnek değer: `cachedContents/prebuilt-context`
-- Gemini önbellek isabeti kullanımı, yukarı akış `cachedContentTokenCount` değerinden
-  OpenClaw `cacheRead` alanına normalize edilir
+- Gemini önbellek isabeti kullanımı, upstream `cachedContentTokenCount`
+  üzerinden OpenClaw `cacheRead` içine normalize edilir
 
 Örnek:
 
@@ -134,22 +94,94 @@ yapılandırılmış bir `cachedContent` tanıtıcısını Gemini isteklerine il
 }
 ```
 
-## Görüntü oluşturma
+## Görsel oluşturma
 
-Paketlenmiş `google` görüntü oluşturma sağlayıcısı varsayılan olarak
+Paketlenmiş `google` görsel oluşturma provider’ı varsayılan olarak
 `google/gemini-3.1-flash-image-preview` kullanır.
 
-- Ayrıca `google/gemini-3-pro-image-preview` desteği de vardır
-- Oluşturma: istek başına en fazla 4 görüntü
-- Düzenleme modu: etkin, en fazla 5 giriş görüntüsü
-- Geometri kontrolleri: `size`, `aspectRatio` ve `resolution`
+- Ayrıca `google/gemini-3-pro-image-preview` desteği vardır
+- Oluşturma: istek başına en fazla 4 görsel
+- Düzenleme kipi: etkin, en fazla 5 giriş görseli
+- Geometri denetimleri: `size`, `aspectRatio` ve `resolution`
 
-Yalnızca OAuth kullanan `google-gemini-cli` sağlayıcısı ayrı bir metin çıkarımı
-yüzeyidir. Görüntü oluşturma, medya anlama ve Gemini Grounding,
-`google` sağlayıcı kimliğinde kalır.
+Görsel oluşturma, medya anlama ve Gemini Grounding, `google` provider kimliği
+üzerinde kalır.
+
+Google’ı varsayılan görsel provider’ı olarak kullanmak için:
+
+```json5
+{
+  agents: {
+    defaults: {
+      imageGenerationModel: {
+        primary: "google/gemini-3.1-flash-image-preview",
+      },
+    },
+  },
+}
+```
+
+Paylaşılan araç parametreleri, provider seçimi ve yedeğe düşme davranışı için
+bkz. [Image Generation](/tr/tools/image-generation).
+
+## Video oluşturma
+
+Paketlenmiş `google` plugin’i, paylaşılan `video_generate` aracı üzerinden video
+oluşturmayı da kaydeder.
+
+- Varsayılan video modeli: `google/veo-3.1-fast-generate-preview`
+- Kipler: metinden videoya, görselden videoya ve tek videolu referans akışları
+- `aspectRatio`, `resolution` ve `audio` desteklenir
+- Mevcut süre sınırı: **4 ila 8 saniye**
+
+Google’ı varsayılan video provider’ı olarak kullanmak için:
+
+```json5
+{
+  agents: {
+    defaults: {
+      videoGenerationModel: {
+        primary: "google/veo-3.1-fast-generate-preview",
+      },
+    },
+  },
+}
+```
+
+Paylaşılan araç parametreleri, provider seçimi ve yedeğe düşme davranışı için
+bkz. [Video Generation](/tools/video-generation).
+
+## Müzik oluşturma
+
+Paketlenmiş `google` plugin’i, paylaşılan `music_generate` aracı üzerinden müzik
+oluşturmayı da kaydeder.
+
+- Varsayılan müzik modeli: `google/lyria-3-clip-preview`
+- Ayrıca `google/lyria-3-pro-preview` desteği vardır
+- Komut denetimleri: `lyrics` ve `instrumental`
+- Çıkış biçimi: varsayılan olarak `mp3`, ayrıca `google/lyria-3-pro-preview` üzerinde `wav`
+- Referans girdileri: en fazla 10 görsel
+- Oturum destekli çalıştırmalar, `action: "status"` dahil olmak üzere paylaşılan görev/durum akışı üzerinden ayrılır
+
+Google’ı varsayılan müzik provider’ı olarak kullanmak için:
+
+```json5
+{
+  agents: {
+    defaults: {
+      musicGenerationModel: {
+        primary: "google/lyria-3-clip-preview",
+      },
+    },
+  },
+}
+```
+
+Paylaşılan araç parametreleri, provider seçimi ve yedeğe düşme davranışı için
+bkz. [Music Generation](/tools/music-generation).
 
 ## Ortam notu
 
-Gateway bir daemon (launchd/systemd) olarak çalışıyorsa `GEMINI_API_KEY`
-değerinin bu süreç için kullanılabilir olduğundan emin olun (örneğin `~/.openclaw/.env` içinde veya
-`env.shellEnv` aracılığıyla).
+Gateway bir daemon (launchd/systemd) olarak çalışıyorsa, `GEMINI_API_KEY`
+değerinin o süreç için kullanılabilir olduğundan emin olun (örneğin `~/.openclaw/.env`
+içinde veya `env.shellEnv` aracılığıyla).

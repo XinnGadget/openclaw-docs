@@ -1,29 +1,29 @@
 ---
 read_when:
-    - OpenClaw içinde Matrix kurma
+    - OpenClaw içinde Matrix kurulumu
     - Matrix E2EE ve doğrulamayı yapılandırma
 summary: Matrix destek durumu, kurulum ve yapılandırma örnekleri
 title: Matrix
 x-i18n:
-    generated_at: "2026-04-05T13:47:29Z"
+    generated_at: "2026-04-06T03:08:43Z"
     model: gpt-5.4
     provider: openai
-    source_hash: ba5c49ad2125d97adf66b5517f8409567eff8b86e20224a32fcb940a02cb0659
+    source_hash: 3e2d84c08d7d5b96db14b914e54f08d25334401cdd92eb890bc8dfb37b0ca2dc
     source_path: channels/matrix.md
     workflow: 15
 ---
 
 # Matrix
 
-Matrix, OpenClaw için Matrix ile birlikte gelen kanal eklentisidir.
-Resmi `matrix-js-sdk` kullanır ve DM'leri, odaları, iş parçacıklarını, medyayı, tepkileri, anketleri, konumu ve E2EE'yi destekler.
+Matrix, OpenClaw için paketlenmiş Matrix kanal eklentisidir.
+Resmi `matrix-js-sdk` kullanır ve DM'leri, odaları, ileti dizilerini, medyayı, tepkileri, anketleri, konumu ve E2EE'yi destekler.
 
-## Birlikte gelen eklenti
+## Paketlenmiş eklenti
 
-Matrix, mevcut OpenClaw sürümlerinde birlikte gelen bir eklenti olarak sunulur, bu nedenle normal
+Matrix, mevcut OpenClaw sürümlerinde paketlenmiş bir eklenti olarak gelir; bu nedenle normal
 paketlenmiş derlemelerde ayrı bir kurulum gerekmez.
 
-Eski bir derleme kullanıyorsanız veya Matrix'i içermeyen özel bir kurulumunuz varsa,
+Eski bir derlemeyi veya Matrix'i hariç tutan özel bir kurulumu kullanıyorsanız, onu
 elle yükleyin:
 
 npm'den yükleyin:
@@ -38,15 +38,15 @@ Yerel bir checkout'tan yükleyin:
 openclaw plugins install ./path/to/local/matrix-plugin
 ```
 
-Eklenti davranışı ve kurulum kuralları için [Plugins](/tools/plugin) bölümüne bakın.
+Eklenti davranışı ve kurulum kuralları için [Plugins](/tr/tools/plugin) bölümüne bakın.
 
 ## Kurulum
 
 1. Matrix eklentisinin kullanılabilir olduğundan emin olun.
-   - Mevcut paketlenmiş OpenClaw sürümleri bunu zaten birlikte sunar.
+   - Güncel paketlenmiş OpenClaw sürümleri bunu zaten içerir.
    - Eski/özel kurulumlar bunu yukarıdaki komutlarla elle ekleyebilir.
 2. Homeserver'ınızda bir Matrix hesabı oluşturun.
-3. `channels.matrix` değerini şu seçeneklerden biriyle yapılandırın:
+3. `channels.matrix` yapılandırmasını aşağıdakilerden biriyle yapın:
    - `homeserver` + `accessToken`, veya
    - `homeserver` + `userId` + `password`.
 4. Gateway'i yeniden başlatın.
@@ -59,25 +59,25 @@ openclaw channels add
 openclaw configure --section channels
 ```
 
-Matrix sihirbazının gerçekte sorduğu bilgiler:
+Matrix sihirbazının gerçekte sordukları:
 
 - homeserver URL'si
-- kimlik doğrulama yöntemi: erişim belirteci veya parola
-- yalnızca parola kimlik doğrulamasını seçtiğinizde kullanıcı kimliği
+- kimlik doğrulama yöntemi: access token veya parola
+- yalnızca parola ile kimlik doğrulamayı seçtiğinizde kullanıcı kimliği
 - isteğe bağlı cihaz adı
 - E2EE'nin etkinleştirilip etkinleştirilmeyeceği
 - Matrix oda erişiminin şimdi yapılandırılıp yapılandırılmayacağı
 
 Önemli sihirbaz davranışları:
 
-- Seçilen hesap için Matrix kimlik doğrulama ortam değişkenleri zaten varsa ve o hesap için yapılandırmada kimlik doğrulama zaten kayıtlı değilse, sihirbaz bir ortam değişkeni kısayolu sunar ve bu hesap için yalnızca `enabled: true` yazar.
+- Seçilen hesap için Matrix kimlik doğrulama ortam değişkenleri zaten varsa ve bu hesabın kimlik doğrulaması yapılandırmada henüz kayıtlı değilse, sihirbaz bir ortam kısayolu sunar ve bu hesap için yalnızca `enabled: true` yazar.
 - Etkileşimli olarak başka bir Matrix hesabı eklediğinizde, girilen hesap adı yapılandırma ve ortam değişkenlerinde kullanılan hesap kimliğine normalize edilir. Örneğin, `Ops Bot`, `ops-bot` olur.
-- DM allowlist istemleri tam `@user:server` değerlerini hemen kabul eder. Görünen adlar yalnızca canlı dizin araması tam bir eşleşme bulursa çalışır; aksi halde sihirbaz sizden tam bir Matrix kimliğiyle yeniden denemenizi ister.
-- Oda allowlist istemleri oda kimliklerini ve takma adlarını doğrudan kabul eder. Ayrıca katılınmış oda adlarını canlı olarak çözümleyebilirler, ancak çözümlenmeyen adlar kurulum sırasında yalnızca girildiği gibi tutulur ve daha sonra çalışma zamanı allowlist çözümlemesi tarafından yok sayılır. `!room:server` veya `#alias:server` tercih edin.
-- Çalışma zamanı oda/oturum kimliği kararlı Matrix oda kimliğini kullanır. Oda içinde tanımlanan takma adlar yalnızca arama girdisi olarak kullanılır; uzun vadeli oturum anahtarı veya kararlı grup kimliği olarak kullanılmaz.
-- Oda adlarını kaydetmeden önce çözümlemek için `openclaw channels resolve --channel matrix "Project Room"` kullanın.
+- DM allowlist istemleri tam `@user:server` değerlerini doğrudan kabul eder. Görünen adlar yalnızca canlı dizin araması tek bir kesin eşleşme bulduğunda çalışır; aksi takdirde sihirbaz sizden tam Matrix kimliğiyle yeniden denemenizi ister.
+- Oda allowlist istemleri oda kimliklerini ve takma adlarını doğrudan kabul eder. Ayrıca katılınmış oda adlarını canlı olarak çözebilirler, ancak çözümlenmeyen adlar yalnızca kurulum sırasında yazıldığı haliyle tutulur ve daha sonra çalışma zamanı allowlist çözümlemesi tarafından yok sayılır. `!room:server` veya `#alias:server` tercih edin.
+- Çalışma zamanında oda/oturum kimliği kararlı Matrix oda kimliğini kullanır. Oda içinde tanımlanan takma adlar yalnızca arama girdisi olarak kullanılır; uzun vadeli oturum anahtarı veya kararlı grup kimliği olarak kullanılmaz.
+- Oda adlarını kaydetmeden önce çözmek için `openclaw channels resolve --channel matrix "Project Room"` komutunu kullanın.
 
-En düşük düzeyde belirteç tabanlı kurulum:
+En az düzeyde token tabanlı kurulum:
 
 ```json5
 {
@@ -92,7 +92,7 @@ En düşük düzeyde belirteç tabanlı kurulum:
 }
 ```
 
-Parola tabanlı kurulum (girişten sonra belirteç önbelleğe alınır):
+Parola tabanlı kurulum (girişten sonra token önbelleğe alınır):
 
 ```json5
 {
@@ -108,8 +108,9 @@ Parola tabanlı kurulum (girişten sonra belirteç önbelleğe alınır):
 }
 ```
 
-Matrix önbelleğe alınmış kimlik bilgilerini `~/.openclaw/credentials/matrix/` içinde saklar.
+Matrix, önbelleğe alınmış kimlik bilgilerini `~/.openclaw/credentials/matrix/` içinde saklar.
 Varsayılan hesap `credentials.json` kullanır; adlandırılmış hesaplar `credentials-<account>.json` kullanır.
+Orada önbelleğe alınmış kimlik bilgileri varsa, OpenClaw mevcut kimlik doğrulama doğrudan yapılandırmada ayarlı olmasa bile kurulum, doctor ve kanal durumu keşfi için Matrix'i yapılandırılmış olarak kabul eder.
 
 Ortam değişkeni eşdeğerleri (yapılandırma anahtarı ayarlı değilse kullanılır):
 
@@ -134,19 +135,19 @@ Varsayılan olmayan hesaplar için hesap kapsamlı ortam değişkenleri kullanı
 - `MATRIX_OPS_HOMESERVER`
 - `MATRIX_OPS_ACCESS_TOKEN`
 
-Normalize edilmiş hesap kimliği `ops-bot` için şunları kullanın:
+Normalize edilmiş `ops-bot` hesap kimliği için şunları kullanın:
 
 - `MATRIX_OPS_X2D_BOT_HOMESERVER`
 - `MATRIX_OPS_X2D_BOT_ACCESS_TOKEN`
 
-Matrix, hesap kimliklerindeki noktalama işaretlerini kapsamlı ortam değişkenlerinde çakışma olmaması için kaçışlar.
-Örneğin, `-` karakteri `_X2D_` olur, bu nedenle `ops-prod`, `MATRIX_OPS_X2D_PROD_*` biçimine eşlenir.
+Matrix, hesap kimliklerindeki noktalama işaretlerini kapsamlı ortam değişkenlerinde çakışmaları önlemek için kaçar.
+Örneğin, `-`, `_X2D_` olur; bu nedenle `ops-prod`, `MATRIX_OPS_X2D_PROD_*` eşlemesine dönüşür.
 
-Etkileşimli sihirbaz yalnızca bu kimlik doğrulama ortam değişkenleri zaten mevcutsa ve seçilen hesap için Matrix kimlik doğrulaması yapılandırmaya zaten kaydedilmemişse ortam değişkeni kısayolunu sunar.
+Etkileşimli sihirbaz yalnızca bu kimlik doğrulama ortam değişkenleri zaten mevcutsa ve seçilen hesap için Matrix kimlik doğrulaması yapılandırmaya henüz kaydedilmemişse ortam değişkeni kısayolunu sunar.
 
 ## Yapılandırma örneği
 
-Bu, DM eşleştirme, oda allowlist'i ve E2EE etkinleştirilmiş pratik bir temel yapılandırmadır:
+Bu, DM eşleştirmesi, oda allowlist'i ve etkin E2EE içeren pratik bir temel yapılandırmadır:
 
 ```json5
 {
@@ -159,6 +160,7 @@ Bu, DM eşleştirme, oda allowlist'i ve E2EE etkinleştirilmiş pratik bir temel
 
       dm: {
         policy: "pairing",
+        sessionScope: "per-room",
         threadReplies: "off",
       },
 
@@ -184,9 +186,9 @@ Bu, DM eşleştirme, oda allowlist'i ve E2EE etkinleştirilmiş pratik bir temel
 
 Matrix yanıt akışı isteğe bağlıdır.
 
-OpenClaw'ın tek bir taslak yanıt göndermesini,
-model metin üretirken bu taslağı yerinde düzenlemesini ve ardından yanıt
-tamamlandığında sonlandırmasını istiyorsanız `channels.matrix.streaming` değerini `"partial"` olarak ayarlayın:
+OpenClaw'ın tek bir canlı önizleme
+yanıtı göndermesini, model metin üretirken bu önizlemeyi yerinde düzenlemesini ve ardından
+yanıt tamamlandığında bunu sonlandırmasını istiyorsanız `channels.matrix.streaming` değerini `"partial"` olarak ayarlayın:
 
 ```json5
 {
@@ -198,26 +200,190 @@ tamamlandığında sonlandırmasını istiyorsanız `channels.matrix.streaming` 
 }
 ```
 
-- `streaming: "off"` varsayılandır. OpenClaw son yanıtı bekler ve onu bir kez gönderir.
-- `streaming: "partial"`, birden fazla kısmi mesaj göndermek yerine mevcut assistant bloğu için düzenlenebilir tek bir önizleme mesajı oluşturur.
-- `blockStreaming: true` ayrı Matrix ilerleme mesajlarını etkinleştirir. `streaming: "partial"` ile Matrix, mevcut blok için canlı taslağı korur ve tamamlanan blokları ayrı mesajlar olarak muhafaza eder.
-- `streaming: "partial"` etkin ve `blockStreaming` kapalıyken Matrix yalnızca canlı taslağı düzenler ve bu blok veya tur tamamlandığında tamamlanmış yanıtı bir kez gönderir.
-- Önizleme artık tek bir Matrix olayına sığmazsa, OpenClaw önizleme akışını durdurur ve normal son teslimata geri döner.
-- Medya yanıtları ekleri yine normal şekilde gönderir. Güvenli biçimde yeniden kullanılamayan eski bir önizleme varsa, OpenClaw son medya yanıtını göndermeden önce onu redakte eder.
-- Önizleme düzenlemeleri ek Matrix API çağrıları gerektirir. En temkinli hız sınırı davranışını istiyorsanız akışı kapalı bırakın.
+- `streaming: "off"` varsayılandır. OpenClaw son yanıtı bekler ve onu tek seferde gönderir.
+- `streaming: "partial"`, normal Matrix metin iletilerini kullanarak mevcut asistan bloğu için düzenlenebilir tek bir önizleme iletisi oluşturur. Bu, Matrix'in eski önizleme-öncelikli bildirim davranışını korur; bu nedenle standart istemciler tamamlanmış blok yerine ilk akış önizleme metni için bildirim gönderebilir.
+- `streaming: "quiet"`, mevcut asistan bloğu için düzenlenebilir sessiz bir önizleme bildirimi oluşturur. Bunu yalnızca alıcı push kurallarını tamamlanmış önizleme düzenlemeleri için de yapılandırdığınızda kullanın.
+- `blockStreaming: true` ayrı Matrix ilerleme iletilerini etkinleştirir. Önizleme akışı etkinleştirildiğinde, Matrix mevcut blok için canlı taslağı tutar ve tamamlanmış blokları ayrı iletiler olarak korur.
+- Önizleme akışı açıkken `blockStreaming` kapalıysa, Matrix canlı taslağı yerinde düzenler ve blok veya tur bittiğinde aynı olayı sonlandırır.
+- Önizleme artık tek bir Matrix olayına sığmıyorsa, OpenClaw önizleme akışını durdurur ve normal son teslimata geri döner.
+- Medya yanıtları yine ekleri normal şekilde gönderir. Eski bir önizleme artık güvenli şekilde yeniden kullanılamıyorsa, OpenClaw son medya yanıtını göndermeden önce onu sansürler.
+- Önizleme düzenlemeleri ek Matrix API çağrıları gerektirir. En korumacı hız sınırı davranışını istiyorsanız akışı kapalı bırakın.
 
-`blockStreaming` tek başına taslak önizlemeleri etkinleştirmez.
-Önizleme düzenlemeleri için `streaming: "partial"` kullanın; ardından tamamlanan assistant bloklarının ayrı ilerleme mesajları olarak da görünmesini istiyorsanız yalnızca `blockStreaming: true` ekleyin.
+`blockStreaming`, taslak önizlemeleri tek başına etkinleştirmez.
+Önizleme düzenlemeleri için `streaming: "partial"` veya `streaming: "quiet"` kullanın; ardından yalnızca tamamlanmış asistan bloklarının ayrı ilerleme iletileri olarak görünür kalmasını da istiyorsanız `blockStreaming: true` ekleyin.
+
+Özel push kuralları olmadan standart Matrix bildirimlerine ihtiyacınız varsa, önizleme-öncelikli davranış için `streaming: "partial"` kullanın veya yalnızca son teslimat için `streaming` özelliğini kapalı bırakın. `streaming: "off"` ile:
+
+- `blockStreaming: true` her tamamlanmış bloğu normal bildirim veren bir Matrix iletisi olarak gönderir.
+- `blockStreaming: false` yalnızca son tamamlanmış yanıtı normal bildirim veren bir Matrix iletisi olarak gönderir.
+
+### Sessiz sonlandırılmış önizlemeler için self-hosted push kuralları
+
+Kendi Matrix altyapınızı çalıştırıyorsanız ve sessiz önizlemelerin yalnızca bir blok veya
+son yanıt tamamlandığında bildirim göndermesini istiyorsanız, `streaming: "quiet"` ayarlayın ve sonlandırılmış önizleme düzenlemeleri için kullanıcı başına bir push kuralı ekleyin.
+
+Bu genellikle homeserver genelinde bir yapılandırma değişikliği değil, alıcı kullanıcı kurulumu olur:
+
+Başlamadan önce hızlı eşleme:
+
+- alıcı kullanıcı = bildirimi alması gereken kişi
+- bot kullanıcısı = yanıtı gönderen OpenClaw Matrix hesabı
+- aşağıdaki API çağrıları için alıcı kullanıcının access token'ını kullanın
+- push kuralındaki `sender` alanını bot kullanıcısının tam MXID'siyle eşleştirin
+
+1. OpenClaw'ı sessiz önizlemeleri kullanacak şekilde yapılandırın:
+
+```json5
+{
+  channels: {
+    matrix: {
+      streaming: "quiet",
+    },
+  },
+}
+```
+
+2. Alıcı hesabın halihazırda normal Matrix push bildirimleri aldığından emin olun. Sessiz önizleme
+   kuralları yalnızca o kullanıcının çalışan pusher'ları/cihazları zaten varsa çalışır.
+
+3. Alıcı kullanıcının access token'ını alın.
+   - Botun token'ını değil, alan kullanıcının token'ını kullanın.
+   - Var olan bir istemci oturum token'ını yeniden kullanmak genellikle en kolay yoldur.
+   - Yeni bir token üretmeniz gerekiyorsa, standart Matrix Client-Server API üzerinden giriş yapabilirsiniz:
+
+```bash
+curl -sS -X POST \
+  "https://matrix.example.org/_matrix/client/v3/login" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "type": "m.login.password",
+    "identifier": {
+      "type": "m.id.user",
+      "user": "@alice:example.org"
+    },
+    "password": "REDACTED"
+  }'
+```
+
+4. Alıcı hesabın zaten pusher'lara sahip olduğunu doğrulayın:
+
+```bash
+curl -sS \
+  -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
+  "https://matrix.example.org/_matrix/client/v3/pushers"
+```
+
+Bu, etkin pusher/cihaz döndürmüyorsa, aşağıdaki
+OpenClaw kuralını eklemeden önce önce normal Matrix bildirimlerini düzeltin.
+
+OpenClaw, sonlandırılmış yalnızca metin önizleme düzenlemelerini şu işaretle işaretler:
+
+```json
+{
+  "com.openclaw.finalized_preview": true
+}
+```
+
+5. Bu bildirimleri alması gereken her alıcı hesap için bir override push kuralı oluşturun:
+
+```bash
+curl -sS -X PUT \
+  "https://matrix.example.org/_matrix/client/v3/pushrules/global/override/openclaw-finalized-preview-botname" \
+  -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "conditions": [
+      { "kind": "event_match", "key": "type", "pattern": "m.room.message" },
+      {
+        "kind": "event_property_is",
+        "key": "content.m\\.relates_to.rel_type",
+        "value": "m.replace"
+      },
+      {
+        "kind": "event_property_is",
+        "key": "content.com\\.openclaw\\.finalized_preview",
+        "value": true
+      },
+      { "kind": "event_match", "key": "sender", "pattern": "@bot:example.org" }
+    ],
+    "actions": [
+      "notify",
+      { "set_tweak": "sound", "value": "default" },
+      { "set_tweak": "highlight", "value": false }
+    ]
+  }'
+```
+
+Komutu çalıştırmadan önce şu değerleri değiştirin:
+
+- `https://matrix.example.org`: homeserver temel URL'niz
+- `$USER_ACCESS_TOKEN`: alan kullanıcının access token'ı
+- `openclaw-finalized-preview-botname`: bu alan kullanıcı için bu bota özgü bir kural kimliği
+- `@bot:example.org`: alan kullanıcının MXID'si değil, OpenClaw Matrix bot MXID'niz
+
+Çoklu bot kurulumları için önemli:
+
+- Push kuralları `ruleId` ile anahtarlanır. Aynı kural kimliğine karşı `PUT` komutunu yeniden çalıştırmak o tek kuralı günceller.
+- Bir alan kullanıcı birden fazla OpenClaw Matrix bot hesabı için bildirim alacaksa, her gönderen eşleşmesi için benzersiz bir kural kimliğiyle bot başına bir kural oluşturun.
+- Basit bir desen `openclaw-finalized-preview-<botname>` olur; örneğin `openclaw-finalized-preview-ops` veya `openclaw-finalized-preview-support`.
+
+Kural olay göndericisine göre değerlendirilir:
+
+- alan kullanıcının token'ı ile kimlik doğrulayın
+- `sender` alanını OpenClaw bot MXID'siyle eşleştirin
+
+6. Kuralın var olduğunu doğrulayın:
+
+```bash
+curl -sS \
+  -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
+  "https://matrix.example.org/_matrix/client/v3/pushrules/global/override/openclaw-finalized-preview-botname"
+```
+
+7. Akışlı bir yanıtı test edin. Sessiz modda oda, sessiz bir taslak önizleme göstermeli ve son
+   yerinde düzenleme blok veya tur tamamlandığında bir kez bildirim göndermelidir.
+
+Kuralı daha sonra kaldırmanız gerekirse, aynı kural kimliğini alan kullanıcının token'ı ile silin:
+
+```bash
+curl -sS -X DELETE \
+  -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
+  "https://matrix.example.org/_matrix/client/v3/pushrules/global/override/openclaw-finalized-preview-botname"
+```
+
+Notlar:
+
+- Kuralı botunkini değil, alan kullanıcının access token'ı ile oluşturun.
+- Yeni kullanıcı tanımlı `override` kuralları varsayılan bastırma kurallarının önüne eklenir; bu nedenle ek bir sıralama parametresi gerekmez.
+- Bu yalnızca OpenClaw'ın güvenli şekilde yerinde sonlandırabildiği yalnızca metin önizleme düzenlemelerini etkiler. Medya fallback'leri ve eski önizleme fallback'leri yine normal Matrix teslimatını kullanır.
+- `GET /_matrix/client/v3/pushers` hiçbir pusher göstermiyorsa, kullanıcı bu hesap/cihaz için henüz çalışan Matrix push teslimine sahip değildir.
+
+#### Synapse
+
+Synapse için yukarıdaki kurulum genellikle tek başına yeterlidir:
+
+- Sonlandırılmış OpenClaw önizleme bildirimleri için özel bir `homeserver.yaml` değişikliği gerekmez.
+- Synapse dağıtımınız zaten normal Matrix push bildirimleri gönderiyorsa, kullanıcı token'ı + yukarıdaki `pushrules` çağrısı ana kurulum adımıdır.
+- Synapse'i bir reverse proxy veya worker'ların arkasında çalıştırıyorsanız, `/_matrix/client/.../pushrules/` isteğinin Synapse'e doğru ulaştığından emin olun.
+- Synapse worker'ları kullanıyorsanız, pusher'ların sağlıklı olduğundan emin olun. Push teslimi ana süreç veya `synapse.app.pusher` / yapılandırılmış pusher worker'ları tarafından işlenir.
+
+#### Tuwunel
+
+Tuwunel için yukarıda gösterilen aynı kurulum akışını ve push kuralı API çağrısını kullanın:
+
+- Sonlandırılmış önizleme işaretleyicisinin kendisi için Tuwunel'e özgü bir yapılandırma gerekmez.
+- Normal Matrix bildirimleri o kullanıcı için zaten çalışıyorsa, kullanıcı token'ı + yukarıdaki `pushrules` çağrısı ana kurulum adımıdır.
+- Kullanıcı başka bir cihazda etkin olduğunda bildirimler kayboluyor gibi görünüyorsa, `suppress_push_when_active` etkin olup olmadığını kontrol edin. Tuwunel bu seçeneği Tuwunel 1.4.2 sürümünde 12 Eylül 2025 tarihinde ekledi ve bu seçenek bir cihaz etkin durumdayken diğer cihazlara gönderilen push'ları bilerek bastırabilir.
 
 ## Şifreleme ve doğrulama
 
-Şifrelenmiş (E2EE) odalarda, giden görüntü olayları `thumbnail_file` kullanır; böylece görüntü önizlemeleri tam ek ile birlikte şifrelenir. Şifrelenmemiş odalar hâlâ düz `thumbnail_url` kullanır. Yapılandırma gerekmez — eklenti E2EE durumunu otomatik olarak algılar.
+Şifreli (E2EE) odalarda, giden görsel olayları `thumbnail_file` kullanır; böylece görsel önizlemeleri tam ek ile birlikte şifrelenir. Şifrelenmemiş odalar yine düz `thumbnail_url` kullanır. Yapılandırma gerekmez — eklenti E2EE durumunu otomatik olarak algılar.
 
-### Bottan bota odalar
+### Botlar arası odalar
 
-Varsayılan olarak, yapılandırılmış diğer OpenClaw Matrix hesaplarından gelen Matrix mesajları yok sayılır.
+Varsayılan olarak, yapılandırılmış diğer OpenClaw Matrix hesaplarından gelen Matrix iletileri yok sayılır.
 
-Kasıtlı olarak aracılar arası Matrix trafiği istiyorsanız `allowBots` kullanın:
+Kasıtlı olarak ajanlar arası Matrix trafiği istediğinizde `allowBots` kullanın:
 
 ```json5
 {
@@ -234,13 +400,13 @@ Kasıtlı olarak aracılar arası Matrix trafiği istiyorsanız `allowBots` kull
 }
 ```
 
-- `allowBots: true`, izin verilen odalarda ve DM'lerde yapılandırılmış diğer Matrix bot hesaplarından gelen mesajları kabul eder.
-- `allowBots: "mentions"`, bu mesajları odalarda yalnızca bu bottan açıkça bahsettiklerinde kabul eder. DM'lere yine izin verilir.
-- `groups.<room>.allowBots`, hesap düzeyindeki ayarı tek bir oda için geçersiz kılar.
-- OpenClaw, kendi kendine yanıt döngülerini önlemek için aynı Matrix kullanıcı kimliğinden gelen mesajları yine yok sayar.
-- Matrix burada yerel bir bot işareti sunmaz; OpenClaw, "bot tarafından yazılmış" ifadesini "bu OpenClaw gateway'inde yapılandırılmış başka bir Matrix hesabı tarafından gönderilmiş" olarak ele alır.
+- `allowBots: true`, izin verilen odalarda ve DM'lerde yapılandırılmış diğer Matrix bot hesaplarından gelen iletileri kabul eder.
+- `allowBots: "mentions"`, bu iletileri odalarda yalnızca bu bottan görünür şekilde bahsediyorsa kabul eder. DM'lere yine izin verilir.
+- `groups.<room>.allowBots`, hesap düzeyindeki ayarı bir oda için geçersiz kılar.
+- OpenClaw, kendi kendine yanıt döngülerini önlemek için yine aynı Matrix kullanıcı kimliğinden gelen iletileri yok sayar.
+- Matrix burada yerel bir bot işareti sağlamaz; OpenClaw "bot tarafından yazılmış" ifadesini "bu OpenClaw gateway üzerinde yapılandırılmış başka bir Matrix hesabı tarafından gönderilmiş" olarak yorumlar.
 
-Paylaşılan odalarda bottan bota trafiği etkinleştirirken sıkı oda allowlist'leri ve mention gereksinimleri kullanın.
+Paylaşılan odalarda botlar arası trafiği etkinleştirirken sıkı oda allowlist'leri ve mention gereksinimleri kullanın.
 
 Şifrelemeyi etkinleştirin:
 
@@ -270,7 +436,7 @@ Ayrıntılı durum (tam tanılama):
 openclaw matrix verify status --verbose
 ```
 
-Saklanan kurtarma anahtarını makine tarafından okunabilir çıktıya dahil edin:
+Makine tarafından okunabilir çıktıya saklanan kurtarma anahtarını dahil edin:
 
 ```bash
 openclaw matrix verify status --include-recovery-key --json
@@ -282,7 +448,7 @@ openclaw matrix verify status --include-recovery-key --json
 openclaw matrix verify bootstrap
 ```
 
-Çoklu hesap desteği: hesap başına kimlik bilgileri ve isteğe bağlı `name` ile `channels.matrix.accounts` kullanın. Paylaşılan desen için [Yapılandırma referansı](/gateway/configuration-reference#multi-account-all-channels) bölümüne bakın.
+Çoklu hesap desteği: hesap başına kimlik bilgileri ve isteğe bağlı `name` ile `channels.matrix.accounts` kullanın. Ortak desen için [Configuration reference](/tr/gateway/configuration-reference#multi-account-all-channels) bölümüne bakın.
 
 Ayrıntılı bootstrap tanılaması:
 
@@ -290,7 +456,7 @@ Ayrıntılı bootstrap tanılaması:
 openclaw matrix verify bootstrap --verbose
 ```
 
-Bootstrap öncesinde yeni bir çapraz imzalama kimliğini zorla sıfırlayın:
+Bootstrap öncesi yeni bir çapraz imzalama kimliği sıfırlamasını zorlayın:
 
 ```bash
 openclaw matrix verify bootstrap --force-reset-cross-signing
@@ -308,13 +474,13 @@ Ayrıntılı cihaz doğrulama ayrıntıları:
 openclaw matrix verify device "<your-recovery-key>" --verbose
 ```
 
-Oda anahtarı yedekleme durumunu kontrol edin:
+Oda anahtarı yedekleme sağlığını kontrol edin:
 
 ```bash
 openclaw matrix verify backup status
 ```
 
-Ayrıntılı yedekleme durumu tanılaması:
+Ayrıntılı yedekleme sağlığı tanılaması:
 
 ```bash
 openclaw matrix verify backup status --verbose
@@ -332,20 +498,20 @@ Ayrıntılı geri yükleme tanılaması:
 openclaw matrix verify backup restore --verbose
 ```
 
-Geçerli sunucu yedeğini silin ve yeni bir yedekleme temeli oluşturun. Saklanan
-yedekleme anahtarı temiz biçimde yüklenemiyorsa, bu sıfırlama secret storage'ı da yeniden oluşturabilir; böylece
-gelecekteki soğuk başlatmalar yeni yedekleme anahtarını yükleyebilir:
+Mevcut sunucu yedeğini silin ve yeni bir yedekleme temel düzeyi oluşturun. Saklanan
+yedekleme anahtarı temiz şekilde yüklenemiyorsa, bu sıfırlama gizli depolamayı da yeniden oluşturarak
+gelecekteki soğuk başlangıçların yeni yedekleme anahtarını yükleyebilmesini sağlayabilir:
 
 ```bash
 openclaw matrix verify backup reset --yes
 ```
 
-Tüm `verify` komutları varsayılan olarak kısa çıktı verir (sessiz iç SDK günlükleri dahil) ve ayrıntılı tanılamayı yalnızca `--verbose` ile gösterir.
+Tüm `verify` komutları varsayılan olarak özdür (sessiz dahili SDK günlüklemesi dahil) ve yalnızca `--verbose` ile ayrıntılı tanılama gösterir.
 Betik yazarken tam makine tarafından okunabilir çıktı için `--json` kullanın.
 
-Çoklu hesap kurulumlarında, Matrix CLI komutları `--account <id>` geçmediğiniz sürece örtük Matrix varsayılan hesabını kullanır.
-Birden çok adlandırılmış hesap yapılandırırsanız, önce `channels.matrix.defaultAccount` ayarlayın; aksi takdirde bu örtük CLI işlemleri durur ve sizden açıkça bir hesap seçmenizi ister.
-Doğrulama veya cihaz işlemlerinin belirli bir adlandırılmış hesabı açıkça hedeflemesini istediğinizde `--account` kullanın:
+Çoklu hesap kurulumlarında, Matrix CLI komutları `--account <id>` parametresini vermediğiniz sürece örtük Matrix varsayılan hesabını kullanır.
+Birden fazla adlandırılmış hesap yapılandırırsanız, önce `channels.matrix.defaultAccount` ayarlayın; aksi takdirde bu örtük CLI işlemleri durur ve sizden açıkça bir hesap seçmenizi ister.
+Doğrulama veya cihaz işlemlerinin açıkça adlandırılmış bir hesabı hedeflemesini istediğinizde `--account` kullanın:
 
 ```bash
 openclaw matrix verify status --account assistant
@@ -355,40 +521,40 @@ openclaw matrix devices list --account assistant
 
 Şifreleme devre dışıysa veya adlandırılmış bir hesap için kullanılamıyorsa, Matrix uyarıları ve doğrulama hataları o hesabın yapılandırma anahtarını işaret eder; örneğin `channels.matrix.accounts.assistant.encryption`.
 
-### "Doğrulandı" ne anlama gelir
+### "Doğrulanmış" ne anlama gelir
 
 OpenClaw, bu Matrix cihazını yalnızca kendi çapraz imzalama kimliğiniz tarafından doğrulandığında doğrulanmış kabul eder.
-Pratikte, `openclaw matrix verify status --verbose` üç güven sinyali gösterir:
+Uygulamada, `openclaw matrix verify status --verbose` üç güven sinyali gösterir:
 
 - `Locally trusted`: bu cihaz yalnızca mevcut istemci tarafından güvenilir kabul edilir
 - `Cross-signing verified`: SDK, cihazın çapraz imzalama yoluyla doğrulandığını bildirir
-- `Signed by owner`: cihaz, sizin kendi self-signing anahtarınız tarafından imzalanmıştır
+- `Signed by owner`: cihaz kendi self-signing anahtarınız tarafından imzalanmıştır
 
 `Verified by owner`, yalnızca çapraz imzalama doğrulaması veya sahip imzası mevcut olduğunda `yes` olur.
-Yerel güven tek başına OpenClaw'ın cihazı tam doğrulanmış kabul etmesi için yeterli değildir.
+Yerel güven tek başına OpenClaw'ın cihazı tamamen doğrulanmış kabul etmesi için yeterli değildir.
 
 ### Bootstrap ne yapar
 
 `openclaw matrix verify bootstrap`, şifrelenmiş Matrix hesapları için onarım ve kurulum komutudur.
-Sırayla aşağıdakilerin tümünü yapar:
+Aşağıdakilerin tümünü sırayla yapar:
 
-- secret storage'ı bootstrap eder, mümkün olduğunda mevcut bir kurtarma anahtarını yeniden kullanır
+- gizli depolamayı bootstrap eder ve mümkün olduğunda mevcut bir kurtarma anahtarını yeniden kullanır
 - çapraz imzalamayı bootstrap eder ve eksik genel çapraz imzalama anahtarlarını yükler
-- mevcut cihazı işaretlemeye ve çapraz imzalamaya çalışır
-- henüz yoksa yeni bir sunucu taraflı oda anahtarı yedeği oluşturur
+- mevcut cihazı işaretlemeyi ve çapraz imzalamayı dener
+- henüz yoksa yeni bir sunucu tarafı oda anahtarı yedeği oluşturur
 
-Homeserver, çapraz imzalama anahtarlarını yüklemek için etkileşimli kimlik doğrulama gerektiriyorsa, OpenClaw önce kimlik doğrulama olmadan, sonra `m.login.dummy` ile ve `channels.matrix.password` yapılandırılmışsa ardından `m.login.password` ile yüklemeyi dener.
+Homeserver çapraz imzalama anahtarlarını yüklemek için etkileşimli kimlik doğrulaması gerektiriyorsa, OpenClaw önce kimlik doğrulaması olmadan, ardından `m.login.dummy` ile, sonra `channels.matrix.password` yapılandırılmışsa `m.login.password` ile yüklemeyi dener.
 
-Yalnızca mevcut çapraz imzalama kimliğini bilerek atmak ve yenisini oluşturmak istediğinizde `--force-reset-cross-signing` kullanın.
+`--force-reset-cross-signing` seçeneğini yalnızca mevcut çapraz imzalama kimliğini bilerek silmek ve yenisini oluşturmak istediğinizde kullanın.
 
-Mevcut oda anahtarı yedeğini bilerek atmak ve gelecekteki mesajlar için yeni
-bir yedekleme temeli başlatmak istiyorsanız `openclaw matrix verify backup reset --yes` kullanın.
+Mevcut oda anahtarı yedeğini bilerek silmek ve gelecekteki iletiler için yeni
+bir yedekleme temel düzeyi başlatmak istiyorsanız, `openclaw matrix verify backup reset --yes` kullanın.
 Bunu yalnızca kurtarılamayan eski şifreli geçmişin erişilemez kalacağını ve
-OpenClaw'ın mevcut yedekleme sırrı güvenli şekilde yüklenemiyorsa secret storage'ı yeniden oluşturabileceğini kabul ediyorsanız yapın.
+OpenClaw'ın mevcut yedekleme sırrı güvenli şekilde yüklenemiyorsa gizli depolamayı yeniden oluşturabileceğini kabul ediyorsanız yapın.
 
-### Yeni yedekleme temeli
+### Yeni yedekleme temel düzeyi
 
-Gelecekteki şifreli mesajların çalışmaya devam etmesini istiyor ve kurtarılamayan eski geçmişi kaybetmeyi kabul ediyorsanız, bu komutları sırayla çalıştırın:
+Gelecekteki şifreli iletilerin çalışmaya devam etmesini istiyorsanız ve kurtarılamayan eski geçmişi kaybetmeyi kabul ediyorsanız, şu komutları sırayla çalıştırın:
 
 ```bash
 openclaw matrix verify backup reset --yes
@@ -396,95 +562,95 @@ openclaw matrix verify backup status --verbose
 openclaw matrix verify status
 ```
 
-Belirli bir adlandırılmış Matrix hesabını açıkça hedeflemek istiyorsanız her komuta `--account <id>` ekleyin.
+Adlandırılmış bir Matrix hesabını açıkça hedeflemek istediğinizde her komuta `--account <id>` ekleyin.
 
-### Başlatma davranışı
+### Başlangıç davranışı
 
-`encryption: true` olduğunda, Matrix varsayılan olarak `startupVerification` değerini `"if-unverified"` yapar.
-Başlatmada bu cihaz hâlâ doğrulanmamışsa, Matrix başka bir Matrix istemcisinde kendi kendini doğrulama isteğinde bulunur,
-zaten beklemede olan bir istek varken yinelenen istekleri atlar ve yeniden başlatmalardan sonra tekrar denemeden önce yerel bir bekleme süresi uygular.
-Başarısız istek denemeleri, varsayılan olarak başarılı istek oluşturmaya göre daha erken yeniden denenir.
-Otomatik başlatma isteklerini devre dışı bırakmak için `startupVerification: "off"` ayarlayın veya daha kısa ya da daha uzun bir yeniden deneme penceresi istiyorsanız `startupVerificationCooldownHours` değerini ayarlayın.
+`encryption: true` olduğunda Matrix varsayılan olarak `startupVerification` değerini `"if-unverified"` yapar.
+Başlangıçta bu cihaz hâlâ doğrulanmamışsa, Matrix başka bir Matrix istemcisinde öz-doğrulama ister,
+biri zaten beklemedeyken yinelenen istekleri atlar ve yeniden başlatmalardan sonra tekrar denemeden önce yerel bir bekleme süresi uygular.
+Başarısız istek denemeleri varsayılan olarak başarılı istek oluşturmadan daha erken yeniden denenir.
+Otomatik başlangıç isteklerini devre dışı bırakmak için `startupVerification: "off"` ayarlayın veya daha kısa ya da daha uzun bir yeniden deneme aralığı istiyorsanız `startupVerificationCooldownHours` değerini ayarlayın.
 
-Başlatma ayrıca otomatik olarak temkinli bir kripto bootstrap geçişi de yapar.
-Bu geçiş önce mevcut secret storage ve çapraz imzalama kimliğini yeniden kullanmaya çalışır ve siz açık bir bootstrap onarım akışı çalıştırmadığınız sürece çapraz imzalamayı sıfırlamaktan kaçınır.
+Başlangıç ayrıca otomatik olarak korumacı bir kripto bootstrap geçişi de gerçekleştirir.
+Bu geçiş, önce mevcut gizli depolamayı ve çapraz imzalama kimliğini yeniden kullanmayı dener ve siz açık bir bootstrap onarım akışı çalıştırmadığınız sürece çapraz imzalamayı sıfırlamaktan kaçınır.
 
-Başlatma bozuk bootstrap durumu bulursa ve `channels.matrix.password` yapılandırılmışsa, OpenClaw daha katı bir onarım yolu denemeye çalışabilir.
-Mevcut cihaz zaten sahip tarafından imzalanmışsa, OpenClaw bu kimliği otomatik olarak sıfırlamak yerine korur.
+Başlangıç bozuk bootstrap durumu bulursa ve `channels.matrix.password` yapılandırılmışsa, OpenClaw daha katı bir onarım yolunu deneyebilir.
+Mevcut cihaz zaten owner-signed ise, OpenClaw bu kimliği otomatik olarak sıfırlamak yerine korur.
 
 Önceki herkese açık Matrix eklentisinden yükseltme:
 
-- OpenClaw mümkün olduğunda aynı Matrix hesabını, erişim belirtecini ve cihaz kimliğini otomatik olarak yeniden kullanır.
-- Uygulanabilir herhangi bir Matrix geçiş değişikliği çalıştırılmadan önce OpenClaw, `~/Backups/openclaw-migrations/` altında bir kurtarma anlık görüntüsü oluşturur veya yeniden kullanır.
-- Birden çok Matrix hesabı kullanıyorsanız, OpenClaw'ın bu paylaşılan eski durumu hangi hesabın alacağını bilmesi için eski düz depolama düzeninden yükseltmeden önce `channels.matrix.defaultAccount` ayarlayın.
-- Önceki eklenti yerel olarak bir Matrix oda anahtarı yedek çözme anahtarı sakladıysa, başlatma veya `openclaw doctor --fix` bunu yeni kurtarma anahtarı akışına otomatik olarak içe aktarır.
-- Geçiş hazırlandıktan sonra Matrix erişim belirteci değiştiyse, başlatma artık otomatik yedek geri yüklemeden vazgeçmeden önce bekleyen eski geri yükleme durumu için kardeş belirteç karma depolama köklerini tarar.
-- Matrix erişim belirteci daha sonra aynı hesap, homeserver ve kullanıcı için değişirse, OpenClaw artık boş bir Matrix durum dizininden başlamak yerine en eksiksiz mevcut belirteç karma depolama kökünü yeniden kullanmayı tercih eder.
-- Sonraki gateway başlatmasında, yedeklenen oda anahtarları otomatik olarak yeni kripto deposuna geri yüklenir.
-- Eski eklentide hiç yedeklenmemiş yalnızca yerel oda anahtarları varsa, OpenClaw açık biçimde uyarır. Bu anahtarlar önceki rust kripto deposundan otomatik olarak dışa aktarılamaz, bu nedenle bazı eski şifreli geçmişler elle kurtarılana kadar erişilemez kalabilir.
-- Tam yükseltme akışı, sınırlamalar, kurtarma komutları ve yaygın geçiş mesajları için [Matrix migration](/install/migrating-matrix) bölümüne bakın.
+- OpenClaw mümkün olduğunda aynı Matrix hesabını, access token'ı ve cihaz kimliğini otomatik olarak yeniden kullanır.
+- Uygulanabilir herhangi bir Matrix geçiş değişikliği çalışmadan önce, OpenClaw `~/Backups/openclaw-migrations/` altında bir kurtarma anlık görüntüsü oluşturur veya yeniden kullanır.
+- Birden fazla Matrix hesabı kullanıyorsanız, OpenClaw'ın bu paylaşılan eski durumu hangi hesabın alacağını bilmesi için eski düz depo düzeninden yükseltmeden önce `channels.matrix.defaultAccount` ayarlayın.
+- Önceki eklenti Matrix oda anahtarı yedek çözme anahtarını yerel olarak sakladıysa, başlangıç veya `openclaw doctor --fix` bunu yeni kurtarma anahtarı akışına otomatik olarak aktarır.
+- Matrix access token geçiş hazırlandıktan sonra değiştiyse, başlangıç artık otomatik yedek geri yüklemeden vazgeçmeden önce bekleyen eski geri yükleme durumu için kardeş token-hash depolama köklerini tarar.
+- Matrix access token daha sonra aynı hesap, homeserver ve kullanıcı için değişirse, OpenClaw artık boş bir Matrix durum dizininden başlamak yerine en eksiksiz mevcut token-hash depolama kökünü yeniden kullanmayı tercih eder.
+- Bir sonraki gateway başlangıcında, yedeklenmiş oda anahtarları otomatik olarak yeni kripto deposuna geri yüklenir.
+- Eski eklentide hiç yedeklenmemiş yalnızca yerel oda anahtarları varsa, OpenClaw açık şekilde uyarır. Bu anahtarlar önceki rust kripto deposundan otomatik olarak dışa aktarılamaz; bu nedenle bazı eski şifreli geçmişler elle kurtarılana kadar erişilemez kalabilir.
+- Tam yükseltme akışı, sınırlar, kurtarma komutları ve yaygın geçiş iletileri için [Matrix migration](/tr/install/migrating-matrix) bölümüne bakın.
 
-Şifrelenmiş çalışma zamanı durumu, hesap başına, kullanıcı başına belirteç karma kökleri altında
+Şifreli çalışma zamanı durumu, hesap başına, kullanıcı başına token-hash kökleri altında
 `~/.openclaw/matrix/accounts/<account>/<homeserver>__<user>/<token-hash>/` içinde düzenlenir.
-Bu dizin senkronizasyon deposunu (`bot-storage.json`), kripto deposunu (`crypto/`),
+Bu dizin sync deposunu (`bot-storage.json`), kripto deposunu (`crypto/`),
 kurtarma anahtarı dosyasını (`recovery-key.json`), IndexedDB anlık görüntüsünü (`crypto-idb-snapshot.json`),
-iş parçacığı bağlarını (`thread-bindings.json`) ve başlatma doğrulama durumunu (`startup-verification.json`)
+ileti dizisi bağlarını (`thread-bindings.json`) ve başlangıç doğrulama durumunu (`startup-verification.json`)
 bu özellikler kullanıldığında içerir.
-Belirteç değişse ancak hesap kimliği aynı kalsa bile, OpenClaw bu hesap/homeserver/kullanıcı üçlüsü için
-mevcut en iyi kökü yeniden kullanır; böylece önceki senkronizasyon durumu, kripto durumu, iş parçacığı bağları
-ve başlatma doğrulama durumu görünür kalır.
+Token değişse de hesap kimliği aynı kaldığında, OpenClaw o hesap/homeserver/kullanıcı üçlüsü için en iyi mevcut
+kökü yeniden kullanır; böylece önceki sync durumu, kripto durumu, ileti dizisi bağları
+ve başlangıç doğrulama durumu görünür kalır.
 
-### Node kripto deposu modeli
+### Node crypto store modeli
 
-Bu eklentide Matrix E2EE, Node üzerinde resmi `matrix-js-sdk` Rust kripto yolunu kullanır.
-Bu yol, kripto durumunun yeniden başlatmalardan sonra korunmasını istiyorsanız IndexedDB tabanlı kalıcı depolama bekler.
+Bu eklentideki Matrix E2EE, Node içinde resmi `matrix-js-sdk` Rust kripto yolunu kullanır.
+Kalıcı olmasını istediğinizde bu yol, yeniden başlatmalar arasında kripto durumunu korumak için IndexedDB destekli kalıcılık bekler.
 
-OpenClaw şu anda bunu Node içinde şu şekilde sağlar:
+OpenClaw şu anda Node içinde bunu şu şekilde sağlar:
 
-- SDK'nın beklediği IndexedDB API shim'i olarak `fake-indexeddb` kullanarak
-- `initRustCrypto` öncesinde Rust kripto IndexedDB içeriğini `crypto-idb-snapshot.json` içinden geri yükleyerek
-- güncellenmiş IndexedDB içeriğini init sonrasında ve çalışma zamanı sırasında tekrar `crypto-idb-snapshot.json` içine kalıcılaştırarak
-- gateway çalışma zamanı kalıcılaştırması ile CLI bakımının aynı anlık görüntü dosyasında yarışmaması için anlık görüntü geri yükleme ve kalıcılaştırmayı `crypto-idb-snapshot.json` üzerinde öneriye dayalı bir dosya kilidiyle serileştirerek
+- SDK'nin beklediği IndexedDB API shim'i olarak `fake-indexeddb` kullanma
+- `initRustCrypto` öncesinde Rust kripto IndexedDB içeriğini `crypto-idb-snapshot.json` dosyasından geri yükleme
+- init sonrasında ve çalışma zamanı sırasında güncellenmiş IndexedDB içeriğini yeniden `crypto-idb-snapshot.json` içine kalıcı hale getirme
+- gateway çalışma zamanı kalıcılığı ile CLI bakımının aynı anlık görüntü dosyasında yarışmaması için anlık görüntü geri yükleme ve kalıcılığı `crypto-idb-snapshot.json` üzerinde danışmalı bir dosya kilidiyle serileştirme
 
 Bu, özel bir kripto uygulaması değil, uyumluluk/depolama altyapısıdır.
 Anlık görüntü dosyası hassas çalışma zamanı durumudur ve kısıtlayıcı dosya izinleriyle saklanır.
-OpenClaw'ın güvenlik modeline göre, gateway ana bilgisayarı ve yerel OpenClaw durum dizini zaten güvenilen operatör sınırı içindedir; bu nedenle bu konu ayrı bir uzak güven sınırından çok öncelikle operasyonel dayanıklılık konusudur.
+OpenClaw'ın güvenlik modeline göre gateway host ve yerel OpenClaw durum dizini zaten güvenilir operatör sınırı içindedir; bu nedenle bu öncelikle ayrı bir uzak güven sınırından ziyade operasyonel dayanıklılık konusudur.
 
 Planlanan iyileştirme:
 
-- kurtarma anahtarları ve ilgili depo şifreleme sırları yalnızca yerel dosyalar yerine OpenClaw secret provider'larından alınabilsin diye kalıcı Matrix anahtar materyali için SecretRef desteği eklemek
+- kalıcı Matrix anahtar materyali için SecretRef desteği eklemek; böylece kurtarma anahtarları ve ilgili depo şifreleme sırları yalnızca yerel dosyalardan değil OpenClaw gizli bilgi sağlayıcılarından da alınabilir
 
 ## Profil yönetimi
 
-Seçilen hesap için Matrix kendi profilini şu komutla güncelleyin:
+Seçilen hesap için Matrix öz-profilini şu şekilde güncelleyin:
 
 ```bash
 openclaw matrix profile set --name "OpenClaw Assistant"
 openclaw matrix profile set --avatar-url https://cdn.example.org/avatar.png
 ```
 
-Belirli bir adlandırılmış hesabı açıkça hedeflemek istiyorsanız `--account <id>` ekleyin.
+Adlandırılmış bir Matrix hesabını açıkça hedeflemek istediğinizde `--account <id>` ekleyin.
 
-Matrix `mxc://` avatar URL'lerini doğrudan kabul eder. `http://` veya `https://` avatar URL'si verdiğinizde, OpenClaw önce bunu Matrix'e yükler ve çözümlenen `mxc://` URL'sini tekrar `channels.matrix.avatarUrl` içine (veya seçili hesap geçersiz kılmasına) yazar.
+Matrix, `mxc://` avatar URL'lerini doğrudan kabul eder. Bir `http://` veya `https://` avatar URL'si verdiğinizde, OpenClaw önce onu Matrix'e yükler ve çözümlenen `mxc://` URL'sini yeniden `channels.matrix.avatarUrl` içine (veya seçilen hesap geçersiz kılmasına) kaydeder.
 
 ## Otomatik doğrulama bildirimleri
 
-Matrix artık doğrulama yaşam döngüsü bildirimlerini doğrudan katı DM doğrulama odasına `m.notice` mesajları olarak gönderir.
+Matrix artık doğrulama yaşam döngüsü bildirimlerini doğrudan sıkı DM doğrulama odasına `m.notice` iletileri olarak gönderir.
 Buna şunlar dahildir:
 
 - doğrulama isteği bildirimleri
-- doğrulama hazır bildirimleri ("emoji ile doğrulayın" yönergesi açıkça verilerek)
-- doğrulama başlatma ve tamamlama bildirimleri
+- doğrulama hazır bildirimleri (açık "emoji ile doğrula" yönlendirmesiyle)
+- doğrulama başlangıç ve tamamlama bildirimleri
 - mevcut olduğunda SAS ayrıntıları (emoji ve ondalık)
 
-Başka bir Matrix istemcisinden gelen doğrulama istekleri OpenClaw tarafından izlenir ve otomatik kabul edilir.
-Kendi kendini doğrulama akışlarında OpenClaw, emoji doğrulaması kullanılabilir olduğunda SAS akışını da otomatik olarak başlatır ve kendi tarafını onaylar.
-Başka bir Matrix kullanıcısı/cihazından gelen doğrulama isteklerinde OpenClaw isteği otomatik olarak kabul eder ve ardından SAS akışının normal şekilde ilerlemesini bekler.
-Doğrulamayı tamamlamak için yine de Matrix istemcinizde emoji veya ondalık SAS değerini karşılaştırmanız ve orada "Eşleşiyorlar" onayını vermeniz gerekir.
+Başka bir Matrix istemcisinden gelen doğrulama istekleri izlenir ve OpenClaw tarafından otomatik kabul edilir.
+Öz-doğrulama akışlarında, OpenClaw emoji doğrulaması kullanılabilir olduğunda SAS akışını da otomatik olarak başlatır ve kendi tarafını onaylar.
+Başka bir Matrix kullanıcı/cihazından gelen doğrulama isteklerinde, OpenClaw isteği otomatik kabul eder ve ardından SAS akışının normal şekilde ilerlemesini bekler.
+Doğrulamayı tamamlamak için Matrix istemcinizde emoji veya ondalık SAS değerini karşılaştırmanız ve orada "They match" onayı vermeniz yine gerekir.
 
-OpenClaw kendi başlattığı yinelenen akışları körü körüne otomatik kabul etmez. Başlatma, bir kendi kendini doğrulama isteği zaten beklemedeyse yeni bir istek oluşturmayı atlar.
+OpenClaw, kendi başlattığı yinelenen akışları körü körüne otomatik kabul etmez. Başlangıç, öz-doğrulama isteği zaten beklemedeyse yeni bir istek oluşturmaz.
 
-Doğrulama protokolü/sistem bildirimleri ajan sohbet hattına iletilmez, bu nedenle `NO_REPLY` üretmezler.
+Doğrulama protokolü/sistem bildirimleri ajan sohbet hattına iletilmez; bu nedenle `NO_REPLY` üretmezler.
 
 ### Cihaz hijyeni
 
@@ -495,15 +661,15 @@ Bunları şu komutla listeleyin:
 openclaw matrix devices list
 ```
 
-Eski OpenClaw yönetimli cihazları şu komutla kaldırın:
+Eski OpenClaw tarafından yönetilen cihazları şu komutla kaldırın:
 
 ```bash
 openclaw matrix devices prune-stale
 ```
 
-### Direct Room Repair
+### Doğrudan Oda Onarımı
 
-Doğrudan mesaj durumu eşzamanlamadan çıktığında, OpenClaw canlı DM yerine eski tekil odaları işaret eden bayat `m.direct` eşlemeleriyle karşılaşabilir. Bir eş için mevcut eşlemeyi şu komutla inceleyin:
+Doğrudan ileti durumu eşzamansız hale gelirse, OpenClaw canlı DM yerine eski tekli odaları gösteren bayat `m.direct` eşlemeleriyle karşılaşabilir. Bir eş için mevcut eşlemeyi şu komutla inceleyin:
 
 ```bash
 openclaw matrix direct inspect --user-id @alice:example.org
@@ -515,46 +681,51 @@ openclaw matrix direct inspect --user-id @alice:example.org
 openclaw matrix direct repair --user-id @alice:example.org
 ```
 
-Onarım, Matrix'e özgü mantığı eklenti içinde tutar:
+Onarım, Matrix'e özgü mantığı eklentinin içinde tutar:
 
-- zaten `m.direct` içinde eşlenmiş olan katı 1:1 DM'yi tercih eder
-- aksi halde o kullanıcıyla şu anda katılmış herhangi bir katı 1:1 DM'ye geri döner
-- sağlıklı bir DM yoksa yeni bir doğrudan oda oluşturur ve `m.direct` değerini ona işaret edecek şekilde yeniden yazar
+- önce `m.direct` içinde zaten eşlenmiş olan sıkı 1:1 DM'yi tercih eder
+- aksi takdirde bu kullanıcıyla hâlihazırda katılınmış herhangi bir sıkı 1:1 DM'ye geri döner
+- sağlıklı bir DM yoksa yeni bir doğrudan oda oluşturur ve `m.direct` eşlemesini ona işaret edecek şekilde yeniden yazar
 
-Onarım akışı eski odaları otomatik olarak silmez. Yalnızca sağlıklı DM'yi seçer ve eşlemeyi günceller; böylece yeni Matrix gönderimleri, doğrulama bildirimleri ve diğer doğrudan mesaj akışları yeniden doğru odayı hedefler.
+Onarım akışı eski odaları otomatik olarak silmez. Yalnızca sağlıklı DM'yi seçer ve eşlemeyi günceller; böylece yeni Matrix gönderimleri, doğrulama bildirimleri ve diğer doğrudan ileti akışları yeniden doğru odayı hedefler.
 
-## İş parçacıkları
+## İleti dizileri
 
-Matrix hem otomatik yanıtlar hem de mesaj aracı gönderimleri için yerel Matrix iş parçacıklarını destekler.
+Matrix, hem otomatik yanıtlar hem de ileti aracı gönderimleri için yerel Matrix ileti dizilerini destekler.
 
-- `threadReplies: "off"` yanıtları üst düzeyde tutar ve gelen iş parçacıklı mesajları üst oturumda tutar.
-- `threadReplies: "inbound"` yalnızca gelen mesaj zaten o iş parçacığındaysa iş parçacığı içinde yanıt verir.
-- `threadReplies: "always"` oda yanıtlarını tetikleyici mesajın kök aldığı bir iş parçacığında tutar ve bu konuşmayı ilk tetikleyici mesajdan itibaren eşleşen iş parçacığı kapsamlı oturum üzerinden yönlendirir.
-- `dm.threadReplies`, yalnızca DM'ler için üst düzey ayarı geçersiz kılar. Örneğin, DM'leri düz tutarken oda iş parçacıklarını izole tutabilirsiniz.
-- Gelen iş parçacıklı mesajlar ek ajan bağlamı olarak iş parçacığı kök mesajını içerir.
-- Mesaj aracı gönderimleri, açık bir `threadId` verilmedikçe hedef aynı oda veya aynı DM kullanıcı hedefi olduğunda artık mevcut Matrix iş parçacığını otomatik devralır.
-- Matrix için çalışma zamanı iş parçacığı bağları desteklenir. `/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age` ve iş parçacığına bağlı `/acp spawn` artık Matrix odalarında ve DM'lerde çalışır.
-- Üst düzey Matrix oda/DM `/focus`, `threadBindings.spawnSubagentSessions=true` olduğunda yeni bir Matrix iş parçacığı oluşturur ve bunu hedef oturuma bağlar.
-- Mevcut bir Matrix iş parçacığı içinde `/focus` veya `/acp spawn --thread here` çalıştırmak bunun yerine mevcut iş parçacığını bağlar.
+- `dm.sessionScope: "per-user"` (varsayılan), Matrix DM yönlendirmesini gönderen kapsamlı tutar; böylece birden fazla DM odası aynı eşe çözümlendiğinde tek bir oturumu paylaşabilir.
+- `dm.sessionScope: "per-room"`, normal DM kimlik doğrulaması ve allowlist kontrollerini kullanmaya devam ederken her Matrix DM odasını kendi oturum anahtarına ayırır.
+- Açık Matrix konuşma bağları yine `dm.sessionScope` ayarına üstün gelir; bu nedenle bağlanmış odalar ve ileti dizileri seçtikleri hedef oturumu korur.
+- `threadReplies: "off"`, yanıtları üst düzeyde tutar ve gelen dizili iletileri ana oturumda tutar.
+- `threadReplies: "inbound"`, yalnızca gelen ileti zaten o ileti dizisindeyse o ileti dizisi içinde yanıt verir.
+- `threadReplies: "always"`, oda yanıtlarını tetikleyen iletiye köklenen bir ileti dizisinde tutar ve o konuşmayı ilk tetikleyen iletiden itibaren eşleşen ileti dizisi kapsamlı oturum üzerinden yönlendirir.
+- `dm.threadReplies`, üst düzey ayarı yalnızca DM'ler için geçersiz kılar. Örneğin, odalardaki ileti dizilerini ayrık tutarken DM'leri düz tutabilirsiniz.
+- Gelen dizili iletiler, ileti dizisi kök iletisini ek ajan bağlamı olarak içerir.
+- İleti aracı gönderimleri artık hedef aynı odaysa veya aynı DM kullanıcı hedefiyse, açık `threadId` verilmediği sürece mevcut Matrix ileti dizisini otomatik devralır.
+- Aynı oturumlu DM kullanıcı hedefi yeniden kullanımı yalnızca mevcut oturum meta verileri aynı Matrix hesabındaki aynı DM eşini kanıtladığında devreye girer; aksi takdirde OpenClaw normal kullanıcı kapsamlı yönlendirmeye geri döner.
+- OpenClaw, bir Matrix DM odasının aynı paylaşılan Matrix DM oturumundaki başka bir DM odasıyla çakıştığını gördüğünde, ileti dizisi bağları etkinse ve `dm.sessionScope` ipucu mevcutsa bu odaya `/focus` kaçış yolunu içeren tek seferlik bir `m.notice` gönderir.
+- Çalışma zamanı ileti dizisi bağları Matrix için desteklenir. `/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age` ve ileti dizisine bağlı `/acp spawn` artık Matrix odalarında ve DM'lerde çalışır.
+- Üst düzey Matrix oda/DM `/focus`, `threadBindings.spawnSubagentSessions=true` olduğunda yeni bir Matrix ileti dizisi oluşturur ve bunu hedef oturuma bağlar.
+- Mevcut bir Matrix ileti dizisi içinde `/focus` veya `/acp spawn --thread here` çalıştırmak bunun yerine mevcut ileti dizisini bağlar.
 
 ## ACP konuşma bağları
 
-Matrix odaları, DM'ler ve mevcut Matrix iş parçacıkları sohbet yüzeyini değiştirmeden kalıcı ACP çalışma alanlarına dönüştürülebilir.
+Matrix odaları, DM'ler ve mevcut Matrix ileti dizileri sohbet yüzeyini değiştirmeden kalıcı ACP çalışma alanlarına dönüştürülebilir.
 
 Hızlı operatör akışı:
 
-- Kullanmaya devam etmek istediğiniz Matrix DM, oda veya mevcut iş parçacığı içinde `/acp spawn codex --bind here` çalıştırın.
-- Üst düzey bir Matrix DM veya odasında mevcut DM/oda sohbet yüzeyi olarak kalır ve gelecekteki mesajlar oluşturulan ACP oturumuna yönlendirilir.
-- Mevcut bir Matrix iş parçacığı içinde `--bind here`, mevcut iş parçacığını yerinde bağlar.
+- Kullanmaya devam etmek istediğiniz Matrix DM, oda veya mevcut ileti dizisi içinde `/acp spawn codex --bind here` çalıştırın.
+- Üst düzey bir Matrix DM veya odasında, mevcut DM/oda sohbet yüzeyi olarak kalır ve gelecekteki iletiler oluşturulan ACP oturumuna yönlendirilir.
+- Mevcut bir Matrix ileti dizisi içinde, `--bind here` mevcut ileti dizisini yerinde bağlar.
 - `/new` ve `/reset`, aynı bağlı ACP oturumunu yerinde sıfırlar.
 - `/acp close`, ACP oturumunu kapatır ve bağı kaldırır.
 
 Notlar:
 
-- `--bind here` alt bir Matrix iş parçacığı oluşturmaz.
-- `threadBindings.spawnAcpSessions` yalnızca OpenClaw'ın alt bir Matrix iş parçacığı oluşturması veya bağlaması gereken `/acp spawn --thread auto|here` için gereklidir.
+- `--bind here`, alt bir Matrix ileti dizisi oluşturmaz.
+- `threadBindings.spawnAcpSessions` yalnızca OpenClaw'ın alt bir Matrix ileti dizisi oluşturması veya bağlaması gereken `/acp spawn --thread auto|here` için gereklidir.
 
-### İş Parçacığı Bağlama Yapılandırması
+### İleti Dizisi Bağlama Yapılandırması
 
 Matrix, genel varsayılanları `session.threadBindings` üzerinden devralır ve ayrıca kanal başına geçersiz kılmaları destekler:
 
@@ -564,14 +735,14 @@ Matrix, genel varsayılanları `session.threadBindings` üzerinden devralır ve 
 - `threadBindings.spawnSubagentSessions`
 - `threadBindings.spawnAcpSessions`
 
-Matrix iş parçacığına bağlı spawn bayrakları isteğe bağlıdır:
+Matrix ileti dizisine bağlı oluşturma işaretleri isteğe bağlıdır:
 
-- Üst düzey `/focus` komutunun yeni Matrix iş parçacıkları oluşturup bağlamasına izin vermek için `threadBindings.spawnSubagentSessions: true` ayarlayın.
-- `/acp spawn --thread auto|here` komutunun ACP oturumlarını Matrix iş parçacıklarına bağlamasına izin vermek için `threadBindings.spawnAcpSessions: true` ayarlayın.
+- Üst düzey `/focus` komutunun yeni Matrix ileti dizileri oluşturup bağlamasına izin vermek için `threadBindings.spawnSubagentSessions: true` ayarlayın.
+- `/acp spawn --thread auto|here` komutunun ACP oturumlarını Matrix ileti dizilerine bağlamasına izin vermek için `threadBindings.spawnAcpSessions: true` ayarlayın.
 
 ## Tepkiler
 
-Matrix giden tepki işlemlerini, gelen tepki bildirimlerini ve gelen ack tepkilerini destekler.
+Matrix, giden tepki eylemlerini, gelen tepki bildirimlerini ve gelen onay tepkilerini destekler.
 
 - Giden tepki araçları `channels["matrix"].actions.reactions` ile sınırlandırılır.
 - `react`, belirli bir Matrix olayına tepki ekler.
@@ -579,14 +750,14 @@ Matrix giden tepki işlemlerini, gelen tepki bildirimlerini ve gelen ack tepkile
 - `emoji=""`, bot hesabının o olay üzerindeki kendi tepkilerini kaldırır.
 - `remove: true`, bot hesabından yalnızca belirtilen emoji tepkisini kaldırır.
 
-Ack tepkileri standart OpenClaw çözümleme sırasını kullanır:
+Onay tepkisi kapsamı standart OpenClaw çözümleme sırasını kullanır:
 
 - `channels["matrix"].accounts.<accountId>.ackReaction`
 - `channels["matrix"].ackReaction`
 - `messages.ackReaction`
-- ajan kimliği emoji geri dönüşü
+- ajan kimliği emoji fallback'i
 
-Ack tepki kapsamı şu sırayla çözülür:
+Onay tepkisi kapsamı şu sırayla çözülür:
 
 - `channels["matrix"].accounts.<accountId>.ackReactionScope`
 - `channels["matrix"].ackReactionScope`
@@ -598,33 +769,33 @@ Tepki bildirim modu şu sırayla çözülür:
 - `channels["matrix"].reactionNotifications`
 - varsayılan: `own`
 
-Geçerli davranış:
+Mevcut davranış:
 
-- `reactionNotifications: "own"`, bot tarafından yazılmış Matrix mesajlarını hedeflediklerinde eklenen `m.reaction` olaylarını iletir.
+- `reactionNotifications: "own"`, bot tarafından yazılmış Matrix iletilerini hedeflediğinde eklenen `m.reaction` olaylarını iletir.
 - `reactionNotifications: "off"`, tepki sistem olaylarını devre dışı bırakır.
-- Tepki kaldırmaları hâlâ sistem olaylarına dönüştürülmez çünkü Matrix bunları bağımsız `m.reaction` kaldırmaları olarak değil, redaction olarak gösterir.
+- Tepki kaldırmaları hâlâ sistem olaylarına dönüştürülmez; çünkü Matrix bunları bağımsız `m.reaction` kaldırmaları olarak değil sansürler olarak gösterir.
 
 ## Geçmiş bağlamı
 
-- `channels.matrix.historyLimit`, bir Matrix oda mesajı ajanı tetiklediğinde `InboundHistory` olarak dahil edilen son oda mesajlarının sayısını kontrol eder.
-- `messages.groupChat.historyLimit` değerine geri düşer. Devre dışı bırakmak için `0` ayarlayın.
-- Matrix oda geçmişi yalnızca oda içindir. DM'ler normal oturum geçmişini kullanmaya devam eder.
-- Matrix oda geçmişi yalnızca bekleyen mesajları içerir: OpenClaw henüz yanıt tetiklememiş oda mesajlarını tamponlar, ardından bir mention veya başka bir tetikleyici geldiğinde bu pencerenin anlık görüntüsünü alır.
-- Mevcut tetikleyici mesaj `InboundHistory` içine dahil edilmez; o tur için ana gelen gövdede kalır.
-- Aynı Matrix olayının yeniden denemeleri, daha yeni oda mesajlarına doğru kaymak yerine özgün geçmiş anlık görüntüsünü yeniden kullanır.
+- `channels.matrix.historyLimit`, bir Matrix oda iletisi ajanı tetiklediğinde `InboundHistory` olarak dahil edilen son oda iletilerinin sayısını kontrol eder.
+- `messages.groupChat.historyLimit` değerine geri döner. Devre dışı bırakmak için `0` ayarlayın.
+- Matrix oda geçmişi yalnızca odaya özeldir. DM'ler normal oturum geçmişini kullanmaya devam eder.
+- Matrix oda geçmişi yalnızca bekleyen iletiler içindir: OpenClaw henüz yanıt tetiklememiş oda iletilerini tamponlar, sonra bir mention veya başka bir tetikleyici geldiğinde bu pencerenin anlık görüntüsünü alır.
+- Mevcut tetikleyici ileti `InboundHistory` içine dahil edilmez; o tur için ana gelen gövdede kalır.
+- Aynı Matrix olayının yeniden denemeleri, daha yeni oda iletilerine kaymak yerine orijinal geçmiş anlık görüntüsünü yeniden kullanır.
 
 ## Bağlam görünürlüğü
 
-Matrix, alınan yanıt metni, iş parçacığı kökleri ve bekleyen geçmiş gibi ek oda bağlamı için paylaşılan `contextVisibility` denetimini destekler.
+Matrix, getirilen yanıt metni, ileti dizisi kökleri ve bekleyen geçmiş gibi ek oda bağlamı için paylaşılan `contextVisibility` denetimini destekler.
 
-- `contextVisibility: "all"` varsayılandır. Ek bağlam alındığı gibi tutulur.
-- `contextVisibility: "allowlist"`, ek bağlamı etkin oda/kullanıcı allowlist kontrolleri tarafından izin verilen gönderenlerle sınırlar.
-- `contextVisibility: "allowlist_quote"`, `allowlist` gibi davranır, ancak yine de açıkça alıntılanmış tek bir yanıtı korur.
+- `contextVisibility: "all"` varsayılandır. Ek bağlam alındığı gibi korunur.
+- `contextVisibility: "allowlist"`, ek bağlamı etkin oda/kullanıcı allowlist denetimleri tarafından izin verilen gönderenlerle sınırlar.
+- `contextVisibility: "allowlist_quote"`, `allowlist` gibi davranır ancak yine de tek bir açık alıntılanmış yanıtı korur.
 
-Bu ayar ek bağlam görünürlüğünü etkiler; gelen mesajın kendisinin yanıt tetikleyip tetikleyemeyeceğini etkilemez.
-Tetikleme yetkilendirmesi hâlâ `groupPolicy`, `groups`, `groupAllowFrom` ve DM ilke ayarlarından gelir.
+Bu ayar ek bağlam görünürlüğünü etkiler; gelen iletinin kendisinin yanıt tetikleyip tetikleyemeyeceğini değil.
+Tetikleme yetkilendirmesi hâlâ `groupPolicy`, `groups`, `groupAllowFrom` ve DM politika ayarlarından gelir.
 
-## DM ve oda ilke örneği
+## DM ve oda politikası örneği
 
 ```json5
 {
@@ -647,7 +818,7 @@ Tetikleme yetkilendirmesi hâlâ `groupPolicy`, `groups`, `groupAllowFrom` ve DM
 }
 ```
 
-Mention kısıtlaması ve allowlist davranışı için [Groups](/tr/channels/groups) bölümüne bakın.
+Mention kapılama ve allowlist davranışı için [Groups](/tr/channels/groups) bölümüne bakın.
 
 Matrix DM'leri için eşleştirme örneği:
 
@@ -656,45 +827,51 @@ openclaw pairing list matrix
 openclaw pairing approve matrix <CODE>
 ```
 
-Onaylanmamış bir Matrix kullanıcısı onay öncesinde size mesaj göndermeye devam ederse, OpenClaw yeni bir kod üretmek yerine aynı bekleyen eşleştirme kodunu yeniden kullanır ve kısa bir bekleme süresinden sonra yeniden hatırlatma yanıtı gönderebilir.
+Onaylanmamış bir Matrix kullanıcısı onaydan önce size mesaj göndermeye devam ederse, OpenClaw aynı bekleyen eşleştirme kodunu yeniden kullanır ve yeni bir kod üretmek yerine kısa bir bekleme süresinden sonra yeniden hatırlatma yanıtı gönderebilir.
 
 Paylaşılan DM eşleştirme akışı ve depolama düzeni için [Pairing](/tr/channels/pairing) bölümüne bakın.
 
 ## Exec onayları
 
-Matrix, bir Matrix hesabı için exec onay istemcisi olarak çalışabilir.
+Matrix, bir Matrix hesabı için exec onay istemcisi olarak davranabilir.
 
 - `channels.matrix.execApprovals.enabled`
-- `channels.matrix.execApprovals.approvers` (isteğe bağlı; `channels.matrix.dm.allowFrom` değerine geri düşer)
+- `channels.matrix.execApprovals.approvers` (isteğe bağlı; `channels.matrix.dm.allowFrom` değerine geri döner)
 - `channels.matrix.execApprovals.target` (`dm` | `channel` | `both`, varsayılan: `dm`)
 - `channels.matrix.execApprovals.agentFilter`
 - `channels.matrix.execApprovals.sessionFilter`
 
-Onaylayıcılar `@owner:example.org` gibi Matrix kullanıcı kimlikleri olmalıdır. Matrix, `enabled` ayarlanmamışsa veya `"auto"` ise ve `execApprovals.approvers` ya da `channels.matrix.dm.allowFrom` içinden en az bir onaylayıcı çözümlenebiliyorsa yerel exec onaylarını otomatik olarak etkinleştirir. Matrix'i yerel bir onay istemcisi olarak açıkça devre dışı bırakmak için `enabled: false` ayarlayın. Aksi halde onay istekleri diğer yapılandırılmış onay yollarına veya exec onayı geri dönüş ilkesine geri döner.
+Onaylayıcılar `@owner:example.org` gibi Matrix kullanıcı kimlikleri olmalıdır. Matrix, `enabled` ayarsız veya `"auto"` olduğunda ve en az bir onaylayıcı çözümlenebildiğinde yerel exec onaylarını otomatik etkinleştirir; bu, ya `execApprovals.approvers` ya da `channels.matrix.dm.allowFrom` üzerinden olabilir. Matrix'i yerel onay istemcisi olarak açıkça devre dışı bırakmak için `enabled: false` ayarlayın. Aksi halde onay istekleri diğer yapılandırılmış onay yollarına veya exec onay fallback politikasına geri döner.
 
 Yerel Matrix yönlendirmesi bugün yalnızca exec içindir:
 
-- `channels.matrix.execApprovals.*`, yalnızca exec onayları için yerel DM/kanal yönlendirmesini denetler.
-- Eklenti onayları hâlâ paylaşılan aynı sohbet içi `/approve` ile birlikte yapılandırılmış herhangi bir `approvals.plugin` yönlendirmesini kullanır.
-- Matrix, onaylayıcıları güvenli biçimde çıkarabildiğinde eklenti onayı yetkilendirmesi için `channels.matrix.dm.allowFrom` değerini yine kullanabilir, ancak ayrı bir yerel eklenti onayı DM/kanal dağıtım yolu sunmaz.
+- `channels.matrix.execApprovals.*`, yalnızca exec onayları için yerel DM/kanal yönlendirmesini kontrol eder.
+- Eklenti onayları hâlâ paylaşılan aynı sohbet `/approve` komutunu ve yapılandırılmış tüm `approvals.plugin` yönlendirmesini kullanır.
+- Matrix, onaylayıcıları güvenli şekilde çıkarabildiğinde eklenti onayı yetkilendirmesi için yine `channels.matrix.dm.allowFrom` kullanabilir, ancak ayrı bir yerel eklenti onayı DM/kanal fanout yolu sunmaz.
 
-Teslim kuralları:
+Teslimat kuralları:
 
-- `target: "dm"` onay istemlerini onaylayıcı DM'lerine gönderir
-- `target: "channel"` istemi kaynak Matrix oda veya DM'sine geri gönderir
-- `target: "both"` istemleri onaylayıcı DM'lerine ve kaynak Matrix oda veya DM'sine gönderir
+- `target: "dm"`, onay istemlerini onaylayıcı DM'lerine gönderir
+- `target: "channel"`, istemi kaynak Matrix odasına veya DM'ye geri gönderir
+- `target: "both"`, onaylayıcı DM'lerine ve kaynak Matrix odasına veya DM'ye gönderir
 
-Matrix bugün metin tabanlı onay istemleri kullanır. Onaylayıcılar bunları `/approve <id> allow-once`, `/approve <id> allow-always` veya `/approve <id> deny` ile çözer.
+Matrix onay istemleri, birincil onay iletisine tepki kısayolları ekler:
 
-Yalnızca çözümlenmiş onaylayıcılar onaylayabilir veya reddedebilir. Kanal teslimi komut metnini içerir, bu nedenle `channel` veya `both` seçeneklerini yalnızca güvenilen odalarda etkinleştirin.
+- `✅` = bir kez izin ver
+- `❌` = reddet
+- `♾️` = karar etkin exec politikası tarafından izin veriliyorsa her zaman izin ver
 
-Matrix onay istemleri paylaşılan çekirdek onay planlayıcısını yeniden kullanır. Matrix'e özgü yerel yüzey, exec onayları için yalnızca taşıma katmanıdır: oda/DM yönlendirmesi ve mesaj gönderme/güncelleme/silme davranışı.
+Onaylayıcılar bu ileti üzerinde tepki verebilir veya fallback slash komutlarını kullanabilir: `/approve <id> allow-once`, `/approve <id> allow-always` veya `/approve <id> deny`.
+
+Yalnızca çözümlenmiş onaylayıcılar izin verebilir veya reddedebilir. Kanal teslimatı komut metnini içerir; bu nedenle `channel` veya `both` seçeneklerini yalnızca güvenilir odalarda etkinleştirin.
+
+Matrix onay istemleri paylaşılan çekirdek onay planlayıcısını yeniden kullanır. Matrix'e özgü yerel yüzey exec onayları için yalnızca taşıma katmanıdır: oda/DM yönlendirmesi ile ileti gönderme/güncelleme/silme davranışı.
 
 Hesap başına geçersiz kılma:
 
 - `channels.matrix.accounts.<account>.execApprovals`
 
-İlgili belgeler: [Exec approvals](/tools/exec-approvals)
+İlgili belgeler: [Exec approvals](/tr/tools/exec-approvals)
 
 ## Çoklu hesap örneği
 
@@ -726,21 +903,21 @@ Hesap başına geçersiz kılma:
 }
 ```
 
-Üst düzey `channels.matrix` değerleri, bir hesap bunları geçersiz kılmadığı sürece adlandırılmış hesaplar için varsayılan olarak davranır.
-Devralınan oda girdilerini bir Matrix hesabıyla sınırlamak için `groups.<room>.account` (veya eski `rooms.<room>.account`) kullanabilirsiniz.
-`account` içermeyen girdiler tüm Matrix hesapları arasında paylaşımlı kalır ve `account: "default"` olan girdiler, varsayılan hesap doğrudan üst düzey `channels.matrix.*` üzerinde yapılandırıldığında yine çalışır.
-Kısmi paylaşılan kimlik doğrulama varsayılanları tek başına ayrı bir örtük varsayılan hesap oluşturmaz. OpenClaw üst düzey `default` hesabı yalnızca bu varsayılan hesapta yeni kimlik doğrulama varsa sentezler (`homeserver` artı `accessToken` veya `homeserver` artı `userId` ve `password`); adlandırılmış hesaplar daha sonra önbelleğe alınmış kimlik bilgileri kimlik doğrulamayı sağladığında `homeserver` artı `userId` üzerinden yine keşfedilebilir kalabilir.
-Matrix'te zaten tam olarak bir adlandırılmış hesap varsa veya `defaultAccount` mevcut bir adlandırılmış hesap anahtarını işaret ediyorsa, tek hesaplıdan çok hesaplıya onarım/kurulum yükseltmesi yeni bir `accounts.default` girdisi oluşturmak yerine o hesabı korur. Yalnızca Matrix kimlik doğrulama/bootstrap anahtarları bu yükseltilmiş hesaba taşınır; paylaşılan teslim ilkesi anahtarları üst düzeyde kalır.
-OpenClaw'ın örtük yönlendirme, probe ve CLI işlemleri için bir adlandırılmış Matrix hesabını tercih etmesini istiyorsanız `defaultAccount` ayarlayın.
-Birden çok adlandırılmış hesap yapılandırırsanız, örtük hesap seçimine dayanan CLI komutları için `defaultAccount` ayarlayın veya `--account <id>` geçin.
+Üst düzey `channels.matrix` değerleri, bir hesap tarafından geçersiz kılınmadığı sürece adlandırılmış hesaplar için varsayılan görevi görür.
+Devralınan oda girdilerini tek bir Matrix hesabına `groups.<room>.account` (veya eski `rooms.<room>.account`) ile kapsamlandırabilirsiniz.
+`account` içermeyen girdiler tüm Matrix hesapları arasında paylaşılır ve `account: "default"` içeren girdiler varsayılan hesap doğrudan üst düzey `channels.matrix.*` üzerinde yapılandırıldığında yine çalışır.
+Kısmi paylaşılan kimlik doğrulama varsayılanları kendi başına ayrı bir örtük varsayılan hesap oluşturmaz. OpenClaw yalnızca üst düzey `default` hesabını, o varsayılan hesap yeni kimlik doğrulamaya sahipse (`homeserver` artı `accessToken` veya `homeserver` artı `userId` ve `password`) sentezler; adlandırılmış hesaplar, önbelleğe alınmış kimlik bilgileri daha sonra kimlik doğrulamayı sağlarsa `homeserver` artı `userId` üzerinden keşfedilebilir kalabilir.
+Matrix'te zaten tam olarak bir adlandırılmış hesap varsa veya `defaultAccount` mevcut bir adlandırılmış hesap anahtarını işaret ediyorsa, tek hesaptan çoklu hesaba onarım/kurulum yükseltmesi yeni bir `accounts.default` girdisi oluşturmak yerine o hesabı korur. Yalnızca Matrix kimlik doğrulama/bootstrap anahtarları bu yükseltilmiş hesaba taşınır; paylaşılan teslimat politikası anahtarları üst düzeyde kalır.
+Örtük yönlendirme, yoklama ve CLI işlemleri için OpenClaw'ın adlandırılmış bir Matrix hesabını tercih etmesini istiyorsanız `defaultAccount` ayarlayın.
+Birden fazla adlandırılmış hesap yapılandırırsanız, örtük hesap seçimine dayanan CLI komutları için `defaultAccount` ayarlayın veya `--account <id>` geçin.
 Bir komut için bu örtük seçimi geçersiz kılmak istediğinizde `openclaw matrix verify ...` ve `openclaw matrix devices ...` komutlarına `--account <id>` geçin.
 
 ## Özel/LAN homeserver'lar
 
-Varsayılan olarak OpenClaw, SSRF koruması için özel/iç Matrix homeserver'larını engeller;
-buna hesap bazında açıkça izin vermeniz gerekir.
+Varsayılan olarak OpenClaw, siz
+hesap başına açıkça izin vermediğiniz sürece SSRF koruması için özel/iç Matrix homeserver'larını engeller.
 
-Homeserver'ınız localhost, bir LAN/Tailscale IP'si veya dahili bir ana bilgisayar adı üzerinde çalışıyorsa,
+Homeserver'ınız localhost, bir LAN/Tailscale IP'si veya iç bir host adı üzerinde çalışıyorsa,
 o Matrix hesabı için `allowPrivateNetwork` etkinleştirin:
 
 ```json5
@@ -765,10 +942,10 @@ openclaw matrix account add \
   --access-token syt_ops_xxx
 ```
 
-Bu isteğe bağlı izin yalnızca güvenilen özel/iç hedeflere izin verir. Şu gibi herkese açık düz metin homeserver'lar
-`http://matrix.example.org:8008` yine engellenir. Mümkün olduğunda `https://` tercih edin.
+Bu isteğe bağlı etkinleştirme yalnızca güvenilir özel/iç hedeflere izin verir. `http://matrix.example.org:8008` gibi
+genel düz metin homeserver'lar yine engellenir. Mümkün olduğunda `https://` tercih edin.
 
-## Matrix trafiğini proxy üzerinden geçirmek
+## Matrix trafiğini proxy üzerinden yönlendirme
 
 Matrix dağıtımınız açık bir giden HTTP(S) proxy gerektiriyorsa, `channels.matrix.proxy` ayarlayın:
 
@@ -785,11 +962,11 @@ Matrix dağıtımınız açık bir giden HTTP(S) proxy gerektiriyorsa, `channels
 ```
 
 Adlandırılmış hesaplar üst düzey varsayılanı `channels.matrix.accounts.<id>.proxy` ile geçersiz kılabilir.
-OpenClaw aynı proxy ayarını çalışma zamanı Matrix trafiği ve hesap durum probe'ları için kullanır.
+OpenClaw aynı proxy ayarını çalışma zamanı Matrix trafiği ve hesap durumu yoklamaları için kullanır.
 
 ## Hedef çözümleme
 
-Matrix, OpenClaw sizden bir oda veya kullanıcı hedefi istediği her yerde şu hedef biçimlerini kabul eder:
+OpenClaw sizden bir oda veya kullanıcı hedefi istediğinde Matrix şu hedef biçimlerini kabul eder:
 
 - Kullanıcılar: `@user:server`, `user:@user:server` veya `matrix:user:@user:server`
 - Odalar: `!room:server`, `room:!room:server` veya `matrix:room:!room:server`
@@ -798,71 +975,72 @@ Matrix, OpenClaw sizden bir oda veya kullanıcı hedefi istediği her yerde şu 
 Canlı dizin araması oturum açmış Matrix hesabını kullanır:
 
 - Kullanıcı aramaları o homeserver'daki Matrix kullanıcı dizinini sorgular.
-- Oda aramaları açık oda kimliklerini ve takma adları doğrudan kabul eder, ardından o hesap için katılınmış oda adlarında aramaya geri döner.
-- Katılınmış oda adı araması en iyi çaba esaslıdır. Bir oda adı bir kimliğe veya takma ada çözümlenemiyorsa, çalışma zamanı allowlist çözümlemesi tarafından yok sayılır.
+- Oda aramaları açık oda kimliklerini ve takma adlarını doğrudan kabul eder, sonra bu hesap için katılınmış oda adlarını aramaya geri döner.
+- Katılınmış oda adı araması en iyi çaba esaslıdır. Bir oda adı bir kimliğe veya takma ada çözümlenemezse, çalışma zamanı allowlist çözümlemesi tarafından yok sayılır.
 
-## Yapılandırma referansı
+## Yapılandırma başvurusu
 
 - `enabled`: kanalı etkinleştirir veya devre dışı bırakır.
 - `name`: hesap için isteğe bağlı etiket.
-- `defaultAccount`: birden çok Matrix hesabı yapılandırıldığında tercih edilen hesap kimliği.
-- `homeserver`: homeserver URL'si, örneğin `https://matrix.example.org`.
-- `allowPrivateNetwork`: bu Matrix hesabının özel/iç homeserver'lara bağlanmasına izin verir. Homeserver `localhost`, bir LAN/Tailscale IP'si veya `matrix-synapse` gibi dahili bir ana bilgisayara çözümleniyorsa bunu etkinleştirin.
+- `defaultAccount`: birden fazla Matrix hesabı yapılandırıldığında tercih edilen hesap kimliği.
+- `homeserver`: homeserver URL'si; örneğin `https://matrix.example.org`.
+- `allowPrivateNetwork`: bu Matrix hesabının özel/iç homeserver'lara bağlanmasına izin verir. Homeserver `localhost`, bir LAN/Tailscale IP'si veya `matrix-synapse` gibi iç bir host'a çözülüyorsa bunu etkinleştirin.
 - `proxy`: Matrix trafiği için isteğe bağlı HTTP(S) proxy URL'si. Adlandırılmış hesaplar üst düzey varsayılanı kendi `proxy` değerleriyle geçersiz kılabilir.
-- `userId`: tam Matrix kullanıcı kimliği, örneğin `@bot:example.org`.
-- `accessToken`: belirteç tabanlı kimlik doğrulama için erişim belirteci. Düz metin değerler ve SecretRef değerleri, env/file/exec provider'ları genelinde `channels.matrix.accessToken` ve `channels.matrix.accounts.<id>.accessToken` için desteklenir. Bkz. [Secrets Management](/gateway/secrets).
-- `password`: parola tabanlı giriş için parola. Düz metin değerler ve SecretRef değerleri desteklenir.
+- `userId`: tam Matrix kullanıcı kimliği; örneğin `@bot:example.org`.
+- `accessToken`: token tabanlı kimlik doğrulama için access token. `channels.matrix.accessToken` ve `channels.matrix.accounts.<id>.accessToken` için env/file/exec sağlayıcılarında düz metin değerleri ve SecretRef değerleri desteklenir. Bkz. [Secrets Management](/tr/gateway/secrets).
+- `password`: parola tabanlı giriş için parola. Düz metin değerleri ve SecretRef değerleri desteklenir.
 - `deviceId`: açık Matrix cihaz kimliği.
-- `deviceName`: parola ile giriş için cihaz görünen adı.
-- `avatarUrl`: profil eşitlemesi ve `set-profile` güncellemeleri için saklanan kendi avatar URL'si.
-- `initialSyncLimit`: başlatma eşitleme olay sınırı.
+- `deviceName`: parola girişi için cihaz görünen adı.
+- `avatarUrl`: profil eşitlemesi ve `set-profile` güncellemeleri için saklanan öz-avatar URL'si.
+- `initialSyncLimit`: başlangıç sync olay sınırı.
 - `encryption`: E2EE'yi etkinleştirir.
 - `allowlistOnly`: DM'ler ve odalar için yalnızca allowlist davranışını zorlar.
-- `allowBots`: diğer yapılandırılmış OpenClaw Matrix hesaplarından gelen mesajlara izin verir (`true` veya `"mentions"`).
+- `allowBots`: yapılandırılmış diğer OpenClaw Matrix hesaplarından gelen iletilere izin verir (`true` veya `"mentions"`).
 - `groupPolicy`: `open`, `allowlist` veya `disabled`.
 - `contextVisibility`: ek oda bağlamı görünürlük modu (`all`, `allowlist`, `allowlist_quote`).
-- `groupAllowFrom`: oda trafiği için kullanıcı kimliği allowlist'i.
+- `groupAllowFrom`: oda trafiği için kullanıcı kimlikleri allowlist'i.
 - `groupAllowFrom` girdileri tam Matrix kullanıcı kimlikleri olmalıdır. Çözümlenmemiş adlar çalışma zamanında yok sayılır.
-- `historyLimit`: grup geçmişi bağlamına dahil edilecek en fazla oda mesajı. `messages.groupChat.historyLimit` değerine geri düşer. Devre dışı bırakmak için `0` ayarlayın.
+- `historyLimit`: grup geçmiş bağlamı olarak dahil edilecek en fazla oda iletisi sayısı. `messages.groupChat.historyLimit` değerine geri döner. Devre dışı bırakmak için `0` ayarlayın.
 - `replyToMode`: `off`, `first` veya `all`.
 - `markdown`: giden Matrix metni için isteğe bağlı Markdown işleme yapılandırması.
-- `streaming`: `off` (varsayılan), `partial`, `true` veya `false`. `partial` ve `true`, yerinde düzenleme güncellemeleriyle tek mesajlı taslak önizlemelerini etkinleştirir.
-- `blockStreaming`: `true`, taslak önizleme akışı etkinken tamamlanmış assistant blokları için ayrı ilerleme mesajlarını etkinleştirir.
+- `streaming`: `off` (varsayılan), `partial`, `quiet`, `true` veya `false`. `partial` ve `true`, normal Matrix metin iletileriyle önizleme-öncelikli taslak güncellemelerini etkinleştirir. `quiet`, self-hosted push-kuralı kurulumları için bildirim vermeyen önizleme bildirimlerini kullanır.
+- `blockStreaming`: `true`, taslak önizleme akışı etkin olduğunda tamamlanmış asistan blokları için ayrı ilerleme iletilerini etkinleştirir.
 - `threadReplies`: `off`, `inbound` veya `always`.
-- `threadBindings`: iş parçacığına bağlı oturum yönlendirme ve yaşam döngüsü için kanal başına geçersiz kılmalar.
-- `startupVerification`: başlatmada otomatik kendi kendini doğrulama isteği modu (`if-unverified`, `off`).
-- `startupVerificationCooldownHours`: otomatik başlatma doğrulama isteklerini yeniden denemeden önce bekleme süresi.
-- `textChunkLimit`: giden mesaj parça boyutu.
+- `threadBindings`: ileti dizisine bağlı oturum yönlendirmesi ve yaşam döngüsü için kanal başına geçersiz kılmalar.
+- `startupVerification`: başlangıçta otomatik öz-doğrulama istek modu (`if-unverified`, `off`).
+- `startupVerificationCooldownHours`: otomatik başlangıç doğrulama istekleri yeniden denenmeden önce bekleme süresi.
+- `textChunkLimit`: giden ileti parça boyutu.
 - `chunkMode`: `length` veya `newline`.
-- `responsePrefix`: giden yanıtlar için isteğe bağlı mesaj öneki.
-- `ackReaction`: bu kanal/hesap için isteğe bağlı ack tepki geçersiz kılması.
-- `ackReactionScope`: isteğe bağlı ack tepki kapsamı geçersiz kılması (`group-mentions`, `group-all`, `direct`, `all`, `none`, `off`).
+- `responsePrefix`: giden yanıtlar için isteğe bağlı ileti öneki.
+- `ackReaction`: bu kanal/hesap için isteğe bağlı onay tepkisi geçersiz kılması.
+- `ackReactionScope`: isteğe bağlı onay tepkisi kapsamı geçersiz kılması (`group-mentions`, `group-all`, `direct`, `all`, `none`, `off`).
 - `reactionNotifications`: gelen tepki bildirim modu (`own`, `off`).
 - `mediaMaxMb`: Matrix medya işleme için MB cinsinden medya boyut sınırı. Giden gönderimlere ve gelen medya işlemeye uygulanır.
-- `autoJoin`: davet otomatik katılım ilkesi (`always`, `allowlist`, `off`). Varsayılan: `off`.
-- `autoJoinAllowlist`: `autoJoin`, `allowlist` olduğunda izin verilen odalar/takma adlar. Takma ad girdileri davet işleme sırasında oda kimliklerine çözülür; OpenClaw davet edilen oda tarafından iddia edilen takma ad durumuna güvenmez.
-- `dm`: DM ilke bloğu (`enabled`, `policy`, `allowFrom`, `threadReplies`).
-- `dm.allowFrom` girdileri, onları zaten canlı dizin aramasıyla çözümlemediyseniz tam Matrix kullanıcı kimlikleri olmalıdır.
-- `dm.threadReplies`: yalnızca DM için iş parçacığı ilke geçersiz kılması (`off`, `inbound`, `always`). Hem yanıt yerleşimi hem de DM'lerde oturum yalıtımı için üst düzey `threadReplies` ayarını geçersiz kılar.
-- `execApprovals`: Matrix-yerel exec onay teslimi (`enabled`, `approvers`, `target`, `agentFilter`, `sessionFilter`).
+- `autoJoin`: davete otomatik katılma politikası (`always`, `allowlist`, `off`). Varsayılan: `off`.
+- `autoJoinAllowlist`: `autoJoin` değeri `allowlist` olduğunda izin verilen odalar/takma adlar. Takma ad girdileri davet işleme sırasında oda kimliklerine çözülür; OpenClaw davet edilen oda tarafından iddia edilen takma ad durumuna güvenmez.
+- `dm`: DM politika bloğu (`enabled`, `policy`, `allowFrom`, `sessionScope`, `threadReplies`).
+- `dm.allowFrom` girdileri, onları canlı dizin aramasıyla zaten çözümlemediyseniz tam Matrix kullanıcı kimlikleri olmalıdır.
+- `dm.sessionScope`: `per-user` (varsayılan) veya `per-room`. Aynı eş olsa bile her Matrix DM odasının ayrı bağlam tutmasını istiyorsanız `per-room` kullanın.
+- `dm.threadReplies`: yalnızca DM için ileti dizisi politikası geçersiz kılması (`off`, `inbound`, `always`). Hem yanıt yerleşimi hem de DM'lerde oturum yalıtımı için üst düzey `threadReplies` ayarını geçersiz kılar.
+- `execApprovals`: Matrix yerel exec onay teslimi (`enabled`, `approvers`, `target`, `agentFilter`, `sessionFilter`).
 - `execApprovals.approvers`: exec isteklerini onaylamasına izin verilen Matrix kullanıcı kimlikleri. `dm.allowFrom` zaten onaylayıcıları belirliyorsa isteğe bağlıdır.
 - `execApprovals.target`: `dm | channel | both` (varsayılan: `dm`).
-- `accounts`: hesap başına adlandırılmış geçersiz kılmalar. Üst düzey `channels.matrix` değerleri bu girdiler için varsayılan olarak davranır.
-- `groups`: oda başına ilke haritası. Oda kimliklerini veya takma adları tercih edin; çözümlenmemiş oda adları çalışma zamanında yok sayılır. Oturum/grup kimliği çözümlemeden sonra kararlı oda kimliğini kullanırken, insan tarafından okunabilir etiketler yine oda adlarından gelir.
-- `groups.<room>.account`: çoklu hesap kurulumlarında devralınan tek bir oda girdisini belirli bir Matrix hesabıyla sınırlar.
-- `groups.<room>.allowBots`: yapılandırılmış bot göndericileri için oda düzeyinde geçersiz kılma (`true` veya `"mentions"`).
-- `groups.<room>.users`: oda başına gönderici allowlist'i.
-- `groups.<room>.tools`: oda başına araç izin/verme veya engelleme geçersiz kılmaları.
-- `groups.<room>.autoReply`: oda düzeyinde mention kısıtlaması geçersiz kılması. `true`, o oda için mention gereksinimlerini devre dışı bırakır; `false` bunları yeniden zorunlu kılar.
-- `groups.<room>.skills`: isteğe bağlı oda düzeyinde beceri filtresi.
-- `groups.<room>.systemPrompt`: isteğe bağlı oda düzeyinde system prompt parçacığı.
+- `accounts`: adlandırılmış hesap başına geçersiz kılmalar. Üst düzey `channels.matrix` değerleri bu girdiler için varsayılan görevi görür.
+- `groups`: oda başına politika eşlemesi. Oda kimliklerini veya takma adları tercih edin; çözümlenmemiş oda adları çalışma zamanında yok sayılır. Çözümleme sonrası oturum/grup kimliği kararlı oda kimliğini kullanırken, insan tarafından okunabilir etiketler yine oda adlarından gelir.
+- `groups.<room>.account`: çoklu hesap kurulumlarında bir devralınan oda girdisini belirli bir Matrix hesabıyla sınırlar.
+- `groups.<room>.allowBots`: yapılandırılmış bot gönderenleri için oda düzeyi geçersiz kılma (`true` veya `"mentions"`).
+- `groups.<room>.users`: oda başına gönderen allowlist'i.
+- `groups.<room>.tools`: oda başına araç izin/verme veya reddetme geçersiz kılmaları.
+- `groups.<room>.autoReply`: oda düzeyi mention kapılama geçersiz kılması. `true`, o oda için mention gereksinimlerini devre dışı bırakır; `false` bunları yeniden zorlar.
+- `groups.<room>.skills`: isteğe bağlı oda düzeyi skill filtresi.
+- `groups.<room>.systemPrompt`: isteğe bağlı oda düzeyi system prompt parçası.
 - `rooms`: `groups` için eski takma ad.
-- `actions`: işlem başına araç geçitleme (`messages`, `reactions`, `pins`, `profile`, `memberInfo`, `channelInfo`, `verification`).
+- `actions`: eylem başına araç kapılama (`messages`, `reactions`, `pins`, `profile`, `memberInfo`, `channelInfo`, `verification`).
 
 ## İlgili
 
 - [Channels Overview](/tr/channels) — desteklenen tüm kanallar
 - [Pairing](/tr/channels/pairing) — DM kimlik doğrulaması ve eşleştirme akışı
-- [Groups](/tr/channels/groups) — grup sohbeti davranışı ve mention kısıtlaması
-- [Channel Routing](/tr/channels/channel-routing) — mesajlar için oturum yönlendirmesi
-- [Security](/gateway/security) — erişim modeli ve sertleştirme
+- [Groups](/tr/channels/groups) — grup sohbeti davranışı ve mention kapılama
+- [Channel Routing](/tr/channels/channel-routing) — iletiler için oturum yönlendirmesi
+- [Security](/tr/gateway/security) — erişim modeli ve sağlamlaştırma

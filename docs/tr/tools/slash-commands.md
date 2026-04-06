@@ -1,14 +1,14 @@
 ---
 read_when:
-    - Sohbet komutlarını kullanırken veya yapılandırırken
-    - Komut yönlendirmesi veya izinlerinde hata ayıklarken
-summary: 'Slash komutları: metin ve yerel komutlar, yapılandırma ve desteklenen komutlar'
+    - Sohbet komutlarını kullanıyor veya yapılandırıyorsunuz
+    - Komut yönlendirmesini veya izinleri hata ayıklıyorsunuz
+summary: 'Slash komutları: metin ve yerel, yapılandırma ve desteklenen komutlar'
 title: Slash Komutları
 x-i18n:
-    generated_at: "2026-04-05T14:14:22Z"
+    generated_at: "2026-04-06T03:14:45Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 8c91437140732d9accca1094f07b9e05f861a75ac344531aa24cc2ffe000630f
+    source_hash: 417e35b9ddd87f25f6c019111b55b741046ea11039dde89210948185ced5696d
     source_path: tools/slash-commands.md
     workflow: 15
 ---
@@ -16,21 +16,21 @@ x-i18n:
 # Slash komutları
 
 Komutlar Gateway tarafından işlenir. Çoğu komut, `/` ile başlayan **bağımsız** bir mesaj olarak gönderilmelidir.
-Yalnızca ana makinede çalışan bash sohbet komutu `! <cmd>` kullanır (takma ad olarak `/bash <cmd>` de kullanılabilir).
+Yalnızca host üzerinde çalışan bash sohbet komutu `! <cmd>` kullanır (`/bash <cmd>` bir takma addır).
 
 Birbiriyle ilişkili iki sistem vardır:
 
 - **Komutlar**: bağımsız `/...` mesajları.
 - **Yönergeler**: `/think`, `/fast`, `/verbose`, `/reasoning`, `/elevated`, `/exec`, `/model`, `/queue`.
-  - Yönergeler, model mesajı görmeden önce mesajdan çıkarılır.
-  - Normal sohbet mesajlarında (yalnızca yönergeden oluşmayan), “satır içi ipuçları” olarak değerlendirilir ve oturum ayarlarını **kalıcı olarak değiştirmez**.
-  - Yalnızca yönergelerden oluşan mesajlarda (mesaj yalnızca yönergeler içeriyorsa), oturuma kalıcı olarak uygulanır ve bir onay yanıtı döner.
-  - Yönergeler yalnızca **yetkili göndericiler** için uygulanır. `commands.allowFrom` ayarlanmışsa kullanılan tek
-    izin listesi budur; aksi takdirde yetkilendirme kanal izin listeleri/eşleştirme ile `commands.useAccessGroups` üzerinden gelir.
-    Yetkisiz göndericiler, yönergeleri düz metin olarak görür.
+  - Yönergeler, model mesajı görmeden önce ondan ayıklanır.
+  - Normal sohbet mesajlarında (yalnızca yönergelerden oluşmayan), “satır içi ipuçları” olarak değerlendirilir ve oturum ayarlarını **kalıcı hale getirmez**.
+  - Yalnızca yönerge içeren mesajlarda (mesaj yalnızca yönergeler içeriyorsa), oturuma kalıcı olarak kaydedilir ve bir onay yanıtı döndürür.
+  - Yönergeler yalnızca **yetkili göndericilere** uygulanır. `commands.allowFrom` ayarlanmışsa, kullanılan tek
+    izin listesi odur; aksi halde yetkilendirme channel izin listeleri/eşleştirme ile `commands.useAccessGroups` üzerinden gelir.
+    Yetkisiz göndericiler, yönergelerin düz metin olarak ele alındığını görür.
 
-Buna ek olarak birkaç **satır içi kısayol** da vardır (yalnızca izin listesinde/yetkili göndericiler için): `/help`, `/commands`, `/status`, `/whoami` (`/id`).
-Bunlar hemen çalışır, model mesajı görmeden önce çıkarılır ve kalan metin normal akıştan geçmeye devam eder.
+Ayrıca birkaç **satır içi kısayol** da vardır (yalnızca izin listesinde/yetkili göndericiler için): `/help`, `/commands`, `/status`, `/whoami` (`/id`).
+Bunlar hemen çalışır, model kalan metni görmeden önce ayıklanır ve kalan metin normal akıştan devam eder.
 
 ## Yapılandırma
 
@@ -56,143 +56,141 @@ Bunlar hemen çalışır, model mesajı görmeden önce çıkarılır ve kalan m
 }
 ```
 
-- `commands.text` (varsayılan `true`) sohbet mesajlarında `/...` ayrıştırmayı etkinleştirir.
-  - Yerel komut desteği olmayan yüzeylerde (WhatsApp/WebChat/Signal/iMessage/Google Chat/Microsoft Teams), bunu `false` olarak ayarlasanız bile metin komutları çalışmaya devam eder.
-- `commands.native` (varsayılan `"auto"`) yerel komutları kaydeder.
-  - Auto: Discord/Telegram için açık; Slack için kapalıdır (siz slash komutlarını ekleyene kadar); yerel desteği olmayan sağlayıcılarda yok sayılır.
-  - Sağlayıcı bazında geçersiz kılmak için `channels.discord.commands.native`, `channels.telegram.commands.native` veya `channels.slack.commands.native` kullanın (bool veya `"auto"`).
+- `commands.text` (varsayılan `true`), sohbet mesajlarında `/...` ayrıştırmasını etkinleştirir.
+  - Yerel komutları olmayan yüzeylerde (WhatsApp/WebChat/Signal/iMessage/Google Chat/Microsoft Teams), bunu `false` yapsanız bile metin komutları çalışmaya devam eder.
+- `commands.native` (varsayılan `"auto"`), yerel komutları kaydeder.
+  - Otomatik: Discord/Telegram için açık; Slack için kapalıdır (slash komutlarını ekleyene kadar); yerel desteği olmayan sağlayıcılarda yok sayılır.
+  - Sağlayıcı bazında geçersiz kılmak için `channels.discord.commands.native`, `channels.telegram.commands.native` veya `channels.slack.commands.native` ayarlayın (bool veya `"auto"`).
   - `false`, başlangıçta Discord/Telegram üzerinde daha önce kaydedilmiş komutları temizler. Slack komutları Slack uygulamasında yönetilir ve otomatik olarak kaldırılmaz.
-- `commands.nativeSkills` (varsayılan `"auto"`) desteklendiğinde **skill** komutlarını yerel olarak kaydeder.
-  - Auto: Discord/Telegram için açık; Slack için kapalıdır (Slack, her skill için bir slash komutu oluşturmayı gerektirir).
-  - Sağlayıcı bazında geçersiz kılmak için `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills` veya `channels.slack.commands.nativeSkills` kullanın (bool veya `"auto"`).
-- `commands.bash` (varsayılan `false`) ana makinede kabuk komutlarını çalıştırmak için `! <cmd>` kullanımını etkinleştirir (`/bash <cmd>` takma addır; `tools.elevated` izin listeleri gerektirir).
-- `commands.bashForegroundMs` (varsayılan `2000`) bash'in arka plan moduna geçmeden önce ne kadar bekleyeceğini kontrol eder (`0` anında arka plana alır).
-- `commands.config` (varsayılan `false`) `/config` komutunu etkinleştirir (`openclaw.json` okur/yazar).
-- `commands.mcp` (varsayılan `false`) `/mcp` komutunu etkinleştirir (`mcp.servers` altında OpenClaw tarafından yönetilen MCP yapılandırmasını okur/yazar).
-- `commands.plugins` (varsayılan `false`) `/plugins` komutunu etkinleştirir (plugin keşfi/durumu ile kurulum + etkinleştirme/devre dışı bırakma denetimleri).
-- `commands.debug` (varsayılan `false`) `/debug` komutunu etkinleştirir (yalnızca çalışma zamanına özgü geçersiz kılmalar).
-- `commands.allowFrom` (isteğe bağlı), komut yetkilendirmesi için sağlayıcı bazında bir izin listesi ayarlar. Yapılandırıldığında,
-  komutlar ve yönergeler için tek yetkilendirme kaynağı budur (kanal izin listeleri/eşleştirme ve `commands.useAccessGroups`
-  yok sayılır). Genel varsayılan için `"*"` kullanın; sağlayıcıya özgü anahtarlar bunu geçersiz kılar.
-- `commands.useAccessGroups` (varsayılan `true`), `commands.allowFrom` ayarlı değilse komutlar için izin listelerini/ilkeleri uygular.
+- `commands.nativeSkills` (varsayılan `"auto"`), desteklendiğinde **skill** komutlarını yerel olarak kaydeder.
+  - Otomatik: Discord/Telegram için açık; Slack için kapalıdır (Slack, skill başına bir slash komutu oluşturmayı gerektirir).
+  - Sağlayıcı bazında geçersiz kılmak için `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills` veya `channels.slack.commands.nativeSkills` ayarlayın (bool veya `"auto"`).
+- `commands.bash` (varsayılan `false`), `! <cmd>` ile host shell komutlarının çalıştırılmasını etkinleştirir (`/bash <cmd>` bir takma addır; `tools.elevated` izin listeleri gerekir).
+- `commands.bashForegroundMs` (varsayılan `2000`), bash’in arka plan kipine geçmeden önce ne kadar bekleyeceğini denetler (`0`, hemen arka plana atar).
+- `commands.config` (varsayılan `false`), `/config` komutunu etkinleştirir (`openclaw.json` okur/yazar).
+- `commands.mcp` (varsayılan `false`), `/mcp` komutunu etkinleştirir (`mcp.servers` altındaki OpenClaw tarafından yönetilen MCP config’ini okur/yazar).
+- `commands.plugins` (varsayılan `false`), `/plugins` komutunu etkinleştirir (plugin keşfi/durumu artı kurulum + etkinleştirme/devre dışı bırakma denetimleri).
+- `commands.debug` (varsayılan `false`), `/debug` komutunu etkinleştirir (yalnızca çalışma zamanı geçersiz kılmaları).
+- `commands.allowFrom` (isteğe bağlı), komut yetkilendirmesi için sağlayıcı başına bir izin listesi ayarlar. Yapılandırıldığında, komutlar ve yönergeler için
+  tek yetkilendirme kaynağı bu olur (channel izin listeleri/eşleştirme ve `commands.useAccessGroups`
+  yok sayılır). Global varsayılan için `"*"` kullanın; sağlayıcıya özgü anahtarlar bunu geçersiz kılar.
+- `commands.useAccessGroups` (varsayılan `true`), `commands.allowFrom` ayarlanmamışsa komutlar için izin listelerini/ilkeleri uygular.
 
 ## Komut listesi
 
-Metin + yerel (etkin olduğunda):
+Metin + yerel (etkinleştirildiğinde):
 
 - `/help`
 - `/commands`
-- `/tools [compact|verbose]` (geçerli ajanın şu anda neleri kullanabildiğini gösterir; `verbose` açıklamalar ekler)
-- `/skill <name> [input]` (bir skill'i adına göre çalıştırır)
-- `/status` (geçerli durumu gösterir; varsa geçerli model sağlayıcısı için sağlayıcı kullanımı/kotasını içerir)
-- `/tasks` (geçerli oturum için arka plan görevlerini listeler; etkin ve son görev ayrıntılarını ajan yerel fallback sayılarıyla gösterir)
-- `/allowlist` (izin listesi girdilerini listeler/ekler/kaldırır)
-- `/approve <id> <decision>` (exec onay istemlerini çözer; kullanılabilir kararlar için bekleyen onay mesajını kullanın)
-- `/context [list|detail|json]` (“context”i açıklar; `detail` dosya başına + araç başına + skill başına + sistem istemi boyutunu gösterir)
+- `/tools [compact|verbose]` (geçerli agent’ın şu anda ne kullanabildiğini gösterir; `verbose` açıklamaları ekler)
+- `/skill <name> [input]` (bir skill’i adına göre çalıştır)
+- `/status` (geçerli durumu gösterir; mevcut model provider için kullanılabiliyorsa provider kullanım/kota bilgilerini içerir)
+- `/tasks` (geçerli oturum için arka plan görevlerini listeler; agent-local geri dönüş sayılarıyla etkin ve son görev ayrıntılarını gösterir)
+- `/allowlist` (izin listesi girdilerini listele/ekle/kaldır)
+- `/approve <id> <decision>` (exec onay istemlerini çözümler; kullanılabilir kararlar için bekleyen onay mesajını kullanın)
+- `/context [list|detail|json]` (“bağlam”ı açıklar; `detail`, dosya başına + araç başına + skill başına + sistem komutu boyutunu gösterir)
 - `/btw <question>` (gelecekteki oturum bağlamını değiştirmeden geçerli oturum hakkında geçici bir yan soru sorar; bkz. [/tools/btw](/tr/tools/btw))
-- `/export-session [path]` (takma ad: `/export`) (tam sistem istemiyle geçerli oturumu HTML olarak dışa aktarır)
-- `/whoami` (gönderici kimliğinizi gösterir; takma ad: `/id`)
-- `/session idle <duration|off>` (odaklanmış iş parçacığı bağlamaları için etkin olmama nedeniyle otomatik odağı kaldırmayı yönetir)
-- `/session max-age <duration|off>` (odaklanmış iş parçacığı bağlamaları için katı maksimum yaş nedeniyle otomatik odağı kaldırmayı yönetir)
-- `/subagents list|kill|log|info|send|steer|spawn` (geçerli oturum için alt ajan çalıştırmalarını inceleyin, kontrol edin veya başlatın)
-- `/acp spawn|cancel|steer|close|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|sessions` (ACP çalışma zamanı oturumlarını inceleyin ve kontrol edin)
-- `/agents` (bu oturum için iş parçacığına bağlı ajanları listeler)
-- `/focus <target>` (Discord: bu iş parçacığını veya yeni bir iş parçacığını bir oturum/alt ajan hedefine bağlar)
-- `/unfocus` (Discord: geçerli iş parçacığı bağlamasını kaldırır)
-- `/kill <id|#|all>` (bu oturum için çalışan bir veya tüm alt ajanları hemen durdurur; onay mesajı yoktur)
-- `/steer <id|#> <message>` (çalışan bir alt ajanı hemen yönlendirir: mümkünse çalışma sırasında, değilse mevcut işi durdurup yönlendirme mesajıyla yeniden başlatır)
-- `/tell <id|#> <message>` (`/steer` için takma addır)
-- `/config show|get|set|unset` (yapılandırmayı diske kalıcı yazar, yalnızca sahip; `commands.config: true` gerektirir)
-- `/mcp show|get|set|unset` (OpenClaw MCP sunucu yapılandırmasını yönetir, yalnızca sahip; `commands.mcp: true` gerektirir)
-- `/plugins list|show|get|install|enable|disable` (keşfedilen plugin'leri inceler, yenilerini kurar ve etkinleştirmeyi açıp kapatır; yazma işlemleri yalnızca sahip içindir; `commands.plugins: true` gerektirir)
-  - `/plugin`, `/plugins` için takma addır.
-  - `/plugin install <spec>`, `openclaw plugins install` ile aynı plugin spec'lerini kabul eder: yerel yol/arşiv, npm paketi veya `clawhub:<pkg>`.
-  - Etkinleştirme/devre dışı bırakma yazmaları yine yeniden başlatma ipucuyla yanıt verir. İzlenen bir foreground gateway üzerinde OpenClaw bu yeniden başlatmayı yazmadan hemen sonra otomatik olarak gerçekleştirebilir.
-- `/debug show|set|unset|reset` (çalışma zamanı geçersiz kılmaları, yalnızca sahip; `commands.debug: true` gerektirir)
-- `/usage off|tokens|full|cost` (yanıt başına kullanım alt bilgisi veya yerel maliyet özeti)
-- `/tts off|always|inbound|tagged|status|provider|limit|summary|audio` (TTS'i kontrol eder; bkz. [/tts](/tools/tts))
-  - Discord: yerel komut `/voice` olur (Discord `/tts` ayırır); metin olarak `/tts` yine de çalışır.
+- `/export-session [path]` (takma ad: `/export`) (geçerli oturumu tam sistem komutuyla birlikte HTML olarak dışa aktarır)
+- `/whoami` (gönderici kimliğinizi gösterir; takma adı: `/id`)
+- `/session idle <duration|off>` (odaklanmış thread bağları için etkinliksizlik kaynaklı otomatik odak kaldırmayı yönetir)
+- `/session max-age <duration|off>` (odaklanmış thread bağları için kesin max-age kaynaklı otomatik odak kaldırmayı yönetir)
+- `/subagents list|kill|log|info|send|steer|spawn` (geçerli oturum için alt agent çalıştırmalarını incele, denetle veya başlat)
+- `/acp spawn|cancel|steer|close|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|sessions` (ACP çalışma zamanı oturumlarını incele ve denetle)
+- `/agents` (bu oturum için thread’e bağlı agent’ları listeler)
+- `/focus <target>` (Discord: bu thread’i veya yeni bir thread’i bir oturum/alt agent hedefine bağla)
+- `/unfocus` (Discord: geçerli thread bağını kaldır)
+- `/kill <id|#|all>` (bu oturum için çalışan bir veya tüm alt agent’ları hemen durdurur; onay mesajı yoktur)
+- `/steer <id|#> <message>` (çalışan bir alt agent’ı hemen yönlendirir: mümkünse çalışma içinde, aksi halde mevcut işi durdurup yönlendirme mesajıyla yeniden başlatır)
+- `/tell <id|#> <message>` (`/steer` için takma ad)
+- `/config show|get|set|unset` (config’i diske kalıcı yazar, yalnızca sahip; `commands.config: true` gerektirir)
+- `/mcp show|get|set|unset` (OpenClaw MCP sunucu config’ini yönetir, yalnızca sahip; `commands.mcp: true` gerektirir)
+- `/plugins list|show|get|install|enable|disable` (keşfedilen plugin’leri incele, yenilerini kur ve etkinliği değiştir; yazma işlemleri yalnızca sahip içindir; `commands.plugins: true` gerektirir)
+  - `/plugin`, `/plugins` için bir takma addır.
+  - `/plugin install <spec>`, `openclaw plugins install` ile aynı plugin spec’lerini kabul eder: yerel yol/arşiv, npm paketi veya `clawhub:<pkg>`.
+  - Etkinleştirme/devre dışı bırakma yazmaları yine de bir yeniden başlatma ipucuyla yanıt verir. Ön planda izlenen bir gateway’de OpenClaw bu yeniden başlatmayı yazımdan hemen sonra otomatik gerçekleştirebilir.
+- `/debug show|set|unset|reset` (yalnızca çalışma zamanı geçersiz kılmaları, yalnızca sahip; `commands.debug: true` gerektirir)
+- `/usage off|tokens|full|cost` (yanıt başına kullanım altbilgisi veya yerel maliyet özeti)
+- `/tts off|always|inbound|tagged|status|provider|limit|summary|audio` (TTS denetimi; bkz. [/tts](/tr/tools/tts))
+  - Discord: yerel komut `/voice`’dur (Discord `/tts` komutunu ayırır); metin `/tts` yine de çalışır.
 - `/stop`
 - `/restart`
-- `/dock-telegram` (takma ad: `/dock_telegram`) (yanıtları Telegram'a geçirir)
-- `/dock-discord` (takma ad: `/dock_discord`) (yanıtları Discord'a geçirir)
-- `/dock-slack` (takma ad: `/dock_slack`) (yanıtları Slack'e geçirir)
+- `/dock-telegram` (takma ad: `/dock_telegram`) (yanıtları Telegram’a geçir)
+- `/dock-discord` (takma ad: `/dock_discord`) (yanıtları Discord’a geçir)
+- `/dock-slack` (takma ad: `/dock_slack`) (yanıtları Slack’e geçir)
 - `/activation mention|always` (yalnızca gruplar)
 - `/send on|off|inherit` (yalnızca sahip)
-- `/reset` veya `/new [model]` (isteğe bağlı model ipucu; kalan kısım iletilir)
+- `/reset` veya `/new [model]` (isteğe bağlı model ipucu; kalan metin aynen iletilir)
 - `/think <off|minimal|low|medium|high|xhigh>` (modele/sağlayıcıya göre dinamik seçenekler; takma adlar: `/thinking`, `/t`)
-- `/fast status|on|off` (argümanın atlanması geçerli etkin fast mode durumunu gösterir)
-- `/verbose on|full|off` (takma ad: `/v`)
-- `/reasoning on|off|stream` (takma ad: `/reason`; açık olduğunda `Reasoning:` önekli ayrı bir mesaj gönderir; `stream` = yalnızca Telegram taslağı)
-- `/elevated on|off|ask|full` (takma ad: `/elev`; `full`, exec onaylarını atlar)
-- `/exec host=<auto|sandbox|gateway|node> security=<deny|allowlist|full> ask=<off|on-miss|always> node=<id>` (geçerli durumu göstermek için `/exec` gönderin)
-- `/model <name>` (takma ad: `/models`; veya `agents.defaults.models.*.alias` içinden `/<alias>`)
-- `/queue <mode>` (`debounce:2s cap:25 drop:summarize` gibi seçeneklerle birlikte; geçerli ayarları görmek için `/queue` gönderin)
-- `/bash <command>` (yalnızca ana makine; `! <command>` için takma addır; `commands.bash: true` + `tools.elevated` izin listeleri gerektirir)
-- `/dreaming [off|core|rem|deep|status|help]` (dreaming mode'u açıp kapatır veya durumu gösterir; bkz. [Dreaming](/tr/concepts/memory-dreaming))
+- `/fast status|on|off` (argümanı atlamak, geçerli etkin fast-mode durumunu gösterir)
+- `/verbose on|full|off` (takma adı: `/v`)
+- `/reasoning on|off|stream` (takma adı: `/reason`; açıkken `Reasoning:` önekli ayrı bir mesaj gönderir; `stream` = yalnızca Telegram taslağı)
+- `/elevated on|off|ask|full` (takma adı: `/elev`; `full`, exec onaylarını atlar)
+- `/exec host=<auto|sandbox|gateway|node> security=<deny|allowlist|full> ask=<off|on-miss|always> node=<id>` (geçerli durumu görmek için `/exec` gönderin)
+- `/model <name>` (takma adı: `/models`; veya `agents.defaults.models.*.alias` içindeki `/<alias>`)
+- `/queue <mode>` (artı `debounce:2s cap:25 drop:summarize` gibi seçenekler; mevcut ayarları görmek için `/queue` gönderin)
+- `/bash <command>` (yalnızca host; `! <command>` için takma ad; `commands.bash: true` + `tools.elevated` izin listeleri gerekir)
+- `/dreaming [on|off|status|help]` (global dreaming’i aç/kapat veya durumu göster; bkz. [Dreaming](/concepts/dreaming))
 
 Yalnızca metin:
 
 - `/compact [instructions]` (bkz. [/concepts/compaction](/tr/concepts/compaction))
-- `! <command>` (yalnızca ana makine; aynı anda bir tane; uzun süren işler için `!poll` + `!stop` kullanın)
+- `! <command>` (yalnızca host; aynı anda bir tane; uzun işler için `!poll` + `!stop` kullanın)
 - `!poll` (çıktıyı / durumu kontrol eder; isteğe bağlı `sessionId` kabul eder; `/bash poll` da çalışır)
 - `!stop` (çalışan bash işini durdurur; isteğe bağlı `sessionId` kabul eder; `/bash stop` da çalışır)
 
 Notlar:
 
 - Komutlar, komut ile argümanlar arasında isteğe bağlı `:` kabul eder (ör. `/think: high`, `/send: on`, `/help:`).
-- `/new <model>`, bir model takma adını, `provider/model` biçimini veya bir sağlayıcı adını kabul eder (bulanık eşleşme); eşleşme yoksa metin mesaj gövdesi olarak değerlendirilir.
-- Sağlayıcı kullanımının tam dökümü için `openclaw status --usage` kullanın.
-- `/allowlist add|remove`, `commands.config=true` gerektirir ve kanal `configWrites` ayarına uyar.
-- Çok hesaplı kanallarda, yapılandırma hedefli `/allowlist --account <id>` ve `/config set channels.<provider>.accounts.<id>...` da hedef hesabın `configWrites` ayarına uyar.
-- `/usage`, yanıt başına kullanım alt bilgisini kontrol eder; `/usage cost`, OpenClaw oturum günlüklerinden yerel maliyet özeti yazdırır.
+- `/new <model>`, bir model takma adı, `provider/model` veya sağlayıcı adı (bulanık eşleşme) kabul eder; eşleşme yoksa metin mesaj gövdesi olarak ele alınır.
+- Tam provider kullanım dökümü için `openclaw status --usage` kullanın.
+- `/allowlist add|remove`, `commands.config=true` gerektirir ve channel `configWrites` ayarını dikkate alır.
+- Çok hesaplı channels içinde, hedef hesap için kullanılan `/allowlist --account <id>` ve `/config set channels.<provider>.accounts.<id>...` da hedef hesabın `configWrites` ayarını dikkate alır.
+- `/usage`, yanıt başına kullanım altbilgisini denetler; `/usage cost`, OpenClaw oturum günlüklerinden yerel bir maliyet özeti yazdırır.
 - `/restart` varsayılan olarak etkindir; devre dışı bırakmak için `commands.restart: false` ayarlayın.
-- Yalnızca Discord yerel komutu: `/vc join|leave|status` ses kanallarını kontrol eder (`channels.discord.voice` ve yerel komutlar gerektirir; metin olarak mevcut değildir).
-- Discord iş parçacığı bağlama komutları (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`), iş parçacığı bağlamalarının etkili biçimde etkin olmasını gerektirir (`session.threadBindings.enabled` ve/veya `channels.discord.threadBindings.enabled`).
+- Yalnızca Discord yerel komutu: `/vc join|leave|status`, ses kanallarını denetler (`channels.discord.voice` ve yerel komutlar gerekir; metin olarak yoktur).
+- Discord thread-binding komutları (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`), etkin thread bağlarının etkin olmasını gerektirir (`session.threadBindings.enabled` ve/veya `channels.discord.threadBindings.enabled`).
 - ACP komut başvurusu ve çalışma zamanı davranışı: [ACP Agents](/tr/tools/acp-agents).
 - `/verbose`, hata ayıklama ve ek görünürlük içindir; normal kullanımda **kapalı** tutun.
-- `/fast on|off`, kalıcı bir oturum geçersiz kılması yazar. Bunu temizlemek ve yapılandırma varsayılanlarına dönmek için Sessions UI içindeki `inherit` seçeneğini kullanın.
-- `/fast`, sağlayıcıya özeldir: OpenAI/OpenAI Codex bunu yerel Responses uç noktalarında `service_tier=priority` olarak eşler; `api.anthropic.com` adresine gönderilen OAuth ile kimliği doğrulanmış trafik dahil doğrudan genel Anthropic istekleri ise bunu `service_tier=auto` veya `standard_only` olarak eşler. Bkz. [OpenAI](/tr/providers/openai) ve [Anthropic](/tr/providers/anthropic).
-- Araç hatası özetleri gerektiğinde yine gösterilir, ancak ayrıntılı hata metni yalnızca `/verbose` `on` veya `full` olduğunda dahil edilir.
-- `/reasoning` (ve `/verbose`) grup ayarlarında risklidir: açığa çıkarmayı düşünmediğiniz içsel muhakemeyi veya araç çıktısını gösterebilir. Özellikle grup sohbetlerinde bunları kapalı bırakmayı tercih edin.
-- `/model`, yeni oturum modelini hemen kalıcı olarak yazar.
-- Ajan boştaysa sonraki çalıştırma bunu hemen kullanır.
+- `/fast on|off`, oturum geçersiz kılmasını kalıcı hale getirir. Bunu temizleyip config varsayılanlarına dönmek için Sessions UI içindeki `inherit` seçeneğini kullanın.
+- `/fast`, sağlayıcıya özgüdür: OpenAI/OpenAI Codex bunu yerel Responses endpoint’lerinde `service_tier=priority` olarak eşlerken, `api.anthropic.com` adresine gönderilen OAuth ile kimlik doğrulanmış trafik dahil doğrudan herkese açık Anthropic istekleri bunu `service_tier=auto` veya `standard_only` olarak eşler. Bkz. [OpenAI](/tr/providers/openai) ve [Anthropic](/tr/providers/anthropic).
+- Araç hata özetleri ilgili olduğunda yine gösterilir, ancak ayrıntılı hata metni yalnızca `/verbose` `on` veya `full` iken eklenir.
+- `/reasoning` (ve `/verbose`) grup ortamlarında risklidir: açığa çıkarmayı düşünmediğiniz iç reasoning’i veya araç çıktısını ifşa edebilir. Özellikle grup sohbetlerinde bunları kapalı bırakmayı tercih edin.
+- `/model`, yeni oturum modelini hemen kalıcı hale getirir.
+- Agent boşta ise bir sonraki çalıştırma bunu hemen kullanır.
 - Bir çalıştırma zaten etkinse OpenClaw canlı geçişi beklemede olarak işaretler ve yalnızca temiz bir yeniden deneme noktasında yeni modele yeniden başlar.
-- Araç etkinliği veya yanıt çıktısı zaten başlamışsa bekleyen geçiş, daha sonraki bir yeniden deneme fırsatına veya sonraki kullanıcı turuna kadar kuyrukta kalabilir.
-- **Hızlı yol:** izin listesindeki göndericilerden gelen yalnızca komut içeren mesajlar hemen işlenir (kuyruğu + modeli atlar).
-- **Grup mention geçidi:** izin listesindeki göndericilerden gelen yalnızca komut içeren mesajlar mention gereksinimlerini atlar.
-- **Satır içi kısayollar (yalnızca izin listesindeki göndericiler):** bazı komutlar normal bir mesaj içine gömülü olduğunda da çalışır ve model kalan metni görmeden önce çıkarılır.
-  - Örnek: `hey /status`, bir durum yanıtı tetikler ve kalan metin normal akıştan geçmeye devam eder.
+- Araç etkinliği veya yanıt çıktısı zaten başladıysa, bekleyen geçiş daha sonraki bir yeniden deneme fırsatına ya da sonraki kullanıcı turuna kadar kuyrukta kalabilir.
+- **Hızlı yol:** izin listesindeki göndericilerden gelen yalnızca komut içeren mesajlar hemen işlenir (kuyruk + model atlanır).
+- **Grup mention kapılaması:** izin listesindeki göndericilerden gelen yalnızca komut içeren mesajlar mention gereksinimlerini atlar.
+- **Satır içi kısayollar (yalnızca izin listesindeki göndericiler):** bazı komutlar normal bir mesajın içine gömülü olduğunda da çalışır ve model kalan metni görmeden önce ayıklanır.
+  - Örnek: `hey /status`, bir durum yanıtı tetikler ve kalan metin normal akıştan devam eder.
 - Şu anda: `/help`, `/commands`, `/status`, `/whoami` (`/id`).
-- Yetkisiz yalnızca komut içeren mesajlar sessizce yok sayılır ve satır içi `/...` belirteçleri düz metin olarak değerlendirilir.
-- **Skill komutları:** `user-invocable` skill'ler slash komutları olarak sunulur. Adlar `a-z0-9_` olacak şekilde temizlenir (en fazla 32 karakter); çakışmalar sayısal sonekler alır (ör. `_2`).
-  - `/skill <name> [input]`, bir skill'i adına göre çalıştırır (yerel komut sınırları skill başına komutları engellediğinde kullanışlıdır).
-  - Varsayılan olarak skill komutları modele normal bir istek olarak iletilir.
-  - Skill'ler isteğe bağlı olarak komutu doğrudan bir araca yönlendirmek için `command-dispatch: tool` bildirebilir (deterministik, modelsiz).
-  - Örnek: `/prose` (OpenProse plugin'i) — bkz. [OpenProse](/tr/prose).
-- **Yerel komut argümanları:** Discord dinamik seçenekler için autocomplete kullanır (ve gerekli argümanları atladığınızda düğme menüleri gösterir). Telegram ve Slack, bir komut seçenekleri desteklediğinde ve siz argümanı atladığınızda bir düğme menüsü gösterir.
+- Yetkisiz yalnızca komut mesajları sessizce yok sayılır ve satır içi `/...` belirteçleri düz metin olarak değerlendirilir.
+- **Skill komutları:** `user-invocable` skill’ler slash komutları olarak sunulur. Adlar `a-z0-9_` olacak şekilde temizlenir (en fazla 32 karakter); çakışmalar sayısal son ekler alır (ör. `_2`).
+  - `/skill <name> [input]`, bir skill’i adına göre çalıştırır (yerel komut sınırları skill başına komutları engellediğinde yararlıdır).
+  - Varsayılan olarak skill komutları modele normal istek olarak iletilir.
+  - Skill’ler isteğe bağlı olarak komutu doğrudan bir araca yönlendirmek için `command-dispatch: tool` bildirebilir (deterministik, modelsiz).
+  - Örnek: `/prose` (OpenProse plugin’i) — bkz. [OpenProse](/tr/prose).
+- **Yerel komut argümanları:** Discord, dinamik seçenekler için autocomplete kullanır (ve gerekli argümanları atlarsanız düğme menüleri gösterir). Telegram ve Slack, komut seçenekleri destekliyorsa ve argümanı atlarsanız bir düğme menüsü gösterir.
 
 ## `/tools`
 
-`/tools`, bir yapılandırma sorusunu değil, çalışma zamanı sorusunu yanıtlar: **bu ajanın şu anda
-bu konuşmada neleri kullanabildiğini**.
+`/tools`, bir config sorusunu değil, çalışma zamanı sorusunu yanıtlar: **bu agent’ın şu anda
+bu konuşmada ne kullanabildiğini**.
 
-- Varsayılan `/tools` kompaktır ve hızlı tarama için optimize edilmiştir.
+- Varsayılan `/tools` kompakttır ve hızlı tarama için optimize edilmiştir.
 - `/tools verbose`, kısa açıklamalar ekler.
-- Argümanları destekleyen yerel komut yüzeyleri aynı mod geçişini `compact|verbose` olarak sunar.
-- Sonuçlar oturum kapsamlıdır; bu nedenle ajanı, kanalı, iş parçacığını, gönderici yetkilendirmesini veya modeli değiştirmek
-  çıktıyı değiştirebilir.
-- `/tools`, çekirdek araçlar, bağlı plugin araçları ve kanala ait araçlar dahil olmak üzere çalışma zamanında gerçekten erişilebilir olan araçları içerir.
+- Argümanları destekleyen yerel komut yüzeyleri, aynı `compact|verbose` kip değiştiricisini sunar.
+- Sonuçlar oturum kapsamındadır; bu nedenle agent, channel, thread, gönderici yetkilendirmesi veya model değişirse çıktı da değişebilir.
+- `/tools`, çalışma zamanında gerçekten erişilebilir araçları içerir; buna core araçları, bağlı plugin araçları ve channel’a ait araçlar dahildir.
 
-Profil ve geçersiz kılma düzenleme için `/tools` komutunu statik bir katalog gibi değerlendirmek yerine
-Control UI Tools panelini veya yapılandırma/katalog yüzeylerini kullanın.
+Profil ve geçersiz kılma düzenlemeleri için, `/tools`’u statik katalog gibi görmek yerine Control UI Tools panelini veya config/katalog yüzeylerini kullanın.
 
 ## Kullanım yüzeyleri (nerede ne gösterilir)
 
-- **Sağlayıcı kullanımı/kotası** (örnek: “Claude %80 kaldı”), kullanım izleme etkin olduğunda geçerli model sağlayıcısı için `/status` içinde görünür. OpenClaw sağlayıcı pencerelerini `% kaldı` biçimine normalize eder; MiniMax için yalnızca kalan yüzde alanları görüntülenmeden önce ters çevrilir ve `model_remains` yanıtları sohbet modeli girdisini ve model etiketli plan etiketini tercih eder.
-- `/status` içindeki **token/cache satırları**, canlı oturum anlık görüntüsü seyrek olduğunda en son transcript kullanım girdisine geri dönebilir. Sıfır olmayan mevcut canlı değerler yine önceliklidir ve transcript fallback ayrıca depolanan toplamlar eksik veya daha küçük olduğunda etkin çalışma zamanı modeli etiketini ve istem odaklı daha büyük bir toplamı da geri kazandırabilir.
-- **Yanıt başına token/maliyet**, `/usage off|tokens|full` ile kontrol edilir (normal yanıtlara eklenir).
-- `/model status`, kullanım hakkında değil **modeller/kimlik doğrulama/uç noktalar** hakkındadır.
+- **Provider kullanım/kota** (örnek: “Claude %80 kaldı”), kullanım izleme etkin olduğunda `/status` içinde mevcut model provider için görünür. OpenClaw provider pencerelerini `% kaldı` olarak normalize eder; MiniMax için yalnızca kalan yüzde alanları gösterimden önce tersine çevrilir ve `model_remains` yanıtları model etiketi taşıyan plan etiketine ek olarak chat-model girdisini tercih eder.
+- `/status` içindeki **Token/cache satırları**, canlı oturum snapshot’ı seyrek olduğunda en son transcript kullanım girdisine geri dönebilir. Mevcut sıfır olmayan canlı değerler yine de kazanır ve transcript geri dönüşü ayrıca etkin çalışma zamanı model etiketini ve depolanmış toplamlar eksik veya daha küçük olduğunda prompt odaklı daha büyük bir toplamı da geri getirebilir.
+- **Yanıt başına token/maliyet**, `/usage off|tokens|full` ile denetlenir (normal yanıtlara eklenir).
+- `/model status`, kullanımla değil, **modeller/auth/endpoint’lerle** ilgilidir.
 
 ## Model seçimi (`/model`)
 
@@ -212,13 +210,13 @@ Control UI Tools panelini veya yapılandırma/katalog yüzeylerini kullanın.
 Notlar:
 
 - `/model` ve `/model list`, kompakt, numaralandırılmış bir seçici gösterir (model ailesi + kullanılabilir sağlayıcılar).
-- Discord'ta `/model` ve `/models`, sağlayıcı ve model açılır menülerinin yanı sıra bir Submit adımı içeren etkileşimli bir seçici açar.
+- Discord üzerinde `/model` ve `/models`, sağlayıcı ve model açılır listeleri artı bir Submit adımı içeren etkileşimli bir seçici açar.
 - `/model <#>`, bu seçiciden seçim yapar (ve mümkün olduğunda geçerli sağlayıcıyı tercih eder).
-- `/model status`, yapılandırılmış sağlayıcı uç noktasını (`baseUrl`) ve varsa API modunu (`api`) içeren ayrıntılı görünümü gösterir.
+- `/model status`, kullanılabildiğinde yapılandırılmış sağlayıcı endpoint’i (`baseUrl`) ve API kipini (`api`) de içeren ayrıntılı görünümü gösterir.
 
-## Hata ayıklama geçersiz kılmaları
+## Debug geçersiz kılmaları
 
-`/debug`, **yalnızca çalışma zamanına özgü** yapılandırma geçersiz kılmaları ayarlamanıza olanak tanır (disk değil, bellek). Yalnızca sahip. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.debug: true` kullanın.
+`/debug`, **yalnızca çalışma zamanı** config geçersiz kılmaları ayarlamanıza olanak tanır (disk değil, bellek). Yalnızca sahip içindir. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.debug: true` kullanın.
 
 Örnekler:
 
@@ -232,12 +230,12 @@ Notlar:
 
 Notlar:
 
-- Geçersiz kılmalar yeni yapılandırma okumalarına hemen uygulanır, ancak `openclaw.json` dosyasına yazılmaz.
-- Tüm geçersiz kılmaları temizlemek ve disk üzerindeki yapılandırmaya dönmek için `/debug reset` kullanın.
+- Geçersiz kılmalar yeni config okumalarına hemen uygulanır, ancak `openclaw.json` dosyasına yazılmaz.
+- Tüm geçersiz kılmaları temizlemek ve disk üzerindeki config’e dönmek için `/debug reset` kullanın.
 
-## Yapılandırma güncellemeleri
+## Config güncellemeleri
 
-`/config`, disk üzerindeki yapılandırmanıza (`openclaw.json`) yazar. Yalnızca sahip. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.config: true` kullanın.
+`/config`, disk üzerindeki config’inize (`openclaw.json`) yazar. Yalnızca sahip içindir. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.config: true` kullanın.
 
 Örnekler:
 
@@ -251,12 +249,12 @@ Notlar:
 
 Notlar:
 
-- Yapılandırma yazmadan önce doğrulanır; geçersiz değişiklikler reddedilir.
-- `/config` güncellemeleri yeniden başlatmalardan sonra da kalıcıdır.
+- Yazmadan önce config doğrulanır; geçersiz değişiklikler reddedilir.
+- `/config` güncellemeleri yeniden başlatmalar arasında kalıcıdır.
 
 ## MCP güncellemeleri
 
-`/mcp`, `mcp.servers` altında OpenClaw tarafından yönetilen MCP sunucu tanımlarını yazar. Yalnızca sahip. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.mcp: true` kullanın.
+`/mcp`, `mcp.servers` altındaki OpenClaw tarafından yönetilen MCP sunucu tanımlarını yazar. Yalnızca sahip içindir. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.mcp: true` kullanın.
 
 Örnekler:
 
@@ -269,12 +267,12 @@ Notlar:
 
 Notlar:
 
-- `/mcp`, yapılandırmayı Pi'ye ait proje ayarlarına değil, OpenClaw yapılandırmasına kaydeder.
-- Hangi taşıma katmanlarının gerçekten çalıştırılabilir olduğuna çalışma zamanı adaptörleri karar verir.
+- `/mcp`, config’i Pi’ye ait proje ayarlarında değil OpenClaw config’inde saklar.
+- Hangi transport’ların gerçekten yürütülebilir olduğuna çalışma zamanı bağdaştırıcıları karar verir.
 
 ## Plugin güncellemeleri
 
-`/plugins`, operatörlerin keşfedilmiş plugin'leri incelemesine ve yapılandırmada etkinleştirmeyi açıp kapatmasına olanak tanır. Salt okunur akışlarda `/plugin` takma adı kullanılabilir. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.plugins: true` kullanın.
+`/plugins`, operatörlerin keşfedilen plugin’leri incelemesine ve config içindeki etkinliği değiştirmesine olanak tanır. Salt okunur akışlar takma ad olarak `/plugin` kullanabilir. Varsayılan olarak devre dışıdır; etkinleştirmek için `commands.plugins: true` kullanın.
 
 Örnekler:
 
@@ -288,34 +286,34 @@ Notlar:
 
 Notlar:
 
-- `/plugins list` ve `/plugins show`, geçerli workspace ve disk üzerindeki yapılandırmaya karşı gerçek plugin keşfini kullanır.
-- `/plugins enable|disable`, yalnızca plugin yapılandırmasını günceller; plugin kurmaz veya kaldırmaz.
-- Etkinleştirme/devre dışı bırakma değişikliklerinden sonra bunları uygulamak için gateway'i yeniden başlatın.
+- `/plugins list` ve `/plugins show`, mevcut çalışma alanı ve disk üzerindeki config’e karşı gerçek plugin keşfini kullanır.
+- `/plugins enable|disable`, yalnızca plugin config’ini günceller; plugin kurmaz veya kaldırmaz.
+- Etkinleştirme/devre dışı bırakma değişikliklerinden sonra bunları uygulamak için gateway’i yeniden başlatın.
 
 ## Yüzey notları
 
-- **Metin komutları** normal sohbet oturumunda çalışır (DM'ler `main`'i paylaşır, grupların kendi oturumu vardır).
-- **Yerel komutlar** yalıtılmış oturumlar kullanır:
+- **Metin komutları**, normal sohbet oturumunda çalışır (DM’ler `main`’i paylaşır, grupların kendi oturumu vardır).
+- **Yerel komutlar**, izole oturumlar kullanır:
   - Discord: `agent:<agentId>:discord:slash:<userId>`
   - Slack: `agent:<agentId>:slack:slash:<userId>` (önek `channels.slack.slashCommand.sessionPrefix` ile yapılandırılabilir)
-  - Telegram: `telegram:slash:<userId>` (sohbet oturumunu `CommandTargetSessionKey` üzerinden hedefler)
+  - Telegram: `telegram:slash:<userId>` (oturum hedefi `CommandTargetSessionKey` üzerinden sohbet oturumunu hedefler)
 - **`/stop`**, geçerli çalıştırmayı durdurabilmesi için etkin sohbet oturumunu hedefler.
-- **Slack:** `channels.slack.slashCommand`, tek bir `/openclaw` tarzı komut için hâlâ desteklenir. `commands.native` etkinleştirilirse yerleşik her komut için Slack'te bir slash komutu oluşturmanız gerekir (`/help` ile aynı adlar). Slack için komut argümanı menüleri geçici Block Kit düğmeleri olarak sunulur.
-  - Slack yerel istisnası: Slack `/status` komutunu ayırdığı için `/status` değil, `/agentstatus` kaydedin. Metin `/status` Slack mesajlarında yine de çalışır.
+- **Slack:** `channels.slack.slashCommand`, tek bir `/openclaw` tarzı komut için hâlâ desteklenir. `commands.native` etkinleştirirseniz, her yerleşik komut için bir Slack slash komutu oluşturmanız gerekir (`/help` ile aynı adlar). Slack için komut argüman menüleri geçici Block Kit düğmeleri olarak iletilir.
+  - Slack yerel istisnası: Slack `/status` komutunu ayırdığı için `/status` değil `/agentstatus` kaydedin. Metin `/status`, Slack mesajlarında yine de çalışır.
 
 ## BTW yan soruları
 
-`/btw`, geçerli oturum hakkında hızlı bir **yan soru**dur.
+`/btw`, mevcut oturum hakkında hızlı bir **yan soru**dur.
 
 Normal sohbetten farklı olarak:
 
-- geçerli oturumu arka plan bağlamı olarak kullanır,
-- ayrı bir **araçsız** tek seferlik çağrı olarak çalışır,
+- mevcut oturumu arka plan bağlamı olarak kullanır,
+- ayrı, **araçsız** tek seferlik bir çağrı olarak çalışır,
 - gelecekteki oturum bağlamını değiştirmez,
 - transcript geçmişine yazılmaz,
 - normal bir asistan mesajı yerine canlı bir yan sonuç olarak iletilir.
 
-Bu, ana görev devam ederken geçici bir açıklama istediğinizde `/btw` komutunu kullanışlı hale getirir.
+Bu, ana görev devam ederken geçici bir netleştirme istediğinizde `/btw` komutunu yararlı kılar.
 
 Örnek:
 
@@ -323,4 +321,4 @@ Bu, ana görev devam ederken geçici bir açıklama istediğinizde `/btw` komutu
 /btw şu anda ne yapıyoruz?
 ```
 
-Davranışın tamamı ve istemci UX ayrıntıları için [BTW Side Questions](/tr/tools/btw) bölümüne bakın.
+Tam davranış ve istemci UX ayrıntıları için bkz. [BTW Side Questions](/tr/tools/btw).

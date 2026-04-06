@@ -1,26 +1,26 @@
 ---
 read_when:
-    - Bir model sağlayıcısı seçmek istiyorsanız
-    - LLM kimlik doğrulaması + model seçimi için hızlı kurulum örnekleri istiyorsanız
-summary: OpenClaw tarafından desteklenen model sağlayıcıları (LLM'ler)
-title: Model Sağlayıcısı Hızlı Başlangıç
+    - Bir model provider seçmek istiyorsunuz
+    - LLM auth + model seçimi için hızlı kurulum örnekleri istiyorsunuz
+summary: OpenClaw tarafından desteklenen model provider’lar (LLM’ler)
+title: Model Provider Hızlı Başlangıç
 x-i18n:
-    generated_at: "2026-04-05T14:04:10Z"
+    generated_at: "2026-04-06T03:11:30Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 83e372193b476c7cee6eb9f5c443b03563d863043f47c633ac0096bca642cc6f
+    source_hash: c0314fb1c754171e5fc252d30f7ba9bb6acdbb978d97e9249264d90351bac2e7
     source_path: providers/models.md
     workflow: 15
 ---
 
-# Model Sağlayıcıları
+# Model Provider’lar
 
-OpenClaw birçok LLM sağlayıcısını kullanabilir. Birini seçin, kimlik doğrulaması yapın, ardından varsayılan
+OpenClaw birçok LLM provider’ı kullanabilir. Birini seçin, kimlik doğrulamasını yapın, sonra varsayılan
 modeli `provider/model` olarak ayarlayın.
 
 ## Hızlı başlangıç (iki adım)
 
-1. Sağlayıcıyla kimlik doğrulaması yapın (genellikle `openclaw onboard` aracılığıyla).
+1. Provider ile kimlik doğrulaması yapın (genellikle `openclaw onboard` ile).
 2. Varsayılan modeli ayarlayın:
 
 ```json5
@@ -29,35 +29,38 @@ modeli `provider/model` olarak ayarlayın.
 }
 ```
 
-## Desteklenen sağlayıcılar (başlangıç seti)
+## Desteklenen provider’lar (başlangıç kümesi)
 
-- [Anthropic (API + Claude CLI)](/providers/anthropic)
-- [Amazon Bedrock](/providers/bedrock)
-- [BytePlus (Uluslararası)](/tr/concepts/model-providers#byteplus-international)
-- [Chutes](/providers/chutes)
-- [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
-- [Fireworks](/providers/fireworks)
-- [GLM modelleri](/providers/glm)
-- [MiniMax](/providers/minimax)
-- [Mistral](/providers/mistral)
-- [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot)
-- [OpenAI (API + Codex)](/providers/openai)
-- [OpenCode (Zen + Go)](/providers/opencode)
-- [OpenRouter](/providers/openrouter)
-- [Qianfan](/providers/qianfan)
-- [Qwen](/providers/qwen)
-- [StepFun](/providers/stepfun)
-- [Synthetic](/providers/synthetic)
-- [Vercel AI Gateway](/providers/vercel-ai-gateway)
-- [Venice (Venice AI)](/providers/venice)
-- [xAI](/providers/xai)
-- [Z.AI](/providers/zai)
+- [Alibaba Model Studio](/providers/alibaba)
+- [Anthropic (API + Claude CLI)](/tr/providers/anthropic)
+- [Amazon Bedrock](/tr/providers/bedrock)
+- [BytePlus (International)](/tr/concepts/model-providers#byteplus-international)
+- [Chutes](/tr/providers/chutes)
+- [ComfyUI](/providers/comfy)
+- [Cloudflare AI Gateway](/tr/providers/cloudflare-ai-gateway)
+- [fal](/providers/fal)
+- [Fireworks](/tr/providers/fireworks)
+- [GLM models](/tr/providers/glm)
+- [MiniMax](/tr/providers/minimax)
+- [Mistral](/tr/providers/mistral)
+- [Moonshot AI (Kimi + Kimi Coding)](/tr/providers/moonshot)
+- [OpenAI (API + Codex)](/tr/providers/openai)
+- [OpenCode (Zen + Go)](/tr/providers/opencode)
+- [OpenRouter](/tr/providers/openrouter)
+- [Qianfan](/tr/providers/qianfan)
+- [Qwen](/tr/providers/qwen)
+- [Runway](/providers/runway)
+- [StepFun](/tr/providers/stepfun)
+- [Synthetic](/tr/providers/synthetic)
+- [Vercel AI Gateway](/tr/providers/vercel-ai-gateway)
+- [Venice (Venice AI)](/tr/providers/venice)
+- [xAI](/tr/providers/xai)
+- [Z.AI](/tr/providers/zai)
 
-## Ek paketlenmiş sağlayıcı varyantları
+## Ek paketlenmiş provider varyantları
 
-- `anthropic-vertex` - Vertex kimlik bilgileri mevcut olduğunda örtük Anthropic on Google Vertex desteği; ayrı bir onboarding kimlik doğrulama seçeneği yoktur
+- `anthropic-vertex` - Vertex kimlik bilgileri mevcut olduğunda örtük Anthropic on Google Vertex desteği; ayrı bir onboarding auth seçeneği yok
 - `copilot-proxy` - yerel VS Code Copilot Proxy köprüsü; `openclaw onboard --auth-choice copilot-proxy` kullanın
-- `google-gemini-cli` - resmi olmayan Gemini CLI OAuth akışı; yerel bir `gemini` kurulumu gerektirir (`brew install gemini-cli` veya `npm install -g @google/gemini-cli`); varsayılan model `google-gemini-cli/gemini-3.1-pro-preview`; `openclaw onboard --auth-choice google-gemini-cli` veya `openclaw models auth login --provider google-gemini-cli --set-default` kullanın
 
-Tam sağlayıcı kataloğu (xAI, Groq, Mistral vb.) ve gelişmiş yapılandırma için
-[Model sağlayıcıları](/tr/concepts/model-providers) bölümüne bakın.
+Tam provider kataloğu (xAI, Groq, Mistral vb.) ve gelişmiş yapılandırma için
+bkz. [Model providers](/tr/concepts/model-providers).

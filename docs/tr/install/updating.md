@@ -1,14 +1,14 @@
 ---
 read_when:
-    - OpenClaw'ı güncelleme
-    - Bir güncellemeden sonra bir şey bozuldu
-summary: OpenClaw'ı güvenli şekilde güncelleme (global kurulum veya kaynak), ayrıca geri alma stratejisi
+    - OpenClaw güncellenirken
+    - Bir güncellemeden sonra bir şey bozulduğunda
+summary: OpenClaw'ı güvenli şekilde güncelleme (genel kurulum veya kaynak), ayrıca geri alma stratejisi
 title: Güncelleme
 x-i18n:
-    generated_at: "2026-04-05T13:58:22Z"
+    generated_at: "2026-04-06T03:08:34Z"
     model: gpt-5.4
     provider: openai
-    source_hash: b40429d38ca851be4fdf8063ed425faf4610a4b5772703e0481c5f1fb588ba58
+    source_hash: ca9fff0776b9f5977988b649e58a5d169e5fa3539261cb02779d724d4ca92877
     source_path: install/updating.md
     workflow: 15
 ---
@@ -25,17 +25,17 @@ Güncellemenin en hızlı yolu. Kurulum türünüzü (npm veya git) algılar, en
 openclaw update
 ```
 
-Kanalları değiştirmek veya belirli bir sürümü hedeflemek için:
+Kanal değiştirmek veya belirli bir sürümü hedeflemek için:
 
 ```bash
 openclaw update --channel beta
 openclaw update --tag main
-openclaw update --dry-run   # uygulamadan önizle
+openclaw update --dry-run   # uygulamadan önizleme
 ```
 
-`--channel beta`, beta sürümünü tercih eder, ancak çalışma zamanı beta etiketi eksikse veya en son kararlı sürümden eskiyse stable/latest sürüme geri döner. Tek seferlik bir paket güncellemesi için ham npm beta dist-tag değerini istiyorsanız `--tag beta` kullanın.
+`--channel beta`, beta sürümünü tercih eder; ancak çalışma zamanı, beta etiketi yoksa veya en son kararlı sürümden daha eskiyse stable/latest sürümüne fallback yapar. Tek seferlik bir paket güncellemesi için ham npm beta dist-tag istiyorsanız `--tag beta` kullanın.
 
-Kanal anlamları için bkz. [Development channels](/install/development-channels).
+Kanal anlambilimi için [Development channels](/tr/install/development-channels) bölümüne bakın.
 
 ## Alternatif: yükleyiciyi yeniden çalıştırın
 
@@ -43,9 +43,9 @@ Kanal anlamları için bkz. [Development channels](/install/development-channels
 curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
-Onboarding'i atlamak için `--no-onboard` ekleyin. Kaynak kurulumlarında `--install-method git --no-onboard` geçin.
+Onboarding'i atlamak için `--no-onboard` ekleyin. Kaynak kurulumları için `--install-method git --no-onboard` geçin.
 
-## Alternatif: elle npm, pnpm veya bun
+## Alternatif: manuel npm, pnpm veya bun
 
 ```bash
 npm i -g openclaw@latest
@@ -77,11 +77,11 @@ Otomatik güncelleyici varsayılan olarak kapalıdır. Bunu `~/.openclaw/opencla
 }
 ```
 
-| Kanal    | Davranış                                                                                                         |
-| -------- | ---------------------------------------------------------------------------------------------------------------- |
-| `stable` | `stableDelayHours` kadar bekler, sonra `stableJitterHours` boyunca deterministik jitter ile uygular (aşamalı yayılım). |
-| `beta`   | Her `betaCheckIntervalHours` süresinde bir denetler (varsayılan: saatlik) ve hemen uygular.                    |
-| `dev`    | Otomatik uygulama yok. `openclaw update` komutunu elle kullanın.                                                |
+| Kanal    | Davranış                                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------------------- |
+| `stable` | `stableDelayHours` kadar bekler, ardından `stableJitterHours` boyunca deterministik jitter ile uygular (yayılmış dağıtım). |
+| `beta`   | Her `betaCheckIntervalHours` süresinde bir kontrol eder (varsayılan: saatlik) ve hemen uygular.              |
+| `dev`    | Otomatik uygulama yoktur. `openclaw update` komutunu manuel olarak kullanın.                                 |
 
 Gateway ayrıca başlangıçta bir güncelleme ipucu da günlüğe kaydeder (`update.checkOnStart: false` ile devre dışı bırakın).
 
@@ -89,13 +89,13 @@ Gateway ayrıca başlangıçta bir güncelleme ipucu da günlüğe kaydeder (`up
 
 <Steps>
 
-### Doctor çalıştırın
+### doctor çalıştırın
 
 ```bash
 openclaw doctor
 ```
 
-Config'i geçirir, DM ilkelerini denetler ve gateway sağlığını denetler. Ayrıntılar: [Doctor](/gateway/doctor)
+Yapılandırmayı geçirir, DM ilkelerini denetler ve gateway sağlığını kontrol eder. Ayrıntılar: [Doctor](/tr/gateway/doctor)
 
 ### Gateway'i yeniden başlatın
 
@@ -121,7 +121,7 @@ openclaw doctor
 openclaw gateway restart
 ```
 
-İpucu: `npm view openclaw version`, şu anda yayımlanmış sürümü gösterir.
+İpucu: `npm view openclaw version` mevcut yayımlanmış sürümü gösterir.
 
 ### Bir commit'i sabitleyin (kaynak)
 
@@ -132,16 +132,17 @@ pnpm install && pnpm build
 openclaw gateway restart
 ```
 
-En yeni sürüme dönmek için: `git checkout main && git pull`.
+En son sürüme dönmek için: `git checkout main && git pull`.
 
 ## Takılırsanız
 
-- `openclaw doctor` komutunu yeniden çalıştırın ve çıktıyı dikkatle okuyun.
-- Şunu kontrol edin: [Troubleshooting](/gateway/troubleshooting)
+- `openclaw doctor` komutunu yeniden çalıştırın ve çıktıyı dikkatlice okuyun.
+- Kaynak checkout'larında `openclaw update --channel dev` için güncelleyici gerektiğinde `pnpm`'i otomatik olarak önyükler. Bir pnpm/corepack önyükleme hatası görürseniz `pnpm`'i manuel olarak kurun (veya `corepack`'i yeniden etkinleştirin) ve güncellemeyi yeniden çalıştırın.
+- Şurayı kontrol edin: [Sorun giderme](/tr/gateway/troubleshooting)
 - Discord'da sorun: [https://discord.gg/clawd](https://discord.gg/clawd)
 
 ## İlgili
 
-- [Install Overview](/install) — tüm kurulum yöntemleri
-- [Doctor](/gateway/doctor) — güncellemelerden sonra sağlık denetimleri
-- [Migrating](/install/migrating) — büyük sürüm geçiş kılavuzları
+- [Kurulum Genel Bakışı](/tr/install) — tüm kurulum yöntemleri
+- [Doctor](/tr/gateway/doctor) — güncellemelerden sonraki sağlık kontrolleri
+- [Geçiş](/tr/install/migrating) — ana sürüm geçiş kılavuzları

@@ -1,15 +1,15 @@
 ---
 read_when:
-    - Musisz debugować identyfikatory sesji, JSONL transkryptów lub pola sessions.json
-    - Zmieniasz zachowanie automatycznego kompaktowania lub dodajesz porządki „przed kompaktowaniem”
-    - Chcesz zaimplementować zrzuty pamięci lub ciche tury systemowe
-summary: 'Szczegółowe omówienie: magazyn sesji i transkrypty, cykl życia oraz mechanizmy kompaktowania (automatycznego)'
+    - Musisz debugować identyfikatory sesji, JSONL transkryptu lub pola sessions.json
+    - Zmieniasz zachowanie auto-kompaktowania lub dodajesz porządki „przed kompaktowaniem”
+    - Chcesz zaimplementować opróżnianie pamięci lub ciche tury systemowe
+summary: 'Szczegółowe omówienie: magazyn sesji + transkrypty, cykl życia i mechanizmy (auto)kompaktowania'
 title: Szczegółowe omówienie zarządzania sesjami
 x-i18n:
-    generated_at: "2026-04-05T14:05:33Z"
+    generated_at: "2026-04-06T03:12:52Z"
     model: gpt-5.4
     provider: openai
-    source_hash: e379d624dd7808d3af25ed011079268ce6a9da64bb3f301598884ad4c46ab091
+    source_hash: e0d8c2d30be773eac0424f7a4419ab055fdd50daac8bc654e7d250c891f2c3b8
     source_path: reference/session-management-compaction.md
     workflow: 15
 ---
@@ -18,22 +18,22 @@ x-i18n:
 
 Ten dokument wyjaśnia, jak OpenClaw zarządza sesjami od początku do końca:
 
-- **Trasowanie sesji** (jak wiadomości przychodzące są mapowane na `sessionKey`)
+- **Routing sesji** (jak wiadomości przychodzące mapują się na `sessionKey`)
 - **Magazyn sesji** (`sessions.json`) i co śledzi
-- **Trwałość transkryptów** (`*.jsonl`) i ich struktura
-- **Higiena transkryptów** (poprawki specyficzne dla dostawcy przed uruchomieniami)
+- **Trwałość transkryptu** (`*.jsonl`) i jego struktura
+- **Higiena transkryptu** (poprawki specyficzne dla providera przed uruchomieniami)
 - **Limity kontekstu** (okno kontekstu a śledzone tokeny)
-- **Kompaktowanie** (ręczne + automatyczne kompaktowanie) oraz miejsca, w których można podpiąć działania przed kompaktowaniem
-- **Ciche porządki** (na przykład zapisy pamięci, które nie powinny generować widocznych dla użytkownika wyników)
+- **Kompaktowanie** (kompaktowanie ręczne + automatyczne) i gdzie podpiąć pracę przed kompaktowaniem
+- **Ciche porządki** (np. zapisy pamięci, które nie powinny generować widocznego dla użytkownika wyjścia)
 
-Jeśli najpierw chcesz zobaczyć omówienie na wyższym poziomie, zacznij od:
+Jeśli najpierw chcesz zacząć od przeglądu na wyższym poziomie, zacznij od:
 
 - [/concepts/session](/pl/concepts/session)
 - [/concepts/compaction](/pl/concepts/compaction)
 - [/concepts/memory](/pl/concepts/memory)
 - [/concepts/memory-search](/pl/concepts/memory-search)
 - [/concepts/session-pruning](/pl/concepts/session-pruning)
-- [/reference/transcript-hygiene](/reference/transcript-hygiene)
+- [/reference/transcript-hygiene](/pl/reference/transcript-hygiene)
 
 ---
 
@@ -41,8 +41,8 @@ Jeśli najpierw chcesz zobaczyć omówienie na wyższym poziomie, zacznij od:
 
 OpenClaw został zaprojektowany wokół pojedynczego **procesu Gateway**, który zarządza stanem sesji.
 
-- Interfejsy użytkownika (aplikacja macOS, webowy interfejs Control UI, TUI) powinny odpytywać Gateway o listy sesji i liczniki tokenów.
-- W trybie zdalnym pliki sesji znajdują się na zdalnym hoście; „sprawdzanie lokalnych plików na Macu” nie odzwierciedli tego, czego używa Gateway.
+- Interfejsy UI (aplikacja macOS, web Control UI, TUI) powinny pytać Gateway o listy sesji i liczniki tokenów.
+- W trybie zdalnym pliki sesji znajdują się na hoście zdalnym; „sprawdzanie lokalnych plików na Macu” nie odzwierciedli tego, czego używa Gateway.
 
 ---
 
@@ -56,41 +56,41 @@ OpenClaw zapisuje sesje w dwóch warstwach:
    - Śledzi metadane sesji (bieżący identyfikator sesji, ostatnią aktywność, przełączniki, liczniki tokenów itd.)
 
 2. **Transkrypt (`<sessionId>.jsonl`)**
-   - Transkrypt tylko do dopisywania o strukturze drzewa (wpisy mają `id` + `parentId`)
-   - Przechowuje rzeczywistą rozmowę + wywołania narzędzi + podsumowania kompaktowania
-   - Jest używany do odtworzenia kontekstu modelu dla przyszłych tur
+   - Transkrypt tylko do dopisywania ze strukturą drzewa (wpisy mają `id` + `parentId`)
+   - Przechowuje faktyczną rozmowę + wywołania narzędzi + podsumowania kompaktowania
+   - Służy do odbudowy kontekstu modelu dla przyszłych tur
 
 ---
 
 ## Lokalizacje na dysku
 
-Dla każdego agenta, na hoście Gateway:
+Per agent, na hoście Gateway:
 
 - Magazyn: `~/.openclaw/agents/<agentId>/sessions/sessions.json`
 - Transkrypty: `~/.openclaw/agents/<agentId>/sessions/<sessionId>.jsonl`
-  - Sesje tematów Telegrama: `.../<sessionId>-topic-<threadId>.jsonl`
+  - Sesje tematów Telegram: `.../<sessionId>-topic-<threadId>.jsonl`
 
-OpenClaw rozstrzyga te ścieżki przez `src/config/sessions.ts`.
+OpenClaw rozwiązuje te ścieżki przez `src/config/sessions.ts`.
 
 ---
 
 ## Utrzymanie magazynu i kontrola dysku
 
-Trwałość sesji ma automatyczne mechanizmy utrzymania (`session.maintenance`) dla `sessions.json` i artefaktów transkryptów:
+Trwałość sesji ma automatyczne mechanizmy utrzymania (`session.maintenance`) dla `sessions.json` i artefaktów transkryptu:
 
-- `mode`: `warn` (domyślnie) albo `enforce`
-- `pruneAfter`: granica wieku nieaktualnych wpisów (domyślnie `30d`)
+- `mode`: `warn` (domyślnie) lub `enforce`
+- `pruneAfter`: próg wieku dla nieaktualnych wpisów (domyślnie `30d`)
 - `maxEntries`: limit wpisów w `sessions.json` (domyślnie `500`)
-- `rotateBytes`: rotacja `sessions.json`, gdy jest zbyt duży (domyślnie `10mb`)
-- `resetArchiveRetention`: retencja archiwów transkryptów `*.reset.<timestamp>` (domyślnie: taka sama jak `pruneAfter`; `false` wyłącza czyszczenie)
+- `rotateBytes`: rotacja `sessions.json`, gdy plik jest zbyt duży (domyślnie `10mb`)
+- `resetArchiveRetention`: czas przechowywania archiwów transkryptów `*.reset.<timestamp>` (domyślnie: taki sam jak `pruneAfter`; `false` wyłącza czyszczenie)
 - `maxDiskBytes`: opcjonalny budżet katalogu sesji
 - `highWaterBytes`: opcjonalny cel po czyszczeniu (domyślnie `80%` z `maxDiskBytes`)
 
-Kolejność egzekwowania podczas czyszczenia budżetu dysku (`mode: "enforce"`):
+Kolejność egzekwowania przy czyszczeniu budżetu dysku (`mode: "enforce"`):
 
-1. Najpierw usuń najstarsze zarchiwizowane lub osierocone artefakty transkryptów.
-2. Jeśli nadal przekraczasz cel, usuń najstarsze wpisy sesji i ich pliki transkryptów.
-3. Kontynuuj, aż użycie spadnie do `highWaterBytes` lub niżej.
+1. Najpierw usuń najstarsze zarchiwizowane lub osierocone artefakty transkryptu.
+2. Jeśli nadal jest powyżej celu, usuń najstarsze wpisy sesji i ich pliki transkryptu.
+3. Kontynuuj, aż użycie spadnie do `highWaterBytes` lub poniżej.
 
 W trybie `mode: "warn"` OpenClaw zgłasza potencjalne usunięcia, ale nie modyfikuje magazynu/plików.
 
@@ -105,20 +105,20 @@ openclaw sessions cleanup --enforce
 
 ## Sesje cron i logi uruchomień
 
-Izolowane uruchomienia cron również tworzą wpisy sesji/transkrypty i mają dedykowane mechanizmy retencji:
+Odizolowane uruchomienia cron również tworzą wpisy sesji/transkrypty i mają dedykowane ustawienia retencji:
 
-- `cron.sessionRetention` (domyślnie `24h`) usuwa stare sesje izolowanych uruchomień cron z magazynu sesji (`false` wyłącza).
-- `cron.runLog.maxBytes` + `cron.runLog.keepLines` przycinają pliki `~/.openclaw/cron/runs/<jobId>.jsonl` (domyślnie: `2_000_000` bajtów i `2000` linii).
+- `cron.sessionRetention` (domyślnie `24h`) usuwa stare sesje odizolowanych uruchomień cron z magazynu sesji (`false` wyłącza).
+- `cron.runLog.maxBytes` + `cron.runLog.keepLines` przycinają pliki `~/.openclaw/cron/runs/<jobId>.jsonl` (domyślnie: `2_000_000` bajtów i `2000` wierszy).
 
 ---
 
 ## Klucze sesji (`sessionKey`)
 
-`sessionKey` identyfikuje _który koszyk rozmowy_ jest używany (trasowanie + izolacja).
+`sessionKey` identyfikuje, *w którym koszyku konwersacji* się znajdujesz (routing + izolacja).
 
 Typowe wzorce:
 
-- Główna/czat bezpośredni (na agenta): `agent:<agentId>:<mainKey>` (domyślnie `main`)
+- Czat główny/bezpośredni (per agent): `agent:<agentId>:<mainKey>` (domyślnie `main`)
 - Grupa: `agent:<agentId>:<channel>:group:<id>`
 - Pokój/kanał (Discord/Slack): `agent:<agentId>:<channel>:channel:<id>` lub `...:room:<id>`
 - Cron: `cron:<job.id>`
@@ -130,14 +130,14 @@ Kanoniczne zasady są opisane w [/concepts/session](/pl/concepts/session).
 
 ## Identyfikatory sesji (`sessionId`)
 
-Każdy `sessionKey` wskazuje bieżący `sessionId` (plik transkryptu, który kontynuuje rozmowę).
+Każdy `sessionKey` wskazuje bieżący `sessionId` (plik transkryptu, który kontynuuje konwersację).
 
-Praktyczne zasady:
+Zasady orientacyjne:
 
 - **Reset** (`/new`, `/reset`) tworzy nowy `sessionId` dla tego `sessionKey`.
-- **Reset dzienny** (domyślnie o 4:00 czasu lokalnego na hoście gateway) tworzy nowy `sessionId` przy następnej wiadomości po przekroczeniu granicy resetu.
-- **Wygaśnięcie bezczynności** (`session.reset.idleMinutes` lub starsze `session.idleMinutes`) tworzy nowy `sessionId`, gdy wiadomość nadejdzie po oknie bezczynności. Gdy skonfigurowane są jednocześnie tryb dzienny i bezczynność, wygrywa to, które wygaśnie wcześniej.
-- **Strażnik rozwidlenia od rodzica wątku** (`session.parentForkMaxTokens`, domyślnie `100000`) pomija rozwidlanie z transkryptu rodzica, gdy sesja nadrzędna jest już zbyt duża; nowy wątek zaczyna od zera. Ustaw `0`, aby wyłączyć.
+- **Reset dzienny** (domyślnie 4:00 czasu lokalnego na hoście gatewaya) tworzy nowy `sessionId` przy następnej wiadomości po przekroczeniu granicy resetu.
+- **Wygaśnięcie bezczynności** (`session.reset.idleMinutes` lub starsze `session.idleMinutes`) tworzy nowy `sessionId`, gdy wiadomość nadejdzie po upływie okna bezczynności. Gdy skonfigurowane są jednocześnie reset dzienny i bezczynność, wygrywa to, co wygaśnie wcześniej.
+- **Zabezpieczenie rozwidlenia od nadrzędnego wątku** (`session.parentForkMaxTokens`, domyślnie `100000`) pomija rozwidlanie transkryptu sesji nadrzędnej, gdy nadrzędna sesja jest już zbyt duża; nowy wątek zaczyna się od zera. Ustaw `0`, aby wyłączyć.
 
 Szczegół implementacyjny: decyzja zapada w `initSessionState()` w `src/auto-reply/reply/session.ts`.
 
@@ -147,25 +147,25 @@ Szczegół implementacyjny: decyzja zapada w `initSessionState()` w `src/auto-re
 
 Typ wartości magazynu to `SessionEntry` w `src/config/sessions.ts`.
 
-Kluczowe pola (lista niepełna):
+Kluczowe pola (niepełna lista):
 
-- `sessionId`: bieżący identyfikator transkryptu (nazwa pliku jest z niego wyprowadzana, chyba że ustawiono `sessionFile`)
+- `sessionId`: bieżący identyfikator transkryptu (nazwa pliku jest wyprowadzana z niego, chyba że ustawiono `sessionFile`)
 - `updatedAt`: znacznik czasu ostatniej aktywności
 - `sessionFile`: opcjonalne jawne nadpisanie ścieżki transkryptu
-- `chatType`: `direct | group | room` (pomaga interfejsom użytkownika i zasadom wysyłania)
+- `chatType`: `direct | group | room` (pomaga UI i zasadom wysyłki)
 - `provider`, `subject`, `room`, `space`, `displayName`: metadane do etykiet grup/kanałów
 - Przełączniki:
   - `thinkingLevel`, `verboseLevel`, `reasoningLevel`, `elevatedLevel`
-  - `sendPolicy` (nadpisanie dla danej sesji)
+  - `sendPolicy` (nadpisanie per sesja)
 - Wybór modelu:
   - `providerOverride`, `modelOverride`, `authProfileOverride`
-- Liczniki tokenów (best-effort / zależne od dostawcy):
+- Liczniki tokenów (best-effort / zależne od providera):
   - `inputTokens`, `outputTokens`, `totalTokens`, `contextTokens`
-- `compactionCount`: ile razy automatyczne kompaktowanie zakończyło się dla tego klucza sesji
-- `memoryFlushAt`: znacznik czasu ostatniego zrzutu pamięci przed kompaktowaniem
-- `memoryFlushCompactionCount`: liczba kompaktowań w momencie ostatniego zrzutu
+- `compactionCount`: jak często automatyczne kompaktowanie zostało ukończone dla tego klucza sesji
+- `memoryFlushAt`: znacznik czasu ostatniego opróżnienia pamięci przed kompaktowaniem
+- `memoryFlushCompactionCount`: liczba kompaktowań, przy której wykonano ostatnie opróżnienie
 
-Magazyn można bezpiecznie edytować, ale Gateway pozostaje źródłem prawdy: może przepisać lub ponownie uwodnić wpisy podczas działania sesji.
+Magazyn można bezpiecznie edytować, ale Gateway jest źródłem prawdy: może przepisywać lub odtwarzać wpisy w trakcie działania sesji.
 
 ---
 
@@ -175,40 +175,40 @@ Transkryptami zarządza `SessionManager` z `@mariozechner/pi-coding-agent`.
 
 Plik ma format JSONL:
 
-- Pierwsza linia: nagłówek sesji (`type: "session"`, zawiera `id`, `cwd`, `timestamp`, opcjonalnie `parentSession`)
+- Pierwszy wiersz: nagłówek sesji (`type: "session"`, zawiera `id`, `cwd`, `timestamp`, opcjonalne `parentSession`)
 - Następnie: wpisy sesji z `id` + `parentId` (drzewo)
 
 Istotne typy wpisów:
 
-- `message`: wiadomości użytkownika/asystenta/toolResult
-- `custom_message`: wiadomości wstrzyknięte przez rozszerzenie, które _wchodzą_ do kontekstu modelu (mogą być ukryte przed UI)
-- `custom`: stan rozszerzenia, który _nie wchodzi_ do kontekstu modelu
+- `message`: wiadomości user/assistant/toolResult
+- `custom_message`: wiadomości wstrzyknięte przez rozszerzenie, które *wchodzą* do kontekstu modelu (mogą być ukryte przed UI)
+- `custom`: stan rozszerzenia, który *nie wchodzi* do kontekstu modelu
 - `compaction`: zapisane podsumowanie kompaktowania z `firstKeptEntryId` i `tokensBefore`
 - `branch_summary`: zapisane podsumowanie przy nawigacji po gałęzi drzewa
 
-OpenClaw celowo **nie** „poprawia” transkryptów; Gateway używa `SessionManager` do ich odczytu/zapisu.
+OpenClaw celowo **nie** „naprawia” transkryptów; Gateway używa `SessionManager` do ich odczytu/zapisu.
 
 ---
 
 ## Okna kontekstu a śledzone tokeny
 
-Znaczenie mają dwa różne pojęcia:
+Istotne są dwa różne pojęcia:
 
-1. **Okno kontekstu modelu**: twardy limit dla modelu (tokeny widoczne dla modelu)
-2. **Liczniki magazynu sesji**: kroczące statystyki zapisywane w `sessions.json` (używane przez /status i panele)
+1. **Okno kontekstu modelu**: twardy limit per model (tokeny widoczne dla modelu)
+2. **Liczniki magazynu sesji**: statystyki kroczące zapisywane do `sessions.json` (używane przez /status i dashboardy)
 
 Jeśli dostrajasz limity:
 
-- Okno kontekstu pochodzi z katalogu modeli (i może zostać nadpisane przez konfigurację).
-- `contextTokens` w magazynie to wartość szacunkowa/raportowa w czasie działania; nie traktuj jej jako ścisłej gwarancji.
+- Okno kontekstu pochodzi z katalogu modeli (i może być nadpisane przez konfigurację).
+- `contextTokens` w magazynie to wartość szacunkowa/raportowa z runtime; nie traktuj jej jako ścisłej gwarancji.
 
-Więcej informacji: [/token-use](/reference/token-use).
+Więcej informacji znajdziesz w [/token-use](/pl/reference/token-use).
 
 ---
 
 ## Kompaktowanie: czym jest
 
-Kompaktowanie podsumowuje starszą część rozmowy do zapisanego wpisu `compaction` w transkrypcie i zachowuje nienaruszone najnowsze wiadomości.
+Kompaktowanie podsumowuje starszą część rozmowy do zapisanego wpisu `compaction` w transkrypcie i zachowuje nienaruszone ostatnie wiadomości.
 
 Po kompaktowaniu przyszłe tury widzą:
 
@@ -217,20 +217,20 @@ Po kompaktowaniu przyszłe tury widzą:
 
 Kompaktowanie jest **trwałe** (w przeciwieństwie do przycinania sesji). Zobacz [/concepts/session-pruning](/pl/concepts/session-pruning).
 
-## Granice fragmentów kompaktowania i parowanie narzędzi
+## Granice chunków kompaktowania i parowanie narzędzi
 
-Gdy OpenClaw dzieli długi transkrypt na fragmenty kompaktowania, utrzymuje
+Gdy OpenClaw dzieli długi transkrypt na chunki do kompaktowania, zachowuje
 sparowanie wywołań narzędzi asystenta z odpowiadającymi im wpisami `toolResult`.
 
-- Jeśli podział według udziału tokenów wypada pomiędzy wywołaniem narzędzia a jego wynikiem, OpenClaw
-  przesuwa granicę do wiadomości asystenta z wywołaniem narzędzia, zamiast rozdzielać tę parę.
-- Jeśli końcowy blok wyniku narzędzia w przeciwnym razie wypchnąłby fragment ponad zakładany cel,
+- Jeśli podział według udziału tokenów wypada między wywołaniem narzędzia a jego wynikiem, OpenClaw
+  przesuwa granicę do wiadomości asystenta z wywołaniem narzędzia zamiast rozdzielać tę parę.
+- Jeśli końcowy blok wyników narzędzia w przeciwnym razie wypchnąłby chunk ponad cel,
   OpenClaw zachowuje ten oczekujący blok narzędzia i pozostawia niepodsumowany ogon bez zmian.
-- Przerwane/błędne bloki wywołań narzędzi nie utrzymują oczekującego podziału.
+- Przerwane/blędne bloki wywołań narzędzi nie utrzymują oczekującego podziału.
 
 ---
 
-## Kiedy następuje automatyczne kompaktowanie (środowisko Pi)
+## Kiedy następuje auto-kompaktowanie (runtime Pi)
 
 W osadzonym agencie Pi automatyczne kompaktowanie uruchamia się w dwóch przypadkach:
 
@@ -238,7 +238,7 @@ W osadzonym agencie Pi automatyczne kompaktowanie uruchamia się w dwóch przypa
    (`request_too_large`, `context length exceeded`, `input exceeds the maximum
 number of tokens`, `input token count exceeds the maximum number of input
 tokens`, `input is too long for the model`, `ollama error: context length
-exceeded` oraz podobne warianty zależne od dostawcy) → skompaktuj → ponów próbę.
+exceeded` i podobne warianty zależne od providera) → kompaktowanie → ponowna próba.
 2. **Utrzymanie progu**: po udanej turze, gdy:
 
 `contextTokens > contextWindow - reserveTokens`
@@ -246,9 +246,9 @@ exceeded` oraz podobne warianty zależne od dostawcy) → skompaktuj → ponów 
 Gdzie:
 
 - `contextWindow` to okno kontekstu modelu
-- `reserveTokens` to zapas zarezerwowany na prompty + następne wyjście modelu
+- `reserveTokens` to zapas zarezerwowany dla promptów + następnego wyjścia modelu
 
-To semantyka środowiska Pi (OpenClaw zużywa zdarzenia, ale to Pi decyduje, kiedy kompaktować).
+To semantyka runtime Pi (OpenClaw konsumuje zdarzenia, ale Pi decyduje, kiedy kompaktować).
 
 ---
 
@@ -266,14 +266,14 @@ Ustawienia kompaktowania Pi znajdują się w ustawieniach Pi:
 }
 ```
 
-OpenClaw dodatkowo wymusza minimalny próg bezpieczeństwa dla uruchomień osadzonych:
+OpenClaw wymusza też minimalny próg bezpieczeństwa dla osadzonych uruchomień:
 
 - Jeśli `compaction.reserveTokens < reserveTokensFloor`, OpenClaw go podnosi.
-- Domyślny próg to `20000` tokenów.
+- Domyślny próg minimalny to `20000` tokenów.
 - Ustaw `agents.defaults.compaction.reserveTokensFloor: 0`, aby wyłączyć ten próg.
 - Jeśli wartość jest już wyższa, OpenClaw pozostawia ją bez zmian.
 
-Dlaczego: aby zostawić wystarczający zapas na wieloturowe „porządki” (takie jak zapisy pamięci), zanim kompaktowanie stanie się nieuniknione.
+Dlaczego: trzeba zostawić wystarczający zapas na wieloturowe „porządki” (takie jak zapisy pamięci), zanim kompaktowanie stanie się nieuniknione.
 
 Implementacja: `ensurePiCompactionReserveTokens()` w `src/agents/pi-settings.ts`
 (wywoływane z `src/agents/pi-embedded-runner.ts`).
@@ -282,7 +282,7 @@ Implementacja: `ensurePiCompactionReserveTokens()` w `src/agents/pi-settings.ts`
 
 ## Powierzchnie widoczne dla użytkownika
 
-Kompaktowanie i stan sesji można obserwować przez:
+Możesz obserwować kompaktowanie i stan sesji przez:
 
 - `/status` (w dowolnej sesji czatu)
 - `openclaw status` (CLI)
@@ -293,56 +293,56 @@ Kompaktowanie i stan sesji można obserwować przez:
 
 ## Ciche porządki (`NO_REPLY`)
 
-OpenClaw obsługuje „ciche” tury dla zadań w tle, gdy użytkownik nie powinien widzieć pośrednich wyników.
+OpenClaw obsługuje „ciche” tury dla zadań w tle, w których użytkownik nie powinien widzieć pośredniego wyjścia.
 
 Konwencja:
 
-- Asystent rozpoczyna swoje wyjście od dokładnego cichego tokenu `NO_REPLY` /
+- Asystent zaczyna swoje wyjście dokładnie od cichego tokena `NO_REPLY` /
   `no_reply`, aby wskazać „nie dostarczaj odpowiedzi użytkownikowi”.
 - OpenClaw usuwa/tłumi to w warstwie dostarczania.
-- Tłumienie dokładnego cichego tokenu jest nieczułe na wielkość liter, więc `NO_REPLY` i
-  `no_reply` są uznawane, gdy cały ładunek to wyłącznie cichy token.
-- Jest to przeznaczone wyłącznie dla prawdziwych tur w tle/bez dostarczenia; nie jest to skrót
-  dla zwykłych, wykonalnych żądań użytkownika.
+- Tłumienie dokładnego cichego tokena jest nieczułe na wielkość liter, więc `NO_REPLY` i
+  `no_reply` są liczone, gdy cały payload jest tylko tym cichym tokenem.
+- Służy to wyłącznie do prawdziwych tur w tle/bez dostarczenia; nie jest skrótem dla
+  zwykłych żądań użytkownika wymagających działania.
 
-Od wersji `2026.1.10` OpenClaw tłumi również **strumieniowanie wersji roboczych/typing**, gdy
-częściowy fragment zaczyna się od `NO_REPLY`, aby ciche operacje nie ujawniały
-częściowego wyjścia w środku tury.
+Od wersji `2026.1.10` OpenClaw tłumi również **streaming szkicu/wskaźnika pisania**, gdy
+częściowy chunk zaczyna się od `NO_REPLY`, aby ciche operacje nie ujawniały częściowego
+wyjścia w trakcie tury.
 
 ---
 
-## „Zrzut pamięci” przed kompaktowaniem (zaimplementowane)
+## „Opróżnianie pamięci” przed kompaktowaniem (zaimplementowane)
 
-Cel: zanim nastąpi automatyczne kompaktowanie, uruchomić cichą agentową turę, która zapisze trwały
-stan na dysk (na przykład `memory/YYYY-MM-DD.md` w workspace agenta), aby kompaktowanie nie mogło
+Cel: zanim nastąpi automatyczne kompaktowanie, uruchomić cichą turę agentową, która zapisze trwały
+stan na dysku (np. `memory/YYYY-MM-DD.md` w workspace agenta), aby kompaktowanie nie mogło
 usunąć krytycznego kontekstu.
 
-OpenClaw używa podejścia **zrzutu przed progiem**:
+OpenClaw używa podejścia **opróżnienia przed progiem**:
 
 1. Monitoruj użycie kontekstu sesji.
 2. Gdy przekroczy „miękki próg” (poniżej progu kompaktowania Pi), uruchom cichą
    dyrektywę „zapisz pamięć teraz” dla agenta.
-3. Użyj dokładnego cichego tokenu `NO_REPLY` / `no_reply`, aby użytkownik niczego
+3. Użyj dokładnie cichego tokena `NO_REPLY` / `no_reply`, aby użytkownik niczego
    nie zobaczył.
 
 Konfiguracja (`agents.defaults.compaction.memoryFlush`):
 
 - `enabled` (domyślnie: `true`)
 - `softThresholdTokens` (domyślnie: `4000`)
-- `prompt` (wiadomość użytkownika dla tury zrzutu)
-- `systemPrompt` (dodatkowy prompt systemowy dołączany dla tury zrzutu)
+- `prompt` (wiadomość użytkownika dla tury opróżnienia)
+- `systemPrompt` (dodatkowy prompt systemowy dołączany dla tury opróżnienia)
 
 Uwagi:
 
-- Domyślny prompt/system prompt zawiera wskazówkę `NO_REPLY`, aby tłumić
+- Domyślny prompt/systemPrompt zawiera wskazówkę `NO_REPLY`, aby tłumić
   dostarczanie.
-- Zrzut uruchamia się raz na cykl kompaktowania (śledzone w `sessions.json`).
-- Zrzut działa tylko dla osadzonych sesji Pi (backendy CLI go pomijają).
-- Zrzut jest pomijany, gdy workspace sesji jest tylko do odczytu (`workspaceAccess: "ro"` lub `"none"`).
+- Opróżnienie uruchamia się raz na cykl kompaktowania (śledzone w `sessions.json`).
+- Opróżnienie działa tylko dla osadzonych sesji Pi.
+- Opróżnienie jest pomijane, gdy workspace sesji jest tylko do odczytu (`workspaceAccess: "ro"` lub `"none"`).
 - Zobacz [Pamięć](/pl/concepts/memory), aby poznać układ plików workspace i wzorce zapisu.
 
-Pi udostępnia także hook `session_before_compact` w API rozszerzeń, ale logika zrzutu w OpenClaw
-obecnie znajduje się po stronie Gateway.
+Pi udostępnia również hook `session_before_compact` w API rozszerzeń, ale logika
+opróżniania OpenClaw znajduje się dziś po stronie Gateway.
 
 ---
 
@@ -352,6 +352,6 @@ obecnie znajduje się po stronie Gateway.
 - Niezgodność magazynu i transkryptu? Potwierdź host Gateway i ścieżkę magazynu z `openclaw status`.
 - Spam kompaktowania? Sprawdź:
   - okno kontekstu modelu (zbyt małe)
-  - ustawienia kompaktowania (`reserveTokens` ustawione zbyt wysoko względem okna modelu może powodować wcześniejsze kompaktowanie)
-  - rozrost wyników narzędzi: włącz/dostrój przycinanie sesji
-- Ciche tury przeciekają? Potwierdź, że odpowiedź zaczyna się od `NO_REPLY` (dokładny token, nieczuły na wielkość liter) i że używasz wersji zawierającej poprawkę tłumienia strumieniowania.
+  - ustawienia kompaktowania (`reserveTokens` zbyt wysokie względem okna modelu mogą powodować wcześniejsze kompaktowanie)
+  - nadmiar wyników narzędzi: włącz/skonfiguruj przycinanie sesji
+- Ciche tury przeciekają? Upewnij się, że odpowiedź zaczyna się od `NO_REPLY` (dokładny token, bez rozróżniania wielkości liter) i że używasz wersji zawierającej poprawkę tłumienia streamingu.

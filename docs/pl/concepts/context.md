@@ -1,70 +1,70 @@
 ---
 read_when:
     - Chcesz zrozumieć, co oznacza „kontekst” w OpenClaw
-    - Debugujesz, dlaczego model coś „wie” (albo o tym zapomniał)
-    - Chcesz zmniejszyć narzut kontekstu (`/context`, `/status`, `/compact`)
+    - Debugujesz, dlaczego model „wie” coś (albo o tym zapomniał)
+    - Chcesz zmniejszyć narzut kontekstu (/context, /status, /compact)
 summary: 'Kontekst: co widzi model, jak jest budowany i jak go sprawdzić'
 title: Kontekst
 x-i18n:
-    generated_at: "2026-04-05T13:50:39Z"
+    generated_at: "2026-04-06T03:06:20Z"
     model: gpt-5.4
     provider: openai
-    source_hash: a75b4cd65bf6385d46265b9ce1643310bc99d220e35ec4b4924096bed3ca4aa0
+    source_hash: fe7dfe52cb1a64df229c8622feed1804df6c483a6243e0d2f309f6ff5c9fe521
     source_path: concepts/context.md
     workflow: 15
 ---
 
 # Kontekst
 
-„Kontekst” to **wszystko, co OpenClaw wysyła do modelu dla danego uruchomienia**. Jest on ograniczony przez **okno kontekstu** modelu (limit tokenów).
+„Kontekst” to **wszystko, co OpenClaw wysyła do modelu na potrzeby uruchomienia**. Jest ograniczony przez **okno kontekstu** modelu (limit tokenów).
 
-Model mentalny dla początkujących:
+Prosty model myślowy dla początkujących:
 
-- **System prompt** (budowany przez OpenClaw): reguły, narzędzia, lista Skills, czas/środowisko uruchomieniowe i wstrzyknięte pliki obszaru roboczego.
-- **Historia rozmowy**: Twoje wiadomości i wiadomości asystenta dla tej sesji.
-- **Wywołania/wyniki narzędzi + załączniki**: wyjście poleceń, odczyty plików, obrazy/audio itp.
+- **System prompt** (budowany przez OpenClaw): reguły, narzędzia, lista Skills, czas/metadane środowiska uruchomieniowego i wstrzyknięte pliki obszaru roboczego.
+- **Historia rozmowy**: Twoje wiadomości + wiadomości asystenta w tej sesji.
+- **Wywołania/wyniki narzędzi + załączniki**: dane wyjściowe poleceń, odczyty plików, obrazy/audio itd.
 
 Kontekst _to nie to samo_ co „pamięć”: pamięć może być zapisana na dysku i wczytana później; kontekst to to, co znajduje się w bieżącym oknie modelu.
 
 ## Szybki start (sprawdzanie kontekstu)
 
 - `/status` → szybki widok „jak bardzo zapełnione jest moje okno?” + ustawienia sesji.
-- `/context list` → co jest wstrzyknięte + przybliżone rozmiary (na plik + sumy).
-- `/context detail` → bardziej szczegółowy podział: na plik, rozmiary schematów poszczególnych narzędzi, rozmiary wpisów poszczególnych Skills i rozmiar system prompt.
-- `/usage tokens` → dodaje stopkę użycia dla każdej odpowiedzi do zwykłych odpowiedzi.
-- `/compact` → podsumowuje starszą historię do zwartego wpisu, aby zwolnić miejsce w oknie.
+- `/context list` → co jest wstrzykiwane + przybliżone rozmiary (na plik + łącznie).
+- `/context detail` → bardziej szczegółowy podział: rozmiary dla każdego pliku, schematu narzędzia, wpisu Skills i rozmiar system promptu.
+- `/usage tokens` → dodaj stopkę z użyciem do zwykłych odpowiedzi.
+- `/compact` → podsumuj starszą historię do zwartego wpisu, aby zwolnić miejsce w oknie.
 
-Zobacz też: [Polecenia slash](/tools/slash-commands), [Użycie tokenów i koszty](/reference/token-use), [Kompakcja](/concepts/compaction).
+Zobacz też: [Polecenia ukośnikowe](/pl/tools/slash-commands), [Użycie tokenów i koszty](/pl/reference/token-use), [Kompakcja](/pl/concepts/compaction).
 
 ## Przykładowe dane wyjściowe
 
-Wartości różnią się w zależności od modelu, dostawcy, zasad narzędzi i tego, co znajduje się w Twoim obszarze roboczym.
+Wartości różnią się zależnie od modelu, dostawcy, polityki narzędzi i tego, co znajduje się w Twoim obszarze roboczym.
 
 ### `/context list`
 
 ```
 🧠 Podział kontekstu
 Obszar roboczy: <workspaceDir>
-Maks. bootstrap/plik: 20,000 znaków
+Maks. bootstrap/pliku: 20,000 chars
 Sandbox: mode=non-main sandboxed=false
-System prompt (uruchomienie): 38,412 znaków (~9,603 tok) (Kontekst projektu 23,901 znaków (~5,976 tok))
+System prompt (uruchomienie): 38,412 chars (~9,603 tok) (Project Context 23,901 chars (~5,976 tok))
 
 Wstrzyknięte pliki obszaru roboczego:
-- AGENTS.md: OK | surowe 1,742 znaki (~436 tok) | wstrzyknięte 1,742 znaki (~436 tok)
-- SOUL.md: OK | surowe 912 znaków (~228 tok) | wstrzyknięte 912 znaków (~228 tok)
-- TOOLS.md: PRZYCIĘTE | surowe 54,210 znaków (~13,553 tok) | wstrzyknięte 20,962 znaków (~5,241 tok)
-- IDENTITY.md: OK | surowe 211 znaków (~53 tok) | wstrzyknięte 211 znaków (~53 tok)
-- USER.md: OK | surowe 388 znaków (~97 tok) | wstrzyknięte 388 znaków (~97 tok)
-- HEARTBEAT.md: BRAK | surowe 0 | wstrzyknięte 0
-- BOOTSTRAP.md: OK | surowe 0 znaków (~0 tok) | wstrzyknięte 0 znaków (~0 tok)
+- AGENTS.md: OK | raw 1,742 chars (~436 tok) | injected 1,742 chars (~436 tok)
+- SOUL.md: OK | raw 912 chars (~228 tok) | injected 912 chars (~228 tok)
+- TOOLS.md: TRUNCATED | raw 54,210 chars (~13,553 tok) | injected 20,962 chars (~5,241 tok)
+- IDENTITY.md: OK | raw 211 chars (~53 tok) | injected 211 chars (~53 tok)
+- USER.md: OK | raw 388 chars (~97 tok) | injected 388 chars (~97 tok)
+- HEARTBEAT.md: MISSING | raw 0 | injected 0
+- BOOTSTRAP.md: OK | raw 0 chars (~0 tok) | injected 0 chars (~0 tok)
 
-Lista Skills (tekst system prompt): 2,184 znaki (~546 tok) (12 Skills)
+Lista Skills (tekst system promptu): 2,184 chars (~546 tok) (12 skills)
 Narzędzia: read, edit, write, exec, process, browser, message, sessions_send, …
-Lista narzędzi (tekst system prompt): 1,032 znaki (~258 tok)
-Schematy narzędzi (JSON): 31,988 znaków (~7,997 tok) (liczą się do kontekstu; nie są pokazane jako tekst)
+Lista narzędzi (tekst system promptu): 1,032 chars (~258 tok)
+Schematy narzędzi (JSON): 31,988 chars (~7,997 tok) (wliczają się do kontekstu; nie są pokazywane jako tekst)
 Narzędzia: (takie same jak powyżej)
 
-Tokeny sesji (z cache): 14,250 łącznie / ctx=32,000
+Tokeny sesji (z pamięci podręcznej): 14,250 total / ctx=32,000
 ```
 
 ### `/context detail`
@@ -72,44 +72,44 @@ Tokeny sesji (z cache): 14,250 łącznie / ctx=32,000
 ```
 🧠 Podział kontekstu (szczegółowy)
 …
-Największe Skills (rozmiar wpisu prompt):
-- frontend-design: 412 znaków (~103 tok)
-- oracle: 401 znaków (~101 tok)
-… (+10 kolejnych Skills)
+Największe Skills (rozmiar wpisu promptu):
+- frontend-design: 412 chars (~103 tok)
+- oracle: 401 chars (~101 tok)
+… (+10 more skills)
 
 Największe narzędzia (rozmiar schematu):
-- browser: 9,812 znaków (~2,453 tok)
-- exec: 6,240 znaków (~1,560 tok)
-… (+N kolejnych narzędzi)
+- browser: 9,812 chars (~2,453 tok)
+- exec: 6,240 chars (~1,560 tok)
+… (+N more tools)
 ```
 
-## Co liczy się do okna kontekstu
+## Co wlicza się do okna kontekstu
 
-Liczy się wszystko, co otrzymuje model, w tym:
+Wlicza się wszystko, co otrzymuje model, w tym:
 
 - System prompt (wszystkie sekcje).
 - Historia rozmowy.
 - Wywołania narzędzi + wyniki narzędzi.
 - Załączniki/transkrypcje (obrazy/audio/pliki).
-- Podsumowania kompakcji i artefakty przycinania.
-- „Wrappery” dostawcy lub ukryte nagłówki (niewidoczne, ale nadal liczone).
+- Podsumowania kompaktacji i artefakty przycinania.
+- „Opakowania” dostawcy lub ukryte nagłówki (niewidoczne, ale nadal liczone).
 
 ## Jak OpenClaw buduje system prompt
 
-System prompt jest **własnością OpenClaw** i jest przebudowywany przy każdym uruchomieniu. Obejmuje:
+System prompt jest **własnością OpenClaw** i jest przebudowywany przy każdym uruchomieniu. Zawiera:
 
 - Listę narzędzi + krótkie opisy.
-- Listę Skills (tylko metadane; patrz niżej).
+- Listę Skills (tylko metadane; zobacz niżej).
 - Lokalizację obszaru roboczego.
 - Czas (UTC + przeliczony czas użytkownika, jeśli skonfigurowano).
-- Metadane środowiska uruchomieniowego (host/OS/model/myślenie).
-- Wstrzyknięte pliki bootstrap obszaru roboczego w sekcji **Kontekst projektu**.
+- Metadane środowiska uruchomieniowego (host/OS/model/thinking).
+- Wstrzyknięte pliki bootstrap obszaru roboczego w sekcji **Project Context**.
 
-Pełny podział: [System Prompt](/concepts/system-prompt).
+Pełny opis: [System Prompt](/pl/concepts/system-prompt).
 
-## Wstrzyknięte pliki obszaru roboczego (Kontekst projektu)
+## Wstrzyknięte pliki obszaru roboczego (Project Context)
 
-Domyślnie OpenClaw wstrzykuje stały zestaw plików obszaru roboczego (jeśli istnieją):
+Domyślnie OpenClaw wstrzykuje stały zestaw plików obszaru roboczego (jeśli są obecne):
 
 - `AGENTS.md`
 - `SOUL.md`
@@ -119,68 +119,68 @@ Domyślnie OpenClaw wstrzykuje stały zestaw plików obszaru roboczego (jeśli i
 - `HEARTBEAT.md`
 - `BOOTSTRAP.md` (tylko przy pierwszym uruchomieniu)
 
-Duże pliki są przycinane osobno dla każdego pliku przy użyciu `agents.defaults.bootstrapMaxChars` (domyślnie `20000` znaków). OpenClaw wymusza też łączny limit wstrzykiwania bootstrap dla wszystkich plików za pomocą `agents.defaults.bootstrapTotalMaxChars` (domyślnie `150000` znaków). `/context` pokazuje rozmiary **surowe vs wstrzyknięte** oraz to, czy nastąpiło przycięcie.
+Duże pliki są obcinane osobno dla każdego pliku zgodnie z `agents.defaults.bootstrapMaxChars` (domyślnie `20000` znaków). OpenClaw wymusza też łączny limit wstrzykiwania bootstrap dla wszystkich plików za pomocą `agents.defaults.bootstrapTotalMaxChars` (domyślnie `150000` znaków). `/context` pokazuje rozmiary **raw vs injected** oraz informację, czy doszło do obcięcia.
 
-Gdy następuje przycięcie, środowisko uruchomieniowe może wstrzyknąć do prompt blok ostrzeżenia w sekcji Kontekst projektu. Skonfigurujesz to za pomocą `agents.defaults.bootstrapPromptTruncationWarning` (`off`, `once`, `always`; domyślnie `once`).
+Gdy dochodzi do obcięcia, środowisko uruchomieniowe może wstrzyknąć blok ostrzeżenia bezpośrednio do promptu w sekcji Project Context. Skonfigurujesz to przez `agents.defaults.bootstrapPromptTruncationWarning` (`off`, `once`, `always`; domyślnie `once`).
 
 ## Skills: wstrzykiwane vs ładowane na żądanie
 
-System prompt zawiera zwięzłą **listę Skills** (nazwa + opis + lokalizacja). Ta lista ma realny narzut.
+System prompt zawiera zwartą **listę Skills** (nazwa + opis + lokalizacja). Ta lista ma rzeczywisty narzut.
 
-Instrukcje Skills _nie_ są domyślnie dołączane. Oczekuje się, że model odczyta `SKILL.md` danego skilla za pomocą `read` **tylko wtedy, gdy jest to potrzebne**.
+Instrukcje Skills _nie_ są domyślnie dołączane. Oczekuje się, że model odczyta `SKILL.md` danej umiejętności za pomocą `read` **tylko wtedy, gdy będzie to potrzebne**.
 
 ## Narzędzia: są dwa koszty
 
 Narzędzia wpływają na kontekst na dwa sposoby:
 
-1. **Tekst listy narzędzi** w system prompt (to, co widzisz jako „Tooling”).
-2. **Schematy narzędzi** (JSON). Są wysyłane do modelu, aby mógł wywoływać narzędzia. Liczą się do kontekstu, mimo że nie widzisz ich jako zwykłego tekstu.
+1. **Tekst listy narzędzi** w system promptcie (to, co widzisz jako „Tooling”).
+2. **Schematy narzędzi** (JSON). Są wysyłane do modelu, aby mógł wywoływać narzędzia. Wliczają się do kontekstu, mimo że nie widzisz ich jako zwykłego tekstu.
 
-`/context detail` pokazuje podział największych schematów narzędzi, aby było widać, co dominuje.
+`/context detail` rozbija największe schematy narzędzi, aby pokazać, co dominuje.
 
 ## Polecenia, dyrektywy i „skróty inline”
 
-Polecenia slash są obsługiwane przez Gateway. Istnieje kilka różnych zachowań:
+Polecenia ukośnikowe są obsługiwane przez Gateway. Występuje tu kilka różnych zachowań:
 
-- **Samodzielne polecenia**: wiadomość zawierająca wyłącznie `/...` jest uruchamiana jako polecenie.
+- **Polecenia samodzielne**: wiadomość zawierająca wyłącznie `/...` jest uruchamiana jako polecenie.
 - **Dyrektywy**: `/think`, `/verbose`, `/reasoning`, `/elevated`, `/model`, `/queue` są usuwane, zanim model zobaczy wiadomość.
-  - Wiadomości zawierające tylko dyrektywy utrwalają ustawienia sesji.
+  - Wiadomości zawierające wyłącznie dyrektywy utrwalają ustawienia sesji.
   - Dyrektywy inline w zwykłej wiadomości działają jako wskazówki tylko dla tej wiadomości.
-- **Skróty inline** (tylko dla nadawców z listy dozwolonych): niektóre tokeny `/...` wewnątrz zwykłej wiadomości mogą zostać uruchomione od razu (przykład: „hey /status”) i są usuwane, zanim model zobaczy pozostały tekst.
+- **Skróty inline** (tylko nadawcy z listy dozwolonych): określone tokeny `/...` wewnątrz zwykłej wiadomości mogą zostać uruchomione od razu (na przykład: „hej /status”) i są usuwane, zanim model zobaczy pozostały tekst.
 
-Szczegóły: [Polecenia slash](/tools/slash-commands).
+Szczegóły: [Polecenia ukośnikowe](/pl/tools/slash-commands).
 
-## Sesje, kompakcja i przycinanie (co jest utrwalane)
+## Sesje, kompaktacja i przycinanie (co się utrzymuje)
 
-To, co jest utrwalane między wiadomościami, zależy od mechanizmu:
+To, co utrzymuje się między wiadomościami, zależy od mechanizmu:
 
-- **Zwykła historia** jest utrwalana w transkrypcji sesji, dopóki nie zostanie skompaktowana/przycięta zgodnie z zasadami.
-- **Kompakcja** utrwala podsumowanie w transkrypcji i zachowuje nienaruszone ostatnie wiadomości.
-- **Przycinanie** usuwa stare wyniki narzędzi z prompt _w pamięci_ dla danego uruchomienia, ale nie przepisuje transkrypcji.
+- **Zwykła historia** utrzymuje się w transkrypcji sesji, dopóki nie zostanie skompaktowana/przycięta zgodnie z polityką.
+- **Kompaktacja** zapisuje podsumowanie w transkrypcji i zachowuje nienaruszone ostatnie wiadomości.
+- **Przycinanie** usuwa stare wyniki narzędzi z promptu _w pamięci_ dla danego uruchomienia, ale nie przepisuje transkrypcji.
 
-Dokumentacja: [Sesja](/concepts/session), [Kompakcja](/concepts/compaction), [Przycinanie sesji](/concepts/session-pruning).
+Dokumentacja: [Sesja](/pl/concepts/session), [Kompaktacja](/pl/concepts/compaction), [Przycinanie sesji](/pl/concepts/session-pruning).
 
-Domyślnie OpenClaw używa wbudowanego silnika kontekstu `legacy` do składania i
-kompakcji. Jeśli zainstalujesz plugin, który udostępnia `kind: "context-engine"` i
-wybierzesz go za pomocą `plugins.slots.contextEngine`, OpenClaw deleguje
-składanie kontekstu, `/compact` i powiązane hooki cyklu życia kontekstu subagenta
-do tego silnika. `ownsCompaction: false` nie powoduje automatycznego powrotu do silnika
-legacy; aktywny silnik nadal musi poprawnie implementować `compact()`. Zobacz
-[Context Engine](/concepts/context-engine), aby poznać pełny
-interfejs rozszerzalny przez pluginy, hooki cyklu życia i konfigurację.
+Domyślnie OpenClaw używa wbudowanego silnika kontekstu `legacy` do składania
+i kompaktacji. Jeśli zainstalujesz plugin udostępniający `kind: "context-engine"` i
+wybierzesz go przez `plugins.slots.contextEngine`, OpenClaw przekaże składanie
+kontekstu, `/compact` i powiązane hooki cyklu życia kontekstu subagentów temu
+silnikowi. `ownsCompaction: false` nie powoduje automatycznego powrotu do
+silnika legacy; aktywny silnik nadal musi poprawnie implementować `compact()`. Zobacz
+[Context Engine](/pl/concepts/context-engine), aby poznać pełny
+interfejs rozszerzalny, hooki cyklu życia i konfigurację.
 
 ## Co faktycznie raportuje `/context`
 
-`/context` preferuje najnowszy raport system prompt **zbudowany przy uruchomieniu**, jeśli jest dostępny:
+`/context` preferuje najnowszy raport system promptu **zbudowany podczas uruchomienia**, gdy jest dostępny:
 
-- `System prompt (run)` = przechwycone z ostatniego osadzonego uruchomienia (z obsługą narzędzi) i zapisane w magazynie sesji.
-- `System prompt (estimate)` = obliczane na bieżąco, gdy nie istnieje raport z uruchomienia (lub podczas działania przez backend CLI, który nie generuje raportu).
+- `System prompt (run)` = przechwycony z ostatniego osadzonego uruchomienia (obsługującego narzędzia) i zapisany w magazynie sesji.
+- `System prompt (estimate)` = obliczony na bieżąco, gdy raport z uruchomienia nie istnieje jeszcze.
 
-W obu przypadkach raportuje rozmiary i największe składowe; **nie** wypisuje pełnego system prompt ani schematów narzędzi.
+W obu przypadkach raportuje rozmiary i największe składniki; **nie** zrzuca pełnego system promptu ani schematów narzędzi.
 
 ## Powiązane
 
-- [Context Engine](/concepts/context-engine) — niestandardowe wstrzykiwanie kontekstu przez pluginy
-- [Kompakcja](/concepts/compaction) — podsumowywanie długich rozmów
-- [System Prompt](/concepts/system-prompt) — jak budowany jest system prompt
-- [Pętla agenta](/concepts/agent-loop) — pełny cykl wykonywania agenta
+- [Context Engine](/pl/concepts/context-engine) — niestandardowe wstrzykiwanie kontekstu przez pluginy
+- [Kompaktacja](/pl/concepts/compaction) — podsumowywanie długich rozmów
+- [System Prompt](/pl/concepts/system-prompt) — jak budowany jest system prompt
+- [Pętla agenta](/pl/concepts/agent-loop) — pełny cykl wykonywania agenta

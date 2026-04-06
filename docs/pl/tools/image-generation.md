@@ -1,56 +1,60 @@
 ---
 read_when:
     - Generujesz obrazy przez agenta
-    - Konfigurujesz providerów i modele do generowania obrazów
-    - Chcesz zrozumieć parametry narzędzia `image_generate`
-summary: Generowanie i edytowanie obrazów przy użyciu skonfigurowanych providerów (OpenAI, Google Gemini, fal, MiniMax)
+    - Konfigurujesz dostawców i modele generowania obrazów
+    - Chcesz zrozumieć parametry narzędzia image_generate
+summary: Generowanie i edycja obrazów przy użyciu skonfigurowanych dostawców (OpenAI, Google Gemini, fal, MiniMax, ComfyUI, Vydra)
 title: Generowanie obrazów
 x-i18n:
-    generated_at: "2026-04-05T14:08:13Z"
+    generated_at: "2026-04-06T03:13:44Z"
     model: gpt-5.4
     provider: openai
-    source_hash: d38a8a583997ceff6523ce4f51808c97a2b59fe4e5a34cf79cdcb70d7e83aec2
+    source_hash: dde416dd1441a06605db85b5813cf61ccfc525813d6db430b7b7dfa53d6a3134
     source_path: tools/image-generation.md
     workflow: 15
 ---
 
 # Generowanie obrazów
 
-Narzędzie `image_generate` pozwala agentowi tworzyć i edytować obrazy przy użyciu skonfigurowanych providerów. Wygenerowane obrazy są automatycznie dostarczane jako załączniki multimedialne w odpowiedzi agenta.
+Narzędzie `image_generate` pozwala agentowi tworzyć i edytować obrazy przy użyciu skonfigurowanych dostawców. Wygenerowane obrazy są automatycznie dostarczane jako załączniki multimedialne w odpowiedzi agenta.
 
 <Note>
-Narzędzie pojawia się tylko wtedy, gdy dostępny jest co najmniej jeden provider generowania obrazów. Jeśli nie widzisz `image_generate` w narzędziach agenta, skonfiguruj `agents.defaults.imageGenerationModel` albo ustaw klucz API providera.
+Narzędzie pojawia się tylko wtedy, gdy dostępny jest co najmniej jeden dostawca generowania obrazów. Jeśli nie widzisz `image_generate` w narzędziach agenta, skonfiguruj `agents.defaults.imageGenerationModel` albo ustaw klucz API dostawcy.
 </Note>
 
 ## Szybki start
 
-1. Ustaw klucz API dla co najmniej jednego providera (na przykład `OPENAI_API_KEY` albo `GEMINI_API_KEY`).
+1. Ustaw klucz API dla co najmniej jednego dostawcy (na przykład `OPENAI_API_KEY` albo `GEMINI_API_KEY`).
 2. Opcjonalnie ustaw preferowany model:
 
 ```json5
 {
   agents: {
     defaults: {
-      imageGenerationModel: "openai/gpt-image-1",
+      imageGenerationModel: {
+        primary: "openai/gpt-image-1",
+      },
     },
   },
 }
 ```
 
-3. Poproś agenta: _„Wygeneruj obraz przyjaznej homarzej maskotki.”_
+3. Poproś agenta: _"Wygeneruj obraz przyjaznej maskotki homara."_
 
-Agent automatycznie wywoła `image_generate`. Nie trzeba dodawać go do allowlisty narzędzi — jest domyślnie włączone, gdy provider jest dostępny.
+Agent automatycznie wywoła `image_generate`. Nie trzeba dodawać go do allowlisty narzędzi — jest domyślnie włączony, gdy dostawca jest dostępny.
 
-## Obsługiwani providerzy
+## Obsługiwani dostawcy
 
-| Provider | Model domyślny                   | Obsługa edycji          | Klucz API                                              |
-| -------- | -------------------------------- | ----------------------- | ------------------------------------------------------ |
-| OpenAI   | `gpt-image-1`                    | Tak (do 5 obrazów)      | `OPENAI_API_KEY`                                       |
-| Google   | `gemini-3.1-flash-image-preview` | Tak                     | `GEMINI_API_KEY` albo `GOOGLE_API_KEY`                 |
-| fal      | `fal-ai/flux/dev`                | Tak                     | `FAL_KEY`                                              |
-| MiniMax  | `image-01`                       | Tak (referencja obiektu) | `MINIMAX_API_KEY` albo MiniMax OAuth (`minimax-portal`) |
+| Dostawca | Model domyślny                  | Obsługa edycji                      | Klucz API                                               |
+| -------- | -------------------------------- | ----------------------------------- | ------------------------------------------------------- |
+| OpenAI   | `gpt-image-1`                    | Tak (do 5 obrazów)                  | `OPENAI_API_KEY`                                        |
+| Google   | `gemini-3.1-flash-image-preview` | Tak                                 | `GEMINI_API_KEY` lub `GOOGLE_API_KEY`                   |
+| fal      | `fal-ai/flux/dev`                | Tak                                 | `FAL_KEY`                                               |
+| MiniMax  | `image-01`                       | Tak (odniesienie do obiektu)        | `MINIMAX_API_KEY` lub MiniMax OAuth (`minimax-portal`)  |
+| ComfyUI  | `workflow`                       | Tak (1 obraz, konfigurowany przez workflow) | `COMFY_API_KEY` lub `COMFY_CLOUD_API_KEY` dla chmury |
+| Vydra    | `grok-imagine`                   | Nie                                 | `VYDRA_API_KEY`                                         |
 
-Użyj `action: "list"`, aby w runtime sprawdzić dostępnych providerów i modele:
+Użyj `action: "list"`, aby sprawdzić dostępnych dostawców i modele w czasie działania:
 
 ```
 /tool image_generate action=list
@@ -61,17 +65,17 @@ Użyj `action: "list"`, aby w runtime sprawdzić dostępnych providerów i model
 | Parametr      | Typ      | Opis                                                                                  |
 | ------------- | -------- | ------------------------------------------------------------------------------------- |
 | `prompt`      | string   | Prompt do generowania obrazu (wymagany dla `action: "generate"`)                     |
-| `action`      | string   | `"generate"` (domyślnie) albo `"list"`, aby sprawdzić providerów                     |
-| `model`       | string   | Nadpisanie provider/model, np. `openai/gpt-image-1`                                  |
-| `image`       | string   | Ścieżka albo URL pojedynczego obrazu referencyjnego dla trybu edycji                 |
+| `action`      | string   | `"generate"` (domyślnie) albo `"list"` do sprawdzenia dostawców                      |
+| `model`       | string   | Nadpisanie dostawca/model, np. `openai/gpt-image-1`                                  |
+| `image`       | string   | Ścieżka lub URL pojedynczego obrazu referencyjnego dla trybu edycji                  |
 | `images`      | string[] | Wiele obrazów referencyjnych dla trybu edycji (do 5)                                 |
 | `size`        | string   | Wskazówka rozmiaru: `1024x1024`, `1536x1024`, `1024x1536`, `1024x1792`, `1792x1024`  |
 | `aspectRatio` | string   | Proporcje obrazu: `1:1`, `2:3`, `3:2`, `3:4`, `4:3`, `4:5`, `5:4`, `9:16`, `16:9`, `21:9` |
-| `resolution`  | string   | Wskazówka rozdzielczości: `1K`, `2K` albo `4K`                                       |
+| `resolution`  | string   | Wskazówka rozdzielczości: `1K`, `2K` lub `4K`                                         |
 | `count`       | number   | Liczba obrazów do wygenerowania (1–4)                                                |
-| `filename`    | string   | Wskazówka nazwy pliku wyjściowego                                                     |
+| `filename`    | string   | Wskazówka nazwy pliku wyjściowego                                                    |
 
-Nie wszyscy providerzy obsługują wszystkie parametry. Narzędzie przekazuje to, co obsługuje dany provider, a resztę ignoruje.
+Nie wszyscy dostawcy obsługują wszystkie parametry. Narzędzie przekazuje to, co obsługuje dany dostawca, ignoruje resztę i zgłasza pominięte nadpisania w wyniku narzędzia.
 
 ## Konfiguracja
 
@@ -81,10 +85,6 @@ Nie wszyscy providerzy obsługują wszystkie parametry. Narzędzie przekazuje to
 {
   agents: {
     defaults: {
-      // Forma string: tylko model primary
-      imageGenerationModel: "google/gemini-3.1-flash-image-preview",
-
-      // Forma object: primary + uporządkowane fallbacki
       imageGenerationModel: {
         primary: "openai/gpt-image-1",
         fallbacks: ["google/gemini-3.1-flash-image-preview", "fal/fal-ai/flux/dev"],
@@ -94,53 +94,59 @@ Nie wszyscy providerzy obsługują wszystkie parametry. Narzędzie przekazuje to
 }
 ```
 
-### Kolejność wyboru providera
+### Kolejność wyboru dostawcy
 
-Podczas generowania obrazu OpenClaw próbuje providerów w tej kolejności:
+Podczas generowania obrazu OpenClaw próbuje dostawców w tej kolejności:
 
-1. **Parametr `model`** z wywołania narzędzia (jeśli agent go poda)
+1. Parametr **`model`** z wywołania narzędzia (jeśli agent go określi)
 2. **`imageGenerationModel.primary`** z konfiguracji
 3. **`imageGenerationModel.fallbacks`** w podanej kolejności
-4. **Auto-detection** — używa tylko domyślnych providerów opartych na auth:
-   - najpierw bieżący default provider
-   - potem pozostali zarejestrowani providerzy generowania obrazów w kolejności provider-id
+4. **Automatyczne wykrywanie** — używa tylko domyślnych dostawców wspieranych przez uwierzytelnianie:
+   - najpierw bieżący domyślny dostawca
+   - następnie pozostali zarejestrowani dostawcy generowania obrazów w kolejności identyfikatorów dostawców
 
-Jeśli provider zawiedzie (błąd auth, rate limit itd.), automatycznie próbowany jest kolejny kandydat. Jeśli zawiodą wszystkie, błąd będzie zawierał szczegóły każdej próby.
+Jeśli dostawca zawiedzie (błąd uwierzytelniania, rate limit itd.), automatycznie próbowany jest następny kandydat. Jeśli zawiodą wszyscy, błąd zawiera szczegóły każdej próby.
 
 Uwagi:
 
-- Auto-detection uwzględnia auth. Domyślny provider trafia na listę kandydatów
-  tylko wtedy, gdy OpenClaw może faktycznie uwierzytelnić tego providera.
-- Użyj `action: "list"`, aby sprawdzić aktualnie zarejestrowanych providerów, ich
-  modele domyślne i wskazówki dotyczące auth env-var.
+- Automatyczne wykrywanie uwzględnia uwierzytelnianie. Domyślny dostawca trafia na listę kandydatów
+  tylko wtedy, gdy OpenClaw faktycznie potrafi uwierzytelnić tego dostawcę.
+- Użyj `action: "list"`, aby sprawdzić aktualnie zarejestrowanych dostawców, ich
+  modele domyślne i wskazówki dotyczące zmiennych env dla uwierzytelniania.
 
-### Edytowanie obrazów
+### Edycja obrazów
 
-OpenAI, Google, fal i MiniMax obsługują edytowanie obrazów referencyjnych. Przekaż ścieżkę albo URL obrazu referencyjnego:
+OpenAI, Google, fal, MiniMax i ComfyUI obsługują edycję obrazów referencyjnych. Przekaż ścieżkę lub URL obrazu referencyjnego:
 
 ```
-"Generate a watercolor version of this photo" + image: "/path/to/photo.jpg"
+"Wygeneruj akwarelową wersję tego zdjęcia" + image: "/path/to/photo.jpg"
 ```
 
-OpenAI i Google obsługują do 5 obrazów referencyjnych przez parametr `images`. fal i MiniMax obsługują 1.
+OpenAI i Google obsługują do 5 obrazów referencyjnych przez parametr `images`. fal, MiniMax i ComfyUI obsługują 1.
 
-Generowanie obrazów w MiniMax jest dostępne przez obie bundled ścieżki auth MiniMax:
+Generowanie obrazów MiniMax jest dostępne przez obie dołączone ścieżki uwierzytelniania MiniMax:
 
 - `minimax/image-01` dla konfiguracji z kluczem API
-- `minimax-portal/image-01` dla konfiguracji OAuth
+- `minimax-portal/image-01` dla konfiguracji z OAuth
 
-## Możliwości providerów
+## Możliwości dostawców
 
-| Możliwość             | OpenAI               | Google               | fal                 | MiniMax                     |
-| --------------------- | -------------------- | -------------------- | ------------------- | --------------------------- |
-| Generowanie           | Tak (do 4)           | Tak (do 4)           | Tak (do 4)          | Tak (do 9)                  |
-| Edycja/referencja     | Tak (do 5 obrazów)   | Tak (do 5 obrazów)   | Tak (1 obraz)       | Tak (1 obraz, referencja obiektu) |
-| Kontrola rozmiaru     | Tak                  | Tak                  | Tak                 | Nie                         |
-| Proporcje obrazu      | Nie                  | Tak                  | Tak (tylko generowanie) | Tak                      |
-| Rozdzielczość (1K/2K/4K) | Nie               | Tak                  | Tak                 | Nie                         |
+| Możliwość            | OpenAI               | Google               | fal                 | MiniMax                    | ComfyUI                            | Vydra |
+| -------------------- | -------------------- | -------------------- | ------------------- | -------------------------- | ---------------------------------- | ----- |
+| Generowanie          | Tak (do 4)           | Tak (do 4)           | Tak (do 4)          | Tak (do 9)                 | Tak (wyjścia określone przez workflow) | Tak (1) |
+| Edycja/referencja    | Tak (do 5 obrazów)   | Tak (do 5 obrazów)   | Tak (1 obraz)       | Tak (1 obraz, odniesienie do obiektu) | Tak (1 obraz, konfigurowany przez workflow) | Nie |
+| Kontrola rozmiaru    | Tak                  | Tak                  | Tak                 | Nie                        | Nie                                 | Nie |
+| Proporcje obrazu     | Nie                  | Tak                  | Tak (tylko generowanie) | Tak                     | Nie                                 | Nie |
+| Rozdzielczość (1K/2K/4K) | Nie              | Tak                  | Tak                 | Nie                        | Nie                                 | Nie |
 
 ## Powiązane
 
-- [Przegląd narzędzi](/tools) — wszystkie dostępne narzędzia agenta
-- [Dokumentacja konfiguracji](/gateway/configuration-reference#agent-defaults) — konfiguracja `imageGenerationModel`
-- [Modele](/concepts/models) — konfiguracja modeli i failover
+- [Przegląd narzędzi](/pl/tools) — wszystkie dostępne narzędzia agenta
+- [fal](/providers/fal) — konfiguracja dostawcy obrazów i wideo fal
+- [ComfyUI](/providers/comfy) — konfiguracja lokalnych workflow ComfyUI i Comfy Cloud
+- [Google (Gemini)](/pl/providers/google) — konfiguracja dostawcy obrazów Gemini
+- [MiniMax](/pl/providers/minimax) — konfiguracja dostawcy obrazów MiniMax
+- [OpenAI](/pl/providers/openai) — konfiguracja dostawcy OpenAI Images
+- [Vydra](/providers/vydra) — konfiguracja obrazów, wideo i mowy Vydra
+- [Referencja konfiguracji](/pl/gateway/configuration-reference#agent-defaults) — konfiguracja `imageGenerationModel`
+- [Modele](/pl/concepts/models) — konfiguracja modeli i failover

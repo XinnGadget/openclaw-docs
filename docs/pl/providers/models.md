@@ -1,22 +1,22 @@
 ---
 read_when:
-    - Chcesz wybrać dostawcę modelu
-    - Chcesz szybkie przykłady konfiguracji auth LLM + wyboru modelu
+    - Chcesz wybrać dostawcę modeli
+    - Chcesz zobaczyć szybkie przykłady konfiguracji uwierzytelniania LLM i wyboru modelu
 summary: Dostawcy modeli (LLM) obsługiwani przez OpenClaw
 title: Szybki start z dostawcami modeli
 x-i18n:
-    generated_at: "2026-04-05T14:03:13Z"
+    generated_at: "2026-04-06T03:11:40Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 83e372193b476c7cee6eb9f5c443b03563d863043f47c633ac0096bca642cc6f
+    source_hash: c0314fb1c754171e5fc252d30f7ba9bb6acdbb978d97e9249264d90351bac2e7
     source_path: providers/models.md
     workflow: 15
 ---
 
 # Dostawcy modeli
 
-OpenClaw może używać wielu dostawców LLM. Wybierz jednego, uwierzytelnij się, a potem ustaw model domyślny
-jako `provider/model`.
+OpenClaw może używać wielu dostawców LLM. Wybierz jednego, uwierzytelnij się, a następnie ustaw domyślny
+model jako `provider/model`.
 
 ## Szybki start (dwa kroki)
 
@@ -31,32 +31,35 @@ jako `provider/model`.
 
 ## Obsługiwani dostawcy (zestaw startowy)
 
-- [Anthropic (API + Claude CLI)](/providers/anthropic)
-- [Amazon Bedrock](/providers/bedrock)
-- [BytePlus (International)](/concepts/model-providers#byteplus-international)
-- [Chutes](/providers/chutes)
-- [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
-- [Fireworks](/providers/fireworks)
-- [GLM models](/providers/glm)
-- [MiniMax](/providers/minimax)
-- [Mistral](/providers/mistral)
-- [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot)
-- [OpenAI (API + Codex)](/providers/openai)
-- [OpenCode (Zen + Go)](/providers/opencode)
-- [OpenRouter](/providers/openrouter)
-- [Qianfan](/providers/qianfan)
-- [Qwen](/providers/qwen)
-- [StepFun](/providers/stepfun)
-- [Synthetic](/providers/synthetic)
-- [Vercel AI Gateway](/providers/vercel-ai-gateway)
-- [Venice (Venice AI)](/providers/venice)
-- [xAI](/providers/xai)
-- [Z.AI](/providers/zai)
+- [Alibaba Model Studio](/providers/alibaba)
+- [Anthropic (API + Claude CLI)](/pl/providers/anthropic)
+- [Amazon Bedrock](/pl/providers/bedrock)
+- [BytePlus (międzynarodowy)](/pl/concepts/model-providers#byteplus-international)
+- [Chutes](/pl/providers/chutes)
+- [ComfyUI](/providers/comfy)
+- [Cloudflare AI Gateway](/pl/providers/cloudflare-ai-gateway)
+- [fal](/providers/fal)
+- [Fireworks](/pl/providers/fireworks)
+- [Modele GLM](/pl/providers/glm)
+- [MiniMax](/pl/providers/minimax)
+- [Mistral](/pl/providers/mistral)
+- [Moonshot AI (Kimi + Kimi Coding)](/pl/providers/moonshot)
+- [OpenAI (API + Codex)](/pl/providers/openai)
+- [OpenCode (Zen + Go)](/pl/providers/opencode)
+- [OpenRouter](/pl/providers/openrouter)
+- [Qianfan](/pl/providers/qianfan)
+- [Qwen](/pl/providers/qwen)
+- [Runway](/providers/runway)
+- [StepFun](/pl/providers/stepfun)
+- [Synthetic](/pl/providers/synthetic)
+- [Vercel AI Gateway](/pl/providers/vercel-ai-gateway)
+- [Venice (Venice AI)](/pl/providers/venice)
+- [xAI](/pl/providers/xai)
+- [Z.AI](/pl/providers/zai)
 
-## Dodatkowe warianty dołączonych dostawców
+## Dodatkowe warianty wbudowanych dostawców
 
-- `anthropic-vertex` - niejawna obsługa Anthropic na Google Vertex, gdy dostępne są poświadczenia Vertex; bez osobnego wyboru auth w onboardingu
+- `anthropic-vertex` - niejawna obsługa Anthropic w Google Vertex, gdy dostępne są poświadczenia Vertex; brak osobnej opcji uwierzytelniania w onboardingu
 - `copilot-proxy` - lokalny most VS Code Copilot Proxy; użyj `openclaw onboard --auth-choice copilot-proxy`
-- `google-gemini-cli` - nieoficjalny przepływ OAuth Gemini CLI; wymaga lokalnej instalacji `gemini` (`brew install gemini-cli` albo `npm install -g @google/gemini-cli`); domyślny model `google-gemini-cli/gemini-3.1-pro-preview`; użyj `openclaw onboard --auth-choice google-gemini-cli` albo `openclaw models auth login --provider google-gemini-cli --set-default`
 
-Pełny katalog dostawców (xAI, Groq, Mistral itd.) oraz zaawansowaną konfigurację znajdziesz w [Model providers](/concepts/model-providers).
+Pełny katalog dostawców (xAI, Groq, Mistral itd.) oraz konfigurację zaawansowaną znajdziesz w [Dostawcy modeli](/pl/concepts/model-providers).

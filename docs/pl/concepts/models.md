@@ -1,49 +1,50 @@
 ---
 read_when:
-    - Dodawanie lub modyfikowanie CLI modeli (models list/set/scan/aliases/fallbacks)
-    - Zmiana zachowania fallbacków modeli lub UX wyboru
-    - Aktualizowanie sond skanowania modeli (narzędzia/obrazy)
-summary: 'CLI modeli: list, set, aliasy, fallbacki, scan, status'
-title: Models CLI
+    - Dodajesz lub modyfikujesz CLI modeli (models list/set/scan/aliases/fallbacks)
+    - Zmieniasz zachowanie fallbacku modeli lub UX wyboru
+    - Aktualizujesz sondy skanowania modeli (narzędzia/obrazy)
+summary: 'CLI modeli: lista, ustawianie, aliasy, fallbacki, skanowanie, status'
+title: CLI modeli
 x-i18n:
-    generated_at: "2026-04-05T13:51:25Z"
+    generated_at: "2026-04-06T03:07:22Z"
     model: gpt-5.4
     provider: openai
-    source_hash: e08f7e50da263895dae2bd2b8dc327972ea322615f8d1918ddbd26bb0fb24840
+    source_hash: 299602ccbe0c3d6bbdb2deab22bc60e1300ef6843ed0b8b36be574cc0213c155
     source_path: concepts/models.md
     workflow: 15
 ---
 
-# Models CLI
+# CLI modeli
 
-Zobacz [/concepts/model-failover](/concepts/model-failover), aby poznać rotację
-profili uwierzytelniania, cooldowny i sposób, w jaki współgra to z fallbackami.
-Szybki przegląd dostawców i przykłady: [/concepts/model-providers](/concepts/model-providers).
+Zobacz [/concepts/model-failover](/pl/concepts/model-failover), aby poznać rotację
+profili uwierzytelniania, okresy cooldown i to, jak współgra to z fallbackami.
+Szybki przegląd dostawców + przykłady: [/concepts/model-providers](/pl/concepts/model-providers).
 
 ## Jak działa wybór modelu
 
-OpenClaw wybiera modele w następującej kolejności:
+OpenClaw wybiera modele w tej kolejności:
 
 1. **Główny** model (`agents.defaults.model.primary` lub `agents.defaults.model`).
 2. **Fallbacki** w `agents.defaults.model.fallbacks` (w podanej kolejności).
-3. **Failover uwierzytelniania dostawcy** odbywa się w obrębie dostawcy przed przejściem do
-   kolejnego modelu.
+3. **Failover uwierzytelniania dostawcy** zachodzi wewnątrz dostawcy przed przejściem do
+   następnego modelu.
 
 Powiązane:
 
 - `agents.defaults.models` to allowlista/katalog modeli, których OpenClaw może używać (wraz z aliasami).
 - `agents.defaults.imageModel` jest używany **tylko wtedy**, gdy główny model nie może przyjmować obrazów.
-- `agents.defaults.pdfModel` jest używany przez narzędzie `pdf`. Jeśli go pominięto, narzędzie
-  przechodzi do `agents.defaults.imageModel`, a następnie do rozpoznanego modelu sesji/domyślnego.
-- `agents.defaults.imageGenerationModel` jest używany przez współdzieloną funkcję generowania obrazów. Jeśli go pominięto, `image_generate` nadal może wywnioskować domyślny dostawca oparty na uwierzytelnianiu. Najpierw próbuje bieżącego domyślnego dostawcy, a następnie pozostałych zarejestrowanych dostawców generowania obrazów w kolejności identyfikatorów dostawców. Jeśli ustawisz konkretny `provider/model`, skonfiguruj też uwierzytelnianie/klucz API tego dostawcy.
-- `agents.defaults.videoGenerationModel` jest używany przez współdzieloną funkcję generowania wideo. W przeciwieństwie do generowania obrazów, obecnie nie wywnioskuje domyślnego dostawcy. Ustaw jawny `provider/model`, taki jak `qwen/wan2.6-t2v`, i skonfiguruj również uwierzytelnianie/klucz API tego dostawcy.
-- Domyślne ustawienia per agent mogą zastępować `agents.defaults.model` przez `agents.list[].model` wraz z powiązaniami (zobacz [/concepts/multi-agent](/concepts/multi-agent)).
+- `agents.defaults.pdfModel` jest używany przez narzędzie `pdf`. Jeśli nie jest ustawiony, narzędzie
+  przechodzi kolejno do `agents.defaults.imageModel`, a następnie do rozstrzygniętego modelu sesji/domysłnego.
+- `agents.defaults.imageGenerationModel` jest używany przez współdzieloną funkcję generowania obrazów. Jeśli nie jest ustawiony, `image_generate` nadal może wywnioskować domyślny model dostawcy na podstawie uwierzytelniania. Najpierw próbuje bieżącego domyślnego dostawcy, a następnie pozostałych zarejestrowanych dostawców generowania obrazów w kolejności identyfikatorów dostawców. Jeśli ustawisz konkretny dostawca/model, skonfiguruj również uwierzytelnianie/klucz API tego dostawcy.
+- `agents.defaults.musicGenerationModel` jest używany przez współdzieloną funkcję generowania muzyki. Jeśli nie jest ustawiony, `music_generate` nadal może wywnioskować domyślny model dostawcy na podstawie uwierzytelniania. Najpierw próbuje bieżącego domyślnego dostawcy, a następnie pozostałych zarejestrowanych dostawców generowania muzyki w kolejności identyfikatorów dostawców. Jeśli ustawisz konkretny dostawca/model, skonfiguruj również uwierzytelnianie/klucz API tego dostawcy.
+- `agents.defaults.videoGenerationModel` jest używany przez współdzieloną funkcję generowania wideo. Jeśli nie jest ustawiony, `video_generate` nadal może wywnioskować domyślny model dostawcy na podstawie uwierzytelniania. Najpierw próbuje bieżącego domyślnego dostawcy, a następnie pozostałych zarejestrowanych dostawców generowania wideo w kolejności identyfikatorów dostawców. Jeśli ustawisz konkretny dostawca/model, skonfiguruj również uwierzytelnianie/klucz API tego dostawcy.
+- Domyślne ustawienia per agent mogą nadpisać `agents.defaults.model` przez `agents.list[].model` wraz z powiązaniami (zobacz [/concepts/multi-agent](/pl/concepts/multi-agent)).
 
 ## Szybka polityka modeli
 
-- Ustaw model główny na najmocniejszy dostępny dla Ciebie model najnowszej generacji.
-- Używaj fallbacków dla zadań wrażliwych na koszt/opóźnienia i mniej istotnych rozmów.
-- W przypadku agentów z włączonymi narzędziami lub niezaufanych danych wejściowych unikaj starszych/słabszych poziomów modeli.
+- Ustaw główny model na najsilniejszy model najnowszej generacji, do którego masz dostęp.
+- Używaj fallbacków do zadań wrażliwych na koszt/latencję i czatu o mniejszej wadze.
+- W przypadku agentów z włączonymi narzędziami lub niezaufanych danych wejściowych unikaj starszych/słabszych klas modeli.
 
 ## Onboarding (zalecane)
 
@@ -53,8 +54,8 @@ Jeśli nie chcesz ręcznie edytować konfiguracji, uruchom onboarding:
 openclaw onboard
 ```
 
-Może on skonfigurować model i uwierzytelnianie dla popularnych dostawców, w tym **subskrypcję OpenAI Code (Codex)**
-(OAuth) i **Anthropic** (klucz API lub Claude CLI).
+Może on skonfigurować model + uwierzytelnianie dla popularnych dostawców, w tym **subskrypcję
+OpenAI Code (Codex)** (OAuth) i **Anthropic** (klucz API lub Claude CLI).
 
 ## Klucze konfiguracji (przegląd)
 
@@ -63,18 +64,18 @@ Może on skonfigurować model i uwierzytelnianie dla popularnych dostawców, w t
 - `agents.defaults.pdfModel.primary` i `agents.defaults.pdfModel.fallbacks`
 - `agents.defaults.imageGenerationModel.primary` i `agents.defaults.imageGenerationModel.fallbacks`
 - `agents.defaults.videoGenerationModel.primary` i `agents.defaults.videoGenerationModel.fallbacks`
-- `agents.defaults.models` (allowlista + aliasy + parametry dostawców)
+- `agents.defaults.models` (allowlista + aliasy + parametry dostawcy)
 - `models.providers` (niestandardowi dostawcy zapisywani do `models.json`)
 
-Referencje modeli są normalizowane do małych liter. Aliasy dostawców, takie jak `z.ai/*`, są normalizowane
+Odwołania do modeli są normalizowane do małych liter. Aliasy dostawców, takie jak `z.ai/*`, są normalizowane
 do `zai/*`.
 
 Przykłady konfiguracji dostawców (w tym OpenCode) znajdują się w
-[/providers/opencode](/providers/opencode).
+[/providers/opencode](/pl/providers/opencode).
 
 ## „Model is not allowed” (i dlaczego odpowiedzi się zatrzymują)
 
-Jeśli ustawiono `agents.defaults.models`, staje się ono **allowlistą** dla `/model` i dla
+Jeśli ustawiono `agents.defaults.models`, staje się ono **allowlistą** dla `/model` oraz dla
 nadpisań sesji. Gdy użytkownik wybierze model, którego nie ma na tej allowliście,
 OpenClaw zwraca:
 
@@ -82,8 +83,8 @@ OpenClaw zwraca:
 Model "provider/model" is not allowed. Use /model to list available models.
 ```
 
-Dzieje się to **przed** wygenerowaniem zwykłej odpowiedzi, więc wiadomość może sprawiać wrażenie,
-jakby „nie było odpowiedzi”. Rozwiązanie polega na tym, aby:
+Dzieje się to **zanim** zostanie wygenerowana zwykła odpowiedź, więc wiadomość może sprawiać wrażenie,
+jakby „nie odpowiedziała”. Rozwiązanie to:
 
 - Dodać model do `agents.defaults.models`, albo
 - Wyczyścić allowlistę (usunąć `agents.defaults.models`), albo
@@ -105,7 +106,7 @@ Przykładowa konfiguracja allowlisty:
 
 ## Przełączanie modeli na czacie (`/model`)
 
-Możesz przełączać modele dla bieżącej sesji bez restartowania:
+Możesz przełączać modele dla bieżącej sesji bez restartu:
 
 ```
 /model
@@ -117,25 +118,25 @@ Możesz przełączać modele dla bieżącej sesji bez restartowania:
 
 Uwagi:
 
-- `/model` (i `/model list`) to zwarty, numerowany selektor (rodzina modeli + dostępni dostawcy).
-- Na Discord `/model` i `/models` otwierają interaktywny selektor z listami rozwijanymi dostawców i modeli oraz krokiem Submit.
+- `/model` (i `/model list`) to kompaktowy, numerowany selektor (rodzina modeli + dostępni dostawcy).
+- Na Discord `/model` i `/models` otwierają interaktywny selektor z listami rozwijanymi dostawcy i modelu oraz krokiem Submit.
 - `/model <#>` wybiera z tego selektora.
 - `/model` natychmiast zapisuje nowy wybór sesji.
 - Jeśli agent jest bezczynny, następne uruchomienie od razu użyje nowego modelu.
-- Jeśli uruchomienie już trwa, OpenClaw oznacza przełączenie na żywo jako oczekujące i restartuje do nowego modelu dopiero w czystym punkcie ponowienia.
-- Jeśli aktywność narzędzi lub generowanie odpowiedzi już się rozpoczęły, oczekujące przełączenie może pozostać w kolejce do późniejszej okazji ponowienia lub następnej tury użytkownika.
-- `/model status` to widok szczegółowy (kandydaci uwierzytelniania i, gdy skonfigurowano, `baseUrl` endpointu dostawcy oraz tryb `api`).
-- Referencje modeli są parsowane przez podział według **pierwszego** `/`. Użyj `provider/model` podczas wpisywania `/model <ref>`.
-- Jeśli sam identyfikator modelu zawiera `/` (styl OpenRouter), musisz uwzględnić prefiks dostawcy (przykład: `/model openrouter/moonshotai/kimi-k2`).
-- Jeśli pominiesz dostawcę, OpenClaw rozpoznaje dane wejściowe w tej kolejności:
+- Jeśli uruchomienie jest już aktywne, OpenClaw oznacza przełączenie na żywo jako oczekujące i restartuje do nowego modelu dopiero w czystym punkcie ponowienia.
+- Jeśli aktywność narzędzi lub generowanie odpowiedzi już się rozpoczęły, oczekujące przełączenie może pozostać w kolejce do późniejszej okazji ponowienia lub do następnej tury użytkownika.
+- `/model status` to widok szczegółowy (kandydaci uwierzytelniania oraz, gdy skonfigurowano, `baseUrl` endpointu dostawcy + tryb `api`).
+- Odwołania do modeli są parsowane przez podział według **pierwszego** `/`. Użyj `provider/model`, wpisując `/model <ref>`.
+- Jeśli samo ID modelu zawiera `/` (styl OpenRouter), musisz podać prefiks dostawcy (przykład: `/model openrouter/moonshotai/kimi-k2`).
+- Jeśli pominiesz dostawcę, OpenClaw rozstrzyga dane wejściowe w tej kolejności:
   1. dopasowanie aliasu
-  2. unikalne dopasowanie skonfigurowanego dostawcy dla tego dokładnego identyfikatora modelu bez prefiksu
+  2. unikalne dopasowanie skonfigurowanego dostawcy dla dokładnie tego modelu bez prefiksu
   3. przestarzały fallback do skonfigurowanego domyślnego dostawcy
      Jeśli ten dostawca nie udostępnia już skonfigurowanego modelu domyślnego, OpenClaw
      zamiast tego przechodzi do pierwszego skonfigurowanego dostawcy/modelu, aby uniknąć
-     prezentowania nieaktualnego domyślnego modelu z usuniętego dostawcy.
+     pokazywania nieaktualnego domyślnego modelu usuniętego dostawcy.
 
-Pełne zachowanie poleceń/konfiguracja: [Polecenia slash](/tools/slash-commands).
+Pełne zachowanie polecenia/konfiguracja: [Polecenia slash](/pl/tools/slash-commands).
 
 ## Polecenia CLI
 
@@ -168,30 +169,31 @@ Domyślnie pokazuje skonfigurowane modele. Przydatne flagi:
 
 - `--all`: pełny katalog
 - `--local`: tylko lokalni dostawcy
-- `--provider <name>`: filtruj według dostawcy
-- `--plain`: jeden model na linię
-- `--json`: dane wyjściowe do odczytu maszynowego
+- `--provider <name>`: filtr według dostawcy
+- `--plain`: jeden model w wierszu
+- `--json`: wyjście do odczytu maszynowego
 
 ### `models status`
 
-Pokazuje rozpoznany model główny, fallbacki, model obrazu i przegląd uwierzytelniania
-skonfigurowanych dostawców. Pokazuje też stan wygaśnięcia OAuth dla profili znalezionych
+Pokazuje rozstrzygnięty model główny, fallbacki, model obrazu oraz przegląd uwierzytelniania
+skonfigurowanych dostawców. Pokazuje także stan wygaśnięcia OAuth dla profili znalezionych
 w magazynie uwierzytelniania (domyślnie ostrzega w ciągu 24 h). `--plain` wypisuje tylko
-rozpoznany model główny.
-Stan OAuth jest zawsze pokazywany (i uwzględniany w danych wyjściowych `--json`). Jeśli skonfigurowany
+rozstrzygnięty model główny.
+Stan OAuth jest zawsze pokazywany (i uwzględniany w wyjściu `--json`). Jeśli skonfigurowany
 dostawca nie ma poświadczeń, `models status` wypisuje sekcję **Missing auth**.
 JSON zawiera `auth.oauth` (okno ostrzeżenia + profile) oraz `auth.providers`
-(skuteczne uwierzytelnianie dla dostawcy).
-Użyj `--check` do automatyzacji (kod wyjścia `1` przy braku/wygasłym, `2` przy wygasającym).
-Użyj `--probe` do aktywnych kontroli uwierzytelniania; wiersze sond mogą pochodzić z profili uwierzytelniania, poświadczeń env
+(efektywne uwierzytelnianie per dostawca, w tym poświadczenia oparte na env). `auth.oauth`
+dotyczy wyłącznie kondycji profili w magazynie uwierzytelniania; dostawcy wyłącznie z env nie pojawiają się tam.
+Użyj `--check` do automatyzacji (kod wyjścia `1` przy braku/wygaszeniu, `2` przy zbliżającym się wygaśnięciu).
+Użyj `--probe` do aktywnych kontroli uwierzytelniania; wiersze sondy mogą pochodzić z profili uwierzytelniania, poświadczeń env
 lub `models.json`.
 Jeśli jawne `auth.order.<provider>` pomija zapisany profil, sonda zgłasza
-`excluded_by_auth_order` zamiast próbować go użyć. Jeśli uwierzytelnianie istnieje, ale nie można rozpoznać modelu
-możliwego do sondowania dla tego dostawcy, sonda zgłasza `status: no_model`.
+`excluded_by_auth_order` zamiast próbować go użyć. Jeśli uwierzytelnianie istnieje, ale nie można rozstrzygnąć modelu
+nadającego się do sondowania dla tego dostawcy, sonda zgłasza `status: no_model`.
 
-Wybór uwierzytelniania zależy od dostawcy/konta. W przypadku hostów gateway działających stale klucze API
-są zwykle najbardziej przewidywalne; ponowne użycie Claude CLI i istniejące profile
-OAuth/token Anthropic są również obsługiwane.
+Wybór uwierzytelniania zależy od dostawcy/konta. W przypadku hostów bramy działających stale klucze API
+są zwykle najbardziej przewidywalne; ponowne użycie Claude CLI i istniejące profile Anthropic
+OAuth/token również są obsługiwane.
 
 Przykład (Claude CLI):
 
@@ -208,32 +210,32 @@ opcjonalnie sondować modele pod kątem obsługi narzędzi i obrazów.
 Najważniejsze flagi:
 
 - `--no-probe`: pomiń aktywne sondy (tylko metadane)
-- `--min-params <b>`: minimalna liczba parametrów (miliardy)
+- `--min-params <b>`: minimalna liczba parametrów (w miliardach)
 - `--max-age-days <days>`: pomiń starsze modele
 - `--provider <name>`: filtr prefiksu dostawcy
 - `--max-candidates <n>`: rozmiar listy fallbacków
-- `--set-default`: ustaw `agents.defaults.model.primary` na pierwszy wybór
-- `--set-image`: ustaw `agents.defaults.imageModel.primary` na pierwszy wybór obrazu
+- `--set-default`: ustaw `agents.defaults.model.primary` na pierwszy wybrany model
+- `--set-image`: ustaw `agents.defaults.imageModel.primary` na pierwszy wybrany model obrazu
 
 Sondowanie wymaga klucza API OpenRouter (z profili uwierzytelniania lub
-`OPENROUTER_API_KEY`). Bez klucza użyj `--no-probe`, aby wyświetlić tylko kandydatów.
+`OPENROUTER_API_KEY`). Bez klucza użyj `--no-probe`, aby tylko wyświetlić kandydatów.
 
 Wyniki skanowania są klasyfikowane według:
 
-1. Obsługa obrazów
-2. Opóźnienie narzędzi
-3. Rozmiar kontekstu
-4. Liczba parametrów
+1. Obsługi obrazów
+2. Latencji narzędzi
+3. Rozmiaru kontekstu
+4. Liczby parametrów
 
 Dane wejściowe
 
 - Lista OpenRouter `/models` (filtr `:free`)
-- Wymaga klucza API OpenRouter z profili uwierzytelniania lub `OPENROUTER_API_KEY` (zobacz [/environment](/help/environment))
+- Wymaga klucza API OpenRouter z profili uwierzytelniania lub `OPENROUTER_API_KEY` (zobacz [/environment](/pl/help/environment))
 - Opcjonalne filtry: `--max-age-days`, `--min-params`, `--provider`, `--max-candidates`
-- Sterowanie sondami: `--timeout`, `--concurrency`
+- Ustawienia sondowania: `--timeout`, `--concurrency`
 
-Po uruchomieniu w TTY możesz interaktywnie wybierać fallbacki. W trybie nieinteraktywnym
-przekaż `--yes`, aby zaakceptować wartości domyślne.
+Po uruchomieniu w TTY możesz interaktywnie wybrać fallbacki. W trybie nieinteraktywnym
+przekaż `--yes`, aby zaakceptować ustawienia domyślne.
 
 ## Rejestr modeli (`models.json`)
 
@@ -241,21 +243,23 @@ Niestandardowi dostawcy w `models.providers` są zapisywani do `models.json` w k
 agenta (domyślnie `~/.openclaw/agents/<agentId>/agent/models.json`). Ten plik
 jest domyślnie scalany, chyba że `models.mode` ustawiono na `replace`.
 
-Priorytet trybu scalania dla pasujących identyfikatorów dostawców:
+Priorytet w trybie scalania dla pasujących identyfikatorów dostawców:
 
-- Niepuste `baseUrl` już obecne w `models.json` agenta ma pierwszeństwo.
+- Niepuste `baseUrl`, już obecne w `models.json` agenta, ma pierwszeństwo.
 - Niepuste `apiKey` w `models.json` agenta ma pierwszeństwo tylko wtedy, gdy ten dostawca nie jest zarządzany przez SecretRef w bieżącym kontekście konfiguracji/profilu uwierzytelniania.
-- Wartości `apiKey` dostawców zarządzanych przez SecretRef są odświeżane na podstawie markerów źródła (`ENV_VAR_NAME` dla referencji env, `secretref-managed` dla referencji file/exec) zamiast utrwalać rozwiązane sekrety.
-- Wartości nagłówków dostawców zarządzanych przez SecretRef są odświeżane na podstawie markerów źródła (`secretref-env:ENV_VAR_NAME` dla referencji env, `secretref-managed` dla referencji file/exec).
+- Wartości `apiKey` dostawców zarządzanych przez SecretRef są odświeżane ze znaczników źródłowych (`ENV_VAR_NAME` dla odwołań env, `secretref-managed` dla odwołań file/exec) zamiast utrwalania rozstrzygniętych sekretów.
+- Wartości nagłówków dostawców zarządzanych przez SecretRef są odświeżane ze znaczników źródłowych (`secretref-env:ENV_VAR_NAME` dla odwołań env, `secretref-managed` dla odwołań file/exec).
 - Puste lub brakujące `apiKey`/`baseUrl` agenta przechodzą do konfiguracji `models.providers`.
 - Inne pola dostawcy są odświeżane z konfiguracji i znormalizowanych danych katalogu.
 
-Trwałość markerów jest źródłowo autorytatywna: OpenClaw zapisuje markery z aktywnej migawki konfiguracji źródłowej (przed rozwiązywaniem), a nie z rozwiązanych wartości sekretów środowiska uruchomieniowego.
-Ma to zastosowanie zawsze, gdy OpenClaw regeneruje `models.json`, w tym w ścieżkach uruchamianych poleceniami, takich jak `openclaw agent`.
+Trwałość znaczników jest sterowana przez źródło: OpenClaw zapisuje znaczniki z migawki aktywnej konfiguracji źródłowej (przed rozstrzygnięciem), a nie z rozstrzygniętych wartości sekretów w czasie działania.
+Dotyczy to każdej sytuacji, gdy OpenClaw regeneruje `models.json`, w tym ścieżek sterowanych poleceniami, takich jak `openclaw agent`.
 
 ## Powiązane
 
-- [Model Providers](/concepts/model-providers) — routing dostawców i uwierzytelnianie
-- [Model Failover](/concepts/model-failover) — łańcuchy fallbacków
-- [Image Generation](/tools/image-generation) — konfiguracja modelu obrazu
-- [Configuration Reference](/gateway/configuration-reference#agent-defaults) — klucze konfiguracji modeli
+- [Dostawcy modeli](/pl/concepts/model-providers) — routing dostawców i uwierzytelnianie
+- [Failover modeli](/pl/concepts/model-failover) — łańcuchy fallbacków
+- [Generowanie obrazów](/pl/tools/image-generation) — konfiguracja modeli obrazów
+- [Generowanie muzyki](/tools/music-generation) — konfiguracja modeli muzyki
+- [Generowanie wideo](/tools/video-generation) — konfiguracja modeli wideo
+- [Referencja konfiguracji](/pl/gateway/configuration-reference#agent-defaults) — klucze konfiguracji modeli

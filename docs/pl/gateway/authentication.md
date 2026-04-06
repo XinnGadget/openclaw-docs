@@ -1,49 +1,51 @@
 ---
 read_when:
-    - Debugujesz uwierzytelnianie modeli lub wygaśnięcie OAuth
-    - Dokumentujesz uwierzytelnianie lub przechowywanie danych uwierzytelniających
-summary: 'Uwierzytelnianie modeli: OAuth, klucze API i ponowne użycie Claude CLI'
+    - Debugowanie uwierzytelniania modelu lub wygaśnięcia OAuth
+    - Dokumentowanie uwierzytelniania lub przechowywania poświadczeń
+summary: 'Uwierzytelnianie modeli: OAuth, klucze API i starszy setup-token Anthropic'
 title: Uwierzytelnianie
 x-i18n:
-    generated_at: "2026-04-05T13:52:31Z"
+    generated_at: "2026-04-06T03:07:22Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 1c0ceee7d10fe8d10345f32889b63425d81773f3a08d8ecd3fd88d965b207ddc
+    source_hash: f59ede3fcd7e692ad4132287782a850526acf35474b5bfcea29e0e23610636c2
     source_path: gateway/authentication.md
     workflow: 15
 ---
 
-# Uwierzytelnianie (providerzy modeli)
+# Uwierzytelnianie (Providerzy modeli)
 
 <Note>
-Ta strona dotyczy uwierzytelniania **providerów modeli** (klucze API, OAuth, ponowne użycie Claude CLI). Informacje o uwierzytelnianiu **połączenia z gateway** (token, hasło, trusted-proxy) znajdziesz w [Configuration](/gateway/configuration) oraz [Trusted Proxy Auth](/gateway/trusted-proxy-auth).
+Ta strona dotyczy uwierzytelniania **providera modeli** (klucze API, OAuth i starszy setup-token Anthropic). W przypadku uwierzytelniania **połączenia z gatewayem** (token, hasło, trusted-proxy) zobacz [Configuration](/pl/gateway/configuration) i [Trusted Proxy Auth](/pl/gateway/trusted-proxy-auth).
 </Note>
 
 OpenClaw obsługuje OAuth i klucze API dla providerów modeli. W przypadku stale
-działających hostów gateway klucze API są zwykle najbardziej przewidywalną opcją. Przepływy
+działających hostów gatewaya klucze API są zwykle najbardziej przewidywalną opcją. Przepływy
 subskrypcyjne/OAuth są również obsługiwane, gdy pasują do modelu konta providera.
 
-Pełny przepływ OAuth i układ przechowywania opisano w [/concepts/oauth](/concepts/oauth).
-Informacje o uwierzytelnianiu opartym na SecretRef (providery `env`/`file`/`exec`) znajdziesz w [Secrets Management](/gateway/secrets).
-Zasady kwalifikowalności danych uwierzytelniających i kodów przyczyn używane przez `models status --probe` opisano w
+Zobacz [/concepts/oauth](/pl/concepts/oauth), aby poznać pełny przepływ OAuth i układ
+przechowywania.
+W przypadku uwierzytelniania opartego na SecretRef (providery `env`/`file`/`exec`) zobacz [Secrets Management](/pl/gateway/secrets).
+Informacje o regułach kwalifikacji poświadczeń i kodów powodów używanych przez `models status --probe` znajdziesz w
 [Auth Credential Semantics](/pl/auth-credential-semantics).
 
 ## Zalecana konfiguracja (klucz API, dowolny provider)
 
-Jeśli uruchamiasz gateway działający długoterminowo, zacznij od klucza API dla wybranego
+Jeśli uruchamiasz długowieczny gateway, zacznij od klucza API dla wybranego
 providera.
-W przypadku Anthropic konkretnie bezpieczną ścieżką jest uwierzytelnianie kluczem API. Ponowne użycie Claude CLI
-to druga obsługiwana ścieżka konfiguracji w stylu subskrypcyjnym.
+W szczególności dla Anthropic uwierzytelnianie kluczem API jest bezpieczną ścieżką. Uwierzytelnianie
+w stylu subskrypcyjnym Anthropic w OpenClaw to starsza ścieżka setup-token i
+należy ją traktować jako ścieżkę **Extra Usage**, a nie ścieżkę limitów planu.
 
 1. Utwórz klucz API w konsoli providera.
-2. Umieść go na **hoście gateway** (maszynie uruchamiającej `openclaw gateway`).
+2. Umieść go na **hoście gatewaya** (maszynie uruchamiającej `openclaw gateway`).
 
 ```bash
 export <PROVIDER>_API_KEY="..."
 openclaw models status
 ```
 
-3. Jeśli Gateway działa pod systemd/launchd, lepiej umieścić klucz w
+3. Jeśli Gateway działa pod systemd/launchd, najlepiej umieścić klucz w
    `~/.openclaw/.env`, aby demon mógł go odczytać:
 
 ```bash
@@ -52,49 +54,51 @@ cat >> ~/.openclaw/.env <<'EOF'
 EOF
 ```
 
-Następnie uruchom ponownie demona (lub zrestartuj proces Gateway) i sprawdź ponownie:
+Następnie zrestartuj demona (lub zrestartuj proces Gateway) i sprawdź ponownie:
 
 ```bash
 openclaw models status
 openclaw doctor
 ```
 
-Jeśli wolisz nie zarządzać samodzielnie zmiennymi env, onboarding może przechowywać
+Jeśli nie chcesz samodzielnie zarządzać zmiennymi env, onboarding może zapisać
 klucze API do użycia przez demona: `openclaw onboard`.
 
-Szczegóły dziedziczenia env (`env.shellEnv`,
-`~/.openclaw/.env`, systemd/launchd) znajdziesz w [Help](/help).
+Szczegóły dotyczące dziedziczenia env (`env.shellEnv`,
+`~/.openclaw/.env`, systemd/launchd) znajdziesz w [Help](/pl/help).
 
-## Anthropic: zgodność ze starszymi tokenami
+## Anthropic: zgodność ze starszym tokenem
 
-Uwierzytelnianie tokenem konfiguracji Anthropic jest nadal dostępne w OpenClaw jako
-ścieżka starsza/ręczna. Publiczna dokumentacja Claude Code Anthropic nadal opisuje bezpośrednie
+Uwierzytelnianie setup-token Anthropic jest nadal dostępne w OpenClaw jako
+starsza/ręczna ścieżka. Publiczna dokumentacja Claude Code Anthropic nadal opisuje bezpośrednie
 użycie Claude Code w terminalu w ramach planów Claude, ale Anthropic osobno poinformował użytkowników
-OpenClaw, że ścieżka logowania Claude w **OpenClaw** jest traktowana jako użycie zewnętrznego
-narzędzia i wymaga **Extra Usage** rozliczanego oddzielnie od subskrypcji.
+OpenClaw, że ścieżka logowania Claude w **OpenClaw** jest traktowana jako użycie przez narzędzie zewnętrzne i
+wymaga **Extra Usage** rozliczanego oddzielnie od
+subskrypcji.
 
-Aby uzyskać najjaśniejszą ścieżkę konfiguracji, użyj klucza API Anthropic albo przejdź na Claude CLI
-na hoście gateway.
+Aby uzyskać najczytelniejszą ścieżkę konfiguracji, użyj klucza API Anthropic. Jeśli musisz zachować
+ścieżkę Anthropic w stylu subskrypcyjnym w OpenClaw, użyj starszej ścieżki setup-token
+ze świadomością, że Anthropic traktuje ją jako **Extra Usage**.
 
-Ręczne wklejanie tokenu (dowolny provider; zapisuje do `auth-profiles.json` + aktualizuje konfigurację):
+Ręczne wprowadzenie tokenu (dowolny provider; zapisuje `auth-profiles.json` + aktualizuje config):
 
 ```bash
 openclaw models auth paste-token --provider openrouter
 ```
 
-Obsługiwane są także odwołania do profili uwierzytelniania dla statycznych danych uwierzytelniających:
+Obsługiwane są również odwołania do profili auth dla statycznych poświadczeń:
 
-- dane uwierzytelniające `api_key` mogą używać `keyRef: { source, provider, id }`
-- dane uwierzytelniające `token` mogą używać `tokenRef: { source, provider, id }`
-- profile w trybie OAuth nie obsługują danych uwierzytelniających SecretRef; jeśli `auth.profiles.<id>.mode` ma wartość `"oauth"`, wejście `keyRef`/`tokenRef` oparte na SecretRef dla tego profilu jest odrzucane.
+- poświadczenia `api_key` mogą używać `keyRef: { source, provider, id }`
+- poświadczenia `token` mogą używać `tokenRef: { source, provider, id }`
+- Profile w trybie OAuth nie obsługują poświadczeń SecretRef; jeśli ustawiono `auth.profiles.<id>.mode` na `"oauth"`, wejście `keyRef`/`tokenRef` oparte na SecretRef dla tego profilu jest odrzucane.
 
-Kontrola przyjazna automatyzacji (kod wyjścia `1` przy wygaśnięciu/braku, `2` przy zbliżającym się wygaśnięciu):
+Kontrola przyjazna automatyzacji (kod wyjścia `1`, gdy wygasło/brakuje, `2`, gdy wygasa):
 
 ```bash
 openclaw models status --check
 ```
 
-Sondy uwierzytelniania live:
+Aktywne sondy auth:
 
 ```bash
 openclaw models status --probe
@@ -102,54 +106,30 @@ openclaw models status --probe
 
 Uwagi:
 
-- Wiersze sond mogą pochodzić z profili uwierzytelniania, danych uwierzytelniających env lub `models.json`.
-- Jeśli jawne `auth.order.<provider>` pomija zapisany profil, sonda zgłasza
-  `excluded_by_auth_order` dla tego profilu zamiast go próbować.
-- Jeśli uwierzytelnianie istnieje, ale OpenClaw nie może rozwiązać kandydata modelu możliwego do sondowania dla
+- Wiersze sond mogą pochodzić z profili auth, poświadczeń env lub `models.json`.
+- Jeśli jawne `auth.order.<provider>` pomija zapisany profil, sonda zgłasza dla
+  tego profilu `excluded_by_auth_order` zamiast próbować go użyć.
+- Jeśli auth istnieje, ale OpenClaw nie może znaleźć kandydata modelu nadającego się do sondowania dla
   tego providera, sonda zgłasza `status: no_model`.
-- Cooldowny limitów szybkości mogą być ograniczone do modelu. Profil chłodzony dla jednego
-  modelu może nadal nadawać się do użycia z pokrewnym modelem u tego samego providera.
+- Cooldowny limitu szybkości mogą być przypisane do konkretnego modelu. Profil będący w cooldownie dla jednego
+  modelu może nadal nadawać się do użycia dla pokrewnego modelu u tego samego providera.
 
 Opcjonalne skrypty operacyjne (systemd/Termux) są udokumentowane tutaj:
-[Skrypty monitorowania uwierzytelniania](/help/scripts#auth-monitoring-scripts)
+[Auth monitoring scripts](/pl/help/scripts#auth-monitoring-scripts)
 
-## Anthropic: migracja do Claude CLI
+## Uwaga dotycząca Anthropic
 
-Jeśli Claude CLI jest już zainstalowany i zalogowany na hoście gateway, możesz
-przełączyć istniejącą konfigurację Anthropic na backend CLI. Jest to
-obsługiwana ścieżka migracji OpenClaw do ponownego użycia lokalnego logowania Claude CLI na tym
-hoście.
+Backend Anthropic `claude-cli` został usunięty.
 
-Wymagania wstępne:
+- Używaj kluczy API Anthropic dla ruchu Anthropic w OpenClaw.
+- Setup-token Anthropic pozostaje starszą/ręczną ścieżką i powinien być używany z
+  oczekiwaniem rozliczania Extra Usage, o którym Anthropic poinformował użytkowników OpenClaw.
+- `openclaw doctor` wykrywa teraz przestarzały, usunięty stan Anthropic Claude CLI. Jeśli
+  zapisane bajty poświadczeń nadal istnieją, doctor konwertuje je z powrotem do
+  profili token/OAuth Anthropic. Jeśli nie, doctor usuwa przestarzałą konfigurację Claude CLI
+  i kieruje do odzyskiwania przez klucz API lub setup-token.
 
-- `claude` zainstalowane na hoście gateway
-- Claude CLI już zalogowane tam przez `claude auth login`
-
-```bash
-openclaw models auth login --provider anthropic --method cli --set-default
-```
-
-Zachowuje to istniejące profile uwierzytelniania Anthropic do ewentualnego wycofania zmian, ale zmienia
-domyślny wybór modelu na `claude-cli/...` i dodaje pasujące wpisy allowlisty Claude CLI
-w `agents.defaults.models`.
-
-Weryfikacja:
-
-```bash
-openclaw models status
-```
-
-Skrót onboardingu:
-
-```bash
-openclaw onboard --auth-choice anthropic-cli
-```
-
-Interaktywne `openclaw onboard` i `openclaw configure` nadal preferują Claude CLI
-dla Anthropic, ale token konfiguracji Anthropic jest ponownie dostępny jako
-ścieżka starsza/ręczna i należy go używać z uwzględnieniem rozliczania Extra Usage.
-
-## Sprawdzanie stanu uwierzytelniania modeli
+## Sprawdzanie stanu uwierzytelniania modelu
 
 ```bash
 openclaw models status
@@ -158,7 +138,7 @@ openclaw doctor
 
 ## Zachowanie rotacji kluczy API (gateway)
 
-Niektórzy providerzy obsługują ponawianie żądania z alternatywnymi kluczami, gdy wywołanie API
+Niektórzy providerzy obsługują ponowienie żądania z alternatywnymi kluczami, gdy wywołanie API
 napotka limit szybkości providera.
 
 - Kolejność priorytetu:
@@ -166,7 +146,7 @@ napotka limit szybkości providera.
   - `<PROVIDER>_API_KEYS`
   - `<PROVIDER>_API_KEY`
   - `<PROVIDER>_API_KEY_*`
-- Providery Google obejmują też `GOOGLE_API_KEY` jako dodatkowy fallback.
+- Providery Google uwzględniają również `GOOGLE_API_KEY` jako dodatkowy fallback.
 - Ta sama lista kluczy jest deduplikowana przed użyciem.
 - OpenClaw ponawia próbę z następnym kluczem tylko dla błędów limitu szybkości (na przykład
   `429`, `rate_limit`, `quota`, `resource exhausted`, `Too many concurrent
@@ -175,17 +155,17 @@ requests`, `ThrottlingException`, `concurrency limit reached` lub
 - Błędy inne niż limity szybkości nie są ponawiane z alternatywnymi kluczami.
 - Jeśli wszystkie klucze zawiodą, zwracany jest końcowy błąd z ostatniej próby.
 
-## Sterowanie tym, które dane uwierzytelniające są używane
+## Kontrolowanie, które poświadczenie jest używane
 
 ### Dla sesji (polecenie czatu)
 
-Użyj `/model <alias-or-id>@<profileId>`, aby przypiąć określone dane uwierzytelniające providera dla bieżącej sesji (przykładowe identyfikatory profili: `anthropic:default`, `anthropic:work`).
+Użyj `/model <alias-or-id>@<profileId>`, aby przypiąć określone poświadczenie providera dla bieżącej sesji (przykładowe identyfikatory profili: `anthropic:default`, `anthropic:work`).
 
-Użyj `/model` (lub `/model list`) dla kompaktowego selektora; użyj `/model status` dla pełnego widoku (kandydaci + następny profil uwierzytelniania, a także szczegóły endpointu providera, gdy są skonfigurowane).
+Użyj `/model` (lub `/model list`) dla zwartego selektora; użyj `/model status` dla pełnego widoku (kandydaci + następny profil auth, a także szczegóły endpointu providera, jeśli są skonfigurowane).
 
 ### Dla agenta (nadpisanie CLI)
 
-Ustaw jawne nadpisanie kolejności profili uwierzytelniania dla agenta (przechowywane w `auth-profiles.json` tego agenta):
+Ustaw jawne nadpisanie kolejności profili auth dla agenta (zapisywane w `auth-profiles.json` tego agenta):
 
 ```bash
 openclaw models auth order get --provider anthropic
@@ -193,18 +173,18 @@ openclaw models auth order set --provider anthropic anthropic:default
 openclaw models auth order clear --provider anthropic
 ```
 
-Użyj `--agent <id>`, aby wskazać konkretnego agenta; pomiń tę opcję, aby użyć skonfigurowanego agenta domyślnego.
+Użyj `--agent <id>`, aby wskazać konkretny agent; pomiń tę opcję, aby użyć skonfigurowanego agenta domyślnego.
 Podczas debugowania problemów z kolejnością `openclaw models status --probe` pokazuje pominięte
-zapisane profile jako `excluded_by_auth_order` zamiast po prostu je pomijać.
-Podczas debugowania problemów z cooldownem pamiętaj, że cooldowny limitów szybkości mogą być powiązane
+zapisane profile jako `excluded_by_auth_order`, zamiast po cichu je omijać.
+Podczas debugowania problemów z cooldownem pamiętaj, że cooldowny limitu szybkości mogą być powiązane
 z jednym identyfikatorem modelu, a nie z całym profilem providera.
 
 ## Rozwiązywanie problemów
 
-### „Nie znaleziono danych uwierzytelniających”
+### "No credentials found"
 
-Jeśli brakuje profilu Anthropic, przenieś tę konfigurację do Claude CLI lub klucza API
-na **hoście gateway**, a następnie sprawdź ponownie:
+Jeśli brakuje profilu Anthropic, skonfiguruj klucz API Anthropic na
+**hoście gatewaya** lub ustaw starszą ścieżkę Anthropic setup-token, a następnie sprawdź ponownie:
 
 ```bash
 openclaw models status
@@ -213,11 +193,16 @@ openclaw models status
 ### Token wygasa/wygasł
 
 Uruchom `openclaw models status`, aby potwierdzić, który profil wygasa. Jeśli starszy
-profil tokenu Anthropic nie istnieje lub wygasł, przenieś tę konfigurację do Claude CLI
-lub klucza API.
+profil tokenu Anthropic nie istnieje lub wygasł, odśwież tę konfigurację za pomocą
+setup-token albo przejdź na klucz API Anthropic.
 
-## Wymagania Claude CLI
+Jeśli maszyna nadal ma przestarzały, usunięty stan Anthropic Claude CLI ze starszych
+buildów, uruchom:
 
-Wymagane tylko dla ścieżki ponownego użycia Anthropic Claude CLI:
+```bash
+openclaw doctor --yes
+```
 
-- zainstalowane Claude Code CLI (dostępne polecenie `claude`)
+Doctor konwertuje `anthropic:claude-cli` z powrotem na Anthropic token/OAuth, jeśli
+zapisane bajty poświadczeń nadal istnieją. W przeciwnym razie usuwa przestarzałe
+odwołania do profilu/config/modelu Claude CLI i pozostawia wskazówki dotyczące kolejnych kroków.

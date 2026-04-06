@@ -1,104 +1,104 @@
 ---
 read_when:
-    - 特定のオンボーディング手順やフラグを調べるとき
-    - 非対話モードでオンボーディングを自動化するとき
-    - オンボーディングの挙動をデバッグするとき
+    - 特定のオンボーディング手順やフラグを調べている
+    - 非対話モードでオンボーディングを自動化している
+    - オンボーディングの動作をデバッグしている
 sidebarTitle: Onboarding Reference
-summary: 'CLIオンボーディングの完全なリファレンス: すべてのステップ、フラグ、設定フィールド'
-title: オンボーディング リファレンス
+summary: 'CLIオンボーディングの完全リファレンス: すべての手順、フラグ、設定フィールド'
+title: オンボーディングリファレンス
 x-i18n:
-    generated_at: "2026-04-05T12:57:19Z"
+    generated_at: "2026-04-06T03:13:12Z"
     model: gpt-5.4
     provider: openai
-    source_hash: ae6c76a31885c0678af2ac71254c5baf08f6de5481f85f6cfdf44d473946fdb8
+    source_hash: e02a4da4a39ba335199095723f5d3b423671eb12efc2d9e4f9e48c1e8ee18419
     source_path: reference/wizard.md
     workflow: 15
 ---
 
-# オンボーディング リファレンス
+# オンボーディングリファレンス
 
-これは `openclaw onboard` の完全なリファレンスです。
-高レベルの概要については、[Onboarding (CLI)](/ja-JP/start/wizard) を参照してください。
+これは `openclaw onboard` の完全リファレンスです。
+概要については、[Onboarding (CLI)](/ja-JP/start/wizard) を参照してください。
 
 ## フロー詳細（ローカルモード）
 
 <Steps>
   <Step title="既存設定の検出">
-    - `~/.openclaw/openclaw.json` が存在する場合は、**Keep / Modify / Reset** を選択します。
+    - `~/.openclaw/openclaw.json` が存在する場合、**Keep / Modify / Reset** を選択します。
     - オンボーディングを再実行しても、明示的に **Reset** を選ばない限り
-      （または `--reset` を渡さない限り）何も消去されません。
-    - CLIの `--reset` はデフォルトで `config+creds+sessions` です。workspaceも削除するには
-      `--reset-scope full` を使用します。
-    - 設定が無効であるかレガシーキーを含んでいる場合、ウィザードは停止し、
+      （または `--reset` を渡さない限り）、何も消去されません。
+    - CLI の `--reset` はデフォルトで `config+creds+sessions` です。ワークスペースも
+      削除するには `--reset-scope full` を使用します。
+    - 設定が無効であるか、旧式キーを含んでいる場合、ウィザードは停止し、
       続行前に `openclaw doctor` を実行するよう求めます。
-    - Reset は `trash` を使用し（`rm` は決して使いません）、次のスコープを提供します:
-      - Configのみ
-      - Config + credentials + sessions
-      - 完全リセット（workspaceも削除）
+    - リセットには `trash` を使用し（`rm` は決して使いません）、次のスコープがあります:
+      - 設定のみ
+      - 設定 + 認証情報 + セッション
+      - フルリセット（ワークスペースも削除）
   </Step>
   <Step title="モデル/認証">
-    - **Anthropic APIキー**: 存在する場合は `ANTHROPIC_API_KEY` を使用し、なければキーの入力を求めたうえで、デーモン利用のために保存します。
-    - **Anthropic Claude CLI**: オンボーディング/設定で推奨されるAnthropicアシスタントの選択肢です。macOSではオンボーディング時にKeychain項目「Claude Code-credentials」を確認します（launchd起動がブロックされないよう「Always Allow」を選んでください）。Linux/Windowsでは、存在する場合 `~/.claude/.credentials.json` を再利用し、モデル選択を正規の `claude-cli/claude-*` 参照に切り替えます。
-    - **Anthropic setup-token（レガシー/手動）**: オンボーディング/設定で再び利用可能ですが、AnthropicはOpenClawユーザーに対し、OpenClawのClaudeログイン経路はサードパーティ製ハーネス利用として扱われるため、Claudeアカウントで **Extra Usage** が必要だと案内しています。
-    - **OpenAI Code (Codex) subscription（Codex CLI）**: `~/.codex/auth.json` が存在する場合、オンボーディングで再利用できます。再利用されたCodex CLI認証情報は引き続きCodex CLIによって管理されます。期限切れ時には、OpenClawはまずそのソースを再読込し、プロバイダー側で更新可能な場合は、自身で所有権を持つのではなく、更新済み認証情報をCodexストレージへ書き戻します。
-    - **OpenAI Code (Codex) subscription（OAuth）**: ブラウザーフローです。`code#state` を貼り付けてください。
+    - **Anthropic APIキー**: 存在する場合は `ANTHROPIC_API_KEY` を使用し、なければキーの入力を求め、その後デーモン用に保存します。
+    - **Anthropic APIキー**: オンボーディング/設定で推奨される Anthropic アシスタント選択肢です。
+    - **Anthropic setup-token（旧式/手動）**: オンボーディング/設定で再び利用可能ですが、Anthropic は OpenClaw ユーザーに対し、OpenClaw の Claude-login 経路はサードパーティハーネス利用に当たり、Claude アカウントで **Extra Usage** が必要だと伝えています。
+    - **OpenAI Code (Codex) subscription (Codex CLI)**: `~/.codex/auth.json` が存在する場合、オンボーディングはそれを再利用できます。再利用された Codex CLI 認証情報は引き続き Codex CLI によって管理されます。有効期限切れ時には OpenClaw はまずそのソースを再読み込みし、プロバイダーが更新可能であれば、認証情報を自ら所有するのではなく、更新された認証情報を Codex ストレージへ書き戻します。
+    - **OpenAI Code (Codex) subscription (OAuth)**: ブラウザーフロー。`code#state` を貼り付けます。
       - モデルが未設定、または `openai/*` の場合、`agents.defaults.model` を `openai-codex/gpt-5.4` に設定します。
-    - **OpenAI APIキー**: 存在する場合は `OPENAI_API_KEY` を使用し、なければキーの入力を求めたうえで、auth profileに保存します。
+    - **OpenAI APIキー**: 存在する場合は `OPENAI_API_KEY` を使用し、なければキーの入力を求め、その後認証プロファイルに保存します。
       - モデルが未設定、`openai/*`、または `openai-codex/*` の場合、`agents.defaults.model` を `openai/gpt-5.4` に設定します。
-    - **xAI（Grok）APIキー**: `XAI_API_KEY` の入力を求め、xAIをモデルプロバイダーとして設定します。
-    - **OpenCode**: `OPENCODE_API_KEY`（または `OPENCODE_ZEN_API_KEY`、取得先は https://opencode.ai/auth）を求め、ZenカタログまたはGoカタログを選択できます。
-    - **Ollama**: OllamaのベースURLを求め、**Cloud + Local** または **Local** モードを提示し、利用可能なモデルを検出し、必要に応じて選択したローカルモデルを自動でpullします。
+    - **xAI (Grok) APIキー**: `XAI_API_KEY` の入力を求め、xAI をモデルプロバイダーとして設定します。
+    - **OpenCode**: `OPENCODE_API_KEY`（または `OPENCODE_ZEN_API_KEY`、取得先: https://opencode.ai/auth）の入力を求め、Zen または Go カタログを選択できます。
+    - **Ollama**: Ollama の base URL の入力を求め、**Cloud + Local** または **Local** モードを提示し、利用可能なモデルを検出し、必要に応じて選択したローカルモデルを自動 pull します。
     - 詳細: [Ollama](/ja-JP/providers/ollama)
     - **APIキー**: キーを保存します。
-    - **Vercel AI Gateway（マルチモデルプロキシ）**: `AI_GATEWAY_API_KEY` の入力を求めます。
+    - **Vercel AI Gateway（複数モデルプロキシ）**: `AI_GATEWAY_API_KEY` の入力を求めます。
     - 詳細: [Vercel AI Gateway](/ja-JP/providers/vercel-ai-gateway)
     - **Cloudflare AI Gateway**: Account ID、Gateway ID、`CLOUDFLARE_AI_GATEWAY_API_KEY` の入力を求めます。
     - 詳細: [Cloudflare AI Gateway](/ja-JP/providers/cloudflare-ai-gateway)
-    - **MiniMax**: 設定は自動で書き込まれます。ホスト版のデフォルトは `MiniMax-M2.7` です。
-      APIキー設定では `minimax/...` を使用し、OAuth設定では
+    - **MiniMax**: 設定は自動書き込みされます。ホスト型デフォルトは `MiniMax-M2.7` です。
+      APIキー セットアップは `minimax/...` を使用し、OAuth セットアップは
       `minimax-portal/...` を使用します。
     - 詳細: [MiniMax](/ja-JP/providers/minimax)
-    - **StepFun**: 中国またはグローバルのエンドポイント上のStepFun standardまたはStep Plan向けに、設定が自動で書き込まれます。
-    - Standardには現在 `step-3.5-flash` が含まれ、Step Planには `step-3.5-flash-2603` も含まれます。
+    - **StepFun**: 中国またはグローバルエンドポイント上の StepFun standard または Step Plan 用に設定が自動書き込みされます。
+    - Standard には現在 `step-3.5-flash` が含まれ、Step Plan には `step-3.5-flash-2603` も含まれます。
     - 詳細: [StepFun](/ja-JP/providers/stepfun)
     - **Synthetic（Anthropic互換）**: `SYNTHETIC_API_KEY` の入力を求めます。
     - 詳細: [Synthetic](/ja-JP/providers/synthetic)
-    - **Moonshot（Kimi K2）**: 設定は自動で書き込まれます。
-    - **Kimi Coding**: 設定は自動で書き込まれます。
+    - **Moonshot (Kimi K2)**: 設定は自動書き込みされます。
+    - **Kimi Coding**: 設定は自動書き込みされます。
     - 詳細: [Moonshot AI (Kimi + Kimi Coding)](/ja-JP/providers/moonshot)
-    - **Skip**: まだ認証は設定されません。
-    - 検出された選択肢からデフォルトモデルを選ぶか（または provider/model を手動入力します）。最良の品質とより低いプロンプトインジェクションリスクのために、利用可能なプロバイダースタックの中で最も強力な最新世代モデルを選んでください。
-    - オンボーディングはモデルチェックを実行し、設定されたモデルが不明であるか、認証が不足している場合に警告します。
-    - APIキーストレージモードは、デフォルトで平文のauth-profile値です。代わりにenvベースの参照を保存するには `--secret-input-mode ref` を使用します（例: `keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" }`）。
-    - Auth profileは `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` に保存されます（APIキー + OAuth）。`~/.openclaw/credentials/oauth.json` はレガシーのインポート専用です。
+    - **Skip**: まだ認証は設定しません。
+    - 検出された選択肢からデフォルトモデルを選択します（または provider/model を手動入力します）。最良の品質と、より低いプロンプトインジェクションリスクのため、利用可能なプロバイダースタックの中で最も強力な最新世代モデルを選んでください。
+    - オンボーディングはモデルチェックを実行し、設定されたモデルが不明または認証不足である場合に警告します。
+    - APIキー の保存モードは、デフォルトで平文の認証プロファイル値です。代わりに env ベースの参照を保存するには `--secret-input-mode ref` を使います（例: `keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" }`）。
+    - 認証プロファイルは `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` にあります（APIキー + OAuth）。`~/.openclaw/credentials/oauth.json` は旧式のインポート専用です。
     - 詳細: [/concepts/oauth](/ja-JP/concepts/oauth)
     <Note>
-    ヘッドレス/サーバー向けのヒント: ブラウザーのあるマシンでOAuthを完了し、その
-    エージェントの `auth-profiles.json` を（たとえば
+    ヘッドレス/サーバー向けのヒント: ブラウザーがあるマシンで OAuth を完了し、その後
+    そのエージェントの `auth-profiles.json`（例:
     `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`、または対応する
-    `$OPENCLAW_STATE_DIR/...` のパスから）Gatewayホストへコピーしてください。`credentials/oauth.json`
-    はレガシーのインポート元にすぎません。
+    `$OPENCLAW_STATE_DIR/...` パス）を gateway host にコピーしてください。`credentials/oauth.json`
+    は旧式のインポート元にすぎません。
     </Note>
   </Step>
   <Step title="ワークスペース">
-    - デフォルトは `~/.openclaw/workspace` です（変更可能）。
-    - エージェントのブートストラップ儀式に必要なworkspaceファイルを初期配置します。
-    - 完全なworkspaceレイアウトとバックアップガイド: [Agent workspace](/ja-JP/concepts/agent-workspace)
+    - デフォルトは `~/.openclaw/workspace`（変更可能）。
+    - エージェントの bootstrap ritual に必要なワークスペースファイルをシードします。
+    - 完全なワークスペース構成とバックアップガイド: [Agent workspace](/ja-JP/concepts/agent-workspace)
   </Step>
   <Step title="Gateway">
-    - ポート、bind、認証モード、Tailscale公開。
-    - 認証の推奨: loopbackであっても **Token** を維持し、ローカルWSクライアントにも認証を必須にしてください。
-    - tokenモードでは、対話型セットアップで次を選べます:
-      - **平文トークンを生成して保存**（デフォルト）
-      - **SecretRefを使用**（オプトイン）
-      - Quickstart は、オンボーディングのプローブ/ダッシュボードブートストラップのために、`env`、`file`、`exec` プロバイダー全体で既存の `gateway.auth.token` SecretRef を再利用します。
-      - そのSecretRefが設定されていても解決できない場合、オンボーディングはランタイム認証を黙って劣化させるのではなく、明確な修正メッセージを出して早期に失敗します。
-    - passwordモードでも、対話型セットアップは平文またはSecretRef保存をサポートします。
-    - 非対話型のtoken SecretRefパス: `--gateway-token-ref-env <ENV_VAR>`。
-      - オンボーディングプロセス環境内に空でない環境変数が必要です。
-      - `--gateway-token` と併用できません。
-    - すべてのローカルプロセスを完全に信頼している場合にのみ認証を無効にしてください。
-    - 非loopback bindでも認証は必須です。
+    - ポート、bind、認証モード、Tailscale 公開。
+    - 推奨認証: loopback であっても **Token** を維持し、ローカル WS クライアントにも認証を必須にしてください。
+    - token モードでは、対話セットアップで次が提示されます:
+      - **Generate/store plaintext token**（デフォルト）
+      - **Use SecretRef**（オプトイン）
+      - Quickstart は `env`、`file`、`exec` プロバイダー全体で既存の `gateway.auth.token` SecretRef を再利用して、オンボーディングのプローブ/ダッシュボード bootstrap を行います。
+      - その SecretRef が設定されているのに解決できない場合、オンボーディングはランタイム認証を黙って劣化させるのではなく、明確な修正メッセージとともに早期失敗します。
+    - password モードでも、対話セットアップは平文または SecretRef 保存をサポートします。
+    - 非対話 token SecretRef 経路: `--gateway-token-ref-env <ENV_VAR>`。
+      - オンボーディングプロセス環境内に空でない env var が必要です。
+      - `--gateway-token` とは併用できません。
+    - 認証は、すべてのローカルプロセスを完全に信頼している場合にのみ無効にしてください。
+    - 非 loopback bind では、引き続き認証が必要です。
   </Step>
   <Step title="チャネル">
     - [WhatsApp](/ja-JP/channels/whatsapp): 任意のQRログイン。
@@ -107,49 +107,49 @@ x-i18n:
     - [Google Chat](/ja-JP/channels/googlechat): service account JSON + webhook audience。
     - [Mattermost](/ja-JP/channels/mattermost)（plugin）: bot token + base URL。
     - [Signal](/ja-JP/channels/signal): 任意の `signal-cli` インストール + アカウント設定。
-    - [BlueBubbles](/ja-JP/channels/bluebubbles): **iMessageには推奨**。server URL + password + webhook。
-    - [iMessage](/ja-JP/channels/imessage): レガシーの `imsg` CLIパス + DBアクセス。
-    - DMセキュリティ: デフォルトはペアリングです。最初のDMでコードが送られます。`openclaw pairing approve <channel> <code>` で承認するか、allowlistを使用します。
+    - [BlueBubbles](/ja-JP/channels/bluebubbles): **iMessage には推奨**。server URL + password + webhook。
+    - [iMessage](/ja-JP/channels/imessage): 旧式の `imsg` CLI 経路 + DB アクセス。
+    - DM セキュリティ: デフォルトはペアリングです。最初の DM はコードを送信します。`openclaw pairing approve <channel> <code>` で承認するか、allowlist を使用します。
   </Step>
-  <Step title="ウェブ検索">
-    - Brave、DuckDuckGo、Exa、Firecrawl、Gemini、Grok、Kimi、MiniMax Search、Ollama Web Search、Perplexity、SearXNG、Tavily などのサポート対象プロバイダーを選択します（またはスキップします）。
-    - APIベースのプロバイダーは、クイックセットアップのためにenv varまたは既存設定を使用できます。キーレスのプロバイダーは、それぞれの前提条件を使用します。
+  <Step title="Web search">
+    - Brave、DuckDuckGo、Exa、Firecrawl、Gemini、Grok、Kimi、MiniMax Search、Ollama Web Search、Perplexity、SearXNG、Tavily などのサポート済みプロバイダーを選択します（またはスキップ）。
+    - API ベースのプロバイダーは、すばやいセットアップのために env vars または既存設定を使用できます。キーレスのプロバイダーは、そのプロバイダー固有の前提条件を使います。
     - `--skip-search` でスキップします。
-    - 後で設定: `openclaw configure --section web`。
+    - 後で設定する場合: `openclaw configure --section web`。
   </Step>
-  <Step title="デーモンのインストール">
+  <Step title="デーモンインストール">
     - macOS: LaunchAgent
-      - ログイン済みのユーザーセッションが必要です。ヘッドレス用途では、カスタムLaunchDaemonを使用してください（同梱されていません）。
-    - Linux（およびWSL2経由のWindows）: systemd user unit
-      - オンボーディングは `loginctl enable-linger <user>` を有効にして、ログアウト後もGatewayが稼働し続けるよう試みます。
-      - sudoを求められる場合があります（`/var/lib/systemd/linger` に書き込みます）。まずsudoなしで試します。
-    - **ランタイム選択:** Node（推奨。WhatsApp/Telegramに必要）。Bun は **推奨されません**。
-    - token認証でトークンが必要かつ `gateway.auth.token` がSecretRef管理の場合、デーモンのインストール時にそれを検証しますが、解決済み平文トークン値をsupervisorサービスの環境メタデータには永続化しません。
-    - token認証でトークンが必要かつ設定されたtoken SecretRefが未解決の場合、デーモンのインストールは実行可能な案内付きでブロックされます。
-    - `gateway.auth.token` と `gateway.auth.password` の両方が設定されていて `gateway.auth.mode` が未設定の場合、モードが明示的に設定されるまでデーモンのインストールはブロックされます。
+      - ログイン済みユーザーセッションが必要です。ヘッドレス用途では、カスタム LaunchDaemon を使用してください（同梱されていません）。
+    - Linux（および WSL2 経由の Windows）: systemd user unit
+      - オンボーディングは、ログアウト後も Gateway が起動し続けるように `loginctl enable-linger <user>` の有効化を試みます。
+      - sudo を求める場合があります（`/var/lib/systemd/linger` に書き込み）。まず sudo なしで試行します。
+    - **ランタイム選択:** Node（推奨。WhatsApp/Telegram に必須）。Bun は**推奨されません**。
+    - token 認証に token が必要で、`gateway.auth.token` が SecretRef 管理の場合、デーモンインストールはそれを検証しますが、解決された平文 token 値を supervisor サービス環境メタデータへ永続化しません。
+    - token 認証に token が必要で、設定済み token SecretRef が未解決の場合、デーモンインストールは実行可能なガイダンス付きでブロックされます。
+    - `gateway.auth.token` と `gateway.auth.password` の両方が設定されており、`gateway.auth.mode` が未設定の場合、モードが明示設定されるまでデーモンインストールはブロックされます。
   </Step>
   <Step title="ヘルスチェック">
-    - 必要に応じてGatewayを起動し、`openclaw health` を実行します。
-    - ヒント: `openclaw status --deep` は、サポートされている場合はチャネルプローブも含めて、ライブのGatewayヘルスプローブをstatus出力に追加します（到達可能なGatewayが必要です）。
+    - 必要に応じて Gateway を起動し、`openclaw health` を実行します。
+    - ヒント: `openclaw status --deep` は、サポートされている場合はチャネルプローブも含めて、ライブ gateway health probe をステータス出力に追加します（到達可能な gateway が必要です）。
   </Step>
   <Step title="Skills（推奨）">
-    - 利用可能なSkillsを読み取り、要件を確認します。
-    - ノードマネージャーを選択できます: **npm / pnpm**（bunは推奨されません）。
-    - 任意の依存関係をインストールします（一部はmacOSでHomebrewを使用します）。
+    - 利用可能な Skills を読み取り、要件を確認します。
+    - node manager を選択できます: **npm / pnpm**（bun は推奨されません）。
+    - 任意の依存関係をインストールします（一部は macOS で Homebrew を使用します）。
   </Step>
   <Step title="完了">
-    - 追加機能向けのiOS/Android/macOSアプリを含む、要約と次のステップを表示します。
+    - 追加機能向けの iOS/Android/macOS アプリを含む、要約と次の手順を表示します。
   </Step>
 </Steps>
 
 <Note>
-GUIが検出されない場合、オンボーディングはブラウザーを開く代わりに、Control UI用のSSHポートフォワード手順を表示します。
-Control UIアセットが欠けている場合、オンボーディングはそれらのビルドを試みます。フォールバックは `pnpm ui:build` です（UI依存関係を自動インストールします）。
+GUI が検出されない場合、オンボーディングはブラウザーを開く代わりに、Control UI 用の SSH ポートフォワード手順を表示します。
+Control UI アセットが見つからない場合、オンボーディングはそれらのビルドを試みます。フォールバックは `pnpm ui:build` です（UI 依存関係を自動インストールします）。
 </Note>
 
 ## 非対話モード
 
-オンボーディングを自動化またはスクリプト化するには `--non-interactive` を使用します:
+オンボーディングを自動化またはスクリプト化するには `--non-interactive` を使用します。
 
 ```bash
 openclaw onboard --non-interactive \
@@ -163,9 +163,9 @@ openclaw onboard --non-interactive \
   --skip-skills
 ```
 
-機械可読なサマリーには `--json` を追加します。
+機械可読な要約には `--json` を追加します。
 
-非対話モードでのGateway token SecretRef:
+非対話モードでの Gateway token SecretRef:
 
 ```bash
 export OPENCLAW_GATEWAY_TOKEN="your-token"
@@ -176,14 +176,14 @@ openclaw onboard --non-interactive \
   --gateway-token-ref-env OPENCLAW_GATEWAY_TOKEN
 ```
 
-`--gateway-token` と `--gateway-token-ref-env` は相互排他的です。
+`--gateway-token` と `--gateway-token-ref-env` は相互排他です。
 
 <Note>
-`--json` は **非対話モードを意味しません**。スクリプトでは `--non-interactive`（および `--workspace`）を使用してください。
+`--json` は**非対話モードを意味しません**。スクリプトでは `--non-interactive`（および `--workspace`）を使用してください。
 </Note>
 
-プロバイダー固有のコマンド例は [CLI Automation](/start/wizard-cli-automation#provider-specific-examples) にあります。
-このリファレンスページは、フラグの意味とステップ順序を確認するために使用してください。
+プロバイダー固有のコマンド例は [CLI Automation](/ja-JP/start/wizard-cli-automation#provider-specific-examples) にあります。
+このリファレンスページは、フラグの意味と手順順序のために使用してください。
 
 ### エージェントを追加（非対話）
 
@@ -196,36 +196,36 @@ openclaw agents add work \
   --json
 ```
 
-## GatewayウィザードRPC
+## Gateway ウィザード RPC
 
-Gatewayは、RPC（`wizard.start`, `wizard.next`, `wizard.cancel`, `wizard.status`）を通じてオンボーディングフローを公開します。
-クライアント（macOSアプリ、Control UI）は、オンボーディングロジックを再実装することなくステップを描画できます。
+Gateway は RPC 経由でオンボーディングフローを公開します（`wizard.start`、`wizard.next`、`wizard.cancel`、`wizard.status`）。
+クライアント（macOS アプリ、Control UI）は、オンボーディングロジックを再実装せずに手順を描画できます。
 
-## Signalセットアップ（signal-cli）
+## Signal セットアップ（signal-cli）
 
-オンボーディングはGitHub releasesから `signal-cli` をインストールできます:
+オンボーディングは GitHub releases から `signal-cli` をインストールできます。
 
-- 適切なrelease assetをダウンロードします。
-- `~/.openclaw/tools/signal-cli/<version>/` に保存します。
-- 設定に `channels.signal.cliPath` を書き込みます。
+- 適切な release asset をダウンロードします。
+- それを `~/.openclaw/tools/signal-cli/<version>/` に保存します。
+- `channels.signal.cliPath` を設定に書き込みます。
 
-注意:
+注記:
 
-- JVMビルドには **Java 21** が必要です。
-- 利用可能な場合はネイティブビルドが使用されます。
-- WindowsはWSL2を使用します。signal-cliのインストールはWSL内でLinuxフローに従います。
+- JVM ビルドには **Java 21** が必要です。
+- 利用可能な場合はネイティブビルドが使われます。
+- Windows は WSL2 を使用し、signal-cli インストールは WSL 内で Linux フローに従います。
 
-## ウィザードが書き込む内容
+## ウィザードが書き込むもの
 
-`~/.openclaw/openclaw.json` の代表的なフィールド:
+`~/.openclaw/openclaw.json` に書き込まれる典型的なフィールド:
 
 - `agents.defaults.workspace`
-- `agents.defaults.model` / `models.providers`（MiniMaxを選択した場合）
-- `tools.profile`（ローカルオンボーディングでは未設定時に `"coding"` をデフォルトにします。既存の明示値は保持されます）
+- `agents.defaults.model` / `models.providers`（Minimax が選択された場合）
+- `tools.profile`（ローカルオンボーディングでは、未設定時のデフォルトは `"coding"`。既存の明示値は保持されます）
 - `gateway.*`（mode、bind、auth、tailscale）
-- `session.dmScope`（挙動の詳細: [CLI Setup Reference](/start/wizard-cli-reference#outputs-and-internals)）
+- `session.dmScope`（挙動の詳細: [CLI Setup Reference](/ja-JP/start/wizard-cli-reference#outputs-and-internals)）
 - `channels.telegram.botToken`, `channels.discord.token`, `channels.matrix.*`, `channels.signal.*`, `channels.imessage.*`
-- プロンプト中にオプトインした場合のチャネルallowlist（Slack/Discord/Matrix/Microsoft Teams）。可能であれば名前はIDに解決されます。
+- プロンプト中にオプトインした場合のチャネル allowlist（Slack/Discord/Matrix/Microsoft Teams）。可能であれば名前は ID に解決されます。
 - `skills.install.nodeManager`
   - `setup --node-manager` は `npm`、`pnpm`、または `bun` を受け付けます。
   - 手動設定では、`skills.install.nodeManager` を直接設定することで引き続き `yarn` を使用できます。
@@ -237,16 +237,15 @@ Gatewayは、RPC（`wizard.start`, `wizard.next`, `wizard.cancel`, `wizard.statu
 
 `openclaw agents add` は `agents.list[]` と任意の `bindings` を書き込みます。
 
-WhatsApp認証情報は `~/.openclaw/credentials/whatsapp/<accountId>/` に保存されます。
-セッションは `~/.openclaw/agents/<agentId>/sessions/` に保存されます。
+WhatsApp の認証情報は `~/.openclaw/credentials/whatsapp/<accountId>/` 配下に置かれます。
+セッションは `~/.openclaw/agents/<agentId>/sessions/` 配下に保存されます。
 
-一部のチャネルはpluginとして提供されます。セットアップ中にそれらを選択すると、オンボーディングは
-設定できるようにする前に、そのインストール（npmまたはローカルパス）を求めます。
+一部のチャネルは plugin として提供されます。セットアップ中にそれらを選択すると、オンボーディングは設定前にそれらのインストール（npm またはローカルパス）を求めます。
 
 ## 関連ドキュメント
 
 - オンボーディング概要: [Onboarding (CLI)](/ja-JP/start/wizard)
-- macOSアプリのオンボーディング: [Onboarding](/start/onboarding)
+- macOS アプリのオンボーディング: [Onboarding](/ja-JP/start/onboarding)
 - 設定リファレンス: [Gateway configuration](/ja-JP/gateway/configuration)
-- プロバイダー: [WhatsApp](/ja-JP/channels/whatsapp), [Telegram](/ja-JP/channels/telegram), [Discord](/ja-JP/channels/discord), [Google Chat](/ja-JP/channels/googlechat), [Signal](/ja-JP/channels/signal), [BlueBubbles](/ja-JP/channels/bluebubbles)（iMessage）, [iMessage](/ja-JP/channels/imessage)（レガシー）
-- Skills: [Skills](/tools/skills), [Skills config](/tools/skills-config)
+- プロバイダー: [WhatsApp](/ja-JP/channels/whatsapp), [Telegram](/ja-JP/channels/telegram), [Discord](/ja-JP/channels/discord), [Google Chat](/ja-JP/channels/googlechat), [Signal](/ja-JP/channels/signal), [BlueBubbles](/ja-JP/channels/bluebubbles) (iMessage), [iMessage](/ja-JP/channels/imessage) (legacy)
+- Skills: [Skills](/ja-JP/tools/skills), [Skills config](/ja-JP/tools/skills-config)

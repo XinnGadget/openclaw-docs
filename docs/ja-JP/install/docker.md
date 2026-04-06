@@ -1,48 +1,46 @@
 ---
 read_when:
-    - ローカルインストールの代わりにコンテナ化されたgatewayを使いたい場合
-    - Dockerフローを検証している場合
-summary: OpenClaw向けの任意のDockerベースセットアップとオンボーディング
+    - ローカルインストールの代わりにコンテナ化された Gateway を使いたい
+    - Docker フローを検証している
+summary: OpenClaw のオプションの Docker ベースセットアップとオンボーディング
 title: Docker
 x-i18n:
-    generated_at: "2026-04-05T12:48:01Z"
+    generated_at: "2026-04-06T03:08:48Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 4628362d52597f85e72c214efe96b2923c7a59a8592b3044dc8c230318c515b8
+    source_hash: d6aa0453340d7683b4954316274ba6dd1aa7c0ce2483e9bd8ae137ff4efd4c3c
     source_path: install/docker.md
     workflow: 15
 ---
 
-# Docker（任意）
+# Docker（オプション）
 
-Dockerは**任意**です。コンテナ化されたgatewayを使いたい場合、またはDockerフローを検証したい場合にのみ使用してください。
+Docker は **オプション** です。コンテナ化された Gateway を使いたい場合、または Docker フローを検証したい場合にのみ使用してください。
 
-## Dockerは自分に合っているか？
+## Docker は自分に合っているか？
 
-- **Yes**: 分離された使い捨てのgateway環境が欲しい、またはローカルインストールなしでホスト上でOpenClawを実行したい。
-- **No**: 自分のマシンで実行していて、最速の開発ループだけが欲しい。代わりに通常のインストールフローを使用してください。
-- **サンドボックス化に関する注記**: エージェントサンドボックス化でもDockerを使いますが、gateway全体をDockerで実行する必要は**ありません**。[サンドボックス化](/gateway/sandboxing) を参照してください。
+- **はい**: 分離された使い捨ての Gateway 環境が欲しい、またはローカルインストールなしで OpenClaw をホスト上で実行したい。
+- **いいえ**: 自分のマシン上で実行していて、最速の開発ループが欲しいだけである。代わりに通常のインストールフローを使用してください。
+- **サンドボックスに関する注記**: エージェントのサンドボックス化にも Docker を使用しますが、Gateway 全体を Docker で実行する必要は**ありません**。[Sandboxing](/ja-JP/gateway/sandboxing) を参照してください。
 
 ## 前提条件
 
 - Docker Desktop（または Docker Engine）+ Docker Compose v2
-- イメージビルド用に少なくとも2 GB RAM（1 GBホストでは `pnpm install` が exit 137 でOOM killされることがあります）
-- イメージとログに十分なディスク容量
-- VPS/公開ホスト上で実行する場合は、
-  [ネットワーク公開のためのセキュリティハードニング](/gateway/security)、
-  特にDockerの `DOCKER-USER` ファイアウォールポリシーを確認してください。
+- イメージビルド用に少なくとも 2 GB の RAM（1 GB ホストでは `pnpm install` が exit 137 で OOM kill されることがあります）
+- イメージとログのための十分なディスク容量
+- VPS/パブリックホストで実行する場合は、[ネットワーク公開向けのセキュリティ強化](/ja-JP/gateway/security)、特に Docker の `DOCKER-USER` ファイアウォールポリシーを確認してください。
 
-## コンテナ化されたGateway
+## コンテナ化された Gateway
 
 <Steps>
   <Step title="イメージをビルドする">
-    リポジトリルートから、セットアップスクリプトを実行します:
+    リポジトリルートでセットアップスクリプトを実行します:
 
     ```bash
     ./scripts/docker/setup.sh
     ```
 
-    これによりgatewayイメージがローカルでビルドされます。代わりにビルド済みイメージを使うには:
+    これにより Gateway イメージがローカルでビルドされます。代わりにビルド済みイメージを使うには:
 
     ```bash
     export OPENCLAW_IMAGE="ghcr.io/openclaw/openclaw:latest"
@@ -57,25 +55,22 @@ Dockerは**任意**です。コンテナ化されたgatewayを使いたい場合
   </Step>
 
   <Step title="オンボーディングを完了する">
-    セットアップスクリプトは自動的にオンボーディングを実行します。これにより次のことが行われます:
+    セットアップスクリプトは自動的にオンボーディングを実行します。実行内容:
 
-    - プロバイダーAPIキーの入力を求める
-    - gatewayトークンを生成して `.env` に書き込む
-    - Docker Compose経由でgatewayを起動する
+    - プロバイダー API キーの入力を促す
+    - Gateway トークンを生成し、`.env` に書き込む
+    - Docker Compose 経由で Gateway を起動する
 
     セットアップ中、起動前のオンボーディングと設定書き込みは
-    `openclaw-gateway` を直接通じて実行されます。`openclaw-cli` は、
-    gatewayコンテナがすでに存在した後に実行するコマンド用です。
+    `openclaw-gateway` を直接通して実行されます。`openclaw-cli` は
+    Gateway コンテナがすでに存在した後に実行するコマンド用です。
 
   </Step>
 
-  <Step title="コントロールUIを開く">
-    ブラウザーで `http://127.0.0.1:18789/` を開き、設定済みの
-    shared secretをSettingsに貼り付けます。セットアップスクリプトはデフォルトで
-    `.env` にトークンを書き込みます。コンテナ設定をpassword認証に切り替えた場合は、
-    代わりにそのpasswordを使ってください。
+  <Step title="Control UI を開く">
+    ブラウザーで `http://127.0.0.1:18789/` を開き、設定済みの共有シークレットを Settings に貼り付けます。セットアップスクリプトはデフォルトで `.env` にトークンを書き込みます。コンテナ設定をパスワード認証に切り替えた場合は、代わりにそのパスワードを使用してください。
 
-    URLをもう一度確認したいですか？
+    URL をもう一度確認したい場合:
 
     ```bash
     docker compose run --rm openclaw-cli dashboard --no-open
@@ -83,8 +78,8 @@ Dockerは**任意**です。コンテナ化されたgatewayを使いたい場合
 
   </Step>
 
-  <Step title="チャネルを設定する（任意）">
-    CLIコンテナを使ってメッセージングチャネルを追加します:
+  <Step title="チャンネルを設定する（オプション）">
+    CLI コンテナを使ってメッセージングチャンネルを追加します:
 
     ```bash
     # WhatsApp (QR)
@@ -104,48 +99,39 @@ Dockerは**任意**です。コンテナ化されたgatewayを使いたい場合
 
 ### 手動フロー
 
-セットアップスクリプトを使わずに各手順を自分で実行したい場合:
+セットアップスクリプトを使わず、各ステップを自分で実行したい場合:
 
 ```bash
 docker build -t openclaw:local -f Dockerfile .
 docker compose run --rm --no-deps --entrypoint node openclaw-gateway \
   dist/index.js onboard --mode local --no-install-daemon
 docker compose run --rm --no-deps --entrypoint node openclaw-gateway \
-  dist/index.js config set gateway.mode local
-docker compose run --rm --no-deps --entrypoint node openclaw-gateway \
-  dist/index.js config set gateway.bind lan
-docker compose run --rm --no-deps --entrypoint node openclaw-gateway \
-  dist/index.js config set gateway.controlUi.allowedOrigins \
-  '["http://localhost:18789","http://127.0.0.1:18789"]' --strict-json
+  dist/index.js config set --batch-json '[{"path":"gateway.mode","value":"local"},{"path":"gateway.bind","value":"lan"},{"path":"gateway.controlUi.allowedOrigins","value":["http://localhost:18789","http://127.0.0.1:18789"]}]'
 docker compose up -d openclaw-gateway
 ```
 
 <Note>
 `docker compose` はリポジトリルートから実行してください。`OPENCLAW_EXTRA_MOUNTS`
-または `OPENCLAW_HOME_VOLUME` を有効にした場合、セットアップスクリプトは `docker-compose.extra.yml`
-を書き出します。`-f docker-compose.yml -f docker-compose.extra.yml` でそれを含めてください。
+または `OPENCLAW_HOME_VOLUME` を有効にした場合、セットアップスクリプトは `docker-compose.extra.yml` を書き込みます。`-f docker-compose.yml -f docker-compose.extra.yml` を付けて含めてください。
 </Note>
 
 <Note>
-`openclaw-cli` は `openclaw-gateway` のネットワーク名前空間を共有するため、
-起動後ツールです。`docker compose up -d openclaw-gateway` の前は、オンボーディング
-とセットアップ時の設定書き込みを `openclaw-gateway` 経由で
-`--no-deps --entrypoint node` を使って実行してください。
+`openclaw-cli` は `openclaw-gateway` のネットワーク名前空間を共有するため、起動後のツールです。`docker compose up -d openclaw-gateway` より前は、オンボーディングとセットアップ時の設定書き込みを `openclaw-gateway` 経由で `--no-deps --entrypoint node` を使って実行してください。
 </Note>
 
 ### 環境変数
 
-セットアップスクリプトは次の任意の環境変数を受け付けます:
+セットアップスクリプトは、以下のオプション環境変数を受け付けます:
 
-| Variable                       | Purpose                                                          |
+| 変数 | 用途 |
 | ------------------------------ | ---------------------------------------------------------------- |
-| `OPENCLAW_IMAGE`               | ローカルビルドの代わりにリモートイメージを使う                   |
-| `OPENCLAW_DOCKER_APT_PACKAGES` | ビルド時に追加のaptパッケージをインストールする（スペース区切り） |
-| `OPENCLAW_EXTENSIONS`          | ビルド時に拡張機能依存関係を事前インストールする（スペース区切りの名前） |
-| `OPENCLAW_EXTRA_MOUNTS`        | 追加のホストbind mount（カンマ区切りの `source:target[:opts]`）  |
-| `OPENCLAW_HOME_VOLUME`         | `/home/node` を名前付きDocker volumeに永続化する                 |
-| `OPENCLAW_SANDBOX`             | サンドボックスブートストラップにopt-inする（`1`、`true`、`yes`、`on`） |
-| `OPENCLAW_DOCKER_SOCKET`       | Docker socketパスを上書きする                                    |
+| `OPENCLAW_IMAGE`               | ローカルビルドの代わりにリモートイメージを使う |
+| `OPENCLAW_DOCKER_APT_PACKAGES` | ビルド中に追加の apt パッケージをインストールする（空白区切り） |
+| `OPENCLAW_EXTENSIONS`          | ビルド時に extension 依存関係を事前インストールする（空白区切りの名前） |
+| `OPENCLAW_EXTRA_MOUNTS`        | 追加のホストバインドマウント（カンマ区切り `source:target[:opts]`） |
+| `OPENCLAW_HOME_VOLUME`         | `/home/node` を名前付き Docker ボリュームに永続化する |
+| `OPENCLAW_SANDBOX`             | サンドボックスブートストラップをオプトインする（`1`、`true`、`yes`、`on`） |
+| `OPENCLAW_DOCKER_SOCKET`       | Docker ソケットパスを上書きする |
 
 ### ヘルスチェック
 
@@ -156,9 +142,9 @@ curl -fsS http://127.0.0.1:18789/healthz   # liveness
 curl -fsS http://127.0.0.1:18789/readyz     # readiness
 ```
 
-Dockerイメージには `/healthz` をpingする組み込みの `HEALTHCHECK` が含まれています。
-チェックが継続して失敗すると、Dockerはコンテナを `unhealthy` とマークし、
-オーケストレーションシステムはそれを再起動または置換できます。
+Docker イメージには、`/healthz` を ping する組み込みの `HEALTHCHECK` が含まれています。
+チェックが失敗し続けると、Docker はコンテナを `unhealthy` とマークし、
+オーケストレーションシステムが再起動または置き換えを行えるようになります。
 
 認証付きの詳細ヘルススナップショット:
 
@@ -168,60 +154,56 @@ docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLA
 
 ### LAN と loopback
 
-`scripts/docker/setup.sh` は `OPENCLAW_GATEWAY_BIND=lan` をデフォルトにするため、
-Dockerのポート公開とともにホストから `http://127.0.0.1:18789` へアクセスできます。
+`scripts/docker/setup.sh` は、Docker のポート公開でホストから
+`http://127.0.0.1:18789` にアクセスできるように、デフォルトで `OPENCLAW_GATEWAY_BIND=lan` を設定します。
 
-- `lan`（デフォルト）: ホストブラウザーとホストCLIが公開されたgatewayポートに到達できます。
-- `loopback`: コンテナのネットワーク名前空間内のプロセスだけが
-  gatewayに直接到達できます。
+- `lan`（デフォルト）: ホストブラウザーとホスト CLI は、公開された Gateway ポートに到達できます。
+- `loopback`: コンテナのネットワーク名前空間内のプロセスだけが Gateway に直接到達できます。
 
 <Note>
-bindモードの値には、`0.0.0.0` や `127.0.0.1` のようなホストエイリアスではなく、`gateway.bind` の値（`lan` / `loopback` / `custom` /
-`tailnet` / `auto`）を使ってください。
+`gateway.bind` には、ホストエイリアスの `0.0.0.0` や `127.0.0.1` ではなく、bind mode 値（`lan` / `loopback` / `custom` / `tailnet` / `auto`）を使用してください。
 </Note>
 
 ### ストレージと永続化
 
-Docker Composeは `OPENCLAW_CONFIG_DIR` を `/home/node/.openclaw` に、
-`OPENCLAW_WORKSPACE_DIR` を `/home/node/.openclaw/workspace` にbind mountするため、
-これらのパスはコンテナ置換後も保持されます。
+Docker Compose は `OPENCLAW_CONFIG_DIR` を `/home/node/.openclaw` に、
+`OPENCLAW_WORKSPACE_DIR` を `/home/node/.openclaw/workspace` にバインドマウントするため、これらのパスはコンテナの置き換え後も維持されます。
 
-そのmountされた設定ディレクトリには、OpenClawが次を保存します:
+そのマウントされた設定ディレクトリには、OpenClaw の以下が保存されます:
 
 - 動作設定用の `openclaw.json`
-- 保存されたプロバイダーOAuth/APIキー認証用の `agents/<agentId>/agent/auth-profiles.json`
-- `OPENCLAW_GATEWAY_TOKEN` のようなenvベースのランタイムシークレット用の `.env`
+- 保存されたプロバイダー OAuth/API キー認証用の `agents/<agentId>/agent/auth-profiles.json`
+- `OPENCLAW_GATEWAY_TOKEN` のような環境変数ベースのランタイムシークレット用の `.env`
 
-VMデプロイにおける完全な永続化の詳細については、
-[Docker VM Runtime - どこに何が永続化されるか](/install/docker-vm-runtime#what-persists-where)
+VM デプロイでの永続化の詳細については、
+[Docker VM Runtime - What persists where](/ja-JP/install/docker-vm-runtime#what-persists-where)
 を参照してください。
 
-**ディスク増加のホットスポット:** `media/`、セッションJSONLファイル、`cron/runs/*.jsonl`、
-および `/tmp/openclaw/` 配下のローテーションファイルログに注意してください。
+**ディスク増加のホットスポット:** `media/`、セッション JSONL ファイル、`cron/runs/*.jsonl`、
+および `/tmp/openclaw/` 配下のローテートファイルログに注意してください。
 
-### シェルヘルパー（任意）
+### シェルヘルパー（オプション）
 
-日常的なDocker管理を簡単にするには、`ClawDock` をインストールします:
+日常的な Docker 管理を簡単にするには、`ClawDock` をインストールしてください:
 
 ```bash
 mkdir -p ~/.clawdock && curl -sL https://raw.githubusercontent.com/openclaw/openclaw/main/scripts/clawdock/clawdock-helpers.sh -o ~/.clawdock/clawdock-helpers.sh
 echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
 ```
 
-古い `scripts/shell-helpers/clawdock-helpers.sh` のrawパスからClawDockをインストールしていた場合は、上のインストールコマンドを再実行して、ローカルのヘルパーファイルが新しい場所を追跡するようにしてください。
+古い `scripts/shell-helpers/clawdock-helpers.sh` の raw パスから ClawDock をインストールしていた場合は、ローカルのヘルパーファイルが新しい場所を追従するように、上のインストールコマンドを再実行してください。
 
-その後、`clawdock-start`、`clawdock-stop`、`clawdock-dashboard` などを使います。すべてのコマンドを確認するには
-`clawdock-help` を実行してください。
-完全なヘルパーガイドは [ClawDock](/install/clawdock) を参照してください。
+その後、`clawdock-start`、`clawdock-stop`、`clawdock-dashboard` などを使用できます。すべてのコマンドは `clawdock-help` を実行してください。
+完全なヘルパーガイドについては [ClawDock](/ja-JP/install/clawdock) を参照してください。
 
 <AccordionGroup>
-  <Accordion title="Docker gatewayでエージェントサンドボックスを有効にする">
+  <Accordion title="Docker Gateway 用に agent sandbox を有効にする">
     ```bash
     export OPENCLAW_SANDBOX=1
     ./scripts/docker/setup.sh
     ```
 
-    カスタムsocketパス（例: rootless Docker）:
+    カスタムソケットパス（例: rootless Docker）:
 
     ```bash
     export OPENCLAW_SANDBOX=1
@@ -229,14 +211,12 @@ echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
     ./scripts/docker/setup.sh
     ```
 
-    スクリプトは、サンドボックス前提条件が通過した後にのみ `docker.sock` をmountします。
-    サンドボックスセットアップを完了できない場合、スクリプトは `agents.defaults.sandbox.mode`
-    を `off` に戻します。
+    スクリプトは、サンドボックスの前提条件を満たした後にのみ `docker.sock` をマウントします。サンドボックスセットアップを完了できない場合、スクリプトは `agents.defaults.sandbox.mode` を `off` に戻します。
 
   </Accordion>
 
-  <Accordion title="自動化 / CI（非対話式）">
-    Composeの疑似TTY割り当てを `-T` で無効にします:
+  <Accordion title="自動化 / CI（非対話）">
+    `-T` で Compose の擬似 TTY 割り当てを無効にします:
 
     ```bash
     docker compose run -T --rm openclaw-cli gateway probe
@@ -245,16 +225,12 @@ echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
 
   </Accordion>
 
-  <Accordion title="共有ネットワークのセキュリティ注記">
-    `openclaw-cli` は `network_mode: "service:openclaw-gateway"` を使うため、
-    CLIコマンドが `127.0.0.1` 経由でgatewayに到達できます。これを共有の
-    信頼境界として扱ってください。compose設定では `NET_RAW`/`NET_ADMIN` を削除し、
-    `openclaw-cli` で `no-new-privileges` を有効化しています。
+  <Accordion title="共有ネットワークのセキュリティに関する注記">
+    `openclaw-cli` は `network_mode: "service:openclaw-gateway"` を使用するため、CLI コマンドは `127.0.0.1` 経由で Gateway に到達できます。これは共有された信頼境界として扱ってください。compose 設定では、`openclaw-cli` に対して `NET_RAW`/`NET_ADMIN` を削除し、`no-new-privileges` を有効にしています。
   </Accordion>
 
-  <Accordion title="権限とEACCES">
-    イメージは `node`（uid 1000）として実行されます。`/home/node/.openclaw` で
-    権限エラーが出る場合は、ホストのbind mountが uid 1000 に所有されていることを確認してください:
+  <Accordion title="権限と EACCES">
+    イメージは `node`（uid 1000）として実行されます。`/home/node/.openclaw` で権限エラーが発生する場合は、ホストのバインドマウントが uid 1000 の所有であることを確認してください:
 
     ```bash
     sudo chown -R 1000:1000 /path/to/openclaw-config /path/to/openclaw-workspace
@@ -262,9 +238,8 @@ echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
 
   </Accordion>
 
-  <Accordion title="より高速なrebuild">
-    依存関係レイヤーがキャッシュされるようにDockerfileを並べてください。これにより、
-    lockfileが変わらない限り `pnpm install` の再実行を避けられます:
+  <Accordion title="より高速な再ビルド">
+    Dockerfile は依存関係レイヤーがキャッシュされるように順序を工夫してください。これにより、lockfile が変わらない限り `pnpm install` の再実行を避けられます:
 
     ```dockerfile
     FROM node:24-bookworm
@@ -287,56 +262,49 @@ echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
   </Accordion>
 
   <Accordion title="上級者向けコンテナオプション">
-    デフォルトイメージはセキュリティ優先で、非rootの `node` として実行されます。より
-    高機能なコンテナにするには:
+    デフォルトイメージはセキュリティ優先で、非 root の `node` として実行されます。より多機能なコンテナにするには:
 
-    1. **`/home/node` を永続化**: `export OPENCLAW_HOME_VOLUME="openclaw_home"`
-    2. **システム依存関係を焼き込む**: `export OPENCLAW_DOCKER_APT_PACKAGES="git curl jq"`
-    3. **Playwrightブラウザーをインストール**:
+    1. **`/home/node` を永続化する**: `export OPENCLAW_HOME_VOLUME="openclaw_home"`
+    2. **システム依存関係を組み込む**: `export OPENCLAW_DOCKER_APT_PACKAGES="git curl jq"`
+    3. **Playwright ブラウザーをインストールする**:
        ```bash
        docker compose run --rm openclaw-cli \
          node /app/node_modules/playwright-core/cli.js install chromium
        ```
-    4. **ブラウザーダウンロードを永続化**: 
-       `PLAYWRIGHT_BROWSERS_PATH=/home/node/.cache/ms-playwright` を設定し、
-       `OPENCLAW_HOME_VOLUME` または `OPENCLAW_EXTRA_MOUNTS` を使います。
+    4. **ブラウザーダウンロードを永続化する**: `PLAYWRIGHT_BROWSERS_PATH=/home/node/.cache/ms-playwright` を設定し、
+       `OPENCLAW_HOME_VOLUME` または `OPENCLAW_EXTRA_MOUNTS` を使用します。
 
   </Accordion>
 
-  <Accordion title="OpenAI Codex OAuth（ヘッドレスDocker）">
-    ウィザードでOpenAI Codex OAuthを選ぶと、ブラウザーURLが開きます。Dockerまたはヘッドレス環境では、遷移先の完全なリダイレクトURLをコピーして、認証を完了するためにウィザードへ貼り戻してください。
+  <Accordion title="OpenAI Codex OAuth（ヘッドレス Docker）">
+    ウィザードで OpenAI Codex OAuth を選ぶと、ブラウザー URL が開きます。Docker やヘッドレス環境では、遷移先の完全なリダイレクト URL をコピーし、認証を完了するためにウィザードへ貼り戻してください。
   </Accordion>
 
   <Accordion title="ベースイメージメタデータ">
-    メインDockerイメージは `node:24-bookworm` を使用し、
-    `org.opencontainers.image.base.name`、
-    `org.opencontainers.image.source` などを含むOCI base-image
-    annotationを公開します。詳細は
+    メインの Docker イメージは `node:24-bookworm` を使用し、`org.opencontainers.image.base.name`、
+    `org.opencontainers.image.source` などを含む OCI ベースイメージアノテーションを公開します。詳しくは
     [OCI image annotations](https://github.com/opencontainers/image-spec/blob/main/annotations.md)
     を参照してください。
   </Accordion>
 </AccordionGroup>
 
-### VPSで実行する場合
+### VPS で実行する場合
 
-共有VMデプロイ手順（バイナリの焼き込み、永続化、更新を含む）については、
-[Hetzner (Docker VPS)](/install/hetzner) および
-[Docker VM Runtime](/install/docker-vm-runtime) を参照してください。
+共有 VM デプロイ手順（バイナリの焼き込み、永続化、更新を含む）については、
+[Hetzner (Docker VPS)](/ja-JP/install/hetzner) と
+[Docker VM Runtime](/ja-JP/install/docker-vm-runtime) を参照してください。
 
-## エージェントサンドボックス
+## Agent Sandbox
 
-`agents.defaults.sandbox` が有効な場合、gateway自体はホスト上に残ったまま、
-gatewayはエージェントのツール実行
-（シェル、ファイル読み書きなど）を分離されたDockerコンテナ内で実行します。これにより、gateway全体をコンテナ化せずに、信頼できない、または
-マルチテナントなエージェントセッションの周囲に強い隔離を設けられます。
+`agents.defaults.sandbox` を有効にすると、Gateway 自体はホストに残したまま、Gateway はエージェントのツール実行（シェル、ファイル読み書きなど）を分離された Docker コンテナ内で実行します。これにより、信頼できない、またはマルチテナントのエージェントセッションに対して、Gateway 全体をコンテナ化することなく強固な分離を提供できます。
 
-サンドボックススコープは、agent単位（デフォルト）、session単位、または共有にできます。各スコープには `/workspace` にmountされた独自のワークスペースがあります。allow/denyツールポリシー、ネットワーク分離、リソース制限、ブラウザーコンテナも設定できます。
+サンドボックスのスコープは、エージェント単位（デフォルト）、セッション単位、または共有にできます。各スコープには、それぞれ独自のワークスペースが `/workspace` にマウントされます。ツールの allow/deny policy、ネットワーク分離、リソース制限、ブラウザーコンテナも設定できます。
 
-完全な設定、イメージ、セキュリティ注記、およびマルチエージェントプロファイルについては、次を参照してください:
+完全な設定、イメージ、セキュリティに関する注記、マルチエージェントプロファイルについては、以下を参照してください。
 
-- [サンドボックス化](/gateway/sandboxing) -- 完全なサンドボックスリファレンス
-- [OpenShell](/gateway/openshell) -- サンドボックスコンテナへの対話型シェルアクセス
-- [Multi-Agent Sandbox and Tools](/tools/multi-agent-sandbox-tools) -- agentごとの上書き
+- [Sandboxing](/ja-JP/gateway/sandboxing) -- サンドボックスの完全なリファレンス
+- [OpenShell](/ja-JP/gateway/openshell) -- サンドボックスコンテナへの対話型シェルアクセス
+- [Multi-Agent Sandbox and Tools](/ja-JP/tools/multi-agent-sandbox-tools) -- エージェント単位の上書き
 
 ### クイック有効化
 
@@ -353,7 +321,7 @@ gatewayはエージェントのツール実行
 }
 ```
 
-デフォルトのサンドボックスイメージをビルドします:
+デフォルトのサンドボックスイメージをビルドする:
 
 ```bash
 scripts/sandbox-setup.sh
@@ -362,28 +330,30 @@ scripts/sandbox-setup.sh
 ## トラブルシューティング
 
 <AccordionGroup>
-  <Accordion title="イメージがない、またはサンドボックスコンテナが起動しない">
+  <Accordion title="イメージがない、または sandbox コンテナが起動しない">
     [`scripts/sandbox-setup.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/sandbox-setup.sh)
-    でサンドボックスイメージをビルドするか、`agents.defaults.sandbox.docker.image` を独自イメージに設定してください。
-    コンテナはセッションごとに必要時に自動作成されます。
+    でサンドボックスイメージをビルドするか、
+    `agents.defaults.sandbox.docker.image` にカスタムイメージを設定してください。
+    コンテナはセッションごとに必要に応じて自動作成されます。
   </Accordion>
 
-  <Accordion title="サンドボックス内の権限エラー">
-    `docker.user` をmountされたワークスペース所有権に一致する UID:GID に設定するか、
-    ワークスペースフォルダーを `chown` してください。
+  <Accordion title="sandbox 内で権限エラーが出る">
+    `docker.user` をマウントされたワークスペース所有権に一致する UID:GID に設定するか、
+    ワークスペースフォルダーを chown してください。
   </Accordion>
 
-  <Accordion title="サンドボックス内でカスタムツールが見つからない">
-    OpenClawは `sh -lc`（login shell）でコマンドを実行するため、
-    `/etc/profile` を読み込み、PATHがリセットされることがあります。`docker.env.PATH` を設定して
-    カスタムツールパスを先頭に追加するか、Dockerfile内の `/etc/profile.d/` にスクリプトを追加してください。
+  <Accordion title="sandbox 内でカスタムツールが見つからない">
+    OpenClaw は `sh -lc`（ログインシェル）でコマンドを実行するため、
+    `/etc/profile` を読み込み、PATH をリセットすることがあります。
+    カスタムツールのパスを先頭に追加するよう `docker.env.PATH` を設定するか、
+    Dockerfile の `/etc/profile.d/` 配下にスクリプトを追加してください。
   </Accordion>
 
-  <Accordion title="イメージビルド中にOOM killされる（exit 137）">
-    VMには少なくとも2 GB RAMが必要です。より大きいマシンクラスを使って再試行してください。
+  <Accordion title="イメージビルド中に OOM kill される（exit 137）">
+    VM には少なくとも 2 GB の RAM が必要です。より大きなマシンクラスを使用して再試行してください。
   </Accordion>
 
-  <Accordion title="コントロールUIでUnauthorizedまたはpairing requiredと表示される">
+  <Accordion title="Control UI で Unauthorized または pairing required が表示される">
     新しいダッシュボードリンクを取得し、ブラウザーデバイスを承認してください:
 
     ```bash
@@ -396,12 +366,11 @@ scripts/sandbox-setup.sh
 
   </Accordion>
 
-  <Accordion title="Gateway target に ws://172.x.x.x が表示される、または Docker CLIからpairingエラーが出る">
-    gatewayモードとbindをリセットしてください:
+  <Accordion title="Gateway ターゲットが ws://172.x.x.x と表示される、または Docker CLI から pairing エラーが出る">
+    Gateway モードと bind をリセットしてください:
 
     ```bash
-    docker compose run --rm openclaw-cli config set gateway.mode local
-    docker compose run --rm openclaw-cli config set gateway.bind lan
+    docker compose run --rm openclaw-cli config set --batch-json '[{"path":"gateway.mode","value":"local"},{"path":"gateway.bind","value":"lan"}]'
     docker compose run --rm openclaw-cli devices list --url ws://127.0.0.1:18789
     ```
 
@@ -410,8 +379,8 @@ scripts/sandbox-setup.sh
 
 ## 関連
 
-- [Install Overview](/install) — すべてのインストール方法
-- [Podman](/install/podman) — Dockerの代替としてのPodman
-- [ClawDock](/install/clawdock) — Docker Composeのコミュニティセットアップ
-- [Updating](/install/updating) — OpenClawを最新に保つ方法
-- [Configuration](/gateway/configuration) — インストール後のgateway設定
+- [インストール概要](/ja-JP/install) — すべてのインストール方法
+- [Podman](/ja-JP/install/podman) — Docker の代替となる Podman
+- [ClawDock](/ja-JP/install/clawdock) — Docker Compose のコミュニティセットアップ
+- [Updating](/ja-JP/install/updating) — OpenClaw を最新に保つ
+- [Configuration](/ja-JP/gateway/configuration) — インストール後の Gateway 設定

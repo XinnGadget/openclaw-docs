@@ -1,23 +1,23 @@
 ---
 read_when:
-    - exec tool を使う、または変更するとき
-    - stdin または TTY の挙動をデバッグするとき
+    - exec tool を使用または変更している
+    - stdin または TTY の動作をデバッグしている
 summary: Exec tool の使い方、stdin モード、TTY サポート
 title: Exec Tool
 x-i18n:
-    generated_at: "2026-04-05T12:59:46Z"
+    generated_at: "2026-04-06T03:13:57Z"
     model: gpt-5.4
     provider: openai
-    source_hash: b73e9900c109910fc4e178c888b7ad7f3a4eeaa34eb44bc816abba9af5d664d7
+    source_hash: 28388971c627292dba9bf65ae38d7af8cde49a33bb3b5fc8b20da4f0e350bedd
     source_path: tools/exec.md
     workflow: 15
 ---
 
-# Exec tool
+# Exec Tool
 
-ワークスペース内でシェルコマンドを実行します。`process` によるフォアグラウンド実行とバックグラウンド実行に対応しています。
-`process` が許可されていない場合、`exec` は同期実行され、`yieldMs`/`background` は無視されます。
-バックグラウンドセッションはエージェントごとにスコープ分けされます。`process` は同じエージェントのセッションだけを参照できます。
+workspace でシェルコマンドを実行します。`process` によるフォアグラウンド + バックグラウンド実行をサポートします。
+`process` が許可されていない場合、`exec` は同期的に実行され、`yieldMs`/`background` を無視します。
+バックグラウンドセッションはエージェントごとにスコープされます。`process` は同じエージェントのセッションのみを参照します。
 
 ## パラメーター
 
@@ -25,60 +25,62 @@ x-i18n:
 - `workdir`（デフォルトは cwd）
 - `env`（キー/値の上書き）
 - `yieldMs`（デフォルト 10000）: 遅延後に自動でバックグラウンド化
-- `background`（bool）: 即座にバックグラウンド化
-- `timeout`（秒、デフォルト 1800）: 期限切れで強制終了
-- `pty`（bool）: 利用可能な場合は疑似端末で実行（TTY 専用 CLI、coding agents、terminal UI）
+- `background`（bool）: すぐにバックグラウンド化
+- `timeout`（秒、デフォルト 1800）: 期限切れで kill
+- `pty`（bool）: 利用可能な場合は疑似ターミナルで実行（TTY 専用 CLI、coding agents、terminal UIs）
 - `host`（`auto | sandbox | gateway | node`）: 実行場所
-- `security`（`deny | allowlist | full`）: `gateway`/`node` の強制モード
+- `security`（`deny | allowlist | full`）: `gateway`/`node` の適用モード
 - `ask`（`off | on-miss | always`）: `gateway`/`node` の承認プロンプト
 - `node`（string）: `host=node` 用の node id/name
-- `elevated`（bool）: 昇格モードを要求する（サンドボックスを抜けて設定済みホストパスへ実行する）。`security=full` が強制されるのは、elevated が `full` に解決された場合のみです
+- `elevated`（bool）: elevated mode を要求する（設定済み host path 上でサンドボックスを抜ける）。`security=full` が強制されるのは、elevated が `full` に解決される場合のみです
 
-注意事項:
+注記:
 
-- `host` のデフォルトは `auto` です: セッションで sandbox runtime が有効なら sandbox、そうでなければ gateway になります。
-- `auto` はデフォルトのルーティング戦略であり、ワイルドカードではありません。1 回ごとの `host=node` は `auto` から許可されます。1 回ごとの `host=gateway` は、sandbox runtime が有効でない場合にのみ許可されます。
-- 追加設定がなくても、`host=auto` はそのまま「ちゃんと動作」します: sandbox がなければ `gateway` に解決され、sandbox が動作中なら sandbox 内にとどまります。
-- `elevated` は、設定済みホストパスへサンドボックスを抜けます。デフォルトは `gateway`、`tools.exec.host=node`（またはセッションのデフォルトが `host=node`）のときは `node` です。現在のセッション/プロバイダーで昇格アクセスが有効な場合にのみ利用できます。
-- `gateway`/`node` の承認は `~/.openclaw/exec-approvals.json` によって制御されます。
+- `host` のデフォルトは `auto` です: セッションで sandbox runtime が有効なら sandbox、そうでなければ gateway。
+- `auto` はデフォルトのルーティング戦略であり、ワイルドカードではありません。呼び出しごとの `host=node` は `auto` から許可されます。呼び出しごとの `host=gateway` は sandbox runtime が有効でない場合にのみ許可されます。
+- 追加設定がなくても、`host=auto` はそのまま「普通に動作」します。sandbox がなければ `gateway` に解決され、動作中の sandbox があれば sandbox に留まります。
+- `elevated` は、設定済み host path 上で sandbox を抜けます。デフォルトでは `gateway`、`tools.exec.host=node` の場合（またはセッションデフォルトが `host=node` の場合）は `node` です。現在のセッション/provider で elevated access が有効な場合にのみ利用できます。
+- `gateway`/`node` の承認は `~/.openclaw/exec-approvals.json` で制御されます。
 - `node` には paired node（companion app または headless node host）が必要です。
-- 利用可能な node が複数ある場合は、`exec.node` または `tools.exec.node` を設定して 1 つ選択してください。
-- `exec host=node` は node に対する唯一のシェル実行経路です。従来の `nodes.run` ラッパーは削除されました。
-- Windows 以外のホストでは、exec は `SHELL` が設定されていればそれを使います。`SHELL` が `fish` の場合は、
-  fish 非互換スクリプトを避けるため、`PATH` 上の `bash`（または `sh`）を優先し、
-  どちらも存在しない場合に `SHELL` へフォールバックします。
-- Windows ホストでは、exec はまず PowerShell 7（`pwsh`）を検出します（Program Files、ProgramW6432、次に PATH）、
-  その後 Windows PowerShell 5.1 へフォールバックします。
-- ホスト実行（`gateway`/`node`）では、バイナリーハイジャックや注入コードを防ぐため、
+- 複数の nodes が利用可能な場合は、1 つ選ぶために `exec.node` または `tools.exec.node` を設定してください。
+- `exec host=node` は nodes 用の唯一の shell-execution path です。レガシーな `nodes.run` wrapper は削除されました。
+- 非 Windows ホストでは、exec は `SHELL` が設定されていればそれを使用します。`SHELL` が `fish` の場合は、
+  fish 非互換スクリプトを避けるため、`PATH` から `bash`（または `sh`）を優先し、
+  どちらも存在しない場合のみ `SHELL` にフォールバックします。
+- Windows ホストでは、exec は PowerShell 7（`pwsh`）の検出を優先し（Program Files、ProgramW6432、その後 PATH）、
+  次に Windows PowerShell 5.1 にフォールバックします。
+- ホスト実行（`gateway`/`node`）では、バイナリハイジャックや注入コードを防ぐため、
   `env.PATH` と loader 上書き（`LD_*`/`DYLD_*`）を拒否します。
-- OpenClaw は、spawn されたコマンド環境（PTY と sandbox 実行を含む）に `OPENCLAW_SHELL=exec` を設定するため、シェル/プロファイルのルール側で exec-tool コンテキストを検出できます。
-- 重要: sandboxing は**デフォルトでオフ**です。sandboxing がオフの場合、暗黙の `host=auto` は
-  `gateway` に解決されます。明示的な `host=sandbox` は、黙って
-  gateway host で実行されるのではなく、クローズドに失敗します。sandboxing を有効にするか、承認付きで `host=gateway` を使ってください。
-- スクリプトの事前チェック（よくある Python/Node のシェル構文ミス向け）は、実効 `workdir` 境界内のファイルだけを検査します。
-  スクリプトパスが `workdir` の外に解決される場合、そのファイルの事前チェックはスキップされます。
-- 今すぐ開始する長時間実行の作業は、一度だけ開始し、
-  有効なら、コマンドが出力を出すか失敗したときの自動完了 wake に任せてください。
-  ログ、状態、入力、介入には `process` を使ってください。sleep ループ、timeout ループ、繰り返しポーリングで
-  スケジューリングを模倣しないでください。
-- 後で実行する、またはスケジュールに従うべき作業には、
-  `exec` の sleep/delay パターンではなく cron を使ってください。
+- OpenClaw は、生成されたコマンド環境（PTY と sandbox 実行を含む）に `OPENCLAW_SHELL=exec` を設定するため、shell/profile ルールは exec-tool コンテキストを検出できます。
+- 重要: sandboxing はデフォルトで**無効**です。sandboxing が無効な場合、暗黙の `host=auto` は
+  `gateway` に解決されます。明示的な `host=sandbox` は、gateway host 上で黙って
+  実行するのではなく、クローズドに失敗します。sandboxing を有効にするか、承認付きで `host=gateway` を使用してください。
+- スクリプトの事前チェック（一般的な Python/Node の shell-syntax ミス向け）は、
+  有効な `workdir` 境界内のファイルだけを検査します。スクリプトパスが `workdir` の外に解決される場合、
+  そのファイルの事前チェックはスキップされます。
+- すぐに始まる長時間作業については、一度だけ開始し、自動完了 wake が有効なら、
+  コマンドが出力を出すか失敗したときの自動 wake に任せてください。
+  ログ、状態、入力、介入には `process` を使用してください。sleep ループ、
+  timeout ループ、反復ポーリングでスケジューリングをエミュレートしないでください。
+- 後で実行すべき作業やスケジュールされた作業には、
+  `exec` の sleep/delay パターンではなく cron を使用してください。
 
-## config
+## 設定
 
-- `tools.exec.notifyOnExit`（デフォルト: true）: true の場合、バックグラウンド化された exec セッションは終了時に system event をキューに積み、heartbeat を要求します。
-- `tools.exec.approvalRunningNoticeMs`（デフォルト: 10000）: 承認ゲート付き exec がこれより長く動作したとき、1 回だけ「running」通知を出します（0 で無効）。
+- `tools.exec.notifyOnExit`（デフォルト: true）: true の場合、バックグラウンド化された exec セッションは終了時に system event をキューし、heartbeat を要求します。
+- `tools.exec.approvalRunningNoticeMs`（デフォルト: 10000）: 承認ゲート付き exec がこれより長く実行されたとき、1 回だけ「running」通知を出します（0 で無効）。
 - `tools.exec.host`（デフォルト: `auto`。sandbox runtime が有効なら `sandbox`、そうでなければ `gateway` に解決）
 - `tools.exec.security`（デフォルト: sandbox では `deny`、未設定時の gateway + node では `full`）
 - `tools.exec.ask`（デフォルト: `off`）
-- 承認なしの host exec は gateway + node のデフォルトです。承認/allowlist 動作を使いたい場合は、`tools.exec.*` とホスト側の `~/.openclaw/exec-approvals.json` の両方を厳しくしてください。詳細は [Exec approvals](/tools/exec-approvals#no-approval-yolo-mode) を参照してください。
-- YOLO は `host=auto` 由来ではなく、ホストポリシーのデフォルト（`security=full`, `ask=off`）由来です。gateway または node へのルーティングを強制したい場合は、`tools.exec.host` を設定するか `/exec host=...` を使ってください。
+- 承認なしの host exec は gateway + node のデフォルトです。承認/allowlist 動作が必要な場合は、`tools.exec.*` とホスト側の `~/.openclaw/exec-approvals.json` の両方を厳しくしてください。[Exec approvals](/ja-JP/tools/exec-approvals#no-approval-yolo-mode) を参照してください。
+- YOLO は `host=auto` ではなく、host-policy のデフォルト（`security=full`, `ask=off`）から来ます。gateway または node へのルーティングを強制したい場合は、`tools.exec.host` を設定するか `/exec host=...` を使用してください。
+- `security=full` かつ `ask=off` モードでは、host exec は設定済みポリシーに直接従います。追加の heuristic な command-obfuscation prefilter はありません。
 - `tools.exec.node`（デフォルト: 未設定）
-- `tools.exec.strictInlineEval`（デフォルト: false）: true の場合、`python -c`、`node -e`、`ruby -e`、`perl -e`、`php -r`、`lua -e`、`osascript -e` のようなインラインインタープリター eval 形式は常に明示的な承認が必要です。`allow-always` により無害なインタープリター/スクリプト呼び出しを永続化することはできますが、インライン eval 形式は毎回引き続きプロンプトされます。
-- `tools.exec.pathPrepend`: exec 実行時に `PATH` の先頭へ追加するディレクトリー一覧（gateway + sandbox のみ）。
-- `tools.exec.safeBins`: 明示的な allowlist 項目なしで実行できる、stdin 専用の安全なバイナリー。挙動の詳細は [Safe bins](/tools/exec-approvals#safe-bins-stdin-only) を参照してください。
-- `tools.exec.safeBinTrustedDirs`: `safeBins` のパス検査で信頼する追加の明示ディレクトリー。`PATH` 項目は自動では決して信頼されません。組み込みデフォルトは `/bin` と `/usr/bin` です。
-- `tools.exec.safeBinProfiles`: safe bin ごとの任意のカスタム argv ポリシー（`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`）。
+- `tools.exec.strictInlineEval`（デフォルト: false）: true の場合、`python -c`、`node -e`、`ruby -e`、`perl -e`、`php -r`、`lua -e`、`osascript -e` などの inline interpreter eval 形式は常に明示的承認が必要です。`allow-always` は引き続き無害な interpreter/script invocations を永続化できますが、inline-eval 形式は毎回プロンプトが出ます。
+- `tools.exec.pathPrepend`: exec 実行時に `PATH` の先頭に追加するディレクトリのリスト（gateway + sandbox のみ）。
+- `tools.exec.safeBins`: 明示的 allowlist エントリなしで実行できる stdin-only の safe binaries。動作の詳細は [Safe bins](/ja-JP/tools/exec-approvals#safe-bins-stdin-only) を参照してください。
+- `tools.exec.safeBinTrustedDirs`: `safeBins` のパスチェックで信頼する追加の明示ディレクトリ。`PATH` エントリは自動的には信頼されません。組み込みデフォルトは `/bin` と `/usr/bin` です。
+- `tools.exec.safeBinProfiles`: safe bin ごとの任意の custom argv policy（`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`）。
 
 例:
 
@@ -94,30 +96,31 @@ x-i18n:
 
 ### PATH の扱い
 
-- `host=gateway`: ログインシェルの `PATH` を exec 環境にマージします。`env.PATH` の上書きは
-  ホスト実行では拒否されます。一方、デーモン自体は引き続き最小限の `PATH` で動作します:
+- `host=gateway`: login-shell の `PATH` を exec 環境にマージします。`env.PATH` の上書きは
+  host 実行では拒否されます。daemon 自体は引き続き最小限の `PATH` で実行されます:
   - macOS: `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `/bin`
   - Linux: `/usr/local/bin`, `/usr/bin`, `/bin`
-- `host=sandbox`: コンテナー内で `sh -lc`（ログインシェル）を実行するため、`/etc/profile` が `PATH` をリセットする場合があります。
-  OpenClaw は、profile 読み込み後に内部 env var を使って `env.PATH` を先頭追加します（シェル補間なし）。
+- `host=sandbox`: コンテナ内で `sh -lc`（login shell）を実行するため、`/etc/profile` が `PATH` をリセットする場合があります。
+  OpenClaw は、内部 env var を介して profile 読み込み後に `env.PATH` を先頭追加します（shell interpolation なし）。
   `tools.exec.pathPrepend` もここで適用されます。
-- `host=node`: 渡した env 上書きのうちブロックされていないものだけが node に送られます。`env.PATH` の上書きは
-  ホスト実行では拒否され、node host では無視されます。node で追加の PATH 項目が必要な場合は、
-  node host サービス環境（systemd/launchd）を設定するか、標準的な場所にツールをインストールしてください。
+- `host=node`: 渡したブロックされていない env 上書きだけが node に送られます。`env.PATH` の上書きは
+  host 実行では拒否され、node hosts では無視されます。node 上で追加の PATH エントリが必要なら、
+  node host service の環境（systemd/launchd）を設定するか、標準的な場所に tools をインストールしてください。
 
-エージェントごとの node バインディング（config では agent list の index を使います）:
+エージェントごとの node binding（config では agent list index を使用）:
 
 ```bash
 openclaw config get agents.list
 openclaw config set agents.list[0].tools.exec.node "node-id-or-name"
 ```
 
-Control UI: Nodes タブには、同じ設定を行うための小さな「Exec node binding」パネルがあります。
+Control UI: Nodes タブには、同じ設定用の小さな「Exec node binding」パネルがあります。
 
 ## セッション上書き（`/exec`）
 
-`/exec` を使うと、`host`、`security`、`ask`、`node` の**セッションごとの**デフォルトを設定できます。
-引数なしで `/exec` を送ると、現在の値が表示されます。
+`/exec` を使うと、`host`、`security`、`ask`、`node` の**セッションごとの**
+デフォルトを設定できます。
+現在の値を表示するには、引数なしで `/exec` を送信してください。
 
 例:
 
@@ -127,51 +130,55 @@ Control UI: Nodes タブには、同じ設定を行うための小さな「Exec 
 
 ## 認可モデル
 
-`/exec` は**認可された送信者**に対してのみ有効です（チャンネルの allowlist/pairing と `commands.useAccessGroups`）。
-これは**セッション状態のみ**を更新し、config には書き込みません。exec を強制的に無効化するには、tool
-policy（`tools.deny: ["exec"]` またはエージェント単位）で拒否してください。
-`security=full` と `ask=off` を明示的に設定しない限り、ホスト承認は引き続き適用されます。
+`/exec` は **authorized senders** に対してのみ有効です（channel allowlists/pairing と `commands.useAccessGroups`）。
+これは**セッション状態のみ**を更新し、config には書き込みません。exec を完全に無効にするには、tool
+policy（`tools.deny: ["exec"]` またはエージェント単位）で拒否してください。明示的に
+`security=full` と `ask=off` を設定しない限り、host approvals は引き続き適用されます。
 
 ## Exec approvals（companion app / node host）
 
-サンドボックス化されたエージェントでは、`exec` が gateway または node host 上で実行される前に、リクエストごとの承認を要求できます。
-ポリシー、allowlist、UI フローについては [Exec approvals](/tools/exec-approvals) を参照してください。
+sandbox 化されたエージェントでは、exec が gateway または node host 上で実行される前に、
+リクエストごとの承認を要求できます。
+ポリシー、allowlist、UI フローについては [Exec approvals](/ja-JP/tools/exec-approvals) を参照してください。
 
 承認が必要な場合、exec tool は
-`status: "approval-pending"` と承認 id を返して即座に戻ります。承認されると（または拒否/タイムアウトされると）、
-Gateway は system event（`Exec finished` / `Exec denied`）を発行します。コマンドが
-`tools.exec.approvalRunningNoticeMs` を超えてまだ動作している場合は、1 回だけ `Exec running` 通知が発行されます。
-ネイティブの承認カード/ボタンを持つチャンネルでは、エージェントはまずその
-ネイティブ UI に依存すべきであり、manual `/approve` コマンドを含めるのは、tool の
-結果がチャット承認を利用できないと明示した場合、または manual approval が
-唯一の経路である場合に限るべきです。
+`status: "approval-pending"` と approval id を返してすぐに終了します。承認後（または拒否 / timeout 後）、
+Gateway は system events（`Exec finished` / `Exec denied`）を発行します。コマンドが
+`tools.exec.approvalRunningNoticeMs` より長く実行されている場合、1 回だけ `Exec running`
+通知が発行されます。ネイティブの承認カード/ボタンがあるチャンネルでは、エージェントはまずその
+ネイティブ UI に依存し、tool
+result がチャット承認を利用できない、または手動承認が唯一の経路であると明示している場合にのみ、
+手動の `/approve` コマンドを含めるべきです。
 
 ## Allowlist + safe bins
 
-手動 allowlist の強制は、**解決済みバイナリーパスのみ**に一致します（basename 一致はありません）。
-`security=allowlist` の場合、すべてのパイプライン区間が
-allowlist 済みまたは safe bin のときにのみ、シェルコマンドは自動許可されます。連結（`;`, `&&`, `||`）とリダイレクトは、
-各トップレベル区間が allowlist を満たす場合（safe bins を含む）を除き、allowlist モードでは拒否されます。
-リダイレクトは引き続き未対応です。
-永続的な `allow-always` の信頼でも、このルールは回避できません。連結コマンドでは依然として、各
-トップレベル区間の一致が必要です。
+手動 allowlist の適用は、**解決済みバイナリパスのみ**に一致します（basename 一致はなし）。
+`security=allowlist` の場合、すべてのパイプラインセグメントが
+allowlist または safe bin であるときにのみ、シェルコマンドは自動許可されます。
+チェイン（`;`, `&&`, `||`）とリダイレクトは、
+すべてのトップレベルセグメントが allowlist を満たす場合にのみ allowlist mode で許可されます
+（safe bins を含む）。
+リダイレクトは引き続き未サポートです。
+永続的な `allow-always` の信頼でもこのルールは回避できません。チェインされたコマンドでは、
+すべてのトップレベルセグメントが一致する必要があります。
 
-`autoAllowSkills` は exec approvals における別の利便性パスです。これは
-手動のパス allowlist 項目と同じではありません。厳格で明示的な信頼を求めるなら、`autoAllowSkills` は無効のままにしてください。
+`autoAllowSkills` は exec approvals における別の convenience path です。これは
+手動パス allowlist エントリとは同じではありません。厳密な明示的信頼が必要なら、
+`autoAllowSkills` は無効のままにしてください。
 
-2 つの制御は用途が異なります。
+2 つの制御は用途を分けて使ってください。
 
-- `tools.exec.safeBins`: 小さな stdin 専用ストリームフィルター。
-- `tools.exec.safeBinTrustedDirs`: safe-bin 実行ファイルパス用の明示的な追加信頼ディレクトリー。
-- `tools.exec.safeBinProfiles`: カスタム safe bins 用の明示的な argv ポリシー。
-- allowlist: 実行ファイルパスへの明示的な信頼。
+- `tools.exec.safeBins`: 小さな stdin-only のストリームフィルター。
+- `tools.exec.safeBinTrustedDirs`: safe-bin 実行ファイルパス用の明示的な追加信頼ディレクトリ。
+- `tools.exec.safeBinProfiles`: custom safe bins 用の明示的 argv policy。
+- allowlist: 実行ファイルパスへの明示的信頼。
 
-`safeBins` を汎用 allowlist として扱わないでください。また、インタープリター/ランタイムのバイナリー（たとえば `python3`、`node`、`ruby`、`bash`）を追加しないでください。そうしたものが必要なら、明示的な allowlist 項目を使い、承認プロンプトは有効のままにしてください。
-`openclaw security audit` は、インタープリター/ランタイムの `safeBins` 項目に明示的な profile が欠けている場合に警告し、`openclaw doctor --fix` は不足しているカスタム `safeBinProfiles` 項目を雛形生成できます。
-`openclaw security audit` と `openclaw doctor` は、`jq` のような広い挙動を持つバイナリーを明示的に `safeBins` に戻した場合も警告します。
-インタープリターを明示的に allowlist する場合は、インラインコード eval 形式に毎回新しい承認が必要になるよう `tools.exec.strictInlineEval` を有効にしてください。
+`safeBins` を汎用 allowlist として扱わず、interpreter/runtime binaries（例: `python3`, `node`, `ruby`, `bash`）を追加しないでください。これらが必要なら、明示的 allowlist entries を使い、承認プロンプトを有効のままにしてください。
+`openclaw security audit` は、interpreter/runtime `safeBins` entries に明示的 profiles が不足している場合に警告し、`openclaw doctor --fix` は不足している custom `safeBinProfiles` entries をひな形生成できます。
+`openclaw security audit` と `openclaw doctor` は、`jq` のような広い動作を持つ bins を明示的に `safeBins` に戻した場合にも警告します。
+interpreter を明示的に allowlist する場合は、inline code-eval 形式で毎回新しい承認が必要になるよう、`tools.exec.strictInlineEval` を有効にしてください。
 
-完全なポリシー詳細と例については、[Exec approvals](/tools/exec-approvals#safe-bins-stdin-only) と [Safe bins versus allowlist](/tools/exec-approvals#safe-bins-versus-allowlist) を参照してください。
+完全なポリシーの詳細と例については、[Exec approvals](/ja-JP/tools/exec-approvals#safe-bins-stdin-only) と [Safe bins versus allowlist](/ja-JP/tools/exec-approvals#safe-bins-versus-allowlist) を参照してください。
 
 ## 例
 
@@ -188,10 +195,10 @@ allowlist 済みまたは safe bin のときにのみ、シェルコマンドは
 {"tool":"process","action":"poll","sessionId":"<id>"}
 ```
 
-polling はオンデマンドの状態確認用であり、待機ループ用ではありません。自動完了 wake
-が有効なら、コマンドは出力を出すか失敗したときにセッションを起こせます。
+ポーリングはオンデマンドの状態確認用であり、待機ループ用ではありません。自動完了 wake
+が有効であれば、コマンドは出力を出すか失敗したときにセッションを wake できます。
 
-キー送信（tmux 風）:
+キー送信（tmux スタイル）:
 
 ```json
 {"tool":"process","action":"send-keys","sessionId":"<id>","keys":["Enter"]}
@@ -199,13 +206,13 @@ polling はオンデマンドの状態確認用であり、待機ループ用で
 {"tool":"process","action":"send-keys","sessionId":"<id>","keys":["Up","Up","Enter"]}
 ```
 
-送信（CR のみ送る）:
+Submit（CR のみ送信）:
 
 ```json
 { "tool": "process", "action": "submit", "sessionId": "<id>" }
 ```
 
-貼り付け（デフォルトで bracketed）:
+Paste（デフォルトで bracketed）:
 
 ```json
 { "tool": "process", "action": "paste", "sessionId": "<id>", "text": "line1\nline2\n" }
@@ -214,8 +221,8 @@ polling はオンデマンドの状態確認用であり、待機ループ用で
 ## apply_patch
 
 `apply_patch` は、構造化された複数ファイル編集のための `exec` の subtool です。
-OpenAI および OpenAI Codex モデルではデフォルトで有効です。config を使うのは、
-無効化したい場合、または特定モデルに制限したい場合だけです。
+OpenAI および OpenAI Codex models ではデフォルトで有効です。無効化したい、
+または特定の models に制限したい場合にのみ config を使用してください。
 
 ```json5
 {
@@ -227,17 +234,17 @@ OpenAI および OpenAI Codex モデルではデフォルトで有効です。co
 }
 ```
 
-注意事項:
+注記:
 
-- OpenAI/OpenAI Codex モデルでのみ利用可能です。
-- tool policy は引き続き適用されます。`allow: ["write"]` は暗黙に `apply_patch` も許可します。
+- OpenAI/OpenAI Codex models でのみ利用可能です。
+- tool policy は引き続き適用されます。`allow: ["write"]` は暗黙的に `apply_patch` も許可します。
 - config は `tools.exec.applyPatch` 配下にあります。
-- `tools.exec.applyPatch.enabled` のデフォルトは `true` です。OpenAI モデルでこのツールを無効にするには `false` に設定してください。
-- `tools.exec.applyPatch.workspaceOnly` のデフォルトは `true`（ワークスペース内限定）です。`apply_patch` でワークスペースディレクトリー外に書き込みまたは削除したい意図がある場合にのみ、`false` に設定してください。
+- `tools.exec.applyPatch.enabled` のデフォルトは `true` です。OpenAI models で tool を無効化するには `false` に設定してください。
+- `tools.exec.applyPatch.workspaceOnly` のデフォルトは `true`（workspace 内に限定）です。workspace directory 外への書き込み/削除を意図的に許可したい場合にのみ `false` に設定してください。
 
 ## 関連
 
-- [Exec Approvals](/tools/exec-approvals) — シェルコマンドの承認ゲート
-- [Sandboxing](/ja-JP/gateway/sandboxing) — サンドボックス環境でのコマンド実行
+- [Exec approvals](/ja-JP/tools/exec-approvals) — シェルコマンドの承認ゲート
+- [Sandboxing](/ja-JP/gateway/sandboxing) — sandbox 化された環境でコマンドを実行する
 - [Background Process](/ja-JP/gateway/background-process) — 長時間実行の exec と process tool
-- [Security](/ja-JP/gateway/security) — tool policy と昇格アクセス
+- [Security](/ja-JP/gateway/security) — tool policy と elevated access

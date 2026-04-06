@@ -1,27 +1,28 @@
 ---
 read_when:
     - 你想选择一个模型提供商
-    - 你需要快速了解支持的 LLM 后端
+    - 你需要支持的 LLM 后端的快速概览
 summary: OpenClaw 支持的模型提供商（LLM）
 title: 提供商目录
 x-i18n:
-    generated_at: "2026-04-06T00:47:08Z"
+    generated_at: "2026-04-06T00:52:07Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 24b3f2b6edee49fbce7762a22ee03308ef9cd62c61de114b0ab5d61fb3919c26
+    source_hash: 17a1996056cad47f0bcf9b199384f44c5ffcb6a21de40c4f7ac3bf9164201ff1
     source_path: providers/index.md
     workflow: 15
 ---
 
 # 模型提供商
 
-OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份验证，然后将默认模型设置为 `provider/model`。
+OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成认证，然后将
+默认模型设置为 `provider/model`。
 
-在找聊天渠道文档（WhatsApp/Telegram/Discord/Slack/Mattermost（插件）等）？请参阅 [Channels](/zh-CN/channels)。
+在寻找聊天渠道文档（WhatsApp/Telegram/Discord/Slack/Mattermost（插件）/等）？参见 [Channels](/zh-CN/channels)。
 
 ## 快速开始
 
-1. 使用提供商完成身份验证（通常通过 `openclaw onboard`）。
+1. 使用提供商完成认证（通常通过 `openclaw onboard`）。
 2. 设置默认模型：
 
 ```json5
@@ -37,16 +38,16 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 - [Anthropic（API + Claude CLI）](/zh-CN/providers/anthropic)
 - [BytePlus（国际版）](/zh-CN/concepts/model-providers#byteplus-international)
 - [Chutes](/zh-CN/providers/chutes)
-- [ComfyUI](/providers/comfy)
+- [ComfyUI](/zh-CN/providers/comfy)
 - [Cloudflare AI Gateway](/zh-CN/providers/cloudflare-ai-gateway)
 - [DeepSeek](/zh-CN/providers/deepseek)
 - [fal](/zh-CN/providers/fal)
 - [Fireworks](/zh-CN/providers/fireworks)
 - [GitHub Copilot](/zh-CN/providers/github-copilot)
-- [GLM 模型](/zh-CN/providers/glm)
+- [GLM models](/zh-CN/providers/glm)
 - [Google（Gemini）](/zh-CN/providers/google)
 - [Groq（LPU 推理）](/zh-CN/providers/groq)
-- [Hugging Face（推理）](/zh-CN/providers/huggingface)
+- [Hugging Face（Inference）](/zh-CN/providers/huggingface)
 - [Kilocode](/zh-CN/providers/kilocode)
 - [LiteLLM（统一 Gateway 网关）](/zh-CN/providers/litellm)
 - [MiniMax](/zh-CN/providers/minimax)
@@ -58,7 +59,7 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 - [OpenCode](/zh-CN/providers/opencode)
 - [OpenCode Go](/zh-CN/providers/opencode-go)
 - [OpenRouter](/zh-CN/providers/openrouter)
-- [Perplexity（网络搜索）](/zh-CN/providers/perplexity-provider)
+- [Perplexity（网页搜索）](/zh-CN/providers/perplexity-provider)
 - [Qianfan](/zh-CN/providers/qianfan)
 - [Qwen Cloud](/zh-CN/providers/qwen)
 - [Runway](/zh-CN/providers/runway)
@@ -66,7 +67,7 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 - [StepFun](/zh-CN/providers/stepfun)
 - [Synthetic](/zh-CN/providers/synthetic)
 - [Together AI](/zh-CN/providers/together)
-- [Venice（Venice AI，注重隐私）](/zh-CN/providers/venice)
+- [Venice（Venice AI，以隐私为重点）](/zh-CN/providers/venice)
 - [Vercel AI Gateway](/zh-CN/providers/vercel-ai-gateway)
 - [vLLM（本地模型）](/zh-CN/providers/vllm)
 - [Volcengine（Doubao）](/zh-CN/providers/volcengine)
@@ -78,15 +79,16 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 
 - [其他内置变体](/zh-CN/providers/models#additional-bundled-provider-variants) - Anthropic Vertex、Copilot Proxy 和 Gemini CLI OAuth
 - [图像生成](/zh-CN/tools/image-generation) - 共享的 `image_generate` 工具、提供商选择和故障切换
-- [音乐生成](/tools/music-generation) - 插件提供的 `music_generate` 工具界面
+- [音乐生成](/zh-CN/tools/music-generation) - 共享的 `music_generate` 工具、提供商选择和故障切换
 - [视频生成](/zh-CN/tools/video-generation) - 共享的 `video_generate` 工具、提供商选择和故障切换
 
-## 转录提供商
+## 转写提供商
 
-- [Deepgram（音频转录）](/zh-CN/providers/deepgram)
+- [Deepgram（音频转写）](/zh-CN/providers/deepgram)
 
 ## 社区工具
 
-- [Claude Max API Proxy](/zh-CN/providers/claude-max-api-proxy) - 用于 Claude 订阅凭证的社区代理（使用前请核实 Anthropic 的政策/条款）
+- [Claude Max API Proxy](/zh-CN/providers/claude-max-api-proxy) - 用于 Claude 订阅凭证的社区代理（使用前请确认 Anthropic 的政策/条款）
 
-有关完整的提供商目录（xAI、Groq、Mistral 等）和高级配置，请参阅 [模型提供商](/zh-CN/concepts/model-providers)。
+有关完整的提供商目录（xAI、Groq、Mistral 等）和高级配置，
+请参见 [模型提供商](/zh-CN/concepts/model-providers)。

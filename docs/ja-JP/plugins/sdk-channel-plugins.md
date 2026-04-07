@@ -1,92 +1,71 @@
 ---
 read_when:
-    - 新しいメッセージングチャネルプラグインを構築している
-    - OpenClawをメッセージングプラットフォームに接続したい
-    - ChannelPluginアダプターsurfaceを理解する必要がある
+    - 新しいメッセージングチャネルプラグインを構築している場合
+    - OpenClawをメッセージングプラットフォームに接続したい場合
+    - ChannelPluginアダプターの表面を理解する必要がある場合
 sidebarTitle: Channel Plugins
-summary: OpenClaw用メッセージングチャネルプラグインを構築するためのステップバイステップガイド
+summary: OpenClaw向けメッセージングチャネルプラグインを構築するためのステップごとのガイド
 title: チャネルプラグインの構築
 x-i18n:
-    generated_at: "2026-04-06T03:10:12Z"
+    generated_at: "2026-04-07T04:44:45Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 66b52c10945a8243d803af3bf7e1ea0051869ee92eda2af5718d9bb24fbb8552
+    source_hash: 25ac0591d9b0ba401925b29ae4b9572f18b2cbffc2b6ca6ed5252740e7cf97e9
     source_path: plugins/sdk-channel-plugins.md
     workflow: 15
 ---
 
 # チャネルプラグインの構築
 
-このガイドでは、OpenClawをメッセージングプラットフォームに接続するチャネルプラグインの構築方法を説明します。最後まで進めると、DMセキュリティ、
-ペアリング、返信スレッド化、送信メッセージングを備えた動作するチャネルが完成します。
+このガイドでは、OpenClawをメッセージングプラットフォームに接続するチャネルプラグインの構築手順を説明します。最後には、DMセキュリティ、ペアリング、返信スレッド化、送信メッセージングを備えた動作するチャネルが完成します。
 
 <Info>
-  まだOpenClawプラグインを一度も作成したことがない場合は、まず
-  基本的なパッケージ構造とマニフェスト設定について
-  [はじめに](/ja-JP/plugins/building-plugins)を読んでください。
+  まだOpenClawプラグインを一度も構築したことがない場合は、まず
+  基本的なパッケージ構造とマニフェスト設定について[はじめに](/ja-JP/plugins/building-plugins)を読んでください。
 </Info>
 
 ## チャネルプラグインの仕組み
 
-チャネルプラグインは、独自のsend/edit/reactツールを必要としません。OpenClawは
-共有の`message`ツールを1つコアに保持します。プラグインが担当するのは次の部分です。
+チャネルプラグインは独自のsend/edit/react toolsを必要としません。OpenClawはコア内で1つの共有`message` toolを維持します。プラグインが担当するのは次の項目です:
 
 - **Config** — アカウント解決とセットアップウィザード
-- **Security** — DMポリシーと許可リスト
+- **Security** — DMポリシーとallowlists
 - **Pairing** — DM承認フロー
-- **Session grammar** — プロバイダー固有の会話idをベースチャット、スレッドid、親フォールバックにどう対応付けるか
+- **Session grammar** — プロバイダー固有の会話idが、ベースチャット、thread ids、親フォールバックにどのように対応付けられるか
 - **Outbound** — プラットフォームへのテキスト、メディア、投票の送信
-- **Threading** — 返信をどうスレッド化するか
+- **Threading** — 返信のスレッド化方法
 
-コアは、共有message tool、プロンプト配線、外側のセッションキー形状、
-汎用`:thread:`管理、およびディスパッチを担当します。
+コアは、共有message tool、プロンプト配線、外側のsession-key形状、汎用的な`:thread:`管理、およびディスパッチを担当します。
 
-プラットフォームが会話idの中に追加のスコープを保存する場合、その解析は
-プラグイン内の`messaging.resolveSessionConversation(...)`に保持してください。これが
-`rawId`をベース会話id、任意のスレッド
-id、明示的な`baseConversationId`、および任意の`parentConversationCandidates`へ対応付けるための
-正式なフックです。
-`parentConversationCandidates`を返す場合は、
-最も狭い親から最も広い/ベース会話までの順に並べてください。
+プラットフォームが会話id内に追加のスコープを保存する場合は、その解析をプラグイン内の`messaging.resolveSessionConversation(...)`に保持してください。これは、`rawId`をベース会話id、任意のthread id、明示的な`baseConversationId`、および任意の`parentConversationCandidates`へ対応付けるための正式なフックです。`parentConversationCandidates`を返す場合は、最も狭い親から最も広い/ベース会話までの順序を維持してください。
 
-チャネルレジストリが起動する前に同じ解析が必要なバンドルプラグインは、
-一致する
-`resolveSessionConversation(...)`エクスポートを持つトップレベルの`session-key-api.ts`ファイルを公開することもできます。コアは、
-実行時プラグインレジストリがまだ利用できない場合にのみ、そのブートストラップ安全なsurfaceを使用します。
+チャネルレジストリの起動前に同じ解析が必要なバンドル済みプラグインは、一致する`resolveSessionConversation(...)`エクスポートを持つトップレベルの`session-key-api.ts`ファイルを公開することもできます。コアは、実行時プラグインレジストリがまだ利用できない場合にのみ、そのbootstrap-safeな表面を使用します。
 
-`messaging.resolveParentConversationCandidates(...)`は、
-プラグインが汎用/raw idの上に親フォールバックだけを必要とする場合の
-レガシー互換フォールバックとして引き続き利用できます。両方のフックが存在する場合、コアは
-まず`resolveSessionConversation(...).parentConversationCandidates`を使い、正式なフックが
-それらを省略した場合にのみ
-`resolveParentConversationCandidates(...)`へフォールバックします。
+`messaging.resolveParentConversationCandidates(...)`は、プラグインが汎用/raw idの上に親フォールバックだけを必要とする場合の、レガシー互換フォールバックとして引き続き利用できます。両方のフックが存在する場合、コアはまず`resolveSessionConversation(...).parentConversationCandidates`を使用し、その正式なフックがそれらを省略した場合にのみ`resolveParentConversationCandidates(...)`へフォールバックします。
 
-## 承認とチャネル機能
+## Approvalsとチャネル機能
 
-ほとんどのチャネルプラグインでは、承認専用コードは不要です。
+ほとんどのチャネルプラグインでは、approval専用コードは不要です。
 
-- コアは同一チャット内の`/approve`、共有承認ボタンpayload、汎用フォールバック配信を担当します。
-- チャネルに承認固有の挙動が必要な場合は、チャネルプラグイン上の1つの`approvalCapability`オブジェクトを優先してください。
-- `approvalCapability.authorizeActorAction`と`approvalCapability.getActionAvailabilityState`が正式な承認認可seamです。
-- チャネルがネイティブexec承認を公開する場合は、ネイティブトランスポートが完全に`approvalCapability.native`配下にある場合でも、`approvalCapability.getActionAvailabilityState`を実装してください。コアはこのavailabilityフックを使って`enabled`と`disabled`を区別し、開始元チャネルがネイティブ承認をサポートするかどうかを判断し、ネイティブクライアントのフォールバックガイダンスにそのチャネルを含めます。
-- 重複するローカル承認プロンプトの非表示や、配信前の入力中インジケーター送信のようなチャネル固有のpayloadライフサイクル挙動には、`outbound.shouldSuppressLocalPayloadPrompt`または`outbound.beforeDeliverPayload`を使ってください。
-- `approvalCapability.delivery`は、ネイティブ承認ルーティングまたはフォールバック抑制にのみ使ってください。
-- `approvalCapability.render`は、共有レンダラーではなく本当にチャネル独自の承認payloadが必要な場合にのみ使ってください。
-- チャネルが、無効パスの返信でネイティブexec承認を有効にするために必要な正確なconfigノブを説明したい場合は、`approvalCapability.describeExecApprovalSetup`を使ってください。このフックは`{ channel, channelLabel, accountId }`を受け取ります。名前付きアカウントのあるチャネルでは、トップレベルデフォルトではなく`channels.<channel>.accounts.<id>.execApprovals.*`のようなアカウントスコープ付きパスをレンダリングする必要があります。
-- チャネルが既存configから安定したowner相当のDM identityを推論できる場合は、承認固有のコアロジックを追加せずに同一チャット`/approve`を制限するため、`openclaw/plugin-sdk/approval-runtime`の`createResolvedApproverActionAuthAdapter`を使ってください。
-- チャネルがネイティブ承認配信を必要とする場合は、チャネルコードは対象の正規化とトランスポートフックに集中させてください。`openclaw/plugin-sdk/approval-runtime`の`createChannelExecApprovalProfile`、`createChannelNativeOriginTargetResolver`、`createChannelApproverDmTargetResolver`、`createApproverRestrictedNativeApprovalCapability`、`createChannelNativeApprovalRuntime`を使い、リクエストフィルタリング、ルーティング、重複排除、有効期限、Gateway購読はコアに任せてください。
-- ネイティブ承認チャネルは、`accountId`と`approvalKind`の両方をそれらのヘルパー経由でルーティングする必要があります。`accountId`はマルチアカウント承認ポリシーを正しいボットアカウントにスコープし、`approvalKind`はコアにハードコード分岐を入れずにexec承認とプラグイン承認の挙動をチャネルで利用可能にします。
-- 配信された承認id種別をエンドツーエンドで保持してください。ネイティブクライアントは、
-  チャネルローカル状態からexec承認とプラグイン承認のルーティングを推測または書き換えるべきではありません。
-- 承認種別ごとに意図的に異なるネイティブsurfaceを公開できます。
-  現在のバンドル例:
-  - Slackは、exec idとplugin idの両方でネイティブ承認ルーティングを利用可能なままにしています。
-  - Matrixは、exec承認に対してのみネイティブDM/チャネルルーティングを保持し、
-    plugin承認は共有の同一チャット`/approve`パスに任せています。
-- `createApproverRestrictedNativeApprovalAdapter`は互換ラッパーとして引き続き存在しますが、新しいコードではcapability builderを優先し、プラグイン上で`approvalCapability`を公開してください。
+- コアはsame-chat `/approve`、共有approval button payloads、汎用フォールバック配信を担当します。
+- チャネルがapproval固有の動作を必要とする場合は、チャネルプラグイン上の1つの`approvalCapability`オブジェクトを優先してください。
+- `approvalCapability.authorizeActorAction`と`approvalCapability.getActionAvailabilityState`が正式なapproval-auth seamです。
+- チャネルがネイティブexec approvalsを公開する場合、ネイティブtransportが完全に`approvalCapability.native`配下にあっても、`approvalCapability.getActionAvailabilityState`を実装してください。コアはこの可用性フックを使用して`enabled`と`disabled`を区別し、開始元チャネルがネイティブapprovalsをサポートするかどうかを判断し、ネイティブクライアントのフォールバック案内にそのチャネルを含めます。
+- 重複するローカルapprovalプロンプトの非表示や配信前の入力中インジケーター送信など、チャネル固有のpayloadライフサイクル動作には`outbound.shouldSuppressLocalPayloadPrompt`または`outbound.beforeDeliverPayload`を使用してください。
+- `approvalCapability.delivery`は、ネイティブapprovalルーティングまたはフォールバック抑制にのみ使用してください。
+- `approvalCapability.render`は、共有rendererではなくチャネルが本当にカスタムapproval payloadsを必要とする場合にのみ使用してください。
+- チャネルが、ネイティブexec approvalsを有効にするために必要な正確なconfig knobsをdisabled-path replyで説明したい場合は、`approvalCapability.describeExecApprovalSetup`を使用してください。このフックは`{ channel, channelLabel, accountId }`を受け取ります。名前付きアカウントのチャネルでは、トップレベルのデフォルトではなく、`channels.<channel>.accounts.<id>.execApprovals.*`のようなアカウントスコープのパスを表示する必要があります。
+- チャネルが既存configから安定したowner類似のDM identityを推定できる場合は、approval固有のコアロジックを追加せずにsame-chat `/approve`を制限するため、`openclaw/plugin-sdk/approval-runtime`の`createResolvedApproverActionAuthAdapter`を使用してください。
+- チャネルがネイティブapproval配信を必要とする場合は、チャネルコードをターゲット正規化とtransport hooksに集中させてください。`openclaw/plugin-sdk/approval-runtime`の`createChannelExecApprovalProfile`、`createChannelNativeOriginTargetResolver`、`createChannelApproverDmTargetResolver`、`createApproverRestrictedNativeApprovalCapability`、`createChannelNativeApprovalRuntime`を使用して、コアがリクエストフィルタリング、ルーティング、重複排除、有効期限、Gateway購読を担当するようにしてください。
+- ネイティブapprovalチャネルは、`accountId`と`approvalKind`の両方をそれらのヘルパーに渡す必要があります。`accountId`はマルチアカウントapproval policyを正しいbotアカウントにスコープし、`approvalKind`はexecとplugin approvalの動作をコア内のハードコード分岐なしでチャネルに利用可能にします。
+- 配信されたapproval id kindをエンドツーエンドで保持してください。ネイティブクライアントは、チャネルローカル状態からexecとplugin approvalルーティングを推測または書き換えるべきではありません。
+- 異なるapproval kindは、意図的に異なるネイティブ表面を公開できます。
+  現在のバンドル済みの例:
+  - Slackは、execとplugin idsの両方でネイティブapprovalルーティングを利用可能に保ちます。
+  - Matrixは、ネイティブDM/チャネルルーティングをexec approvalsのみに保ち、plugin approvalsは共有same-chat `/approve`パスに残します。
+- `createApproverRestrictedNativeApprovalAdapter`は互換ラッパーとして引き続き存在しますが、新しいコードではcapability builderを優先し、プラグイン上に`approvalCapability`を公開してください。
 
-ホットなチャネルエントリポイントでは、そのファミリーの一部だけが必要な場合、
-より狭いruntime subpathを優先してください。
+ホットなチャネルエントリポイントでは、そのファミリーの一部だけが必要な場合、より狭いruntime subpathsを優先してください:
 
 - `openclaw/plugin-sdk/approval-auth-runtime`
 - `openclaw/plugin-sdk/approval-client-runtime`
@@ -94,71 +73,64 @@ id、明示的な`baseConversationId`、および任意の`parentConversationCan
 - `openclaw/plugin-sdk/approval-native-runtime`
 - `openclaw/plugin-sdk/approval-reply-runtime`
 
-同様に、より広いumbrella
-surfaceが不要な場合は、`openclaw/plugin-sdk/setup-runtime`、
-`openclaw/plugin-sdk/setup-adapter-runtime`、
-`openclaw/plugin-sdk/reply-runtime`、
-`openclaw/plugin-sdk/reply-dispatch-runtime`、
-`openclaw/plugin-sdk/reply-reference`、および
-`openclaw/plugin-sdk/reply-chunking`を優先してください。
+同様に、より広いアンブレラ表面が不要な場合は、`openclaw/plugin-sdk/setup-runtime`、`openclaw/plugin-sdk/setup-adapter-runtime`、`openclaw/plugin-sdk/reply-runtime`、`openclaw/plugin-sdk/reply-dispatch-runtime`、`openclaw/plugin-sdk/reply-reference`、`openclaw/plugin-sdk/reply-chunking`を優先してください。
 
-特にsetupについては:
+セットアップに特化すると:
 
-- `openclaw/plugin-sdk/setup-runtime`は、runtime-safeなsetupヘルパーを扱います:
-  import-safeなsetup patch adapters（`createPatchedAccountSetupAdapter`、
+- `openclaw/plugin-sdk/setup-runtime`は、runtime-safeなセットアップヘルパーを扱います:
+  import-safe setup patch adapters（`createPatchedAccountSetupAdapter`、
   `createEnvPatchedAccountSetupAdapter`、
   `createSetupInputPresenceValidator`）、lookup-note出力、
   `promptResolvedAllowFrom`、`splitSetupEntries`、および委譲された
   setup-proxy builders
-- `openclaw/plugin-sdk/setup-adapter-runtime`は、`createEnvPatchedAccountSetupAdapter`向けの
-  狭いenv-aware adapter seamです
+- `openclaw/plugin-sdk/setup-adapter-runtime`は、`createEnvPatchedAccountSetupAdapter`向けの狭いenv-aware adapter seamです
 - `openclaw/plugin-sdk/channel-setup`は、optional-install setup
-  buildersと、いくつかのsetup-safe primitivesを扱います:
+  buildersに加えていくつかのsetup-safe primitivesを扱います:
   `createOptionalChannelSetupSurface`、`createOptionalChannelSetupAdapter`、
-  `createOptionalChannelSetupWizard`、`DEFAULT_ACCOUNT_ID`、
-  `createTopLevelChannelDmPolicy`、`setSetupChannelEnabled`、および
-  `splitSetupEntries`
-- より重い共有setup/configヘルパー、たとえば
-  `moveSingleAccountChannelSectionToDefaultAccount(...)`も必要な場合にのみ、
-  より広い`openclaw/plugin-sdk/setup` seamを使ってください
 
-チャネルがsetup surfaceで単に「まずこのpluginをインストールしてください」と案内したいだけなら、`createOptionalChannelSetupSurface(...)`を優先してください。生成される
-adapter/wizardはconfig書き込みと最終化でfail closedし、検証、finalize、docs-link
-copyの全体で同じインストール必須メッセージを再利用します。
+チャネルがenv-driven setupやauthをサポートし、汎用の起動/configフローがruntime読み込み前にそれらのenv名を知る必要がある場合は、プラグインマニフェストの`channelEnvVars`でそれらを宣言してください。チャネルruntimeの`envVars`またはローカル定数は、オペレーター向けコピー専用にしてください。
+`createOptionalChannelSetupWizard`、`DEFAULT_ACCOUNT_ID`、
+`createTopLevelChannelDmPolicy`、`setSetupChannelEnabled`、および
+`splitSetupEntries`
 
-他のホットなチャネルパスでも、より広いレガシー
-surfaceより狭いヘルパーを優先してください。
+- より重い共有setup/config helpers、たとえば
+  `moveSingleAccountChannelSectionToDefaultAccount(...)`
+  も必要な場合にのみ、より広い`openclaw/plugin-sdk/setup` seamを使用してください
 
-- `openclaw/plugin-sdk/account-core`、
+チャネルがセットアップ表面で単に「まずこのプラグインをインストールしてください」と案内したいだけなら、`createOptionalChannelSetupSurface(...)`を優先してください。生成されるadapter/wizardはconfig書き込みと最終化でfail closedとなり、検証、最終化、docs-link copy全体で同じinstall-requiredメッセージを再利用します。
+
+その他のホットなチャネルパスでも、より広いレガシー表面より狭いヘルパーを優先してください:
+
+- マルチアカウントconfigと
+  default-accountフォールバックには`openclaw/plugin-sdk/account-core`、
   `openclaw/plugin-sdk/account-id`、
   `openclaw/plugin-sdk/account-resolution`、および
-  `openclaw/plugin-sdk/account-helpers`は、マルチアカウントconfigと
-  default-account fallback向け
-- `openclaw/plugin-sdk/inbound-envelope`および
-  `openclaw/plugin-sdk/inbound-reply-dispatch`は、受信route/envelopeと
-  record-and-dispatch配線向け
-- `openclaw/plugin-sdk/messaging-targets`はtarget解析/照合向け
-- `openclaw/plugin-sdk/outbound-media`および
-  `openclaw/plugin-sdk/outbound-runtime`はメディア読み込みと送信
-  identity/send delegates向け
-- `openclaw/plugin-sdk/thread-bindings-runtime`はスレッドバインディングのライフサイクル
-  とadapter登録向け
-- `openclaw/plugin-sdk/agent-media-payload`は、レガシーなagent/media
-  payloadフィールドレイアウトが依然必要な場合のみ
-- `openclaw/plugin-sdk/telegram-command-config`は、Telegramカスタムコマンドの
-  正規化、重複/競合検証、およびfallback-stableなcommand
-  config contract向け
+  `openclaw/plugin-sdk/account-helpers`
+- 受信route/envelopeと
+  record-and-dispatch配線には`openclaw/plugin-sdk/inbound-envelope`と
+  `openclaw/plugin-sdk/inbound-reply-dispatch`
+- ターゲット解析/一致には`openclaw/plugin-sdk/messaging-targets`
+- メディア読み込みと送信
+  identity/send delegatesには`openclaw/plugin-sdk/outbound-media`と
+  `openclaw/plugin-sdk/outbound-runtime`
+- thread-bindingライフサイクル
+  とadapter registrationには`openclaw/plugin-sdk/thread-bindings-runtime`
+- レガシーなagent/media
+  payload field layoutが引き続き必要な場合にのみ`openclaw/plugin-sdk/agent-media-payload`
+- Telegramカスタムコマンドの
+  正規化、重複/競合検証、およびフォールバック安定なcommand
+  config contractには`openclaw/plugin-sdk/telegram-command-config`
 
-認証専用チャネルは通常、デフォルトパスで十分です。承認はコアが処理し、プラグインは送信/認証capabilitiesを公開するだけです。Matrix、Slack、Telegram、カスタムチャットトランスポートのようなネイティブ承認チャネルでは、独自に承認ライフサイクルを組むのではなく、共有ネイティブヘルパーを使うべきです。
+auth専用チャネルは通常、デフォルトパスで十分です。コアがapprovalsを処理し、プラグインは送信/auth capabilitiesを公開するだけです。Matrix、Slack、Telegram、カスタムチャットtransportのようなネイティブapprovalチャネルでは、独自にapproval lifecycleを実装するのではなく、共有のネイティブヘルパーを使用する必要があります。
 
 ## ウォークスルー
 
 <Steps>
   <a id="step-1-package-and-manifest"></a>
   <Step title="パッケージとマニフェスト">
-    標準のプラグインファイルを作成します。`package.json`内の`channel`フィールドが、
-    これをチャネルプラグインにします。完全なパッケージメタデータsurfaceについては、
-    [プラグインのセットアップと設定](/ja-JP/plugins/sdk-setup#openclawchannel)を参照してください。
+    標準的なプラグインファイルを作成します。`package.json`内の`channel`フィールドが、
+    これをチャネルプラグインにする要素です。完全なパッケージメタデータ表面については、
+    [Plugin Setup and Config](/ja-JP/plugins/sdk-setup#openclawchannel)を参照してください:
 
     <CodeGroup>
     ```json package.json
@@ -208,8 +180,8 @@ surfaceより狭いヘルパーを優先してください。
   </Step>
 
   <Step title="チャネルプラグインオブジェクトを構築する">
-    `ChannelPlugin`インターフェースには、多くの任意adapter surfaceがあります。まず
-    最小構成の`id`と`setup`から始め、必要に応じてadapterを追加してください。
+    `ChannelPlugin`インターフェースには、多数の任意adapter surfacesがあります。まず
+    最小限の`id`と`setup`から始め、必要に応じてadaptersを追加してください。
 
     `src/channel.ts`を作成します:
 
@@ -304,18 +276,18 @@ surfaceより狭いヘルパーを優先してください。
     });
     ```
 
-    <Accordion title="createChatChannelPluginがしてくれること">
-      低レベルadapterインターフェースを手動実装する代わりに、
-      宣言的なオプションを渡すと、builderがそれらを合成します。
+    <Accordion title="createChatChannelPluginが行ってくれること">
+      低レベルのadapter interfacesを手動実装する代わりに、
+      宣言的なオプションを渡すと、builderがそれらを構成します:
 
-      | Option | 何を配線するか |
+      | Option | 配線されるもの |
       | --- | --- |
-      | `security.dm` | configフィールドからのスコープ付きDMセキュリティリゾルバー |
-      | `pairing.text` | コード交換を伴うテキストベースのDMペアリングフロー |
-      | `threading` | reply-to-modeリゾルバー（固定、アカウントスコープ、またはカスタム） |
-      | `outbound.attachedResults` | 結果メタデータ（message IDs）を返すsend関数 |
+      | `security.dm` | config fieldsからのスコープ付きDM security resolver |
+      | `pairing.text` | コード交換を伴うテキストベースのDM pairing flow |
+      | `threading` | reply-to-mode resolver（固定、account-scoped、またはcustom） |
+      | `outbound.attachedResults` | 結果メタデータ（message IDs）を返すsend functions |
 
-      完全に制御したい場合は、宣言的オプションの代わりに生のadapter objectを渡すこともできます。
+      完全に制御したい場合は、宣言的オプションの代わりに生のadapter objectsを渡すこともできます。
     </Accordion>
 
   </Step>
@@ -356,21 +328,21 @@ surfaceより狭いヘルパーを優先してください。
     });
     ```
 
-    チャネル所有のCLI descriptorは`registerCliMetadata(...)`に置いてください。これによりOpenClawは、
+    チャネル所有のCLI descriptorsは`registerCliMetadata(...)`に置いてください。これによりOpenClawは、
     完全なチャネルruntimeを有効化せずにそれらをルートヘルプに表示でき、
-    通常の完全ロード時にも実際のコマンド登録のために同じdescriptorを取得できます。
-    `registerFull(...)`はruntime専用作業のために保持してください。
-    `registerFull(...)`がGateway RPCメソッドを登録する場合は、
-    plugin固有のprefixを使ってください。コア管理namespace（`config.*`、
-    `exec.approvals.*`, `wizard.*`, `update.*`）は予約されており、常に
+    通常の完全読み込みでも実際のコマンド登録のため同じdescriptorsを取得できます。
+    `registerFull(...)`はruntime専用の処理に保持してください。
+    `registerFull(...)`がGateway RPC methodsを登録する場合は、
+    プラグイン固有のprefixを使用してください。コア管理namespaces（`config.*`、
+    `exec.approvals.*`、`wizard.*`、`update.*`）は予約済みであり、常に
     `operator.admin`に解決されます。
-    `defineChannelPluginEntry`は登録モード分割を自動処理します。すべての
+    `defineChannelPluginEntry`は登録モードの分割を自動的に処理します。すべての
     オプションについては[Entry Points](/ja-JP/plugins/sdk-entrypoints#definechannelpluginentry)を参照してください。
 
   </Step>
 
-  <Step title="setup entryを追加する">
-    オンボーディング中の軽量ロードのために`setup-entry.ts`を作成します:
+  <Step title="セットアップエントリを追加する">
+    オンボーディング中の軽量読み込み用に`setup-entry.ts`を作成します:
 
     ```typescript setup-entry.ts
     import { defineSetupPluginEntry } from "openclaw/plugin-sdk/channel-core";
@@ -379,16 +351,16 @@ surfaceより狭いヘルパーを優先してください。
     export default defineSetupPluginEntry(acmeChatPlugin);
     ```
 
-    OpenClawは、チャネルが無効または未設定の場合、完全なentryの代わりにこれを読み込みます。
-    これにより、setupフロー中に重いruntimeコードを引き込まずに済みます。
-    詳細は[セットアップと設定](/ja-JP/plugins/sdk-setup#setup-entry)を参照してください。
+    OpenClawは、チャネルが無効または未設定の場合、完全なエントリの代わりにこれを読み込みます。
+    これにより、セットアップフロー中に重いruntime codeを引き込むのを避けられます。
+    詳細は[Setup and Config](/ja-JP/plugins/sdk-setup#setup-entry)を参照してください。
 
   </Step>
 
   <Step title="受信メッセージを処理する">
     プラグインは、プラットフォームからメッセージを受信し、それを
     OpenClawへ転送する必要があります。典型的なパターンは、リクエストを検証し、
-    そのチャネルの受信ハンドラーを通してディスパッチするWebhookです。
+    チャネルの受信ハンドラー経由でディスパッチするwebhookです:
 
     ```typescript
     registerFull(api) {
@@ -412,17 +384,17 @@ surfaceより狭いヘルパーを優先してください。
     ```
 
     <Note>
-      受信メッセージ処理はチャネル固有です。各チャネルプラグインは
-      独自の受信パイプラインを持ちます。実際のパターンについては、
-      バンドルチャネルプラグイン
-      （たとえばMicrosoft TeamsまたはGoogle Chatプラグインパッケージ）を確認してください。
+      受信メッセージ処理はチャネル固有です。各チャネルプラグインが
+      独自の受信パイプラインを担当します。実際のパターンについては、
+      バンドル済みチャネルプラグイン
+      （たとえばMicrosoft TeamsまたはGoogle Chatプラグインパッケージ）を参照してください。
     </Note>
 
   </Step>
 
 <a id="step-6-test"></a>
 <Step title="テスト">
-`src/channel.test.ts`に同一配置テストを書きます:
+`src/channel.test.ts`にcolocated testsを書きます:
 
     ```typescript src/channel.test.ts
     import { describe, it, expect } from "vitest";
@@ -460,7 +432,7 @@ surfaceより狭いヘルパーを優先してください。
     pnpm test -- <bundled-plugin-root>/acme-chat/
     ```
 
-    共有テストヘルパーについては、[テスト](/ja-JP/plugins/sdk-testing)を参照してください。
+    共有test helpersについては、[Testing](/ja-JP/plugins/sdk-testing)を参照してください。
 
   </Step>
 </Steps>
@@ -470,45 +442,45 @@ surfaceより狭いヘルパーを優先してください。
 ```
 <bundled-plugin-root>/acme-chat/
 ├── package.json              # openclaw.channel metadata
-├── openclaw.plugin.json      # config schemaを含むマニフェスト
+├── openclaw.plugin.json      # config schemaを含むManifest
 ├── index.ts                  # defineChannelPluginEntry
 ├── setup-entry.ts            # defineSetupPluginEntry
-├── api.ts                    # 公開エクスポート（任意）
-├── runtime-api.ts            # 内部runtimeエクスポート（任意）
+├── api.ts                    # Public exports（任意）
+├── runtime-api.ts            # Internal runtime exports（任意）
 └── src/
     ├── channel.ts            # createChatChannelPlugin経由のChannelPlugin
-    ├── channel.test.ts       # テスト
-    ├── client.ts             # プラットフォームAPIクライアント
-    └── runtime.ts            # runtime store（必要な場合）
+    ├── channel.test.ts       # Tests
+    ├── client.ts             # Platform API client
+    └── runtime.ts            # Runtime store（必要な場合）
 ```
 
 ## 高度なトピック
 
 <CardGroup cols={2}>
-  <Card title="Threading options" icon="git-branch" href="/ja-JP/plugins/sdk-entrypoints#registration-mode">
-    固定、アカウントスコープ、またはカスタムのreply mode
+  <Card title="スレッド化オプション" icon="git-branch" href="/ja-JP/plugins/sdk-entrypoints#registration-mode">
+    固定、account-scoped、またはcustom reply modes
   </Card>
-  <Card title="Message tool integration" icon="puzzle" href="/ja-JP/plugins/architecture#channel-plugins-and-the-shared-message-tool">
+  <Card title="Message tool統合" icon="puzzle" href="/ja-JP/plugins/architecture#channel-plugins-and-the-shared-message-tool">
     describeMessageToolとaction discovery
   </Card>
-  <Card title="Target resolution" icon="crosshair" href="/ja-JP/plugins/architecture#channel-target-resolution">
+  <Card title="ターゲット解決" icon="crosshair" href="/ja-JP/plugins/architecture#channel-target-resolution">
     inferTargetChatType、looksLikeId、resolveTarget
   </Card>
   <Card title="Runtime helpers" icon="settings" href="/ja-JP/plugins/sdk-runtime">
-    api.runtime経由のTTS、STT、media、subagent
+    TTS、STT、media、api.runtime経由のsubagent
   </Card>
 </CardGroup>
 
 <Note>
-一部のバンドルヘルパーseamは、バンドルプラグインの保守と
-互換性のために今も存在します。これらは新しいチャネルプラグイン向けの推奨パターンではありません。
-そのバンドルプラグインファミリーを直接保守しているのでない限り、
-共通SDK surfaceの汎用channel/setup/reply/runtime subpathを優先してください。
+一部のバンドル済みhelper seamsは、バンドル済みプラグインの保守と
+互換性のために引き続き存在します。これらは新しいチャネルプラグインに推奨されるパターンではありません。
+そのバンドル済みプラグインファミリーを直接保守している場合を除き、
+共通SDK表面の汎用channel/setup/reply/runtime subpathsを優先してください。
 </Note>
 
 ## 次のステップ
 
 - [Provider Plugins](/ja-JP/plugins/sdk-provider-plugins) — プラグインがモデルも提供する場合
 - [SDK Overview](/ja-JP/plugins/sdk-overview) — 完全なsubpath importリファレンス
-- [SDK Testing](/ja-JP/plugins/sdk-testing) — テストユーティリティとcontract tests
-- [Plugin Manifest](/ja-JP/plugins/manifest) — 完全なマニフェストschema
+- [SDK Testing](/ja-JP/plugins/sdk-testing) — test utilitiesとcontract tests
+- [Plugin Manifest](/ja-JP/plugins/manifest) — 完全なmanifest schema

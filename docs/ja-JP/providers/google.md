@@ -1,30 +1,32 @@
 ---
 read_when:
-    - OpenClaw で Google Gemini モデルを使いたい場合
-    - API キーの認証フローが必要な場合
-summary: Google Gemini のセットアップ（API キー、画像生成、media understanding、web search）
-title: Google (Gemini)
+    - OpenClawでGoogle Geminiモデルを使いたい場合
+    - APIキーまたはOAuth認証フローが必要な場合
+summary: Google Geminiのセットアップ（APIキー + OAuth、画像生成、メディア理解、Web検索）
+title: Google（Gemini）
 x-i18n:
-    generated_at: "2026-04-06T03:11:39Z"
+    generated_at: "2026-04-07T04:45:40Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 358d33a68275b01ebd916a3621dd651619cb9a1d062e2fb6196a7f3c501c015a
+    source_hash: 36cc7c7d8d19f6d4a3fb223af36c8402364fc309d14ffe922bd004203ceb1754
     source_path: providers/google.md
     workflow: 15
 ---
 
-# Google (Gemini)
+# Google（Gemini）
 
-Google plugin は、Google AI Studio を通じた Gemini モデルへのアクセスに加えて、
-画像生成、media understanding（画像/音声/動画）、および Gemini Grounding による web search を提供します。
+Googleプラグインは、Google AI Studio経由でGeminiモデルへのアクセスに加えて、
+画像生成、メディア理解（画像/音声/動画）、および
+Gemini Grounding経由のWeb検索を提供します。
 
-- Provider: `google`
+- プロバイダー: `google`
 - 認証: `GEMINI_API_KEY` または `GOOGLE_API_KEY`
 - API: Google Gemini API
+- 代替プロバイダー: `google-gemini-cli`（OAuth）
 
 ## クイックスタート
 
-1. API キーを設定します:
+1. APIキーを設定します:
 
 ```bash
 openclaw onboard --auth-choice gemini-api-key
@@ -42,7 +44,7 @@ openclaw onboard --auth-choice gemini-api-key
 }
 ```
 
-## 非対話の例
+## 非対話型の例
 
 ```bash
 openclaw onboard --non-interactive \
@@ -51,28 +53,70 @@ openclaw onboard --non-interactive \
   --gemini-api-key "$GEMINI_API_KEY"
 ```
 
-## Capabilities
+## OAuth（Gemini CLI）
 
-| Capability             | Supported |
-| ---------------------- | --------- |
-| Chat completions       | はい      |
-| Image generation       | はい      |
-| Music generation       | はい      |
-| Image understanding    | はい      |
-| Audio transcription    | はい      |
-| Video understanding    | はい      |
-| Web search (Grounding) | はい      |
+代替プロバイダー `google-gemini-cli` は、API
+キーの代わりにPKCE OAuthを使用します。これは非公式の統合であり、一部のユーザーから
+アカウント制限が報告されています。自己責任で使用してください。
+
+- デフォルトモデル: `google-gemini-cli/gemini-3.1-pro-preview`
+- エイリアス: `gemini-cli`
+- インストール前提条件: ローカルのGemini CLIが `gemini` として利用可能であること
+  - Homebrew: `brew install gemini-cli`
+  - npm: `npm install -g @google/gemini-cli`
+- ログイン:
+
+```bash
+openclaw models auth login --provider google-gemini-cli --set-default
+```
+
+環境変数:
+
+- `OPENCLAW_GEMINI_OAUTH_CLIENT_ID`
+- `OPENCLAW_GEMINI_OAUTH_CLIENT_SECRET`
+
+（または `GEMINI_CLI_*` バリアント。）
+
+Gemini CLI OAuthリクエストがログイン後に失敗する場合は、
+Gatewayホストで `GOOGLE_CLOUD_PROJECT` または `GOOGLE_CLOUD_PROJECT_ID` を設定して
+再試行してください。
+
+ブラウザフローが始まる前にログインが失敗する場合は、ローカルの `gemini`
+コマンドがインストールされており、`PATH` にあることを確認してください。OpenClawはHomebrewインストールと
+グローバルnpmインストールの両方をサポートしており、一般的なWindows/npmレイアウトも含みます。
+
+Gemini CLI JSONの使用に関する注意:
+
+- 返信テキストはCLI JSONの `response` フィールドから取得されます。
+- CLIが `usage` を空のままにした場合、使用量は `stats` にフォールバックします。
+- `stats.cached` はOpenClawの `cacheRead` に正規化されます。
+- `stats.input` が欠落している場合、OpenClawは
+  `stats.input_tokens - stats.cached` から入力トークンを導出します。
+
+## 機能
+
+| 機能                   | サポート状況      |
+| ---------------------- | ----------------- |
+| チャット補完           | はい              |
+| 画像生成               | はい              |
+| 音楽生成               | はい              |
+| 画像理解               | はい              |
+| 音声文字起こし         | はい              |
+| 動画理解               | はい              |
+| Web検索（Grounding）   | はい              |
 | Thinking/reasoning     | はい（Gemini 3.1+） |
 
-## 直接 Gemini キャッシュ再利用
+## Geminiキャッシュの直接再利用
 
-直接 Gemini API 実行（`api: "google-generative-ai"`）では、OpenClaw は現在、
-設定済みの `cachedContent` ハンドルを Gemini リクエストに渡します。
+直接Gemini API実行（`api: "google-generative-ai"`）では、OpenClawは現在
+設定済みの `cachedContent` ハンドルをGeminiリクエストにそのまま渡します。
 
-- モデルごとまたはグローバルの params に `cachedContent` または旧式の `cached_content` のいずれかを設定します
-- 両方が存在する場合は `cachedContent` が優先されます
+- モデル単位またはグローバルなパラメータとして
+  `cachedContent` またはレガシーな `cached_content` のいずれかを設定できます
+- 両方が存在する場合は、`cachedContent` が優先されます
 - 値の例: `cachedContents/prebuilt-context`
-- Gemini のキャッシュヒット使用量は、上流の `cachedContentTokenCount` から OpenClaw の `cacheRead` に正規化されます
+- Geminiのキャッシュヒット使用量は、上流の `cachedContentTokenCount` から
+  OpenClawの `cacheRead` に正規化されます
 
 例:
 
@@ -94,18 +138,19 @@ openclaw onboard --non-interactive \
 
 ## 画像生成
 
-バンドル `google` image-generation provider のデフォルトは
+バンドル済みの `google` 画像生成プロバイダーのデフォルトは
 `google/gemini-3.1-flash-image-preview` です。
 
-- `google/gemini-3-pro-image-preview` にも対応しています
-- Generate: リクエストごとに最大 4 枚の画像
-- Edit mode: 有効、最大 5 枚の入力画像
-- ジオメトリ制御: `size`、`aspectRatio`、`resolution`
+- `google/gemini-3-pro-image-preview` もサポートします
+- 生成: 1リクエストあたり最大4画像
+- 編集モード: 有効、最大5つの入力画像
+- ジオメトリ制御: `size`, `aspectRatio`, `resolution`
 
-画像生成、media understanding、Gemini Grounding はすべて
-`google` provider id 上にとどまります。
+OAuth専用の `google-gemini-cli` プロバイダーは別個のテキスト推論
+サーフェスです。画像生成、メディア理解、Gemini Groundingは引き続き
+`google` プロバイダーID上にあります。
 
-Google をデフォルトの画像 provider として使うには:
+Googleをデフォルトの画像プロバイダーとして使用するには:
 
 ```json5
 {
@@ -119,20 +164,20 @@ Google をデフォルトの画像 provider として使うには:
 }
 ```
 
-共有 tool の
-パラメーター、provider 選択、failover 動作については [Image Generation](/ja-JP/tools/image-generation) を参照してください。
+共有ツールの
+パラメータ、プロバイダー選択、フェイルオーバー動作については [Image Generation](/ja-JP/tools/image-generation) を参照してください。
 
 ## 動画生成
 
-バンドル `google` plugin は、共有の
-`video_generate` tool を通じて動画生成も登録します。
+バンドル済みの `google` プラグインは、共有の
+`video_generate` ツールを通じて動画生成も登録します。
 
-- デフォルト動画モデル: `google/veo-3.1-fast-generate-preview`
+- デフォルトの動画モデル: `google/veo-3.1-fast-generate-preview`
 - モード: text-to-video、image-to-video、単一動画参照フロー
-- `aspectRatio`、`resolution`、`audio` をサポート
-- 現在の duration 制限: **4〜8 秒**
+- `aspectRatio`, `resolution`, `audio` をサポート
+- 現在の時間長クランプ: **4〜8秒**
 
-Google をデフォルトの動画 provider として使うには:
+Googleをデフォルトの動画プロバイダーとして使用するには:
 
 ```json5
 {
@@ -146,22 +191,22 @@ Google をデフォルトの動画 provider として使うには:
 }
 ```
 
-共有 tool の
-パラメーター、provider 選択、failover 動作については [Video Generation](/tools/video-generation) を参照してください。
+共有ツールの
+パラメータ、プロバイダー選択、フェイルオーバー動作については [Video Generation](/ja-JP/tools/video-generation) を参照してください。
 
 ## 音楽生成
 
-バンドル `google` plugin は、共有の
-`music_generate` tool を通じて音楽生成も登録します。
+バンドル済みの `google` プラグインは、共有の
+`music_generate` ツールを通じて音楽生成も登録します。
 
-- デフォルト音楽モデル: `google/lyria-3-clip-preview`
-- `google/lyria-3-pro-preview` にも対応しています
+- デフォルトの音楽モデル: `google/lyria-3-clip-preview`
+- `google/lyria-3-pro-preview` もサポートします
 - プロンプト制御: `lyrics` と `instrumental`
-- 出力形式: デフォルトは `mp3`、さらに `google/lyria-3-pro-preview` では `wav`
-- 参照入力: 最大 10 枚の画像
-- セッションベースの実行は、`action: "status"` を含む共有 task/status フローを通じてデタッチされます
+- 出力形式: デフォルトでは `mp3`、さらに `google/lyria-3-pro-preview` では `wav`
+- 参照入力: 最大10画像
+- セッションベースの実行は、`action: "status"` を含む共有のタスク/ステータスフローを通じて分離されます
 
-Google をデフォルトの音楽 provider として使うには:
+Googleをデフォルトの音楽プロバイダーとして使用するには:
 
 ```json5
 {
@@ -175,11 +220,11 @@ Google をデフォルトの音楽 provider として使うには:
 }
 ```
 
-共有 tool の
-パラメーター、provider 選択、failover 動作については [Music Generation](/tools/music-generation) を参照してください。
+共有ツールの
+パラメータ、プロバイダー選択、フェイルオーバー動作については [Music Generation](/ja-JP/tools/music-generation) を参照してください。
 
-## 環境に関する注意
+## 環境に関する注記
 
-Gateway がデーモン（launchd/systemd）として動作している場合は、`GEMINI_API_KEY`
+Gatewayがデーモン（launchd/systemd）として実行される場合は、`GEMINI_API_KEY`
 がそのプロセスから利用可能であることを確認してください（たとえば `~/.openclaw/.env` または
 `env.shellEnv` 経由）。

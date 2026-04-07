@@ -1,73 +1,73 @@
 ---
 read_when:
-    - どのSDKサブパスからインポートするかを知る必要がある場合
-    - OpenClawPluginApiのすべての登録メソッドのリファレンスが必要な場合
-    - 特定のSDKエクスポートを調べている場合
+    - どのSDK subpathからimportすべきか知る必要がある
+    - OpenClawPluginApi上のすべての登録メソッドのリファレンスが欲しい
+    - 特定のSDK exportを調べている
 sidebarTitle: SDK Overview
-summary: インポートマップ、登録APIリファレンス、およびSDKアーキテクチャ
-title: Plugin SDKの概要
+summary: import map、登録APIリファレンス、SDKアーキテクチャ
+title: Plugin SDK概要
 x-i18n:
-    generated_at: "2026-04-06T04:45:02Z"
+    generated_at: "2026-04-07T04:45:30Z"
     model: gpt-5.4
     provider: openai
-    source_hash: acd2887ef52c66b2f234858d812bb04197ecd0bfb3e4f7bf3622f8fdc765acad
+    source_hash: fe1fe41beaf73a7bdf807e281d181df7a5da5819343823c4011651fb234b0905
     source_path: plugins/sdk-overview.md
     workflow: 15
 ---
 
-# Plugin SDKの概要
+# Plugin SDK概要
 
-plugin SDKは、プラグインとコアの間の型付きコントラクトです。このページは、
-**何をインポートするか** と **何を登録できるか** のリファレンスです。
+plugin SDKは、pluginsとcoreの間にある型付き契約です。このページは、
+**何をimportするか** と **何を登録できるか** のリファレンスです。
 
 <Tip>
   **ハウツーガイドを探していますか？**
-  - 最初のプラグインですか？ [はじめに](/ja-JP/plugins/building-plugins) から始めてください
-  - チャンネルプラグインですか？ [Channel Plugins](/ja-JP/plugins/sdk-channel-plugins) を参照してください
-  - プロバイダープラグインですか？ [Provider Plugins](/ja-JP/plugins/sdk-provider-plugins) を参照してください
+  - 最初のpluginですか？ [はじめに](/ja-JP/plugins/building-plugins) から始めてください
+  - channel pluginですか？ [Channel Plugins](/ja-JP/plugins/sdk-channel-plugins) を参照してください
+  - provider pluginですか？ [Provider Plugins](/ja-JP/plugins/sdk-provider-plugins) を参照してください
 </Tip>
 
-## インポート規約
+## Import規約
 
-必ず特定のサブパスからインポートしてください。
+必ず特定のsubpathからimportしてください:
 
 ```typescript
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { defineChannelPluginEntry } from "openclaw/plugin-sdk/channel-core";
 ```
 
-各サブパスは、小さく自己完結したモジュールです。これにより起動を高速に保ち、
-循環依存の問題を防ぎます。チャンネル固有のエントリ/ビルドヘルパーには、
-`openclaw/plugin-sdk/channel-core` を優先し、より広いアンブレラサーフェスや
-`buildChannelConfigSchema` のような共有ヘルパーには `openclaw/plugin-sdk/core` を使ってください。
+各subpathは、小さく自己完結したmoduleです。これにより起動を高速に保ち、
+循環依存の問題を防げます。channel固有のentry/build helperについては、
+`openclaw/plugin-sdk/channel-core` を優先し、
+より広いumbrella surfaceと
+`buildChannelConfigSchema` のような共有helperには `openclaw/plugin-sdk/core` を使ってください。
 
 `openclaw/plugin-sdk/slack`、`openclaw/plugin-sdk/discord`、
 `openclaw/plugin-sdk/signal`、`openclaw/plugin-sdk/whatsapp` のような
-プロバイダー名付きの便利な境界や、チャンネルブランド付きのヘルパー境界を追加したり、
-依存したりしないでください。バンドルされたプラグインは、自身の `api.ts` または
-`runtime-api.ts` バレル内で汎用的なSDKサブパスを組み合わせるべきであり、コアは
-それらのプラグインローカルなバレルを使うか、本当にチャンネル横断の必要がある場合にのみ
-狭い汎用SDKコントラクトを追加するべきです。
+provider名ベースのconvenience seamや、
+channelブランドのhelper seamを追加したり依存したりしないでください。バンドルされたpluginsは、
+汎用的なSDK subpathを自分自身の `api.ts` または `runtime-api.ts` barrel内で組み合わせるべきであり、coreは
+それらのpluginローカルbarrelを使うか、必要性が本当にcross-channelな場合にのみ狭い汎用SDK
+contractを追加すべきです。
 
-生成されたエクスポートマップには、`plugin-sdk/feishu`、`plugin-sdk/feishu-setup`、
+生成されたexport mapには、`plugin-sdk/feishu`、`plugin-sdk/feishu-setup`、
 `plugin-sdk/zalo`、`plugin-sdk/zalo-setup`、`plugin-sdk/matrix*` のような、
-バンドルプラグイン用の小規模なヘルパー境界が引き続き含まれています。これらの
-サブパスは、バンドルプラグインの保守と互換性のためだけに存在します。意図的に
-以下の一般的なテーブルからは除外されており、新しいサードパーティプラグインに
-推奨されるインポートパスではありません。
+少数のバンドルplugin helper seamがまだ含まれています。これらの
+subpathはバンドルpluginの保守と互換性のためだけに存在しており、
+下の一般的な表からは意図的に省かれていて、新しいサードパーティpluginsに推奨される
+import pathではありません。
 
-## サブパスリファレンス
+## Subpathリファレンス
 
-目的別にまとめた、最もよく使われるサブパスです。生成される完全な200以上の
-サブパス一覧は `scripts/lib/plugin-sdk-entrypoints.json` にあります。
+目的ごとにグループ化した、最もよく使われるsubpathです。完全な200以上のsubpathからなる生成済み一覧は
+`scripts/lib/plugin-sdk-entrypoints.json` にあります。
 
-予約済みのバンドルプラグイン用ヘルパーサブパスも、その生成リストには引き続き表示されます。
-ドキュメントページで明示的に公開サーフェスとして案内されていない限り、
-それらは実装詳細/互換性サーフェスとして扱ってください。
+予約済みのバンドルplugin helper subpathは、この生成済み一覧にも引き続き表示されます。
+docページで明示的にpublicとして推奨されていない限り、これらは実装詳細/互換性surfaceとして扱ってください。
 
-### プラグインエントリ
+### Plugin entry
 
-| サブパス                    | 主なエクスポート                                                                                                                       |
+| Subpath                     | 主要export                                                                                                                            |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `plugin-sdk/plugin-entry`   | `definePluginEntry`                                                                                                                    |
 | `plugin-sdk/core`           | `defineChannelPluginEntry`, `createChatChannelPlugin`, `createChannelPluginBase`, `defineSetupPluginEntry`, `buildChannelConfigSchema` |
@@ -75,275 +75,281 @@ import { defineChannelPluginEntry } from "openclaw/plugin-sdk/channel-core";
 | `plugin-sdk/provider-entry` | `defineSingleProviderPluginEntry`                                                                                                      |
 
 <AccordionGroup>
-  <Accordion title="チャンネルサブパス">
-    | サブパス | 主なエクスポート |
+  <Accordion title="Channel subpaths">
+    | Subpath | 主要export |
     | --- | --- |
     | `plugin-sdk/channel-core` | `defineChannelPluginEntry`, `defineSetupPluginEntry`, `createChatChannelPlugin`, `createChannelPluginBase` |
-    | `plugin-sdk/config-schema` | ルート `openclaw.json` Zodスキーマエクスポート (`OpenClawSchema`) |
+    | `plugin-sdk/config-schema` | ルート `openclaw.json` Zodスキーマexport（`OpenClawSchema`） |
     | `plugin-sdk/channel-setup` | `createOptionalChannelSetupSurface`, `createOptionalChannelSetupAdapter`, `createOptionalChannelSetupWizard`, および `DEFAULT_ACCOUNT_ID`, `createTopLevelChannelDmPolicy`, `setSetupChannelEnabled`, `splitSetupEntries` |
-    | `plugin-sdk/setup` | 共有セットアップウィザードヘルパー、allowlist プロンプト、セットアップステータスビルダー |
+    | `plugin-sdk/setup` | 共有setupウィザードhelper、allowlist prompt、setup status builder |
     | `plugin-sdk/setup-runtime` | `createPatchedAccountSetupAdapter`, `createEnvPatchedAccountSetupAdapter`, `createSetupInputPresenceValidator`, `noteChannelLookupFailure`, `noteChannelLookupSummary`, `promptResolvedAllowFrom`, `splitSetupEntries`, `createAllowlistSetupWizardProxy`, `createDelegatedSetupWizardProxy` |
     | `plugin-sdk/setup-adapter-runtime` | `createEnvPatchedAccountSetupAdapter` |
     | `plugin-sdk/setup-tools` | `formatCliCommand`, `detectBinary`, `extractArchive`, `resolveBrewExecutable`, `formatDocsLink`, `CONFIG_DIR` |
-    | `plugin-sdk/account-core` | マルチアカウント設定/アクションゲートヘルパー、デフォルトアカウントのフォールバックヘルパー |
-    | `plugin-sdk/account-id` | `DEFAULT_ACCOUNT_ID`、account-id 正規化ヘルパー |
-    | `plugin-sdk/account-resolution` | アカウント検索 + デフォルトフォールバックヘルパー |
-    | `plugin-sdk/account-helpers` | 狭い用途のアカウント一覧/アカウントアクションヘルパー |
+    | `plugin-sdk/account-core` | マルチアカウントconfig/action-gate helper、default-accountフォールバックhelper |
+    | `plugin-sdk/account-id` | `DEFAULT_ACCOUNT_ID`、account-id正規化helper |
+    | `plugin-sdk/account-resolution` | account lookup + defaultフォールバックhelper |
+    | `plugin-sdk/account-helpers` | 狭いaccount-list/account-action helper |
     | `plugin-sdk/channel-pairing` | `createChannelPairingController` |
     | `plugin-sdk/channel-reply-pipeline` | `createChannelReplyPipeline` |
     | `plugin-sdk/channel-config-helpers` | `createHybridChannelConfigAdapter` |
-    | `plugin-sdk/channel-config-schema` | チャンネル設定スキーマ型 |
-    | `plugin-sdk/telegram-command-config` | バンドルコントラクトのフォールバック付きTelegramカスタムコマンド正規化/検証ヘルパー |
+    | `plugin-sdk/channel-config-schema` | channel config schema型 |
+    | `plugin-sdk/telegram-command-config` | バンドルcontractフォールバック付きのTelegram custom-command正規化/検証helper |
     | `plugin-sdk/channel-policy` | `resolveChannelGroupRequireMention` |
     | `plugin-sdk/channel-lifecycle` | `createAccountStatusSink` |
-    | `plugin-sdk/inbound-envelope` | 共有の受信ルート + エンベロープビルダーヘルパー |
-    | `plugin-sdk/inbound-reply-dispatch` | 共有の受信記録およびディスパッチヘルパー |
-    | `plugin-sdk/messaging-targets` | ターゲットの解析/照合ヘルパー |
-    | `plugin-sdk/outbound-media` | 共有の送信メディア読み込みヘルパー |
-    | `plugin-sdk/outbound-runtime` | 送信元アイデンティティ/送信デリゲートヘルパー |
-    | `plugin-sdk/thread-bindings-runtime` | スレッドバインディングのライフサイクルおよびアダプターヘルパー |
-    | `plugin-sdk/agent-media-payload` | レガシーのエージェントメディアペイロードビルダー |
-    | `plugin-sdk/conversation-runtime` | 会話/スレッドバインディング、ペアリング、および設定済みバインディングのヘルパー |
-    | `plugin-sdk/runtime-config-snapshot` | ランタイム設定スナップショットヘルパー |
-    | `plugin-sdk/runtime-group-policy` | ランタイムのグループポリシー解決ヘルパー |
-    | `plugin-sdk/channel-status` | 共有のチャンネルステータススナップショット/サマリーヘルパー |
-    | `plugin-sdk/channel-config-primitives` | 狭い用途のチャンネル設定スキーマプリミティブ |
-    | `plugin-sdk/channel-config-writes` | チャンネル設定書き込みの認可ヘルパー |
-    | `plugin-sdk/channel-plugin-common` | 共有のチャンネルプラグイン前提エクスポート |
-    | `plugin-sdk/allowlist-config-edit` | allowlist 設定の編集/読み取りヘルパー |
-    | `plugin-sdk/group-access` | 共有のグループアクセス判定ヘルパー |
-    | `plugin-sdk/direct-dm` | 共有のダイレクトDM認証/ガードヘルパー |
-    | `plugin-sdk/interactive-runtime` | 対話型返信ペイロードの正規化/削減ヘルパー |
-    | `plugin-sdk/channel-inbound` | デバウンス、メンション照合、エンベロープヘルパー |
-    | `plugin-sdk/channel-send-result` | 返信結果型 |
+    | `plugin-sdk/inbound-envelope` | 共有inbound route + envelope builder helper |
+    | `plugin-sdk/inbound-reply-dispatch` | 共有inbound記録/dispatch helper |
+    | `plugin-sdk/messaging-targets` | target解析/一致helper |
+    | `plugin-sdk/outbound-media` | 共有outbound media読み込みhelper |
+    | `plugin-sdk/outbound-runtime` | outbound identity/send delegate helper |
+    | `plugin-sdk/thread-bindings-runtime` | thread-bindingライフサイクルとadapter helper |
+    | `plugin-sdk/agent-media-payload` | 旧式agent media payload builder |
+    | `plugin-sdk/conversation-runtime` | conversation/thread binding、pairing、configured-binding helper |
+    | `plugin-sdk/runtime-config-snapshot` | runtime config snapshot helper |
+    | `plugin-sdk/runtime-group-policy` | runtime group-policy解決helper |
+    | `plugin-sdk/channel-status` | 共有channel status snapshot/summary helper |
+    | `plugin-sdk/channel-config-primitives` | 狭いchannel config-schema primitive |
+    | `plugin-sdk/channel-config-writes` | channel config-write認可helper |
+    | `plugin-sdk/channel-plugin-common` | 共有channel plugin prelude export |
+    | `plugin-sdk/allowlist-config-edit` | allowlist config編集/読み取りhelper |
+    | `plugin-sdk/group-access` | 共有group-access判定helper |
+    | `plugin-sdk/direct-dm` | 共有direct-DM auth/guard helper |
+    | `plugin-sdk/interactive-runtime` | interactive reply payload正規化/縮約helper |
+    | `plugin-sdk/channel-inbound` | debounce、mention一致、envelope helper |
+    | `plugin-sdk/channel-send-result` | reply result型 |
     | `plugin-sdk/channel-actions` | `createMessageToolButtonsSchema`, `createMessageToolCardSchema` |
-    | `plugin-sdk/channel-targets` | ターゲットの解析/照合ヘルパー |
-    | `plugin-sdk/channel-contract` | チャンネルコントラクト型 |
-    | `plugin-sdk/channel-feedback` | フィードバック/リアクション接続 |
+    | `plugin-sdk/channel-targets` | target解析/一致helper |
+    | `plugin-sdk/channel-contract` | channel contract型 |
+    | `plugin-sdk/channel-feedback` | feedback/reaction配線 |
+    | `plugin-sdk/channel-secret-runtime` | `collectSimpleChannelFieldAssignments`, `getChannelSurface`, `pushAssignment`、およびsecret target型のような狭いsecret-contract helper |
   </Accordion>
 
-  <Accordion title="プロバイダーサブパス">
-    | サブパス | 主なエクスポート |
+  <Accordion title="Provider subpaths">
+    | Subpath | 主要export |
     | --- | --- |
     | `plugin-sdk/provider-entry` | `defineSingleProviderPluginEntry` |
-    | `plugin-sdk/provider-setup` | 厳選されたローカル/セルフホスト型プロバイダーのセットアップヘルパー |
-    | `plugin-sdk/self-hosted-provider-setup` | OpenAI互換のセルフホスト型プロバイダーに特化したセットアップヘルパー |
-    | `plugin-sdk/provider-auth-runtime` | プロバイダープラグイン向けのランタイムAPIキー解決ヘルパー |
-    | `plugin-sdk/provider-auth-api-key` | APIキーのオンボーディング/プロファイル書き込みヘルパー |
-    | `plugin-sdk/provider-auth-result` | 標準OAuth auth-result ビルダー |
-    | `plugin-sdk/provider-auth-login` | プロバイダープラグイン向け共有対話型ログインヘルパー |
-    | `plugin-sdk/provider-env-vars` | プロバイダー認証用環境変数の検索ヘルパー |
-    | `plugin-sdk/provider-auth` | `createProviderApiKeyAuthMethod`, `ensureApiKeyFromOptionEnvOrPrompt`, `upsertAuthProfile` |
-    | `plugin-sdk/provider-model-shared` | `ProviderReplayFamily`, `buildProviderReplayFamilyHooks`, `normalizeModelCompat`, 共有 replay-policy ビルダー、provider-endpoint ヘルパー、および `normalizeNativeXaiModelId` のような model-id 正規化ヘルパー |
+    | `plugin-sdk/provider-setup` | 厳選されたlocal/self-hosted provider setup helper |
+    | `plugin-sdk/self-hosted-provider-setup` | 焦点を絞ったOpenAI互換self-hosted provider setup helper |
+    | `plugin-sdk/cli-backend` | CLI backend defaults + watchdog定数 |
+    | `plugin-sdk/provider-auth-runtime` | provider plugins向けランタイムAPIキー解決helper |
+    | `plugin-sdk/provider-auth-api-key` | `upsertApiKeyProfile` などのAPIキーonboarding/profile-write helper |
+    | `plugin-sdk/provider-auth-result` | 標準OAuth auth-result builder |
+    | `plugin-sdk/provider-auth-login` | provider plugins向け共有interactive login helper |
+    | `plugin-sdk/provider-env-vars` | provider auth env-var lookup helper |
+    | `plugin-sdk/provider-auth` | `createProviderApiKeyAuthMethod`, `ensureApiKeyFromOptionEnvOrPrompt`, `upsertAuthProfile`, `upsertApiKeyProfile`, `writeOAuthCredentials` |
+    | `plugin-sdk/provider-model-shared` | `ProviderReplayFamily`, `buildProviderReplayFamilyHooks`, `normalizeModelCompat`、共有replay-policy builder、provider endpoint helper、`normalizeNativeXaiModelId` などのmodel-id正規化helper |
     | `plugin-sdk/provider-catalog-shared` | `findCatalogTemplate`, `buildSingleProviderApiKeyCatalog`, `supportsNativeStreamingUsageCompat`, `applyProviderNativeStreamingUsageCompat` |
-    | `plugin-sdk/provider-http` | 汎用プロバイダーHTTP/endpoint capability ヘルパー |
-    | `plugin-sdk/provider-web-fetch` | web-fetch プロバイダーの登録/キャッシュヘルパー |
-    | `plugin-sdk/provider-web-search` | web-search プロバイダーの登録/キャッシュ/設定ヘルパー |
-    | `plugin-sdk/provider-tools` | `ProviderToolCompatFamily`, `buildProviderToolCompatFamilyHooks`, Gemini スキーマクリーンアップ + 診断、および `resolveXaiModelCompatPatch` / `applyXaiModelCompat` のような xAI 互換ヘルパー |
+    | `plugin-sdk/provider-http` | 汎用provider HTTP/endpoint capability helper |
+    | `plugin-sdk/provider-web-fetch` | web-fetch provider登録/cache helper |
+    | `plugin-sdk/provider-web-search-contract` | `enablePluginInConfig`, `resolveProviderWebSearchPluginConfig`、scoped credential setter/getterなどの狭いweb-search config/credential contract helper |
+    | `plugin-sdk/provider-web-search` | web-search provider登録/cache/runtime helper |
+    | `plugin-sdk/provider-tools` | `ProviderToolCompatFamily`, `buildProviderToolCompatFamilyHooks`, Gemini schema cleanup + diagnostics、`resolveXaiModelCompatPatch` / `applyXaiModelCompat` などのxAI compat helper |
     | `plugin-sdk/provider-usage` | `fetchClaudeUsage` など |
-    | `plugin-sdk/provider-stream` | `ProviderStreamFamily`, `buildProviderStreamFamilyHooks`, `composeProviderStreamWrappers`, ストリームラッパー型、および共有の Anthropic/Bedrock/Google/Kilocode/Moonshot/OpenAI/OpenRouter/Z.A.I/MiniMax/Copilot ラッパーヘルパー |
-    | `plugin-sdk/provider-onboard` | オンボーディング設定パッチヘルパー |
-    | `plugin-sdk/global-singleton` | プロセスローカルな singleton/map/cache ヘルパー |
+    | `plugin-sdk/provider-stream` | `ProviderStreamFamily`, `buildProviderStreamFamilyHooks`, `composeProviderStreamWrappers`, stream wrapper型、および共有Anthropic/Bedrock/Google/Kilocode/Moonshot/OpenAI/OpenRouter/Z.A.I/MiniMax/Copilot wrapper helper |
+    | `plugin-sdk/provider-onboard` | onboarding config patch helper |
+    | `plugin-sdk/global-singleton` | process-local singleton/map/cache helper |
   </Accordion>
 
-  <Accordion title="認証とセキュリティのサブパス">
-    | サブパス | 主なエクスポート |
+  <Accordion title="認証とセキュリティのsubpaths">
+    | Subpath | 主要export |
     | --- | --- |
-    | `plugin-sdk/command-auth` | `resolveControlCommandGate`, コマンドレジストリヘルパー、送信者認可ヘルパー |
-    | `plugin-sdk/approval-auth-runtime` | 承認者解決および同一チャット action-auth ヘルパー |
-    | `plugin-sdk/approval-client-runtime` | ネイティブ実行承認プロファイル/フィルターヘルパー |
-    | `plugin-sdk/approval-delivery-runtime` | ネイティブ承認 capability/delivery アダプター |
-    | `plugin-sdk/approval-native-runtime` | ネイティブ承認ターゲット + account-binding ヘルパー |
-    | `plugin-sdk/approval-reply-runtime` | exec/plugin 承認返信ペイロードヘルパー |
-    | `plugin-sdk/command-auth-native` | ネイティブコマンド認証 + ネイティブ session-target ヘルパー |
-    | `plugin-sdk/command-detection` | 共有コマンド検出ヘルパー |
-    | `plugin-sdk/command-surface` | コマンド本文の正規化と command-surface ヘルパー |
+    | `plugin-sdk/command-auth` | `resolveControlCommandGate`、command registry helper、sender認可helper |
+    | `plugin-sdk/approval-auth-runtime` | approver解決とsame-chat action-auth helper |
+    | `plugin-sdk/approval-client-runtime` | native exec approval profile/filter helper |
+    | `plugin-sdk/approval-delivery-runtime` | native approval capability/delivery adapter |
+    | `plugin-sdk/approval-native-runtime` | native approval target + account-binding helper |
+    | `plugin-sdk/approval-reply-runtime` | exec/plugin approval reply payload helper |
+    | `plugin-sdk/command-auth-native` | native command auth + native session-target helper |
+    | `plugin-sdk/command-detection` | 共有command検出helper |
+    | `plugin-sdk/command-surface` | command-body正規化とcommand-surface helper |
     | `plugin-sdk/allow-from` | `formatAllowFromLowercase` |
-    | `plugin-sdk/security-runtime` | 共有の信頼、DMゲーティング、外部コンテンツ、およびシークレット収集ヘルパー |
-    | `plugin-sdk/ssrf-policy` | ホスト allowlist およびプライベートネットワークSSRFポリシーヘルパー |
-    | `plugin-sdk/ssrf-runtime` | pinned-dispatcher、SSRF保護付き fetch、および SSRFポリシーヘルパー |
-    | `plugin-sdk/secret-input` | シークレット入力解析ヘルパー |
-    | `plugin-sdk/webhook-ingress` | webhook リクエスト/ターゲットヘルパー |
-    | `plugin-sdk/webhook-request-guards` | リクエストボディサイズ/タイムアウトヘルパー |
+    | `plugin-sdk/channel-secret-runtime` | channel/plugin secret surface向けの狭いsecret-contract collection helper |
+    | `plugin-sdk/security-runtime` | 共有trust、DM gating、external-content、secret collection helper |
+    | `plugin-sdk/ssrf-policy` | host allowlistとprivate-network SSRF policy helper |
+    | `plugin-sdk/ssrf-runtime` | pinned-dispatcher、SSRF保護fetch、SSRF policy helper |
+    | `plugin-sdk/secret-input` | secret input解析helper |
+    | `plugin-sdk/webhook-ingress` | webhook request/target helper |
+    | `plugin-sdk/webhook-request-guards` | request body size/timeout helper |
   </Accordion>
 
-  <Accordion title="ランタイムとストレージのサブパス">
-    | サブパス | 主なエクスポート |
+  <Accordion title="ランタイムとストレージのsubpaths">
+    | Subpath | 主要export |
     | --- | --- |
-    | `plugin-sdk/runtime` | 広範なランタイム/ロギング/バックアップ/プラグインインストールヘルパー |
-    | `plugin-sdk/runtime-env` | 狭い用途のランタイム env、logger、timeout、retry、および backoff ヘルパー |
+    | `plugin-sdk/runtime` | 広範なruntime/logging/backup/plugin-install helper |
+    | `plugin-sdk/runtime-env` | 狭いruntime env、logger、timeout、retry、backoff helper |
     | `plugin-sdk/runtime-store` | `createPluginRuntimeStore` |
-    | `plugin-sdk/plugin-runtime` | 共有のプラグイン command/hook/http/interactive ヘルパー |
-    | `plugin-sdk/hook-runtime` | 共有の webhook/internal hook パイプラインヘルパー |
-    | `plugin-sdk/lazy-runtime` | `createLazyRuntimeModule`, `createLazyRuntimeMethod`, `createLazyRuntimeSurface` のような遅延ランタイム import/binding ヘルパー |
-    | `plugin-sdk/process-runtime` | プロセス実行ヘルパー |
-    | `plugin-sdk/cli-runtime` | CLI整形、待機、およびバージョンヘルパー |
-    | `plugin-sdk/gateway-runtime` | Gatewayクライアントおよびチャンネルステータスパッチヘルパー |
-    | `plugin-sdk/config-runtime` | 設定の読み込み/書き込みヘルパー |
-    | `plugin-sdk/telegram-command-config` | バンドルされたTelegramコントラクトサーフェスが利用できない場合でも、Telegramコマンド名/説明の正規化と重複/競合チェックを行う |
-    | `plugin-sdk/approval-runtime` | exec/plugin 承認ヘルパー、approval-capability ビルダー、auth/profile ヘルパー、ネイティブルーティング/ランタイムヘルパー |
-    | `plugin-sdk/reply-runtime` | 共有の受信/返信ランタイムヘルパー、チャンク化、ディスパッチ、heartbeat、返信プランナー |
-    | `plugin-sdk/reply-dispatch-runtime` | 狭い用途の返信ディスパッチ/完了ヘルパー |
-    | `plugin-sdk/reply-history` | `buildHistoryContext`, `recordPendingHistoryEntry`, `clearHistoryEntriesIfEnabled` のような共有の短時間ウィンドウ reply-history ヘルパー |
+    | `plugin-sdk/plugin-runtime` | 共有plugin command/hook/http/interactive helper |
+    | `plugin-sdk/hook-runtime` | 共有webhook/internal hook pipeline helper |
+    | `plugin-sdk/lazy-runtime` | `createLazyRuntimeModule`, `createLazyRuntimeMethod`, `createLazyRuntimeSurface` などのlazy runtime import/binding helper |
+    | `plugin-sdk/process-runtime` | process exec helper |
+    | `plugin-sdk/cli-runtime` | CLI formatting、wait、version helper |
+    | `plugin-sdk/gateway-runtime` | Gateway clientとchannel-status patch helper |
+    | `plugin-sdk/config-runtime` | config load/write helper |
+    | `plugin-sdk/telegram-command-config` | バンドルされたTelegram contract surfaceが利用できない場合でも、Telegram command-name/description正規化と重複/競合チェックを行う |
+    | `plugin-sdk/approval-runtime` | exec/plugin approval helper、approval-capability builder、auth/profile helper、native routing/runtime helper |
+    | `plugin-sdk/reply-runtime` | 共有inbound/reply runtime helper、chunking、dispatch、heartbeat、reply planner |
+    | `plugin-sdk/reply-dispatch-runtime` | 狭いreply dispatch/finalize helper |
+    | `plugin-sdk/reply-history` | `buildHistoryContext`, `recordPendingHistoryEntry`, `clearHistoryEntriesIfEnabled` などの共有short-window reply-history helper |
     | `plugin-sdk/reply-reference` | `createReplyReferencePlanner` |
-    | `plugin-sdk/reply-chunking` | 狭い用途のテキスト/markdown チャンク化ヘルパー |
-    | `plugin-sdk/session-store-runtime` | セッションストアのパス + updated-at ヘルパー |
-    | `plugin-sdk/state-paths` | State/OAuth ディレクトリパスヘルパー |
-    | `plugin-sdk/routing` | `resolveAgentRoute`, `buildAgentSessionKey`, `resolveDefaultAgentBoundAccountId` のようなルート/session-key/account binding ヘルパー |
-    | `plugin-sdk/status-helpers` | 共有のチャンネル/アカウントステータスサマリーヘルパー、runtime-state デフォルト、および issue メタデータヘルパー |
-    | `plugin-sdk/target-resolver-runtime` | 共有ターゲットリゾルバーヘルパー |
-    | `plugin-sdk/string-normalization-runtime` | Slug/文字列正規化ヘルパー |
-    | `plugin-sdk/request-url` | fetch/request 風入力から文字列URLを抽出 |
-    | `plugin-sdk/run-command` | 正規化された stdout/stderr 結果を伴う時間制限付きコマンドランナー |
-    | `plugin-sdk/param-readers` | 共通の tool/CLI パラメーターリーダー |
-    | `plugin-sdk/tool-send` | ツール引数から正規の送信ターゲットフィールドを抽出 |
-    | `plugin-sdk/temp-path` | 共有の一時ダウンロードパスヘルパー |
-    | `plugin-sdk/logging-core` | サブシステム logger とリダクションヘルパー |
-    | `plugin-sdk/markdown-table-runtime` | Markdownテーブルモードヘルパー |
-    | `plugin-sdk/json-store` | 小規模JSON state の読み書きヘルパー |
-    | `plugin-sdk/file-lock` | 再入可能 file-lock ヘルパー |
-    | `plugin-sdk/persistent-dedupe` | ディスクバックアップ付き dedupe cache ヘルパー |
-    | `plugin-sdk/acp-runtime` | ACP runtime/session および reply-dispatch ヘルパー |
-    | `plugin-sdk/agent-config-primitives` | 狭い用途のエージェントランタイム設定スキーマプリミティブ |
-    | `plugin-sdk/boolean-param` | 緩い boolean パラメーターリーダー |
-    | `plugin-sdk/dangerous-name-runtime` | 危険な名前の照合解決ヘルパー |
-    | `plugin-sdk/device-bootstrap` | デバイスbootstrap およびペアリングトークンヘルパー |
-    | `plugin-sdk/extension-shared` | 共有の passive-channel および status ヘルパープリミティブ |
-    | `plugin-sdk/models-provider-runtime` | `/models` コマンド/プロバイダー返信ヘルパー |
-    | `plugin-sdk/skill-commands-runtime` | Skills コマンド一覧ヘルパー |
-    | `plugin-sdk/native-command-registry` | ネイティブコマンドレジストリの build/serialize ヘルパー |
-    | `plugin-sdk/provider-zai-endpoint` | Z.AI endpoint 検出ヘルパー |
-    | `plugin-sdk/infra-runtime` | システムイベント/heartbeat ヘルパー |
-    | `plugin-sdk/collection-runtime` | 小規模の有界 cache ヘルパー |
-    | `plugin-sdk/diagnostic-runtime` | 診断フラグおよびイベントヘルパー |
-    | `plugin-sdk/error-runtime` | エラーグラフ、整形、共有エラー分類ヘルパー、`isApprovalNotFoundError` |
-    | `plugin-sdk/fetch-runtime` | ラップされた fetch、proxy、および pinned lookup ヘルパー |
-    | `plugin-sdk/host-runtime` | ホスト名およびSCPホスト正規化ヘルパー |
-    | `plugin-sdk/retry-runtime` | retry 設定および retry ランナーヘルパー |
-    | `plugin-sdk/agent-runtime` | エージェントディレクトリ/アイデンティティ/workspace ヘルパー |
-    | `plugin-sdk/directory-runtime` | 設定に基づくディレクトリ照会/dedup |
+    | `plugin-sdk/reply-chunking` | 狭いtext/markdown chunking helper |
+    | `plugin-sdk/session-store-runtime` | session store path + updated-at helper |
+    | `plugin-sdk/state-paths` | state/OAuthディレクトリpath helper |
+    | `plugin-sdk/routing` | `resolveAgentRoute`, `buildAgentSessionKey`, `resolveDefaultAgentBoundAccountId` などのroute/session-key/account binding helper |
+    | `plugin-sdk/status-helpers` | 共有channel/account status summary helper、runtime-state defaults、issue metadata helper |
+    | `plugin-sdk/target-resolver-runtime` | 共有target resolver helper |
+    | `plugin-sdk/string-normalization-runtime` | slug/string正規化helper |
+    | `plugin-sdk/request-url` | fetch/request風inputから文字列URLを抽出 |
+    | `plugin-sdk/run-command` | 正規化されたstdout/stderr結果を伴う時間制限付きcommand runner |
+    | `plugin-sdk/param-readers` | 一般的なtool/CLI param reader |
+    | `plugin-sdk/tool-send` | tool argsからcanonicalなsend target fieldを抽出 |
+    | `plugin-sdk/temp-path` | 共有temp-download path helper |
+    | `plugin-sdk/logging-core` | subsystem loggerとredaction helper |
+    | `plugin-sdk/markdown-table-runtime` | Markdown table mode helper |
+    | `plugin-sdk/json-store` | 小さなJSON state読み書きhelper |
+    | `plugin-sdk/file-lock` | 再入可能file-lock helper |
+    | `plugin-sdk/persistent-dedupe` | disk-backed dedupe cache helper |
+    | `plugin-sdk/acp-runtime` | ACP runtime/sessionとreply-dispatch helper |
+    | `plugin-sdk/agent-config-primitives` | 狭いagent runtime config-schema primitive |
+    | `plugin-sdk/boolean-param` | 緩いboolean param reader |
+    | `plugin-sdk/dangerous-name-runtime` | dangerous-name一致解決helper |
+    | `plugin-sdk/device-bootstrap` | device bootstrapとpairing token helper |
+    | `plugin-sdk/extension-shared` | 共有passive-channel、status、ambient proxy helper primitive |
+    | `plugin-sdk/models-provider-runtime` | `/models` command/provider reply helper |
+    | `plugin-sdk/skill-commands-runtime` | skill command listing helper |
+    | `plugin-sdk/native-command-registry` | native command registry/build/serialize helper |
+    | `plugin-sdk/provider-zai-endpoint` | Z.A.I endpoint検出helper |
+    | `plugin-sdk/infra-runtime` | system event/heartbeat helper |
+    | `plugin-sdk/collection-runtime` | 小さなbounded cache helper |
+    | `plugin-sdk/diagnostic-runtime` | diagnostic flagとevent helper |
+    | `plugin-sdk/error-runtime` | error graph、formatting、共有error分類helper、`isApprovalNotFoundError` |
+    | `plugin-sdk/fetch-runtime` | wrapped fetch、proxy、pinned lookup helper |
+    | `plugin-sdk/host-runtime` | hostnameとSCP host正規化helper |
+    | `plugin-sdk/retry-runtime` | retry configとretry runner helper |
+    | `plugin-sdk/agent-runtime` | agentディレクトリ/identity/workspace helper |
+    | `plugin-sdk/directory-runtime` | configベースのdirectory問い合わせ/dedup |
     | `plugin-sdk/keyed-async-queue` | `KeyedAsyncQueue` |
   </Accordion>
 
-  <Accordion title="機能とテストのサブパス">
-    | サブパス | 主なエクスポート |
+  <Accordion title="Capabilityとテストのsubpaths">
+    | Subpath | 主要export |
     | --- | --- |
-    | `plugin-sdk/media-runtime` | 共有のメディア取得/変換/保存ヘルパーに加え、メディアペイロードビルダー |
-    | `plugin-sdk/media-generation-runtime` | 共有のメディア生成フェイルオーバーヘルパー、候補選択、およびモデル未指定メッセージング |
-    | `plugin-sdk/media-understanding` | Media understanding プロバイダー型に加え、プロバイダー向け画像/音声ヘルパーエクスポート |
-    | `plugin-sdk/text-runtime` | assistant-visible-text の除去、markdown のレンダリング/チャンク化/テーブルヘルパー、リダクションヘルパー、directive-tag ヘルパー、安全なテキストユーティリティなどの共有テキスト/markdown/ロギングヘルパー |
-    | `plugin-sdk/text-chunking` | 送信テキストチャンク化ヘルパー |
-    | `plugin-sdk/speech` | 音声プロバイダー型に加え、プロバイダー向け directive、registry、および検証ヘルパー |
-    | `plugin-sdk/speech-core` | 共有の音声プロバイダー型、registry、directive、および正規化ヘルパー |
-    | `plugin-sdk/realtime-transcription` | リアルタイム文字起こしプロバイダー型およびレジストリヘルパー |
-    | `plugin-sdk/realtime-voice` | リアルタイム音声プロバイダー型およびレジストリヘルパー |
-    | `plugin-sdk/image-generation` | 画像生成プロバイダー型 |
-    | `plugin-sdk/image-generation-core` | 共有の画像生成型、フェイルオーバー、認証、およびレジストリヘルパー |
-    | `plugin-sdk/music-generation` | 音楽生成プロバイダー/リクエスト/結果型 |
-    | `plugin-sdk/music-generation-core` | 共有の音楽生成型、フェイルオーバーヘルパー、プロバイダー検索、および model-ref 解析 |
-    | `plugin-sdk/video-generation` | 動画生成プロバイダー/リクエスト/結果型 |
-    | `plugin-sdk/video-generation-core` | 共有の動画生成型、フェイルオーバーヘルパー、プロバイダー検索、および model-ref 解析 |
-    | `plugin-sdk/webhook-targets` | Webhookターゲットレジストリおよび route-install ヘルパー |
-    | `plugin-sdk/webhook-path` | Webhookパス正規化ヘルパー |
-    | `plugin-sdk/web-media` | 共有のリモート/ローカルメディア読み込みヘルパー |
-    | `plugin-sdk/zod` | プラグインSDK利用者向けに再エクスポートされた `zod` |
+    | `plugin-sdk/media-runtime` | media payload builderに加えて、共有media fetch/transform/store helper |
+    | `plugin-sdk/media-generation-runtime` | 共有media-generation failover helper、candidate selection、missing-model messaging |
+    | `plugin-sdk/media-understanding` | media understanding provider型、およびprovider向けimage/audio helper export |
+    | `plugin-sdk/text-runtime` | assistant-visible-text除去、markdown render/chunking/table helper、redaction helper、directive-tag helper、safe-text utilitiesなどの共有text/markdown/logging helper |
+    | `plugin-sdk/text-chunking` | outbound text chunking helper |
+    | `plugin-sdk/speech` | speech provider型、およびprovider向けdirective、registry、validation helper |
+    | `plugin-sdk/speech-core` | 共有speech provider型、registry、directive、正規化helper |
+    | `plugin-sdk/realtime-transcription` | realtime transcription provider型とregistry helper |
+    | `plugin-sdk/realtime-voice` | realtime voice provider型とregistry helper |
+    | `plugin-sdk/image-generation` | image generation provider型 |
+    | `plugin-sdk/image-generation-core` | 共有image-generation型、failover、auth、registry helper |
+    | `plugin-sdk/music-generation` | music generation provider/request/result型 |
+    | `plugin-sdk/music-generation-core` | 共有music-generation型、failover helper、provider lookup、model-ref解析 |
+    | `plugin-sdk/video-generation` | video generation provider/request/result型 |
+    | `plugin-sdk/video-generation-core` | 共有video-generation型、failover helper、provider lookup、model-ref解析 |
+    | `plugin-sdk/webhook-targets` | webhook target registryとroute-install helper |
+    | `plugin-sdk/webhook-path` | webhook path正規化helper |
+    | `plugin-sdk/web-media` | 共有remote/local media読み込みhelper |
+    | `plugin-sdk/zod` | plugin SDK利用者向けに再exportされた `zod` |
     | `plugin-sdk/testing` | `installCommonResolveTargetErrorCases`, `shouldAckReaction` |
   </Accordion>
 
-  <Accordion title="メモリサブパス">
-    | サブパス | 主なエクスポート |
+  <Accordion title="Memory subpaths">
+    | Subpath | 主要export |
     | --- | --- |
-    | `plugin-sdk/memory-core` | manager/config/file/CLI ヘルパー用のバンドルされた memory-core ヘルパーサーフェス |
-    | `plugin-sdk/memory-core-engine-runtime` | メモリインデックス/検索ランタイムファサード |
-    | `plugin-sdk/memory-core-host-engine-foundation` | メモリホスト foundation engine エクスポート |
-    | `plugin-sdk/memory-core-host-engine-embeddings` | メモリホスト embedding engine エクスポート |
-    | `plugin-sdk/memory-core-host-engine-qmd` | メモリホスト QMD engine エクスポート |
-    | `plugin-sdk/memory-core-host-engine-storage` | メモリホスト storage engine エクスポート |
-    | `plugin-sdk/memory-core-host-multimodal` | メモリホスト multimodal ヘルパー |
-    | `plugin-sdk/memory-core-host-query` | メモリホスト query ヘルパー |
-    | `plugin-sdk/memory-core-host-secret` | メモリホスト secret ヘルパー |
-    | `plugin-sdk/memory-core-host-events` | メモリホスト event journal ヘルパー |
-    | `plugin-sdk/memory-core-host-status` | メモリホスト status ヘルパー |
-    | `plugin-sdk/memory-core-host-runtime-cli` | メモリホスト CLI ランタイムヘルパー |
-    | `plugin-sdk/memory-core-host-runtime-core` | メモリホスト core ランタイムヘルパー |
-    | `plugin-sdk/memory-core-host-runtime-files` | メモリホスト file/runtime ヘルパー |
-    | `plugin-sdk/memory-host-core` | メモリホスト core ランタイムヘルパーのベンダー中立エイリアス |
-    | `plugin-sdk/memory-host-events` | メモリホスト event journal ヘルパーのベンダー中立エイリアス |
-    | `plugin-sdk/memory-host-files` | メモリホスト file/runtime ヘルパーのベンダー中立エイリアス |
-    | `plugin-sdk/memory-host-markdown` | メモリ周辺プラグイン向けの共有 managed-markdown ヘルパー |
-    | `plugin-sdk/memory-host-search` | search-manager アクセス用のアクティブメモリランタイムファサード |
-    | `plugin-sdk/memory-host-status` | メモリホスト status ヘルパーのベンダー中立エイリアス |
-    | `plugin-sdk/memory-lancedb` | バンドルされた memory-lancedb ヘルパーサーフェス |
+    | `plugin-sdk/memory-core` | manager/config/file/CLI helper向けのバンドルされたmemory-core helper surface |
+    | `plugin-sdk/memory-core-engine-runtime` | memory index/search runtime facade |
+    | `plugin-sdk/memory-core-host-engine-foundation` | memory host foundation engine export |
+    | `plugin-sdk/memory-core-host-engine-embeddings` | memory host embedding engine export |
+    | `plugin-sdk/memory-core-host-engine-qmd` | memory host QMD engine export |
+    | `plugin-sdk/memory-core-host-engine-storage` | memory host storage engine export |
+    | `plugin-sdk/memory-core-host-multimodal` | memory host multimodal helper |
+    | `plugin-sdk/memory-core-host-query` | memory host query helper |
+    | `plugin-sdk/memory-core-host-secret` | memory host secret helper |
+    | `plugin-sdk/memory-core-host-events` | memory host event journal helper |
+    | `plugin-sdk/memory-core-host-status` | memory host status helper |
+    | `plugin-sdk/memory-core-host-runtime-cli` | memory host CLI runtime helper |
+    | `plugin-sdk/memory-core-host-runtime-core` | memory host core runtime helper |
+    | `plugin-sdk/memory-core-host-runtime-files` | memory host file/runtime helper |
+    | `plugin-sdk/memory-host-core` | memory host core runtime helperへのvendor-neutral alias |
+    | `plugin-sdk/memory-host-events` | memory host event journal helperへのvendor-neutral alias |
+    | `plugin-sdk/memory-host-files` | memory host file/runtime helperへのvendor-neutral alias |
+    | `plugin-sdk/memory-host-markdown` | memory隣接plugin向けの共有managed-markdown helper |
+    | `plugin-sdk/memory-host-search` | search-managerアクセス向けのactive memory runtime facade |
+    | `plugin-sdk/memory-host-status` | memory host status helperへのvendor-neutral alias |
+    | `plugin-sdk/memory-lancedb` | バンドルされたmemory-lancedb helper surface |
   </Accordion>
 
-  <Accordion title="予約済みバンドルヘルパーサブパス">
-    | ファミリー | 現在のサブパス | 想定用途 |
+  <Accordion title="予約済みバンドルhelper subpaths">
+    | Family | 現在のsubpaths | 意図された用途 |
     | --- | --- | --- |
-    | Browser | `plugin-sdk/browser-cdp`, `plugin-sdk/browser-config-runtime`, `plugin-sdk/browser-config-support`, `plugin-sdk/browser-control-auth`, `plugin-sdk/browser-node-runtime`, `plugin-sdk/browser-profiles`, `plugin-sdk/browser-security-runtime`, `plugin-sdk/browser-setup-tools`, `plugin-sdk/browser-support` | バンドルされたブラウザプラグイン支援ヘルパー (`browser-support` は互換性バレルのまま) |
-    | Matrix | `plugin-sdk/matrix`, `plugin-sdk/matrix-helper`, `plugin-sdk/matrix-runtime-heavy`, `plugin-sdk/matrix-runtime-shared`, `plugin-sdk/matrix-runtime-surface`, `plugin-sdk/matrix-surface`, `plugin-sdk/matrix-thread-bindings` | バンドルされたMatrixヘルパー/ランタイムサーフェス |
-    | Line | `plugin-sdk/line`, `plugin-sdk/line-core`, `plugin-sdk/line-runtime`, `plugin-sdk/line-surface` | バンドルされたLINEヘルパー/ランタイムサーフェス |
-    | IRC | `plugin-sdk/irc`, `plugin-sdk/irc-surface` | バンドルされたIRCヘルパーサーフェス |
-    | チャンネル固有ヘルパー | `plugin-sdk/googlechat`, `plugin-sdk/zalouser`, `plugin-sdk/bluebubbles`, `plugin-sdk/bluebubbles-policy`, `plugin-sdk/mattermost`, `plugin-sdk/mattermost-policy`, `plugin-sdk/feishu-conversation`, `plugin-sdk/msteams`, `plugin-sdk/nextcloud-talk`, `plugin-sdk/nostr`, `plugin-sdk/tlon`, `plugin-sdk/twitch` | バンドルされたチャンネル互換性/ヘルパー境界 |
-    | 認証/プラグイン固有ヘルパー | `plugin-sdk/github-copilot-login`, `plugin-sdk/github-copilot-token`, `plugin-sdk/diagnostics-otel`, `plugin-sdk/diffs`, `plugin-sdk/llm-task`, `plugin-sdk/thread-ownership`, `plugin-sdk/voice-call` | バンドルされた機能/プラグインヘルパー境界; `plugin-sdk/github-copilot-token` は現在 `DEFAULT_COPILOT_API_BASE_URL`, `deriveCopilotApiBaseUrlFromToken`, `resolveCopilotApiToken` をエクスポート |
+    | Browser | `plugin-sdk/browser-cdp`, `plugin-sdk/browser-config-runtime`, `plugin-sdk/browser-config-support`, `plugin-sdk/browser-control-auth`, `plugin-sdk/browser-node-runtime`, `plugin-sdk/browser-profiles`, `plugin-sdk/browser-security-runtime`, `plugin-sdk/browser-setup-tools`, `plugin-sdk/browser-support` | バンドルbrowser pluginサポートhelper（`browser-support` は互換性barrelのまま） |
+    | Matrix | `plugin-sdk/matrix`, `plugin-sdk/matrix-helper`, `plugin-sdk/matrix-runtime-heavy`, `plugin-sdk/matrix-runtime-shared`, `plugin-sdk/matrix-runtime-surface`, `plugin-sdk/matrix-surface`, `plugin-sdk/matrix-thread-bindings` | バンドルMatrix helper/runtime surface |
+    | Line | `plugin-sdk/line`, `plugin-sdk/line-core`, `plugin-sdk/line-runtime`, `plugin-sdk/line-surface` | バンドルLINE helper/runtime surface |
+    | IRC | `plugin-sdk/irc`, `plugin-sdk/irc-surface` | バンドルIRC helper surface |
+    | Channel固有helper | `plugin-sdk/googlechat`, `plugin-sdk/zalouser`, `plugin-sdk/bluebubbles`, `plugin-sdk/bluebubbles-policy`, `plugin-sdk/mattermost`, `plugin-sdk/mattermost-policy`, `plugin-sdk/feishu-conversation`, `plugin-sdk/msteams`, `plugin-sdk/nextcloud-talk`, `plugin-sdk/nostr`, `plugin-sdk/tlon`, `plugin-sdk/twitch` | バンドルchannel互換性/helper seam |
+    | Auth/plugin固有helper | `plugin-sdk/github-copilot-login`, `plugin-sdk/github-copilot-token`, `plugin-sdk/diagnostics-otel`, `plugin-sdk/diffs`, `plugin-sdk/llm-task`, `plugin-sdk/thread-ownership`, `plugin-sdk/voice-call` | バンドルfeature/plugin helper seam; `plugin-sdk/github-copilot-token` は現在 `DEFAULT_COPILOT_API_BASE_URL`, `deriveCopilotApiBaseUrlFromToken`, `resolveCopilotApiToken` をexport |
   </Accordion>
 </AccordionGroup>
 
 ## 登録API
 
-`register(api)` コールバックは、以下のメソッドを持つ `OpenClawPluginApi` オブジェクトを受け取ります。
+`register(api)` コールバックは、次の
+メソッドを持つ `OpenClawPluginApi` オブジェクトを受け取ります。
 
-### 機能の登録
+### Capability登録
 
-| メソッド                                           | 登録するもの                   |
-| ------------------------------------------------ | ----------------------------- |
-| `api.registerProvider(...)`                      | テキスト推論 (LLM)            |
-| `api.registerChannel(...)`                       | メッセージングチャンネル      |
-| `api.registerSpeechProvider(...)`                | 音声合成 / STT synthesis      |
-| `api.registerRealtimeTranscriptionProvider(...)` | ストリーミングのリアルタイム文字起こし |
-| `api.registerRealtimeVoiceProvider(...)`         | 双方向リアルタイム音声セッション |
-| `api.registerMediaUnderstandingProvider(...)`    | 画像/音声/動画の解析          |
-| `api.registerImageGenerationProvider(...)`       | 画像生成                      |
-| `api.registerMusicGenerationProvider(...)`       | 音楽生成                      |
-| `api.registerVideoGenerationProvider(...)`       | 動画生成                      |
-| `api.registerWebFetchProvider(...)`              | Web fetch / scrape プロバイダー |
-| `api.registerWebSearchProvider(...)`             | Web検索                       |
+| Method                                           | 登録するもの                     |
+| ------------------------------------------------ | -------------------------------- |
+| `api.registerProvider(...)`                      | Text inference（LLM）            |
+| `api.registerCliBackend(...)`                    | local CLI inference backend      |
+| `api.registerChannel(...)`                       | messaging channel                |
+| `api.registerSpeechProvider(...)`                | text-to-speech / STT synthesis   |
+| `api.registerRealtimeTranscriptionProvider(...)` | streaming realtime transcription |
+| `api.registerRealtimeVoiceProvider(...)`         | duplex realtime voice sessions   |
+| `api.registerMediaUnderstandingProvider(...)`    | image/audio/video analysis       |
+| `api.registerImageGenerationProvider(...)`       | image generation                 |
+| `api.registerMusicGenerationProvider(...)`       | music generation                 |
+| `api.registerVideoGenerationProvider(...)`       | video generation                 |
+| `api.registerWebFetchProvider(...)`              | web fetch / scrape provider      |
+| `api.registerWebSearchProvider(...)`             | web search                       |
 
-### ツールとコマンド
+### Toolsとcommands
 
-| メソッド                          | 登録するもの                                |
-| ------------------------------- | ------------------------------------------ |
-| `api.registerTool(tool, opts?)` | エージェントツール（必須、または `{ optional: true }`） |
-| `api.registerCommand(def)`      | カスタムコマンド（LLMをバイパス）            |
+| Method                          | 登録するもの                                  |
+| ------------------------------- | --------------------------------------------- |
+| `api.registerTool(tool, opts?)` | agent tool（必須、または `{ optional: true }`） |
+| `api.registerCommand(def)`      | カスタムcommand（LLMをバイパス）               |
 
-### インフラストラクチャ
+### Infrastructure
 
-| メソッド                                         | 登録するもの                              |
-| ---------------------------------------------- | ---------------------------------------- |
-| `api.registerHook(events, handler, opts?)`     | イベントフック                            |
-| `api.registerHttpRoute(params)`                | Gateway HTTPエンドポイント                |
-| `api.registerGatewayMethod(name, handler)`     | Gateway RPCメソッド                       |
-| `api.registerCli(registrar, opts?)`            | CLIサブコマンド                           |
-| `api.registerService(service)`                 | バックグラウンドサービス                  |
-| `api.registerInteractiveHandler(registration)` | 対話型ハンドラー                          |
-| `api.registerMemoryPromptSupplement(builder)`  | 加算的なメモリ隣接プロンプトセクション    |
-| `api.registerMemoryCorpusSupplement(adapter)`  | 加算的なメモリ検索/読み取りコーパス       |
+| Method                                         | 登録するもの                        |
+| ---------------------------------------------- | ----------------------------------- |
+| `api.registerHook(events, handler, opts?)`     | event hook                          |
+| `api.registerHttpRoute(params)`                | Gateway HTTP endpoint               |
+| `api.registerGatewayMethod(name, handler)`     | Gateway RPC method                  |
+| `api.registerCli(registrar, opts?)`            | CLI subcommand                      |
+| `api.registerService(service)`                 | background service                  |
+| `api.registerInteractiveHandler(registration)` | interactive handler                 |
+| `api.registerMemoryPromptSupplement(builder)`  | 追加型のmemory隣接prompt section    |
+| `api.registerMemoryCorpusSupplement(adapter)`  | 追加型のmemory search/read corpus   |
 
-予約済みのコア管理名前空間（`config.*`, `exec.approvals.*`, `wizard.*`,
-`update.*`）は、プラグインがより狭いGatewayメソッドスコープを割り当てようとしても、
-常に `operator.admin` のままです。プラグイン所有メソッドには、
-プラグイン固有のプレフィックスを使ってください。
+予約済みcore admin namespace（`config.*`、`exec.approvals.*`、`wizard.*`、
+`update.*`）は、pluginがより狭い
+gateway method scopeを割り当てようとしても、常に `operator.admin` のままです。pluginが所有するmethodには、
+plugin固有のprefixを優先してください。
 
 ### CLI登録メタデータ
 
-`api.registerCli(registrar, opts?)` は、2種類のトップレベルメタデータを受け付けます。
+`api.registerCli(registrar, opts?)` は、2種類のトップレベルメタデータを受け取ります:
 
-- `commands`: registrar が所有する明示的なコマンドルート
-- `descriptors`: ルートCLIヘルプ、ルーティング、および遅延プラグインCLI登録に使われる
-  解析時コマンドディスクリプター
+- `commands`: registrarが所有する明示的なcommand root
+- `descriptors`: ルートCLI help、
+  routing、lazy plugin CLI登録に使われるparse時のcommand descriptor
 
-プラグインコマンドを通常のルートCLIパスで遅延ロードのままにしたい場合は、
-その registrar が公開するすべてのトップレベルコマンドルートをカバーする
-`descriptors` を指定してください。
+通常のルートCLI経路でplugin commandをlazy-loadのままにしたい場合は、
+そのregistrarが公開するすべてのトップレベルcommand rootをカバーする `descriptors`
+を指定してください。
 
 ```typescript
 api.registerCli(
@@ -355,7 +361,7 @@ api.registerCli(
     descriptors: [
       {
         name: "matrix",
-        description: "Matrixアカウント、検証、デバイス、およびプロファイル状態を管理します",
+        description: "Manage Matrix accounts, verification, devices, and profile state",
         hasSubcommands: true,
       },
     ],
@@ -363,118 +369,129 @@ api.registerCli(
 );
 ```
 
-遅延ルートCLI登録が不要な場合にのみ、`commands` を単独で使用してください。
-その即時互換パスは引き続きサポートされていますが、解析時の遅延ロード用に
-descriptor に裏付けられたプレースホルダーはインストールされません。
+ルートCLI登録のlazy loadingが不要な場合にのみ、`commands` 単独を使用してください。
+このeager互換経路は引き続きサポートされていますが、parse時lazy loading用の
+descriptor-backed placeholderはインストールしません。
 
-### 排他的スロット
+### CLI backend登録
 
-| メソッド                                     | 登録するもの                        |
+`api.registerCliBackend(...)` を使うと、`codex-cli` のようなlocal
+AI CLI backendのデフォルトconfigをpluginが所有できます。
+
+- backendの `id` は、`codex-cli/gpt-5` のようなmodel refにおけるprovider prefixになります。
+- backendの `config` は `agents.defaults.cliBackends.<id>` と同じ形を使います。
+- ユーザーconfigが常に優先されます。OpenClawはCLI実行前に、plugin defaultの上に `agents.defaults.cliBackends.<id>` をマージします。
+- マージ後にbackendで互換性書き換えが必要な場合は、`normalizeConfig`
+  を使用してください
+  （たとえば古いflag形状の正規化）。
+
+### 排他的slot
+
+| Method                                     | 登録するもの                       |
 | ------------------------------------------ | ---------------------------------- |
-| `api.registerContextEngine(id, factory)`   | コンテキストエンジン（一度に1つのみアクティブ） |
-| `api.registerMemoryPromptSection(builder)` | メモリプロンプトセクションビルダー   |
-| `api.registerMemoryFlushPlan(resolver)`    | メモリフラッシュプランリゾルバー     |
-| `api.registerMemoryRuntime(runtime)`       | メモリランタイムアダプター           |
+| `api.registerContextEngine(id, factory)`   | context engine（一度に1つだけ有効） |
+| `api.registerMemoryPromptSection(builder)` | memory prompt section builder      |
+| `api.registerMemoryFlushPlan(resolver)`    | memory flush plan resolver         |
+| `api.registerMemoryRuntime(runtime)`       | memory runtime adapter             |
 
-### メモリ埋め込みアダプター
+### Memory embedding adapter
 
-| メソッド                                         | 登録するもの                                 |
+| Method                                         | 登録するもの                                |
 | ---------------------------------------------- | ------------------------------------------- |
-| `api.registerMemoryEmbeddingProvider(adapter)` | アクティブなプラグイン用のメモリ埋め込みアダプター |
+| `api.registerMemoryEmbeddingProvider(adapter)` | アクティブplugin用のmemory embedding adapter |
 
-- `registerMemoryPromptSection`, `registerMemoryFlushPlan`, および
-  `registerMemoryRuntime` は、メモリプラグイン専用です。
-- `registerMemoryEmbeddingProvider` により、アクティブなメモリプラグインは
-  1つ以上の埋め込みアダプターID（たとえば `openai`、`gemini`、または
-  プラグイン定義のカスタムID）を登録できます。
+- `registerMemoryPromptSection`、`registerMemoryFlushPlan`、および
+  `registerMemoryRuntime` はmemory plugins専用です。
+- `registerMemoryEmbeddingProvider` により、アクティブなmemory pluginは
+  1つ以上のembedding adapter id（たとえば `openai`、`gemini`、またはカスタムの
+  plugin定義id）を登録できます。
 - `agents.defaults.memorySearch.provider` や
-  `agents.defaults.memorySearch.fallback` のようなユーザー設定は、
-  それらの登録済みアダプターIDに対して解決されます。
+  `agents.defaults.memorySearch.fallback` のようなユーザーconfigは、
+  登録されたそれらのadapter idに対して解決されます。
 
-### イベントとライフサイクル
+### Eventsとライフサイクル
 
-| メソッド                                       | 動作内容                    |
-| -------------------------------------------- | ------------------------- |
-| `api.on(hookName, handler, opts?)`           | 型付きライフサイクルフック |
-| `api.onConversationBindingResolved(handler)` | 会話バインディングコールバック |
+| Method                                       | 役割                         |
+| -------------------------------------------- | ---------------------------- |
+| `api.on(hookName, handler, opts?)`           | 型付きライフサイクルhook      |
+| `api.onConversationBindingResolved(handler)` | conversation binding callback |
 
-### フック判定セマンティクス
+### Hook判定セマンティクス
 
-- `before_tool_call`: `{ block: true }` を返すと終端です。いずれかのハンドラーがこれを設定すると、より低優先度のハンドラーはスキップされます。
-- `before_tool_call`: `{ block: false }` を返しても判定なしとして扱われます（`block` を省略した場合と同じ）であり、上書きではありません。
-- `before_install`: `{ block: true }` を返すと終端です。いずれかのハンドラーがこれを設定すると、より低優先度のハンドラーはスキップされます。
-- `before_install`: `{ block: false }` を返しても判定なしとして扱われます（`block` を省略した場合と同じ）であり、上書きではありません。
-- `reply_dispatch`: `{ handled: true, ... }` を返すと終端です。いずれかのハンドラーがディスパッチを引き受けると、より低優先度のハンドラーとデフォルトのモデルディスパッチパスはスキップされます。
-- `message_sending`: `{ cancel: true }` を返すと終端です。いずれかのハンドラーがこれを設定すると、より低優先度のハンドラーはスキップされます。
-- `message_sending`: `{ cancel: false }` を返しても判定なしとして扱われます（`cancel` を省略した場合と同じ）であり、上書きではありません。
+- `before_tool_call`: `{ block: true }` を返すと終端です。どれかのhandlerがこれを設定すると、それより低い優先度のhandlerはスキップされます。
+- `before_tool_call`: `{ block: false }` を返すと、上書きではなく未決定として扱われます（`block` を省略した場合と同じ）。
+- `before_install`: `{ block: true }` を返すと終端です。どれかのhandlerがこれを設定すると、それより低い優先度のhandlerはスキップされます。
+- `before_install`: `{ block: false }` を返すと、上書きではなく未決定として扱われます（`block` を省略した場合と同じ）。
+- `reply_dispatch`: `{ handled: true, ... }` を返すと終端です。どれかのhandlerがdispatchを引き受けると、それより低い優先度のhandlerとデフォルトのmodel dispatch経路はスキップされます。
+- `message_sending`: `{ cancel: true }` を返すと終端です。どれかのhandlerがこれを設定すると、それより低い優先度のhandlerはスキップされます。
+- `message_sending`: `{ cancel: false }` を返すと、上書きではなく未決定として扱われます（`cancel` を省略した場合と同じ）。
 
-### APIオブジェクトのフィールド
+### APIオブジェクトのfield
 
-| フィールド                | 型                        | 説明                                                                                       |
-| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------ |
-| `api.id`                 | `string`                  | プラグインID                                                                                |
-| `api.name`               | `string`                  | 表示名                                                                                      |
-| `api.version`            | `string?`                 | プラグインバージョン（任意）                                                                |
-| `api.description`        | `string?`                 | プラグインの説明（任意）                                                                    |
-| `api.source`             | `string`                  | プラグインのソースパス                                                                      |
-| `api.rootDir`            | `string?`                 | プラグインのルートディレクトリ（任意）                                                      |
-| `api.config`             | `OpenClawConfig`          | 現在の設定スナップショット（利用可能な場合はアクティブなインメモリランタイムスナップショット） |
-| `api.pluginConfig`       | `Record<string, unknown>` | `plugins.entries.<id>.config` から取得したプラグイン固有設定                               |
-| `api.runtime`            | `PluginRuntime`           | [ランタイムヘルパー](/ja-JP/plugins/sdk-runtime)                                                  |
-| `api.logger`             | `PluginLogger`            | スコープ付き logger (`debug`, `info`, `warn`, `error`)                                     |
-| `api.registrationMode`   | `PluginRegistrationMode`  | 現在のロードモード。`"setup-runtime"` は、軽量なフルエントリ前の起動/セットアップウィンドウです |
-| `api.resolvePath(input)` | `(string) => string`      | プラグインルートからの相対パスを解決                                                        |
+| Field                    | Type                      | 説明                                                                                   |
+| ------------------------ | ------------------------- | -------------------------------------------------------------------------------------- |
+| `api.id`                 | `string`                  | plugin id                                                                              |
+| `api.name`               | `string`                  | 表示名                                                                                 |
+| `api.version`            | `string?`                 | plugin version（任意）                                                                  |
+| `api.description`        | `string?`                 | plugin説明（任意）                                                                      |
+| `api.source`             | `string`                  | plugin source path                                                                     |
+| `api.rootDir`            | `string?`                 | plugin rootディレクトリ（任意）                                                         |
+| `api.config`             | `OpenClawConfig`          | 現在のconfig snapshot（利用可能な場合は、アクティブなインメモリruntime snapshot）       |
+| `api.pluginConfig`       | `Record<string, unknown>` | `plugins.entries.<id>.config` から取得したplugin固有config                              |
+| `api.runtime`            | `PluginRuntime`           | [Runtime Helpers](/ja-JP/plugins/sdk-runtime)                                                |
+| `api.logger`             | `PluginLogger`            | スコープ付きlogger（`debug`、`info`、`warn`、`error`）                                  |
+| `api.registrationMode`   | `PluginRegistrationMode`  | 現在のload mode。`"setup-runtime"` は完全なentry前の軽量な起動/setup期間です            |
+| `api.resolvePath(input)` | `(string) => string`      | plugin root基準でpathを解決                                                             |
 
-## 内部モジュール規約
+## 内部module規約
 
-プラグイン内では、内部インポートにローカルのバレルファイルを使用してください。
+plugin内では、内部importにローカルbarrelファイルを使用してください:
 
 ```
 my-plugin/
-  api.ts            # 外部利用者向けの公開エクスポート
-  runtime-api.ts    # 内部専用ランタイムエクスポート
-  index.ts          # プラグインエントリポイント
-  setup-entry.ts    # 軽量のセットアップ専用エントリ（任意）
+  api.ts            # 外部利用者向けpublic export
+  runtime-api.ts    # 内部専用runtime export
+  index.ts          # Plugin entry point
+  setup-entry.ts    # 軽量なsetup専用entry（任意）
 ```
 
 <Warning>
-  本番コード内で、自分自身のプラグインを `openclaw/plugin-sdk/<your-plugin>`
-  経由でインポートしてはいけません。内部インポートは `./api.ts` または
-  `./runtime-api.ts` を経由してください。SDKパスは外部コントラクト専用です。
+  production codeから `openclaw/plugin-sdk/<your-plugin>` を通じて
+  自分自身のpluginをimportしてはいけません。内部importは `./api.ts` または
+  `./runtime-api.ts` を経由させてください。SDK pathは外部契約専用です。
 </Warning>
 
-ファサード読み込みされたバンドルプラグインの公開サーフェス（`api.ts`、
-`runtime-api.ts`、`index.ts`、`setup-entry.ts`、および類似の公開エントリファイル）は、
-OpenClaw がすでに実行中であれば、アクティブなランタイム設定スナップショットを
-優先するようになりました。まだランタイムスナップショットが存在しない場合は、
-ディスク上で解決された設定ファイルにフォールバックします。
+facade読み込みのバンドルplugin public surface（`api.ts`、`runtime-api.ts`、
+`index.ts`、`setup-entry.ts`、および類似のpublic entry file）は、OpenClawがすでに動作中なら
+アクティブなruntime config snapshotを優先するようになっています。
+まだruntime snapshotが存在しない場合は、ディスク上で解決されたconfig fileへフォールバックします。
 
-プロバイダープラグインは、ヘルパーが意図的にプロバイダー固有であり、まだ汎用SDK
-サブパスに属さない場合、狭い用途のプラグインローカルなコントラクトバレルを
-公開することもできます。現在のバンドル例: Anthropicプロバイダーは、
-Anthropic beta-header と `service_tier` ロジックを汎用の `plugin-sdk/*`
-コントラクトに昇格させる代わりに、自身の公開 `api.ts` / `contract-api.ts`
-境界に Claude ストリームヘルパーを保持しています。
+provider pluginsは、helperが意図的にprovider固有であり、
+まだ汎用的なSDK subpathに属していない場合に、
+狭いpluginローカルcontract barrelを公開することもできます。現在のバンドル例:
+Anthropic providerは、Anthropicのbeta-headerや `service_tier`
+ロジックを汎用 `plugin-sdk/*` contractへ昇格させる代わりに、
+Claude stream helperを自身のpublic `api.ts` / `contract-api.ts` seamに保持しています。
 
 その他の現在のバンドル例:
 
-- `@openclaw/openai-provider`: `api.ts` はプロバイダービルダー、
-  default-model ヘルパー、およびリアルタイムプロバイダービルダーをエクスポート
-- `@openclaw/openrouter-provider`: `api.ts` はプロバイダービルダーに加え、
-  オンボーディング/設定ヘルパーをエクスポート
+- `@openclaw/openai-provider`: `api.ts` はprovider builder、
+  default-model helper、realtime provider builderをexport
+- `@openclaw/openrouter-provider`: `api.ts` はprovider builderと
+  onboarding/config helperをexport
 
 <Warning>
-  拡張機能の本番コードも、`openclaw/plugin-sdk/<other-plugin>` のインポートを避けるべきです。
-  ヘルパーが本当に共有されるべきものなら、2つのプラグインを結合するのではなく、
+  extensionのproduction codeも、`openclaw/plugin-sdk/<other-plugin>` の
+  importを避けるべきです。helperが本当に共有されるべきなら、2つのpluginを結合するのではなく、
   `openclaw/plugin-sdk/speech`、`.../provider-model-shared`、または他の
-  capability 指向サーフェスのような中立的なSDKサブパスへ昇格させてください。
+  capability指向surfaceのような中立的なSDK subpathへ昇格させてください。
 </Warning>
 
 ## 関連
 
 - [Entry Points](/ja-JP/plugins/sdk-entrypoints) — `definePluginEntry` と `defineChannelPluginEntry` のオプション
-- [Runtime Helpers](/ja-JP/plugins/sdk-runtime) — `api.runtime` 名前空間の完全なリファレンス
-- [Setup and Config](/ja-JP/plugins/sdk-setup) — パッケージ化、マニフェスト、設定スキーマ
-- [Testing](/ja-JP/plugins/sdk-testing) — テストユーティリティとlintルール
-- [SDK Migration](/ja-JP/plugins/sdk-migration) — 非推奨サーフェスからの移行
-- [Plugin Internals](/ja-JP/plugins/architecture) — 詳細なアーキテクチャと機能モデル
+- [Runtime Helpers](/ja-JP/plugins/sdk-runtime) — 完全な `api.runtime` namespaceリファレンス
+- [Setup and Config](/ja-JP/plugins/sdk-setup) — packaging、manifest、config schema
+- [Testing](/ja-JP/plugins/sdk-testing) — テストユーティリティとlint rule
+- [SDK Migration](/ja-JP/plugins/sdk-migration) — 非推奨surfaceからの移行
+- [Plugin Internals](/ja-JP/plugins/architecture) — 詳細なアーキテクチャとcapability model

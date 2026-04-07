@@ -1,23 +1,23 @@
 ---
 read_when:
     - Ви хочете використовувати моделі Mistral в OpenClaw
-    - Вам потрібні онбординг API-ключа Mistral і посилання на моделі
-summary: Використання моделей Mistral і транскрипції Voxtral з OpenClaw
+    - Вам потрібні налаштування ключа API Mistral і посилання на моделі
+summary: Використовуйте моделі Mistral і транскрипцію Voxtral з OpenClaw
 title: Mistral
 x-i18n:
-    generated_at: "2026-04-05T18:14:17Z"
+    generated_at: "2026-04-07T07:24:22Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 8f61b9e0656dd7e0243861ddf14b1b41a07c38bff27cef9ad0815d14c8e34408
+    source_hash: 4e32a0eb2a37dba6383ba338b06a8d0be600e7443aa916225794ccb0fdf46aee
     source_path: providers/mistral.md
     workflow: 15
 ---
 
 # Mistral
 
-OpenClaw підтримує Mistral як для маршрутизації текстових/графічних моделей (`mistral/...`), так і для
-аудіотранскрипції через Voxtral у media understanding.
-Mistral також можна використовувати для memory embeddings (`memorySearch.provider = "mistral"`).
+OpenClaw підтримує Mistral як для маршрутизації текстових/графічних моделей (`mistral/...`), так і
+для аудіотранскрипції через Voxtral у media understanding.
+Mistral також можна використовувати для ембедингів пам’яті (`memorySearch.provider = "mistral"`).
 
 ## Налаштування CLI
 
@@ -27,7 +27,7 @@ openclaw onboard --auth-choice mistral-api-key
 openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
 ```
 
-## Фрагмент конфігурації (провайдер LLM)
+## Фрагмент конфігурації (постачальник LLM)
 
 ```json5
 {
@@ -40,15 +40,15 @@ openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
 
 Наразі OpenClaw постачається з таким вбудованим каталогом Mistral:
 
-| Посилання на модель               | Вхід       | Контекст | Макс. вивід | Примітки                    |
-| --------------------------------- | ---------- | -------- | ----------- | --------------------------- |
-| `mistral/mistral-large-latest`    | text, image | 262,144 | 16,384      | Типова модель               |
-| `mistral/mistral-medium-2508`     | text, image | 262,144 | 8,192       | Mistral Medium 3.1          |
-| `mistral/mistral-small-latest`    | text, image | 128,000 | 16,384      | Менша мультимодальна модель |
-| `mistral/pixtral-large-latest`    | text, image | 128,000 | 32,768      | Pixtral                     |
-| `mistral/codestral-latest`        | text        | 256,000 | 4,096       | Кодування                   |
-| `mistral/devstral-medium-latest`  | text        | 262,144 | 32,768      | Devstral 2                  |
-| `mistral/magistral-small`         | text        | 128,000 | 40,000      | Із підтримкою reasoning     |
+| Model ref                        | Input       | Context | Max output | Notes                                                            |
+| -------------------------------- | ----------- | ------- | ---------- | ---------------------------------------------------------------- |
+| `mistral/mistral-large-latest`   | text, image | 262,144 | 16,384     | Default model                                                    |
+| `mistral/mistral-medium-2508`    | text, image | 262,144 | 8,192      | Mistral Medium 3.1                                               |
+| `mistral/mistral-small-latest`   | text, image | 128,000 | 16,384     | Mistral Small 4; adjustable reasoning via API `reasoning_effort` |
+| `mistral/pixtral-large-latest`   | text, image | 128,000 | 32,768     | Pixtral                                                          |
+| `mistral/codestral-latest`       | text        | 256,000 | 4,096      | Coding                                                           |
+| `mistral/devstral-medium-latest` | text        | 262,144 | 32,768     | Devstral 2                                                       |
+| `mistral/magistral-small`        | text        | 128,000 | 40,000     | Reasoning-enabled                                                |
 
 ## Фрагмент конфігурації (аудіотранскрипція з Voxtral)
 
@@ -65,11 +65,22 @@ openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
 }
 ```
 
+## Регульоване міркування (`mistral-small-latest`)
+
+`mistral/mistral-small-latest` відповідає Mistral Small 4 і підтримує [регульоване міркування](https://docs.mistral.ai/capabilities/reasoning/adjustable) в API Chat Completions через `reasoning_effort` (`none` мінімізує додаткове мислення у виводі; `high` показує повні сліди мислення перед фінальною відповіддю).
+
+OpenClaw зіставляє рівень **thinking** сеансу з API Mistral:
+
+- **off** / **minimal** → `none`
+- **low** / **medium** / **high** / **xhigh** / **adaptive** → `high`
+
+Інші моделі у вбудованому каталозі Mistral не використовують цей параметр; і надалі використовуйте моделі `magistral-*`, якщо вам потрібна нативна поведінка Mistral з пріоритетом міркування.
+
 ## Примітки
 
 - Для автентифікації Mistral використовується `MISTRAL_API_KEY`.
-- Типовий базовий URL провайдера: `https://api.mistral.ai/v1`.
-- Типова модель для онбордингу — `mistral/mistral-large-latest`.
-- Типова аудіомодель media-understanding для Mistral — `voxtral-mini-latest`.
-- Шлях для транскрипції медіа використовує `/v1/audio/transcriptions`.
-- Шлях для memory embeddings використовує `/v1/embeddings` (типова модель: `mistral-embed`).
+- Базова URL-адреса постачальника за замовчуванням: `https://api.mistral.ai/v1`.
+- Модель за замовчуванням для onboarding — `mistral/mistral-large-latest`.
+- Аудіомодель за замовчуванням для media understanding у Mistral — `voxtral-mini-latest`.
+- Шлях транскрипції медіа використовує `/v1/audio/transcriptions`.
+- Шлях ембедингів пам’яті використовує `/v1/embeddings` (модель за замовчуванням: `mistral-embed`).

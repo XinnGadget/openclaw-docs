@@ -5,10 +5,10 @@ read_when:
 summary: OpenClaw 支持的模型提供商（LLM）
 title: 提供商目录
 x-i18n:
-    generated_at: "2026-04-06T18:55:00Z"
+    generated_at: "2026-04-07T14:57:15Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 39d9ace35fd9452a4fb510fd980d251b6e51480e4647f051020bee2f1f2222e1
+    source_hash: e7bee5528b7fc9a982b3d0eaa4930cb77f7bded19a47aec00572b6fcbd823a70
     source_path: providers/index.md
     workflow: 15
 ---
@@ -17,11 +17,11 @@ x-i18n:
 
 OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份验证，然后将默认模型设置为 `provider/model`。
 
-在找聊天渠道文档（WhatsApp/Telegram/Discord/Slack/Mattermost（插件）/ 等）吗？请参阅 [Channels](/zh-CN/channels)。
+在找聊天渠道文档（WhatsApp/Telegram/Discord/Slack/Mattermost（插件）/ 等）？请参阅 [渠道](/zh-CN/channels)。
 
 ## 快速开始
 
-1. 使用提供商完成身份验证（通常通过 `openclaw onboard`）。
+1. 使用该提供商完成身份验证（通常通过 `openclaw onboard`）。
 2. 设置默认模型：
 
 ```json5
@@ -47,7 +47,8 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 - [GLM 模型](/zh-CN/providers/glm)
 - [Google（Gemini）](/zh-CN/providers/google)
 - [Groq（LPU 推理）](/zh-CN/providers/groq)
-- [Hugging Face（Inference）](/zh-CN/providers/huggingface)
+- [Hugging Face（推理）](/zh-CN/providers/huggingface)
+- [inferrs（本地模型）](/zh-CN/providers/inferrs)
 - [Kilocode](/zh-CN/providers/kilocode)
 - [LiteLLM（统一 Gateway 网关）](/zh-CN/providers/litellm)
 - [MiniMax](/zh-CN/providers/minimax)
@@ -59,7 +60,7 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 - [OpenCode](/zh-CN/providers/opencode)
 - [OpenCode Go](/zh-CN/providers/opencode-go)
 - [OpenRouter](/zh-CN/providers/openrouter)
-- [Perplexity（网页搜索）](/zh-CN/providers/perplexity-provider)
+- [Perplexity（Web 搜索）](/zh-CN/providers/perplexity-provider)
 - [Qianfan](/zh-CN/providers/qianfan)
 - [Qwen Cloud](/zh-CN/providers/qwen)
 - [Runway](/zh-CN/providers/runway)
@@ -91,4 +92,4 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 
 - [Claude Max API Proxy](/zh-CN/providers/claude-max-api-proxy) - 用于 Claude 订阅凭证的社区代理（使用前请确认 Anthropic 的政策/条款）
 
-有关完整的提供商目录（xAI、Groq、Mistral 等）和高级配置，请参阅 [模型提供商](/zh-CN/concepts/model-providers)。
+如需查看完整的提供商目录（xAI、Groq、Mistral 等）和高级配置，请参阅 [模型提供商](/zh-CN/concepts/model-providers)。

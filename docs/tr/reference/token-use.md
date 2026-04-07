@@ -1,136 +1,129 @@
 ---
 read_when:
-    - Belirteç kullanımı, maliyetler veya bağlam pencerelerini açıklama
-    - Bağlam büyümesini veya sıkıştırma davranışını hata ayıklama
-summary: OpenClaw'ın istem bağlamını nasıl oluşturduğu ve belirteç kullanımını + maliyetleri nasıl raporladığı
-title: Belirteç Kullanımı ve Maliyetler
+    - Token kullanımı, maliyetler veya bağlam pencerelerini açıklama
+    - Bağlam büyümesi veya sıkıştırma davranışında hata ayıklama
+summary: OpenClaw'ın prompt bağlamını nasıl oluşturduğu ve token kullanımı ile maliyetleri nasıl raporladığı
+title: Token Kullanımı ve Maliyetler
 x-i18n:
-    generated_at: "2026-04-05T14:08:21Z"
+    generated_at: "2026-04-07T08:49:45Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 14e7a0ac0311298cf1484d663799a3f5a9687dd5afc9702233e983aba1979f1d
+    source_hash: 0683693d6c6fcde7d5fba236064ba97dd4b317ae6bea3069db969fcd178119d9
     source_path: reference/token-use.md
     workflow: 15
 ---
 
-# Belirteç kullanımı ve maliyetler
+# Token kullanımı ve maliyetler
 
-OpenClaw **karakterleri** değil, **belirteçleri** izler. Belirteçler modele özgüdür, ancak
-çoğu OpenAI tarzı model İngilizce metin için belirteç başına ortalama ~4 karakter kullanır.
+OpenClaw **karakterleri değil**, **token'ları** izler. Token'lar modele özeldir, ancak çoğu
+OpenAI tarzı model İngilizce metin için ortalama token başına yaklaşık 4 karakter kullanır.
 
-## Sistem istemi nasıl oluşturulur
+## Sistem prompt'u nasıl oluşturulur
 
-OpenClaw her çalıştırmada kendi sistem istemini oluşturur. Buna şunlar dahildir:
+OpenClaw her çalıştırmada kendi system prompt'unu oluşturur. Şunları içerir:
 
-- Araç listesi + kısa açıklamalar
-- Skills listesi (yalnızca meta veriler; yönergeler gerektiğinde `read` ile yüklenir)
+- Tool listesi + kısa açıklamalar
+- Skills listesi (yalnızca meta veriler; yönergeler isteğe bağlı olarak `read` ile yüklenir)
 - Kendi kendini güncelleme yönergeleri
-- Çalışma alanı + önyükleme dosyaları (`AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, yeniyken `BOOTSTRAP.md`, ayrıca mevcutsa `MEMORY.md` veya küçük harfli geri dönüş olarak `memory.md`). Büyük dosyalar `agents.defaults.bootstrapMaxChars` ile kırpılır (varsayılan: 20000) ve toplam önyükleme ekleme miktarı `agents.defaults.bootstrapTotalMaxChars` ile sınırlandırılır (varsayılan: 150000). `memory/*.md` dosyaları bellek araçları üzerinden isteğe bağlıdır ve otomatik olarak eklenmez.
+- Çalışma alanı + bootstrap dosyaları (`AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, yeni olduğunda `BOOTSTRAP.md`, ayrıca varsa `MEMORY.md` veya küçük harfli geri dönüş olarak `memory.md`). Büyük dosyalar `agents.defaults.bootstrapMaxChars` (varsayılan: 20000) ile kısaltılır ve toplam bootstrap ekleme işlemi `agents.defaults.bootstrapTotalMaxChars` (varsayılan: 150000) ile sınırlandırılır. `memory/*.md` dosyaları memory tools aracılığıyla isteğe bağlıdır ve otomatik eklenmez.
 - Zaman (UTC + kullanıcı saat dilimi)
 - Yanıt etiketleri + heartbeat davranışı
 - Çalışma zamanı meta verileri (host/OS/model/thinking)
 
 Tam döküm için bkz. [System Prompt](/tr/concepts/system-prompt).
 
-## Bağlam penceresinde neler sayılır
+## Bağlam penceresinde ne sayılır
 
 Modelin aldığı her şey bağlam sınırına dahil edilir:
 
-- Sistem istemi (yukarıda listelenen tüm bölümler)
-- Konuşma geçmişi (kullanıcı + asistan mesajları)
-- Araç çağrıları ve araç sonuçları
-- Ekler/dökümler (görseller, ses, dosyalar)
+- System prompt (yukarıda listelenen tüm bölümler)
+- Konuşma geçmişi (kullanıcı + yardımcı mesajları)
+- Tool çağrıları ve tool sonuçları
+- Ekler/transkriptler (görüntüler, ses, dosyalar)
 - Sıkıştırma özetleri ve budama yapıtları
-- Sağlayıcı sarmalayıcıları veya güvenlik başlıkları (görünmez, ancak yine de sayılır)
+- Provider wrapper'ları veya güvenlik header'ları (görünmezler, ama yine de sayılırlar)
 
-Görseller için OpenClaw, sağlayıcı çağrılarından önce döküm/araç görsel yüklerini küçültür.
-Bunu ayarlamak için `agents.defaults.imageMaxDimensionPx` kullanın (varsayılan: `1200`):
+Görüntüler için OpenClaw, provider çağrılarından önce transcript/tool görüntü payload'larını küçültür.
+Bunu ayarlamak için `agents.defaults.imageMaxDimensionPx` (varsayılan: `1200`) kullanın:
 
-- Daha düşük değerler genellikle vision belirteci kullanımını ve yük boyutunu azaltır.
+- Daha düşük değerler genellikle vision-token kullanımını ve payload boyutunu azaltır.
 - Daha yüksek değerler OCR/UI ağırlıklı ekran görüntüleri için daha fazla görsel ayrıntıyı korur.
 
-Pratik bir döküm için (eklenen dosya başına, araçlar, Skills ve sistem istemi boyutu), `/context list` veya `/context detail` kullanın. Bkz. [Context](/tr/concepts/context).
+Pratik bir döküm için (eklenen dosya başına, tool'lar, Skills ve system prompt boyutu), `/context list` veya `/context detail` kullanın. Bkz. [Context](/tr/concepts/context).
 
-## Geçerli belirteç kullanımı nasıl görülür
+## Geçerli token kullanımı nasıl görülür
 
 Sohbette şunları kullanın:
 
 - `/status` → oturum modeli, bağlam kullanımı,
-  son yanıtın giriş/çıkış belirteçleri ve **tahmini maliyeti** (yalnızca API anahtarı) ile
-  **emoji açısından zengin durum kartı**.
-- `/usage off|tokens|full` → her yanıta **yanıt başına kullanım altbilgisi**
-  ekler.
+  son yanıt giriş/çıkış token'ları ve **tahmini maliyet** (yalnızca API anahtarı) içeren **emoji açısından zengin durum kartı**.
+- `/usage off|tokens|full` → her yanıta **yanıt başına kullanım alt bilgisi** ekler.
   - Oturum başına kalıcıdır (`responseUsage` olarak saklanır).
-  - OAuth kimlik doğrulaması **maliyeti gizler** (yalnızca belirteçler).
-- `/usage cost` → OpenClaw oturum günlüklerinden yerel bir maliyet özeti gösterir.
+  - OAuth kimlik doğrulaması **maliyeti gizler** (yalnızca token'lar).
+- `/usage cost` → OpenClaw oturum günlüklerinden yerel maliyet özetini gösterir.
 
 Diğer yüzeyler:
 
 - **TUI/Web TUI:** `/status` + `/usage` desteklenir.
 - **CLI:** `openclaw status --usage` ve `openclaw channels list`,
-  normalleştirilmiş sağlayıcı kota pencerelerini gösterir (`%X kaldı`, yanıt başına maliyet değil).
-  Geçerli kullanım penceresi sağlayıcıları: Anthropic, GitHub Copilot, Gemini CLI,
+  normalize edilmiş provider kota pencerelerini gösterir (`yanıt başına maliyetler` değil, `X% kaldı`).
+  Geçerli kullanım penceresi provider'ları: Anthropic, GitHub Copilot, Gemini CLI,
   OpenAI Codex, MiniMax, Xiaomi ve z.ai.
 
-Kullanım yüzeyleri, göstermeden önce yaygın sağlayıcıya özgü alan takma adlarını normalleştirir.
+Kullanım yüzeyleri, görüntülemeden önce yaygın provider yerel alan takma adlarını normalize eder.
 OpenAI ailesi Responses trafiği için buna hem `input_tokens` /
 `output_tokens` hem de `prompt_tokens` / `completion_tokens` dahildir; böylece taşımaya özgü
 alan adları `/status`, `/usage` veya oturum özetlerini değiştirmez.
-Gemini CLI JSON kullanımı da normalleştirilir: yanıt metni `response` içinden gelir ve
-CLI açık bir `stats.input` alanını atladığında `stats.cached`, `cacheRead` olarak eşlenir; ayrıca
-`stats.input_tokens - stats.cached` kullanılır.
+Gemini CLI JSON kullanımı da normalize edilir: yanıt metni `response` içinden gelir ve
+CLI açık bir `stats.input` alanı vermediğinde
+`stats.cached`, `cacheRead` olarak eşlenir; `stats.input_tokens - stats.cached` kullanılır.
 Yerel OpenAI ailesi Responses trafiği için WebSocket/SSE kullanım takma adları da
-aynı şekilde normalleştirilir ve `total_tokens` eksik olduğunda veya `0` olduğunda toplamlar,
-normalleştirilmiş giriş + çıkışa geri döner.
-Geçerli oturum anlık görüntüsü seyrek olduğunda, `/status` ve `session_status`
-en son döküm kullanım günlüğünden belirteç/önbellek sayaçlarını ve etkin çalışma zamanı model etiketini de
-geri kazanabilir.
-Mevcut sıfır olmayan canlı değerler yine de döküm geri dönüş değerlerine göre önceliklidir ve
-saklanan toplamlar eksik veya daha küçük olduğunda, istem odaklı daha büyük
-döküm toplamları kazanabilir.
-Sağlayıcı kota pencereleri için kullanım kimlik doğrulaması, mevcut olduğunda sağlayıcıya özgü kancalardan gelir;
-aksi takdirde OpenClaw, kimlik doğrulama profilleri, env veya yapılandırmadan eşleşen OAuth/API anahtarı kimlik bilgilerine geri döner.
+aynı şekilde normalize edilir ve `total_tokens` eksikse veya `0` ise toplamlar normalize edilmiş giriş + çıkıştan geri düşer.
+Geçerli oturum anlık görüntüsü seyrekse `/status` ve `session_status`
+ayrıca token/cache sayaçlarını ve etkin çalışma zamanı model etiketini
+en son transcript kullanım günlüğünden de geri kazanabilir.
+Mevcut sıfır olmayan canlı değerler yine de transcript geri dönüş değerlerine göre önceliklidir ve saklanan toplamlar eksik veya daha küçük olduğunda daha büyük prompt odaklı
+transcript toplamları kazanabilir.
+Provider kota pencereleri için kullanım kimlik doğrulaması, mevcut olduğunda provider'a özgü hook'lardan gelir; aksi halde OpenClaw auth profillerinden, env'den veya yapılandırmadan eşleşen OAuth/API key kimlik bilgilerine geri düşer.
 
 ## Maliyet tahmini (gösterildiğinde)
 
-Maliyetler, model fiyatlandırma yapılandırmanızdan tahmin edilir:
+Maliyetler model fiyatlandırma yapılandırmanızdan tahmin edilir:
 
 ```
 models.providers.<provider>.models[].cost
 ```
 
 Bunlar `input`, `output`, `cacheRead` ve
-`cacheWrite` için **1 milyon belirteç başına USD** cinsindendir. Fiyatlandırma eksikse OpenClaw yalnızca belirteçleri gösterir. OAuth belirteçleri
-asla dolar maliyeti göstermez.
+`cacheWrite` için **1M token başına USD** değerleridir. Fiyatlandırma eksikse OpenClaw yalnızca token'ları gösterir. OAuth token'ları
+asla dolar cinsinden maliyet göstermez.
 
-## Önbellek TTL'si ve budamanın etkisi
+## Cache TTL ve budama etkisi
 
-Sağlayıcı istem önbelleklemesi yalnızca önbellek TTL penceresi içinde geçerlidir. OpenClaw,
-isteğe bağlı olarak **cache-ttl pruning** çalıştırabilir: önbellek TTL'si
-sona erdiğinde oturumu budar, ardından önbellek penceresini sıfırlar; böylece sonraki istekler,
-tüm geçmişi yeniden önbelleğe almak yerine yeni önbelleğe alınmış bağlamı yeniden kullanabilir.
-Bu, bir oturum TTL'yi aşacak kadar boşta kaldığında önbellek yazma
-maliyetlerini daha düşük tutar.
+Provider prompt caching yalnızca cache TTL penceresi içinde geçerlidir. OpenClaw
+isteğe bağlı olarak **cache-ttl pruning** çalıştırabilir: cache TTL
+süresi dolduğunda oturumu budar, sonra cache penceresini sıfırlar; böylece sonraki istekler tam geçmişi yeniden cache'lemek yerine
+yeni cache'lenen bağlamı yeniden kullanabilir. Bu, bir oturum TTL süresini aşacak kadar boşta kaldığında cache
+yazma maliyetlerini daha düşük tutar.
 
 Bunu [Gateway configuration](/tr/gateway/configuration) bölümünde yapılandırın ve
 davranış ayrıntıları için [Session pruning](/tr/concepts/session-pruning) bölümüne bakın.
 
-Heartbeat, boşta kalma aralıkları boyunca önbelleği **sıcak**
-tutabilir. Model önbellek TTL'niz `1h` ise, heartbeat aralığını bunun hemen altına ayarlamak
-(örneğin `55m`), tam istemin yeniden önbelleğe alınmasını önleyebilir; bu da önbellek yazma maliyetlerini azaltır.
+Heartbeat, cache'i boşta geçen aralıklarda **sıcak** tutabilir. Model cache TTL'niz
+`1h` ise heartbeat aralığını bunun biraz altına ayarlamak (örneğin `55m`) tam
+prompt'un yeniden cache'lenmesini önleyebilir ve cache yazma maliyetlerini düşürebilir.
 
-Çok ajanlı kurulumlarda, tek bir ortak model yapılandırması tutabilir ve önbellek davranışını
+Çoklu ajan kurulumlarında tek bir paylaşılan model yapılandırmasını koruyabilir ve cache davranışını
 ajan başına `agents.list[].params.cacheRetention` ile ayarlayabilirsiniz.
 
-Ayarların her biri için tam kılavuz için bkz. [Prompt Caching](/reference/prompt-caching).
+Her ayar düğmesini tek tek açıklayan tam bir kılavuz için bkz. [Prompt Caching](/tr/reference/prompt-caching).
 
-Anthropic API fiyatlandırmasında, önbellek okumaları giriş
-belirteçlerinden önemli ölçüde daha ucuzdur; önbellek yazmaları ise daha yüksek bir çarpanla ücretlendirilir.
-En güncel oranlar ve TTL çarpanları için Anthropic'in
+Anthropic API fiyatlandırmasında cache okumaları input
+token'lara göre belirgin şekilde daha ucuzdur; cache yazmaları ise daha yüksek bir çarpanla ücretlendirilir. En güncel oranlar ve TTL çarpanları için Anthropic’in
 prompt caching fiyatlandırmasına bakın:
 [https://docs.anthropic.com/docs/build-with-claude/prompt-caching](https://docs.anthropic.com/docs/build-with-claude/prompt-caching)
 
-### Örnek: heartbeat ile 1 saatlik önbelleği sıcak tutun
+### Örnek: 1h cache'i heartbeat ile sıcak tutma
 
 ```yaml
 agents:
@@ -145,7 +138,7 @@ agents:
       every: "55m"
 ```
 
-### Örnek: ajan başına önbellek stratejisiyle karma trafik
+### Örnek: ajan başına cache stratejisi ile karma trafik
 
 ```yaml
 agents:
@@ -155,24 +148,24 @@ agents:
     models:
       "anthropic/claude-opus-4-6":
         params:
-          cacheRetention: "long" # çoğu ajan için varsayılan temel çizgi
+          cacheRetention: "long" # çoğu ajan için varsayılan temel yapı
   list:
     - id: "research"
       default: true
       heartbeat:
-        every: "55m" # derin oturumlar için uzun önbelleği sıcak tut
+        every: "55m" # derin oturumlar için uzun cache'i sıcak tut
     - id: "alerts"
       params:
-        cacheRetention: "none" # ani bildirimler için önbellek yazımlarını önle
+        cacheRetention: "none" # patlamalı bildirimler için cache yazımlarını önle
 ```
 
-`agents.list[].params`, seçili modelin `params` değerlerinin üstüne birleştirilir; böylece
-yalnızca `cacheRetention` değerini geçersiz kılabilir ve diğer model varsayılanlarını değiştirmeden devralabilirsiniz.
+`agents.list[].params`, seçilen modelin `params` alanının üzerine birleştirilir; böylece yalnızca
+`cacheRetention` değerini geçersiz kılabilir ve diğer model varsayılanlarını değiştirmeden devralabilirsiniz.
 
-### Örnek: Anthropic 1M bağlam beta başlığını etkinleştirme
+### Örnek: Anthropic 1M bağlam beta header'ını etkinleştirme
 
-Anthropic'in 1M bağlam penceresi şu anda beta ile sınırlıdır. OpenClaw,
-desteklenen Opus veya Sonnet modellerinde `context1m` etkinleştirildiğinde gerekli
+Anthropic'in 1M bağlam penceresi şu anda beta kapılıdır. OpenClaw,
+desteklenen Opus veya Sonnet modellerinde `context1m` etkinleştirdiğinizde gerekli
 `anthropic-beta` değerini ekleyebilir.
 
 ```yaml
@@ -184,25 +177,23 @@ agents:
           context1m: true
 ```
 
-Bu, Anthropic'in `context-1m-2025-08-07` beta başlığına eşlenir.
+Bu, Anthropic'in `context-1m-2025-08-07` beta header'ına eşlenir.
 
-Bu yalnızca ilgili model girdisinde `context1m: true` ayarlandığında geçerlidir.
+Bu yalnızca o model girdisinde `context1m: true` ayarlandığında uygulanır.
 
-Gereksinim: kimlik bilgisinin uzun bağlam kullanımı için uygun olması gerekir (API anahtarı
-faturalandırması veya OpenClaw'ın Extra Usage etkin Claude-login yolu). Aksi halde,
-Anthropic şu yanıtı verir:
-`HTTP 429: rate_limit_error: Extra usage is required for long context requests`.
+Gereksinim: kimlik bilgisinin uzun bağlam kullanımı için uygun olması gerekir. Değilse,
+Anthropic bu istek için provider taraflı bir rate limit hatası döndürür.
 
-Anthropic'i OAuth/abonelik belirteçleriyle (`sk-ant-oat-*`) doğrularsanız,
-Anthropic şu anda bu birleşimi HTTP 401 ile reddettiği için OpenClaw
-`context-1m-*` beta başlığını atlar.
+Anthropic'i OAuth/abonelik token'larıyla (`sk-ant-oat-*`) kimlik doğruluyorsanız,
+OpenClaw `context-1m-*` beta header'ını atlar çünkü Anthropic şu anda
+bu kombinasyonu HTTP 401 ile reddeder.
 
-## Belirteç baskısını azaltmaya yönelik ipuçları
+## Token baskısını azaltma ipuçları
 
 - Uzun oturumları özetlemek için `/compact` kullanın.
-- İş akışlarınızda büyük araç çıktılarını kırpın.
+- İş akışlarınızda büyük tool çıktılarını kısaltın.
 - Ekran görüntüsü ağırlıklı oturumlar için `agents.defaults.imageMaxDimensionPx` değerini düşürün.
-- Yetenek açıklamalarını kısa tutun (Skill listesi isteme eklenir).
+- Skill açıklamalarını kısa tutun (skill listesi prompt'a eklenir).
 - Ayrıntılı, keşif amaçlı işler için daha küçük modelleri tercih edin.
 
-Tam Skill listesi ek yükü formülü için bkz. [Skills](/tools/skills).
+Tam skill listesi ek yükü formülü için bkz. [Skills](/tr/tools/skills).

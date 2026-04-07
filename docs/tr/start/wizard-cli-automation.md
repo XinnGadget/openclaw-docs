@@ -1,22 +1,22 @@
 ---
 read_when:
-    - Betiklerde veya CI içinde onboarding otomasyonu yapıyorsunuz
+    - Onboarding'i betiklerde veya CI içinde otomatikleştiriyorsunuz
     - Belirli sağlayıcılar için etkileşimsiz örneklere ihtiyacınız var
 sidebarTitle: CLI automation
-summary: OpenClaw CLI için betikli onboarding ve ajan kurulumu
+summary: OpenClaw CLI için betik tabanlı onboarding ve agent kurulumu
 title: CLI Otomasyonu
 x-i18n:
-    generated_at: "2026-04-06T03:12:30Z"
+    generated_at: "2026-04-07T08:49:52Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 878ea3fa9f2a75cff9f1a803ccb8a52a1219102e2970883ad18e3aaec5967fd2
+    source_hash: bca2dd6e482a16b27284fc76319e936e8df0ff5558134827c19f6875436cc652
     source_path: start/wizard-cli-automation.md
     workflow: 15
 ---
 
 # CLI Otomasyonu
 
-`openclaw onboard` otomasyonu için `--non-interactive` kullanın.
+`openclaw onboard` işlemini otomatikleştirmek için `--non-interactive` kullanın.
 
 <Note>
 `--json`, etkileşimsiz modu ima etmez. Betikler için `--non-interactive` (ve `--workspace`) kullanın.
@@ -39,11 +39,11 @@ openclaw onboard --non-interactive \
 
 Makine tarafından okunabilir bir özet için `--json` ekleyin.
 
-Düz metin değerler yerine env destekli başvuruları auth profillerinde saklamak için `--secret-input-mode ref` kullanın.
-Env başvuruları ile yapılandırılmış sağlayıcı başvuruları (`file` veya `exec`) arasında etkileşimli seçim onboarding akışında kullanılabilir.
+Düz metin değerler yerine auth profillerinde env destekli ref'leri saklamak için `--secret-input-mode ref` kullanın.
+Env ref'leri ile yapılandırılmış sağlayıcı ref'leri (`file` veya `exec`) arasında etkileşimli seçim onboarding akışında kullanılabilir.
 
-Etkileşimsiz `ref` modunda, sağlayıcı env değişkenleri süreç ortamında ayarlı olmalıdır.
-Eşleşen env değişkeni olmadan satır içi anahtar bayrakları geçirmek artık hızlıca hata verir.
+Etkileşimsiz `ref` modunda, sağlayıcı env değişkenleri süreç ortamında ayarlanmış olmalıdır.
+Eşleşen env değişkeni olmadan satır içi anahtar bayraklarını geçirmek artık hızlıca başarısız olur.
 
 Örnek:
 
@@ -149,7 +149,7 @@ openclaw onboard --non-interactive \
       --gateway-port 18789 \
       --gateway-bind loopback
     ```
-    Go kataloğu için `--auth-choice opencode-go --opencode-go-api-key "$OPENCODE_API_KEY"` ile değiştirin.
+    Go kataloğu için `--auth-choice opencode-go --opencode-go-api-key "$OPENCODE_API_KEY"` kullanarak değiştirin.
   </Accordion>
   <Accordion title="Ollama örneği">
     ```bash
@@ -176,7 +176,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
 
-    `--custom-api-key` isteğe bağlıdır. Atlanırsa onboarding `CUSTOM_API_KEY` değerini kontrol eder.
+    `--custom-api-key` isteğe bağlıdır. Atlanırsa onboarding `CUSTOM_API_KEY` değişkenini kontrol eder.
 
     Ref modu varyantı:
 
@@ -199,15 +199,13 @@ openclaw onboard --non-interactive \
   </Accordion>
 </AccordionGroup>
 
-Anthropic setup-token artık eski/manuel onboarding yolu olarak yeniden kullanılabilir.
-Bunu, Anthropic'in OpenClaw kullanıcılarına OpenClaw
-Claude-login yolunun **Extra Usage** gerektirdiğini söylediği beklentisiyle kullanın. Üretim için
-Anthropic API anahtarı tercih edin.
+Anthropic setup-token, desteklenen bir onboarding token yolu olarak kullanılmaya devam eder, ancak OpenClaw artık mevcut olduğunda Claude CLI yeniden kullanımını tercih eder.
+Üretim için bir Anthropic API anahtarı tercih edin.
 
-## Başka bir ajan ekleme
+## Başka bir agent ekle
 
-Kendi çalışma alanı,
-oturumları ve auth profilleri olan ayrı bir ajan oluşturmak için `openclaw agents add <name>` kullanın. `--workspace` olmadan çalıştırmak sihirbazı başlatır.
+Kendi workspace'i,
+oturumları ve auth profilleri olan ayrı bir agent oluşturmak için `openclaw agents add <name>` kullanın. `--workspace` olmadan çalıştırmak sihirbazı başlatır.
 
 ```bash
 openclaw agents add work \
@@ -226,12 +224,12 @@ Ayarladıkları:
 
 Notlar:
 
-- Varsayılan çalışma alanları `~/.openclaw/workspace-<agentId>` düzenini izler.
-- Gelen iletileri yönlendirmek için `bindings` ekleyin (sihirbaz bunu yapabilir).
+- Varsayılan workspace'ler `~/.openclaw/workspace-<agentId>` biçimini izler.
+- Gelen mesajları yönlendirmek için `bindings` ekleyin (sihirbaz bunu yapabilir).
 - Etkileşimsiz bayraklar: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
 
 ## İlgili belgeler
 
 - Onboarding merkezi: [Onboarding (CLI)](/tr/start/wizard)
-- Tam başvuru: [CLI Setup Reference](/tr/start/wizard-cli-reference)
-- Komut başvurusu: [`openclaw onboard`](/cli/onboard)
+- Tam referans: [CLI Setup Reference](/tr/start/wizard-cli-reference)
+- Komut referansı: [`openclaw onboard`](/cli/onboard)

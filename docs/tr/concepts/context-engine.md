@@ -2,26 +2,27 @@
 read_when:
     - OpenClaw'ın model bağlamını nasıl oluşturduğunu anlamak istiyorsunuz
     - Eski motor ile bir eklenti motoru arasında geçiş yapıyorsunuz
-    - Bir bağlam motoru eklentisi oluşturuyorsunuz
-summary: 'Bağlam motoru: takılabilir bağlam oluşturma, sıkıştırma ve alt ajan yaşam döngüsü'
-title: Context Engine
+    - Bir bağlam motoru eklentisi geliştiriyorsunuz
+summary: 'Bağlam motoru: takılabilir bağlam oluşturma, sıkıştırma ve alt aracı yaşam döngüsü'
+title: Bağlam Motoru
 x-i18n:
-    generated_at: "2026-04-05T13:50:30Z"
+    generated_at: "2026-04-07T08:43:59Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 19fd8cbb0e953f58fd84637fc4ceefc65984312cf2896d338318bc8cf860e6d9
+    source_hash: e8290ac73272eee275bce8e481ac7959b65386752caa68044d0c6f3e450acfb1
     source_path: concepts/context-engine.md
     workflow: 15
 ---
 
-# Context Engine
+# Bağlam Motoru
 
-Bir **bağlam motoru**, OpenClaw'ın her çalıştırma için model bağlamını nasıl oluşturduğunu kontrol eder.
+Bir **bağlam motoru**, OpenClaw'ın her çalıştırma için model bağlamını nasıl oluşturduğunu denetler.
 Hangi mesajların dahil edileceğine, eski geçmişin nasıl özetleneceğine ve
-alt ajan sınırları boyunca bağlamın nasıl yönetileceğine karar verir.
+alt aracı sınırları arasında bağlamın nasıl yönetileceğine karar verir.
 
 OpenClaw, yerleşik bir `legacy` motoruyla gelir. Eklentiler,
-etkin bağlam motoru yaşam döngüsünün yerini alan alternatif motorlar kaydedebilir.
+etkin bağlam motoru yaşam döngüsünün yerine geçen alternatif motorlar
+kaydedebilir.
 
 ## Hızlı başlangıç
 
@@ -39,7 +40,7 @@ Bağlam motoru eklentileri, diğer tüm OpenClaw eklentileri gibi yüklenir. Ön
 yükleyin, ardından yuvadaki motoru seçin:
 
 ```bash
-# npm'den yükleyin
+# npm üzerinden yükleyin
 openclaw plugins install @martian-engineering/lossless-claw
 
 # Veya yerel bir yoldan yükleyin (geliştirme için)
@@ -58,63 +59,63 @@ Ardından eklentiyi etkinleştirin ve yapılandırmanızda etkin motor olarak se
     entries: {
       "lossless-claw": {
         enabled: true,
-        // Eklentiye özgü yapılandırma buraya gelir (eklentinin belgelerine bakın)
+        // Eklentiye özgü yapılandırma buraya gelir (eklenti belgelerine bakın)
       },
     },
   },
 }
 ```
 
-Yükleyip yapılandırdıktan sonra gateway'i yeniden başlatın.
+Yükleme ve yapılandırmadan sonra ağ geçidini yeniden başlatın.
 
-Yerleşik motora geri dönmek için `contextEngine` değerini `"legacy"` yapın (veya
+Yerleşik motora geri dönmek için `contextEngine` değerini `"legacy"` olarak ayarlayın (veya
 anahtarı tamamen kaldırın — varsayılan `"legacy"` değeridir).
 
 ## Nasıl çalışır
 
-OpenClaw bir model istemi her çalıştırdığında, bağlam motoru
+OpenClaw her model istemini çalıştırdığında, bağlam motoru
 dört yaşam döngüsü noktasında devreye girer:
 
-1. **Ingest** — oturuma yeni bir mesaj eklendiğinde çağrılır. Motor,
-   mesajı kendi veri deposunda saklayabilir veya indeksleyebilir.
-2. **Assemble** — her model çalıştırmasından önce çağrılır. Motor,
-   belirteç bütçesine sığan sıralı bir mesaj kümesi (ve isteğe bağlı bir `systemPromptAddition`)
-   döndürür.
-3. **Compact** — bağlam penceresi dolduğunda veya kullanıcı
-   `/compact` çalıştırdığında çağrılır. Motor, yer açmak için eski geçmişi özetler.
-4. **After turn** — bir çalıştırma tamamlandıktan sonra çağrılır. Motor durumu kalıcı hale getirebilir,
-   arka plan sıkıştırmasını tetikleyebilir veya indeksleri güncelleyebilir.
+1. **İçe alım** — oturuma yeni bir mesaj eklendiğinde çağrılır. Motor,
+   mesajı kendi veri deposunda saklayabilir veya dizinleyebilir.
+2. **Birleştirme** — her model çalıştırmasından önce çağrılır. Motor,
+   belirteç bütçesine sığan sıralı bir mesaj kümesi
+   (ve isteğe bağlı bir `systemPromptAddition`) döndürür.
+3. **Sıkıştırma** — bağlam penceresi dolduğunda veya kullanıcı
+   `/compact` komutunu çalıştırdığında çağrılır. Motor, alan açmak için eski geçmişi özetler.
+4. **Tur sonrası** — bir çalıştırma tamamlandıktan sonra çağrılır. Motor durumu kalıcı hale getirebilir,
+   arka planda sıkıştırma tetikleyebilir veya dizinleri güncelleyebilir.
 
-### Alt ajan yaşam döngüsü (isteğe bağlı)
+### Alt aracı yaşam döngüsü (isteğe bağlı)
 
-OpenClaw şu anda bir alt ajan yaşam döngüsü hook'u çağırır:
+OpenClaw şu anda bir alt aracı yaşam döngüsü kancasını çağırır:
 
-- **onSubagentEnded** — bir alt ajan oturumu tamamlandığında veya temizlendiğinde temizleme yapar.
+- **onSubagentEnded** — bir alt aracı oturumu tamamlandığında veya temizlendiğinde temizlik yapar.
 
-`prepareSubagentSpawn` hook'u gelecekte kullanılmak üzere arayüzün bir parçasıdır, ancak
-çalışma zamanı bunu henüz çağırmaz.
+`prepareSubagentSpawn` kancası gelecekte kullanılmak üzere arayüzün bir parçasıdır, ancak
+çalışma zamanı onu henüz çağırmaz.
 
-### Sistem istemi eklemesi
+### Sistem istemi eki
 
-`assemble` yöntemi bir `systemPromptAddition` dizgesi döndürebilir. OpenClaw
+`assemble` yöntemi bir `systemPromptAddition` dizesi döndürebilir. OpenClaw
 bunu çalıştırma için sistem isteminin başına ekler. Bu, motorların
 statik çalışma alanı dosyaları gerektirmeden dinamik geri çağırma rehberliği,
-geri getirme talimatları veya bağlama duyarlı ipuçları eklemesine olanak tanır.
+getirme talimatları veya bağlama duyarlı ipuçları eklemesine olanak tanır.
 
-## Legacy motoru
+## legacy motoru
 
 Yerleşik `legacy` motoru, OpenClaw'ın özgün davranışını korur:
 
-- **Ingest**: işlem yok (mesaj kalıcılığını doğrudan oturum yöneticisi işler).
-- **Assemble**: olduğu gibi geçirme (çalışma zamanındaki mevcut sanitize → validate → limit işlem hattı
-  bağlam oluşturmayı işler).
-- **Compact**: yerleşik özetleme sıkıştırmasına devreder; bu işlem
-  eski mesajların tek bir özetini oluşturur ve son mesajları olduğu gibi tutar.
-- **After turn**: işlem yok.
+- **İçe alım**: no-op (mesaj kalıcılığını doğrudan oturum yöneticisi işler).
+- **Birleştirme**: geçişli (çalışma zamanındaki mevcut sanitize → validate → limit işlem hattı
+  bağlam oluşturmayı yönetir).
+- **Sıkıştırma**: eski mesajların tek bir özetini oluşturan ve son mesajları bozulmadan tutan
+  yerleşik özetleme sıkıştırmasına devreder.
+- **Tur sonrası**: no-op.
 
-Legacy motoru araç kaydetmez ve bir `systemPromptAddition` sağlamaz.
+legacy motoru araç kaydetmez ve bir `systemPromptAddition` sağlamaz.
 
-`plugins.slots.contextEngine` ayarlanmamışsa (veya `"legacy"` olarak ayarlanmışsa), bu
+Hiçbir `plugins.slots.contextEngine` ayarlanmadığında (veya `"legacy"` olarak ayarlandığında), bu
 motor otomatik olarak kullanılır.
 
 ## Eklenti motorları
@@ -122,6 +123,8 @@ motor otomatik olarak kullanılır.
 Bir eklenti, eklenti API'sini kullanarak bir bağlam motoru kaydedebilir:
 
 ```ts
+import { buildMemorySystemPromptAddition } from "openclaw/plugin-sdk/core";
+
 export default function register(api) {
   api.registerContextEngine("my-engine", () => ({
     info: {
@@ -131,21 +134,24 @@ export default function register(api) {
     },
 
     async ingest({ sessionId, message, isHeartbeat }) {
-      // Mesajı veri deponuzda saklayın
+      // Store the message in your data store
       return { ingested: true };
     },
 
-    async assemble({ sessionId, messages, tokenBudget }) {
-      // Bütçeye sığan mesajları döndürün
+    async assemble({ sessionId, messages, tokenBudget, availableTools, citationsMode }) {
+      // Return messages that fit the budget
       return {
         messages: buildContext(messages, tokenBudget),
         estimatedTokens: countTokens(messages),
-        systemPromptAddition: "Use lcm_grep to search history...",
+        systemPromptAddition: buildMemorySystemPromptAddition({
+          availableTools: availableTools ?? new Set(),
+          citationsMode,
+        }),
       };
     },
 
     async compact({ sessionId, force }) {
-      // Eski bağlamı özetleyin
+      // Summarize older context
       return { ok: true, compacted: true };
     },
   }));
@@ -175,55 +181,55 @@ Gerekli üyeler:
 
 | Üye                | Tür      | Amaç                                                     |
 | ------------------ | -------- | -------------------------------------------------------- |
-| `info`             | Özellik  | Motor kimliği, adı, sürümü ve sıkıştırmanın ona ait olup olmadığı |
+| `info`             | Özellik  | Motor kimliği, adı, sürümü ve sıkıştırmanın kendisine ait olup olmadığı |
 | `ingest(params)`   | Yöntem   | Tek bir mesajı depolama                                  |
 | `assemble(params)` | Yöntem   | Bir model çalıştırması için bağlam oluşturma (`AssembleResult` döndürür) |
 | `compact(params)`  | Yöntem   | Bağlamı özetleme/azaltma                                 |
 
-`assemble`, şu alanları içeren bir `AssembleResult` döndürür:
+`assemble`, şu öğeleri içeren bir `AssembleResult` döndürür:
 
 - `messages` — modele gönderilecek sıralı mesajlar.
 - `estimatedTokens` (zorunlu, `number`) — motorun oluşturulan bağlamdaki toplam
-  belirteç sayısı tahmini. OpenClaw bunu sıkıştırma eşiği
+  belirteç sayısına ilişkin tahmini. OpenClaw bunu sıkıştırma eşiği
   kararları ve tanılama raporlaması için kullanır.
 - `systemPromptAddition` (isteğe bağlı, `string`) — sistem isteminin başına eklenir.
 
 İsteğe bağlı üyeler:
 
 | Üye                            | Tür    | Amaç                                                                                                            |
-| ------------------------------ | ------ | ---------------------------------------------------------------------------------------------------------------- |
+| ------------------------------ | ------ | --------------------------------------------------------------------------------------------------------------- |
 | `bootstrap(params)`            | Yöntem | Bir oturum için motor durumunu başlatma. Motor bir oturumu ilk kez gördüğünde bir kez çağrılır (ör. geçmişi içe aktarma). |
-| `ingestBatch(params)`          | Yöntem | Tamamlanmış bir turu toplu olarak alma. Bir çalıştırma tamamlandıktan sonra, o turdaki tüm mesajlarla tek seferde çağrılır. |
-| `afterTurn(params)`            | Yöntem | Çalıştırma sonrası yaşam döngüsü işi (durumu kalıcı hale getirme, arka plan sıkıştırmasını tetikleme).          |
+| `ingestBatch(params)`          | Yöntem | Tamamlanmış bir turu toplu olarak içe alma. Bir çalıştırma tamamlandıktan sonra, o turdaki tüm mesajlarla birlikte tek seferde çağrılır. |
+| `afterTurn(params)`            | Yöntem | Çalıştırma sonrası yaşam döngüsü işi (durumu kalıcı hale getirme, arka planda sıkıştırma tetikleme).          |
 | `prepareSubagentSpawn(params)` | Yöntem | Bir alt oturum için paylaşılan durumu hazırlama.                                                                |
-| `onSubagentEnded(params)`      | Yöntem | Bir alt ajan sona erdikten sonra temizleme.                                                                     |
-| `dispose()`                    | Yöntem | Kaynakları serbest bırakma. Gateway kapanışı veya eklenti yeniden yüklemesi sırasında çağrılır — oturum başına değil. |
+| `onSubagentEnded(params)`      | Yöntem | Bir alt aracı sona erdikten sonra temizlik yapma.                                                               |
+| `dispose()`                    | Yöntem | Kaynakları serbest bırakma. Ağ geçidi kapanışı veya eklenti yeniden yüklenmesi sırasında çağrılır — oturum başına değil. |
 
 ### ownsCompaction
 
 `ownsCompaction`, Pi'nin yerleşik deneme içi otomatik sıkıştırmasının
-çalıştırma için etkin kalıp kalmayacağını kontrol eder:
+çalıştırma için etkin kalıp kalmayacağını denetler:
 
-- `true` — sıkıştırma davranışı motora aittir. OpenClaw, o çalıştırma için Pi'nin yerleşik
+- `true` — motor sıkıştırma davranışının sahibidir. OpenClaw, o çalıştırma için Pi'nin yerleşik
   otomatik sıkıştırmasını devre dışı bırakır ve motorun `compact()` uygulaması
-  `/compact`, taşma kurtarma sıkıştırması ve
-  `afterTurn()` içinde yapmak istediği proaktif sıkıştırmadan sorumlu olur.
+  `/compact`, taşma kurtarma sıkıştırması ve `afterTurn()` içinde yapmak istediği
+  tüm proaktif sıkıştırmalardan sorumlu olur.
 - `false` veya ayarlanmamış — Pi'nin yerleşik otomatik sıkıştırması istem
   yürütme sırasında yine de çalışabilir, ancak etkin motorun `compact()` yöntemi
-  `/compact` ve taşma kurtarma için yine çağrılır.
+  `/compact` ve taşma kurtarma için yine de çağrılır.
 
 `ownsCompaction: false`, OpenClaw'ın otomatik olarak
-legacy motorunun sıkıştırma yoluna geri düştüğü anlamına **gelmez**.
+legacy motorunun sıkıştırma yoluna geri döndüğü anlamına **gelmez**.
 
-Bu, iki geçerli eklenti modeli olduğu anlamına gelir:
+Bu da iki geçerli eklenti deseni olduğu anlamına gelir:
 
 - **Sahiplenen mod** — kendi sıkıştırma algoritmanızı uygulayın ve
-  `ownsCompaction: true` ayarlayın.
-- **Devreden mod** — `ownsCompaction: false` ayarlayın ve
+  `ownsCompaction: true` olarak ayarlayın.
+- **Devreden mod** — `ownsCompaction: false` olarak ayarlayın ve
   OpenClaw'ın yerleşik sıkıştırma davranışını kullanmak için `compact()` içinde
   `openclaw/plugin-sdk/core` içinden `delegateCompactionToRuntime(...)` çağırın.
 
-İşlem yapmayan bir `compact()`, etkin ve sahiplenmeyen bir motor için güvenli değildir çünkü
+Etkin, sahiplenmeyen bir motor için no-op bir `compact()` güvenli değildir çünkü
 o motor yuvası için normal `/compact` ve taşma kurtarma sıkıştırma yolunu
 devre dışı bırakır.
 
@@ -242,40 +248,48 @@ devre dışı bırakır.
 ```
 
 Yuva çalışma zamanında özeldir — belirli bir çalıştırma veya sıkıştırma işlemi için
-yalnızca bir kayıtlı bağlam motoru çözülür. Etkin olan diğer
+yalnızca bir kayıtlı bağlam motoru çözülür. Etkin durumdaki diğer
 `kind: "context-engine"` eklentileri yine de yüklenebilir ve kayıt
-kodlarını çalıştırabilir; `plugins.slots.contextEngine`, yalnızca OpenClaw'ın bir bağlam motoruna ihtiyaç duyduğunda
-hangi kayıtlı motor kimliğini çözeceğini seçer.
+kodlarını çalıştırabilir; `plugins.slots.contextEngine` yalnızca OpenClaw'ın
+bir bağlam motoruna ihtiyaç duyduğunda hangi kayıtlı motor kimliğini
+çözeceğini seçer.
 
-## Sıkıştırma ve bellekle ilişkisi
+## Sıkıştırma ve bellek ile ilişkisi
 
-- **Sıkıştırma**, bağlam motorunun sorumluluklarından biridir. Legacy motoru
-  OpenClaw'ın yerleşik özetlemesine devreder. Eklenti motorları
-  herhangi bir sıkıştırma stratejisini uygulayabilir (DAG özetleri, vektör geri getirme vb.).
-- **Bellek eklentileri** (`plugins.slots.memory`) bağlam motorlarından ayrıdır.
-  Bellek eklentileri arama/geri getirme sağlar; bağlam motorları modelin
-  ne gördüğünü kontrol eder. Birlikte çalışabilirler — bir bağlam motoru
-  oluşturma sırasında bellek eklentisi verilerini kullanabilir.
-- **Oturum budama** (bellekte eski araç sonuçlarını kırpma), hangi bağlam motoru etkin olursa olsun
-  yine de çalışır.
+- **Sıkıştırma**, bağlam motorunun sorumluluklarından biridir. legacy motoru,
+  OpenClaw'ın yerleşik özetlemesine devreder. Eklenti motorları herhangi bir
+  sıkıştırma stratejisi uygulayabilir (DAG özetleri, vektör getirme vb.).
+- **Bellek eklentileri** (`plugins.slots.memory`), bağlam motorlarından ayrıdır.
+  Bellek eklentileri arama/getirme sağlar; bağlam motorları modelin
+  ne gördüğünü denetler. Birlikte çalışabilirler — bir bağlam motoru
+  birleştirme sırasında bellek eklentisi verilerini kullanabilir. Etkin bellek
+  istem yolunu isteyen eklenti motorları, etkin bellek istem bölümlerini
+  başa eklenmeye hazır bir `systemPromptAddition` öğesine dönüştüren
+  `openclaw/plugin-sdk/core` içindeki `buildMemorySystemPromptAddition(...)`
+  yöntemini tercih etmelidir. Bir motor daha düşük seviyeli
+  denetim gerektiriyorsa, ham satırları yine de
+  `openclaw/plugin-sdk/memory-host-core` üzerinden
+  `buildActiveMemoryPromptSection(...)` ile çekebilir.
+- **Oturum budama** (eski araç sonuçlarını bellekte kırpma), hangi bağlam motorunun etkin olduğuna
+  bakılmaksızın yine de çalışır.
 
 ## İpuçları
 
-- Motorunuzun düzgün yüklendiğini doğrulamak için `openclaw doctor` kullanın.
-- Motor değiştiriyorsanız mevcut oturumlar, geçerli geçmişleriyle devam eder.
+- Motorunuzun doğru yüklendiğini doğrulamak için `openclaw doctor` kullanın.
+- Motor değiştiriyorsanız, mevcut oturumlar mevcut geçmişleriyle devam eder.
   Yeni motor gelecekteki çalıştırmaları devralır.
-- Motor hataları günlüğe kaydedilir ve tanılamalarda gösterilir. Bir eklenti motoru
-  kaydedilemezse veya seçilen motor kimliği çözülemezse, OpenClaw
+- Motor hataları günlüklenir ve tanılamalarda gösterilir. Bir eklenti motoru
+  kaydolamazsa veya seçili motor kimliği çözülemezse, OpenClaw
   otomatik olarak geri dönmez; eklentiyi düzeltene veya
-  `plugins.slots.contextEngine` değerini yeniden `"legacy"` olarak değiştirene kadar çalıştırmalar başarısız olur.
+  `plugins.slots.contextEngine` değerini `"legacy"` olarak geri değiştirene kadar çalıştırmalar başarısız olur.
 - Geliştirme için, yerel bir eklenti dizinini kopyalamadan bağlamak üzere
   `openclaw plugins install -l ./my-engine` kullanın.
 
-Ayrıca bakın: [Compaction](/concepts/compaction), [Context](/concepts/context),
-[Plugins](/tools/plugin), [Plugin manifest](/plugins/manifest).
+Ayrıca bakın: [Sıkıştırma](/tr/concepts/compaction), [Bağlam](/tr/concepts/context),
+[Eklentiler](/tr/tools/plugin), [Eklenti manifesti](/tr/plugins/manifest).
 
 ## İlgili
 
-- [Context](/concepts/context) — ajan turları için bağlamın nasıl oluşturulduğu
-- [Plugin Architecture](/plugins/architecture) — bağlam motoru eklentilerini kaydetme
-- [Compaction](/concepts/compaction) — uzun konuşmaları özetleme
+- [Bağlam](/tr/concepts/context) — aracı turları için bağlamın nasıl oluşturulduğu
+- [Eklenti Mimarisi](/tr/plugins/architecture) — bağlam motoru eklentilerini kaydetme
+- [Sıkıştırma](/tr/concepts/compaction) — uzun konuşmaları özetleme

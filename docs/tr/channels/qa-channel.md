@@ -1,26 +1,26 @@
 ---
 read_when:
     - Sentetik QA taşımasını yerel veya CI test çalışmasına bağlıyorsunuz
-    - Paketlenmiş qa-channel yapılandırma yüzeyine ihtiyacınız var
+    - Paketle gelen qa-channel yapılandırma yüzeyine ihtiyacınız var
     - Uçtan uca QA otomasyonu üzerinde yineleme yapıyorsunuz
-summary: Deterministik OpenClaw QA senaryoları için sentetik Slack sınıfı kanal eklentisi
+summary: Belirlenimci OpenClaw QA senaryoları için sentetik, Slack sınıfı kanal eklentisi
 title: QA Kanalı
 x-i18n:
-    generated_at: "2026-04-06T03:05:59Z"
+    generated_at: "2026-04-07T08:43:28Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 3b88cd73df2f61b34ad1eb83c3450f8fe15a51ac69fbb5a9eca0097564d67a06
+    source_hash: 65c2c908d3ec27c827087616c4ea278f10686810091058321ff26f68296a1782
     source_path: channels/qa-channel.md
     workflow: 15
 ---
 
 # QA Kanalı
 
-`qa-channel`, otomatik OpenClaw QA için paketlenmiş sentetik bir mesaj taşımasıdır.
+`qa-channel`, otomatik OpenClaw QA için paketle gelen sentetik bir mesaj taşımasıdır.
 
-Bu, üretim için kullanılan bir kanal değildir. Gerçek taşımaların kullandığı aynı kanal eklentisi
-sınırını kullanırken durumu deterministik ve tamamen
-incelenebilir tutmak için vardır.
+Bu bir üretim kanalı değildir. Gerçek taşımalarda kullanılan aynı kanal eklentisi
+sınırını, durumu belirlenimci ve tamamen
+incelenebilir tutarken test etmek için vardır.
 
 ## Bugün ne yapıyor
 
@@ -36,7 +36,7 @@ incelenebilir tutmak için vardır.
   - düzenlemeler
   - silmeler
   - arama ve okuma eylemleri
-- Markdown raporu yazan paketlenmiş ana makine tarafı öz denetim çalıştırıcısı
+- Markdown raporu yazan, paketle gelen ana makine tarafı self-check çalıştırıcısı
 
 ## Yapılandırma
 
@@ -75,16 +75,19 @@ Geçerli dikey dilim:
 pnpm qa:e2e
 ```
 
-Bu artık paketlenmiş `qa-lab` uzantısı üzerinden yönlendiriliyor. Depo içindeki
-QA veri yolunu başlatır, paketlenmiş `qa-channel` çalışma zamanı dilimini önyükler, deterministik bir
-öz denetim çalıştırır ve `.artifacts/qa-e2e/` altında bir Markdown raporu yazar.
+Bu artık paketle gelen `qa-lab` uzantısı üzerinden yönlendiriliyor. Depo içindeki
+QA veri yolunu başlatır, paketle gelen `qa-channel` çalışma zamanı dilimini açar, belirlenimci
+bir self-check çalıştırır ve `.artifacts/qa-e2e/` altında bir Markdown raporu yazar.
 
-Özel hata ayıklayıcı kullanıcı arayüzü:
+Özel hata ayıklayıcı arayüzü:
 
 ```bash
-pnpm qa:lab:build
-pnpm openclaw qa ui
+pnpm qa:lab:up
 ```
+
+Bu tek komut QA sitesini derler, Docker destekli gateway + QA Lab
+yığınını başlatır ve QA Lab URL'sini yazdırır. Bu siteden senaryolar seçebilir,
+model hattını seçebilir, tek tek çalıştırmaları başlatabilir ve sonuçları canlı izleyebilirsiniz.
 
 Tam depo destekli QA paketi:
 
@@ -92,8 +95,8 @@ Tam depo destekli QA paketi:
 pnpm openclaw qa suite
 ```
 
-Bu, dağıtılan Control UI paketinden ayrı olarak, yerel bir URL'de
-özel QA hata ayıklayıcısını başlatır.
+Bu, paketlenmiş Control UI paketinden ayrı olarak, özel QA hata ayıklayıcısını
+yerel bir URL'de başlatır.
 
 ## Kapsam
 
@@ -101,12 +104,12 @@ Geçerli kapsam kasıtlı olarak dardır:
 
 - veri yolu + eklenti taşıması
 - iş parçacıklı yönlendirme dil bilgisi
-- kanalın sahip olduğu mesaj eylemleri
+- kanala ait mesaj eylemleri
 - Markdown raporlama
+- çalıştırma denetimlerine sahip Docker destekli QA sitesi
 
 Sonraki çalışmalar şunları ekleyecek:
 
-- Docker ile kapsüllenmiş OpenClaw orkestrasyonu
 - sağlayıcı/model matris yürütmesi
 - daha zengin senaryo keşfi
-- daha sonra OpenClaw yerel orkestrasyonu
+- daha sonra OpenClaw yerel düzenlemesi

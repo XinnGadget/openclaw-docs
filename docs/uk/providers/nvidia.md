@@ -1,33 +1,33 @@
 ---
 read_when:
-    - Ви хочете використовувати моделі NVIDIA в OpenClaw
-    - Вам потрібне налаштування `NVIDIA_API_KEY`
-summary: Використання OpenAI-сумісного API NVIDIA в OpenClaw
+    - Ви хочете безкоштовно використовувати відкриті моделі в OpenClaw
+    - Вам потрібно налаштувати NVIDIA_API_KEY
+summary: Використовуйте сумісний з OpenAI API від NVIDIA в OpenClaw
 title: NVIDIA
 x-i18n:
-    generated_at: "2026-04-05T18:14:24Z"
+    generated_at: "2026-04-07T14:49:11Z"
     model: gpt-5.4
     provider: openai
-    source_hash: a24c5e46c0cf0fbc63bf09c772b486dd7f8f4b52e687d3b835bb54a1176b28da
+    source_hash: b00f8cedaf223a33ba9f6a6dd8cf066d88cebeea52d391b871e435026182228a
     source_path: providers/nvidia.md
     workflow: 15
 ---
 
 # NVIDIA
 
-NVIDIA надає OpenAI-сумісний API за адресою `https://integrate.api.nvidia.com/v1` для моделей Nemotron і NeMo. Автентифікація виконується за допомогою API-ключа з [NVIDIA NGC](https://catalog.ngc.nvidia.com/).
+NVIDIA надає сумісний з OpenAI API за адресою `https://integrate.api.nvidia.com/v1` для безкоштовного використання відкритих моделей. Автентифікуйтеся за допомогою API-ключа з [build.nvidia.com](https://build.nvidia.com/settings/api-keys).
 
 ## Налаштування CLI
 
-Експортуйте ключ один раз, потім запустіть онбординг і встановіть модель NVIDIA:
+Експортуйте ключ один раз, потім виконайте онбординг і встановіть модель NVIDIA:
 
 ```bash
 export NVIDIA_API_KEY="nvapi-..."
 openclaw onboard --auth-choice skip
-openclaw models set nvidia/nvidia/llama-3.1-nemotron-70b-instruct
+openclaw models set nvidia/nvidia/nemotron-3-super-120b-a12b
 ```
 
-Якщо ви все ще передаєте `--token`, пам’ятайте, що він потрапляє в історію оболонки й вивід `ps`; за можливості віддавайте перевагу env-змінній.
+Якщо ви все ще передаєте `--token`, пам’ятайте, що він потрапляє в історію оболонки та вивід `ps`; за можливості надавайте перевагу змінній середовища.
 
 ## Фрагмент конфігурації
 
@@ -44,22 +44,23 @@ openclaw models set nvidia/nvidia/llama-3.1-nemotron-70b-instruct
   },
   agents: {
     defaults: {
-      model: { primary: "nvidia/nvidia/llama-3.1-nemotron-70b-instruct" },
+      model: { primary: "nvidia/nvidia/nemotron-3-super-120b-a12b" },
     },
   },
 }
 ```
 
-## ID моделей
+## Ідентифікатори моделей
 
-| Посилання на модель                                     | Назва                                    | Контекст | Макс. вивід |
-| ------------------------------------------------------- | ---------------------------------------- | -------- | ----------- |
-| `nvidia/nvidia/llama-3.1-nemotron-70b-instruct`         | NVIDIA Llama 3.1 Nemotron 70B Instruct   | 131,072  | 4,096       |
-| `nvidia/meta/llama-3.3-70b-instruct`                    | Meta Llama 3.3 70B Instruct              | 131,072  | 4,096       |
-| `nvidia/nvidia/mistral-nemo-minitron-8b-8k-instruct`    | NVIDIA Mistral NeMo Minitron 8B Instruct | 8,192    | 2,048       |
+| Посилання на модель                         | Назва                        | Контекст | Макс. вивід |
+| ------------------------------------------ | ---------------------------- | -------- | ----------- |
+| `nvidia/nvidia/nemotron-3-super-120b-a12b` | NVIDIA Nemotron 3 Super 120B | 262,144  | 8,192       |
+| `nvidia/moonshotai/kimi-k2.5`              | Kimi K2.5                    | 262,144  | 8,192       |
+| `nvidia/minimaxai/minimax-m2.5`            | Minimax M2.5                 | 196,608  | 8,192       |
+| `nvidia/z-ai/glm5`                         | GLM 5                        | 202,752  | 8,192       |
 
 ## Примітки
 
-- OpenAI-сумісний endpoint `/v1`; використовуйте API-ключ із NVIDIA NGC.
-- Провайдер автоматично вмикається, коли задано `NVIDIA_API_KEY`.
-- Вбудований каталог є статичним; у вихідному коді вартість типово встановлена в `0`.
+- Сумісна з OpenAI кінцева точка `/v1`; використовуйте API-ключ із [build.nvidia.com](https://build.nvidia.com/).
+- Провайдер автоматично вмикається, коли встановлено `NVIDIA_API_KEY`.
+- Вбудований каталог є статичним; у вихідному коді вартість за замовчуванням дорівнює `0`.

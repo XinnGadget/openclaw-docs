@@ -1,14 +1,14 @@
 ---
 read_when:
     - Quieres elegir un proveedor de modelos
-    - Necesitas una visión general rápida de los backends de LLM compatibles
+    - Necesitas una visión general rápida de los backends LLM compatibles
 summary: Proveedores de modelos (LLM) compatibles con OpenClaw
 title: Directorio de proveedores
 x-i18n:
-    generated_at: "2026-04-06T03:10:40Z"
+    generated_at: "2026-04-07T05:05:44Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 7271157a6ab5418672baff62bfd299572fd010f75aad529267095c6e55903882
+    source_hash: 39d9ace35fd9452a4fb510fd980d251b6e51480e4647f051020bee2f1f2222e1
     source_path: providers/index.md
     workflow: 15
 ---
@@ -18,7 +18,7 @@ x-i18n:
 OpenClaw puede usar muchos proveedores de LLM. Elige un proveedor, autentícate y luego establece el
 modelo predeterminado como `provider/model`.
 
-¿Buscas documentación de canales de chat (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/etc.)? Consulta [Channels](/es/channels).
+¿Buscas documentación sobre canales de chat (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/etc.)? Consulta [Canales](/es/channels).
 
 ## Inicio rápido
 
@@ -33,15 +33,16 @@ modelo predeterminado como `provider/model`.
 
 ## Documentación de proveedores
 
-- [Alibaba Model Studio](/providers/alibaba)
+- [Alibaba Model Studio](/es/providers/alibaba)
 - [Amazon Bedrock](/es/providers/bedrock)
 - [Anthropic (API + Claude CLI)](/es/providers/anthropic)
+- [Arcee AI (modelos Trinity)](/es/providers/arcee)
 - [BytePlus (internacional)](/es/concepts/model-providers#byteplus-international)
 - [Chutes](/es/providers/chutes)
-- [ComfyUI](/providers/comfy)
+- [ComfyUI](/es/providers/comfy)
 - [Cloudflare AI Gateway](/es/providers/cloudflare-ai-gateway)
 - [DeepSeek](/es/providers/deepseek)
-- [fal](/providers/fal)
+- [fal](/es/providers/fal)
 - [Fireworks](/es/providers/fireworks)
 - [GitHub Copilot](/es/providers/github-copilot)
 - [Modelos GLM](/es/providers/glm)
@@ -62,14 +63,14 @@ modelo predeterminado como `provider/model`.
 - [Perplexity (búsqueda web)](/es/providers/perplexity-provider)
 - [Qianfan](/es/providers/qianfan)
 - [Qwen Cloud](/es/providers/qwen)
-- [Runway](/providers/runway)
+- [Runway](/es/providers/runway)
 - [SGLang (modelos locales)](/es/providers/sglang)
 - [StepFun](/es/providers/stepfun)
 - [Synthetic](/es/providers/synthetic)
 - [Together AI](/es/providers/together)
 - [Venice (Venice AI, centrado en la privacidad)](/es/providers/venice)
 - [Vercel AI Gateway](/es/providers/vercel-ai-gateway)
-- [Vydra](/providers/vydra)
+- [Vydra](/es/providers/vydra)
 - [vLLM (modelos locales)](/es/providers/vllm)
 - [Volcengine (Doubao)](/es/providers/volcengine)
 - [xAI](/es/providers/xai)
@@ -78,10 +79,10 @@ modelo predeterminado como `provider/model`.
 
 ## Páginas generales compartidas
 
-- [Variantes integradas adicionales](/es/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy y Gemini CLI OAuth
-- [Generación de imágenes](/es/tools/image-generation) - Herramienta compartida `image_generate`, selección de proveedor y failover
-- [Generación de música](/tools/music-generation) - Herramienta compartida `music_generate`, selección de proveedor y failover
-- [Generación de video](/tools/video-generation) - Herramienta compartida `video_generate`, selección de proveedor y failover
+- [Variantes incluidas adicionales](/es/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy y OAuth de Gemini CLI
+- [Generación de imágenes](/es/tools/image-generation) - herramienta compartida `image_generate`, selección de proveedor y conmutación por error
+- [Generación de música](/es/tools/music-generation) - herramienta compartida `music_generate`, selección de proveedor y conmutación por error
+- [Generación de video](/es/tools/video-generation) - herramienta compartida `video_generate`, selección de proveedor y conmutación por error
 
 ## Proveedores de transcripción
 
@@ -91,5 +92,5 @@ modelo predeterminado como `provider/model`.
 
 - [Claude Max API Proxy](/es/providers/claude-max-api-proxy) - Proxy comunitario para credenciales de suscripción de Claude (verifica la política/los términos de Anthropic antes de usarlo)
 
-Para el catálogo completo de proveedores (xAI, Groq, Mistral, etc.) y la configuración avanzada,
+Para ver el catálogo completo de proveedores (xAI, Groq, Mistral, etc.) y la configuración avanzada,
 consulta [Proveedores de modelos](/es/concepts/model-providers).

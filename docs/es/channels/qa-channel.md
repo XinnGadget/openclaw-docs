@@ -1,15 +1,15 @@
 ---
 read_when:
-    - Estás conectando el transporte sintético de QA a una ejecución de prueba local o de CI
-    - Necesitas la superficie de configuración del `qa-channel` incluido
-    - Estás iterando sobre la automatización de QA de extremo a extremo
+    - Estás conectando el transporte sintético de QA en una ejecución de prueba local o de CI
+    - Necesitas la superficie de configuración de `qa-channel` incluida
+    - Estás iterando en la automatización de QA de extremo a extremo
 summary: Plugin de canal sintético de clase Slack para escenarios de QA deterministas de OpenClaw
 title: Canal de QA
 x-i18n:
-    generated_at: "2026-04-06T03:05:55Z"
+    generated_at: "2026-04-07T05:01:35Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 3b88cd73df2f61b34ad1eb83c3450f8fe15a51ac69fbb5a9eca0097564d67a06
+    source_hash: 65c2c908d3ec27c827087616c4ea278f10686810091058321ff26f68296a1782
     source_path: channels/qa-channel.md
     workflow: 15
 ---
@@ -18,11 +18,11 @@ x-i18n:
 
 `qa-channel` es un transporte de mensajes sintético incluido para la QA automatizada de OpenClaw.
 
-No es un canal de producción. Existe para ejercitar el mismo límite de plugin de canal
-utilizado por los transportes reales, mientras mantiene el estado determinista y
-completamente inspeccionable.
+No es un canal de producción. Existe para ejercitar el mismo límite de plugin
+de canal que usan los transportes reales, mientras mantiene el estado
+determinista y completamente inspeccionable.
 
-## Qué hace hoy
+## Lo que hace hoy
 
 - Gramática de destino de clase Slack:
   - `dm:<user>`
@@ -36,7 +36,7 @@ completamente inspeccionable.
   - ediciones
   - eliminaciones
   - acciones de búsqueda y lectura
-- Ejecutor de autoverificación incluido del lado del host que escribe un informe en Markdown
+- Ejecutor de autoverificación del lado del host incluido que escribe un informe en Markdown
 
 ## Configuración
 
@@ -75,16 +75,21 @@ Corte vertical actual:
 pnpm qa:e2e
 ```
 
-Ahora esto se enruta a través de la extensión `qa-lab` incluida. Inicia el
-bus de QA dentro del repositorio, arranca el segmento de ejecución incluido de `qa-channel`, ejecuta una
-autoverificación determinista y escribe un informe en Markdown en `.artifacts/qa-e2e/`.
+Esto ahora se enruta a través de la extensión incluida `qa-lab`. Inicia el bus
+de QA dentro del repositorio, arranca el segmento de ejecución incluido de
+`qa-channel`, ejecuta una autoverificación determinista y escribe un informe en
+Markdown en `.artifacts/qa-e2e/`.
 
 UI privada de depuración:
 
 ```bash
-pnpm qa:lab:build
-pnpm openclaw qa ui
+pnpm qa:lab:up
 ```
+
+Ese único comando compila el sitio de QA, inicia la pila de gateway + QA Lab
+respaldada por Docker e imprime la URL de QA Lab. Desde ese sitio puedes
+seleccionar escenarios, elegir la vía del modelo, lanzar ejecuciones
+individuales y ver los resultados en vivo.
 
 Suite completa de QA respaldada por el repositorio:
 
@@ -92,8 +97,8 @@ Suite completa de QA respaldada por el repositorio:
 pnpm openclaw qa suite
 ```
 
-Eso inicia el depurador privado de QA en una URL local, separado del
-bundle publicado de la UI de Control.
+Eso inicia el depurador privado de QA en una URL local, separado del paquete de
+Control UI distribuido.
 
 ## Alcance
 
@@ -101,12 +106,12 @@ El alcance actual es intencionalmente limitado:
 
 - bus + transporte de plugin
 - gramática de enrutamiento con hilos
-- acciones de mensajes propias del canal
+- acciones de mensajes que pertenecen al canal
 - informes en Markdown
+- sitio de QA respaldado por Docker con controles de ejecución
 
 El trabajo de seguimiento añadirá:
 
-- orquestación de OpenClaw en Docker
 - ejecución de matriz de proveedor/modelo
 - detección de escenarios más rica
 - orquestación nativa de OpenClaw más adelante

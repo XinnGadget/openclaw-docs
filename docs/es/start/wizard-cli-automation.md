@@ -6,10 +6,10 @@ sidebarTitle: CLI automation
 summary: Incorporación con scripts y configuración de agentes para la CLI de OpenClaw
 title: Automatización de CLI
 x-i18n:
-    generated_at: "2026-04-06T03:11:35Z"
+    generated_at: "2026-04-07T05:06:51Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 878ea3fa9f2a75cff9f1a803ccb8a52a1219102e2970883ad18e3aaec5967fd2
+    source_hash: bca2dd6e482a16b27284fc76319e936e8df0ff5558134827c19f6875436cc652
     source_path: start/wizard-cli-automation.md
     workflow: 15
 ---
@@ -40,10 +40,10 @@ openclaw onboard --non-interactive \
 Añade `--json` para obtener un resumen legible por máquina.
 
 Usa `--secret-input-mode ref` para almacenar referencias respaldadas por variables de entorno en perfiles de autenticación en lugar de valores en texto plano.
-La selección interactiva entre referencias de entorno y referencias de proveedor configuradas (`file` o `exec`) está disponible en el flujo de incorporación.
+La selección interactiva entre referencias de entorno y referencias de proveedores configurados (`file` o `exec`) está disponible en el flujo de incorporación.
 
 En el modo no interactivo `ref`, las variables de entorno del proveedor deben estar establecidas en el entorno del proceso.
-Pasar indicadores de clave en línea sin la variable de entorno correspondiente ahora falla de inmediato.
+Pasar flags de clave en línea sin la variable de entorno correspondiente ahora falla de inmediato.
 
 Ejemplo:
 
@@ -58,7 +58,7 @@ openclaw onboard --non-interactive \
 ## Ejemplos específicos por proveedor
 
 <AccordionGroup>
-  <Accordion title="Ejemplo de clave API de Anthropic">
+  <Accordion title="Ejemplo de clave de API de Anthropic">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -149,7 +149,7 @@ openclaw onboard --non-interactive \
       --gateway-port 18789 \
       --gateway-bind loopback
     ```
-    Cámbialo por `--auth-choice opencode-go --opencode-go-api-key "$OPENCODE_API_KEY"` para el catálogo Go.
+    Cambia a `--auth-choice opencode-go --opencode-go-api-key "$OPENCODE_API_KEY"` para el catálogo Go.
   </Accordion>
   <Accordion title="Ejemplo de Ollama">
     ```bash
@@ -199,10 +199,8 @@ openclaw onboard --non-interactive \
   </Accordion>
 </AccordionGroup>
 
-El token de configuración de Anthropic vuelve a estar disponible como ruta de incorporación heredada/manual.
-Úsalo con la expectativa de que Anthropic informó a los usuarios de OpenClaw que la ruta
-de inicio de sesión de Claude de OpenClaw requiere **Extra Usage**. Para producción, prefiere una
-clave API de Anthropic.
+El setup-token de Anthropic sigue disponible como una ruta de token de incorporación compatible, pero OpenClaw ahora prefiere la reutilización de Claude CLI cuando está disponible.
+Para producción, prefiere una clave de API de Anthropic.
 
 ## Añadir otro agente
 
@@ -226,12 +224,12 @@ Lo que configura:
 
 Notas:
 
-- Los espacios de trabajo predeterminados siguen `~/.openclaw/workspace-<agentId>`.
+- Los espacios de trabajo predeterminados siguen el patrón `~/.openclaw/workspace-<agentId>`.
 - Añade `bindings` para enrutar mensajes entrantes (el asistente puede hacerlo).
-- Indicadores no interactivos: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
+- Flags no interactivos: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
 
 ## Documentación relacionada
 
-- Centro de incorporación: [Onboarding (CLI)](/es/start/wizard)
-- Referencia completa: [CLI Setup Reference](/es/start/wizard-cli-reference)
+- Centro de incorporación: [Incorporación (CLI)](/es/start/wizard)
+- Referencia completa: [Referencia de configuración de CLI](/es/start/wizard-cli-reference)
 - Referencia de comandos: [`openclaw onboard`](/cli/onboard)

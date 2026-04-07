@@ -1,29 +1,29 @@
 ---
 read_when:
-    - العمل على سلوك قناة WhatsApp/web أو توجيه inbox
+    - عند العمل على سلوك قناة WhatsApp/الويب أو توجيه صندوق الوارد
 summary: دعم قناة WhatsApp، وعناصر التحكم في الوصول، وسلوك التسليم، والعمليات
 title: WhatsApp
 x-i18n:
-    generated_at: "2026-04-05T12:37:32Z"
+    generated_at: "2026-04-07T07:16:46Z"
     model: gpt-5.4
     provider: openai
-    source_hash: c16a468b3f47fdf7e4fc3fd745b5c49c7ccebb7af0e8c87c632b78b04c583e49
+    source_hash: 9e2ce84d869ace6c0bebd9ec17bdbbef997a5c31e5da410b02a19a0f103f7359
     source_path: channels/whatsapp.md
     workflow: 15
 ---
 
-# WhatsApp (قناة Web)
+# WhatsApp (قناة الويب)
 
-الحالة: جاهزة للإنتاج عبر WhatsApp Web ‏(Baileys). يمتلك gateway الجلسة (الجلسات) المرتبطة.
+الحالة: جاهزة للإنتاج عبر WhatsApp Web ‏(Baileys). تتولى البوابة جلسة/جلسات الربط.
 
 ## التثبيت (عند الطلب)
 
-- يطلب كل من الإعداد التفاعلي (`openclaw onboard`) و`openclaw channels add --channel whatsapp`
-  تثبيت plugin WhatsApp في أول مرة تحددها فيها.
+- الإعداد (`openclaw onboard`) و `openclaw channels add --channel whatsapp`
+  يطالبان بتثبيت إضافة WhatsApp أول مرة تحددها فيها.
 - يوفّر `openclaw channels login --channel whatsapp` أيضًا تدفق التثبيت عندما
-  لا يكون plugin موجودًا بعد.
-- قناة التطوير + نسخة git محلية: تكون القيمة الافتراضية هي مسار plugin المحلي.
-- Stable/Beta: القيمة الافتراضية هي حزمة npm ‏`@openclaw/whatsapp`.
+  لا تكون الإضافة موجودة بعد.
+- قناة التطوير + سحب git: يُستخدم مسار الإضافة المحلي افتراضيًا.
+- Stable/Beta: تُستخدم حزمة npm ‏`@openclaw/whatsapp` افتراضيًا.
 
 يبقى التثبيت اليدوي متاحًا:
 
@@ -32,21 +32,21 @@ openclaw plugins install @openclaw/whatsapp
 ```
 
 <CardGroup cols={3}>
-  <Card title="الاقتران" icon="link" href="/channels/pairing">
+  <Card title="الاقتران" icon="link" href="/ar/channels/pairing">
     سياسة الرسائل الخاصة الافتراضية هي الاقتران للمرسلين غير المعروفين.
   </Card>
-  <Card title="استكشاف أخطاء القنوات وإصلاحها" icon="wrench" href="/channels/troubleshooting">
-    أدوات التشخيص وخطط الإصلاح عبر القنوات.
+  <Card title="استكشاف أخطاء القناة وإصلاحها" icon="wrench" href="/ar/channels/troubleshooting">
+    تشخيصات متعددة القنوات وكتيبات الإصلاح.
   </Card>
-  <Card title="تكوين Gateway" icon="settings" href="/gateway/configuration">
-    أنماط وأمثلة تكوين القنوات الكاملة.
+  <Card title="إعدادات البوابة" icon="settings" href="/ar/gateway/configuration">
+    أنماط وأمثلة كاملة لإعداد القنوات.
   </Card>
 </CardGroup>
 
-## الإعداد السريع
+## إعداد سريع
 
 <Steps>
-  <Step title="تكوين سياسة الوصول إلى WhatsApp">
+  <Step title="تكوين سياسة الوصول في WhatsApp">
 
 ```json5
 {
@@ -69,7 +69,7 @@ openclaw plugins install @openclaw/whatsapp
 openclaw channels login --channel whatsapp
 ```
 
-    لحساب محدد:
+    لحساب معيّن:
 
 ```bash
 openclaw channels login --channel whatsapp --account work
@@ -77,7 +77,7 @@ openclaw channels login --channel whatsapp --account work
 
   </Step>
 
-  <Step title="بدء تشغيل gateway">
+  <Step title="بدء تشغيل البوابة">
 
 ```bash
 openclaw gateway
@@ -92,13 +92,13 @@ openclaw pairing list whatsapp
 openclaw pairing approve whatsapp <CODE>
 ```
 
-    تنتهي صلاحية طلبات الاقتران بعد ساعة واحدة. الحد الأقصى للطلبات المعلقة هو 3 لكل قناة.
+    تنتهي صلاحية طلبات الاقتران بعد ساعة واحدة. ويكون الحد الأقصى للطلبات المعلّقة 3 لكل قناة.
 
   </Step>
 </Steps>
 
 <Note>
-يوصي OpenClaw بتشغيل WhatsApp على رقم منفصل كلما أمكن ذلك. (تم تحسين بيانات تعريف القناة وتدفق الإعداد لهذا الإعداد، لكن الإعدادات التي تستخدم الرقم الشخصي مدعومة أيضًا.)
+يوصي OpenClaw بتشغيل WhatsApp على رقم منفصل كلما أمكن. (البيانات الوصفية للقناة وتدفق الإعداد محسّنان لهذا الإعداد، لكن إعدادات الأرقام الشخصية مدعومة أيضًا.)
 </Note>
 
 ## أنماط النشر
@@ -108,7 +108,7 @@ openclaw pairing approve whatsapp <CODE>
     هذا هو وضع التشغيل الأنظف:
 
     - هوية WhatsApp منفصلة لـ OpenClaw
-    - حدود أوضح لقوائم السماح بالرسائل الخاصة والتوجيه
+    - حدود أوضح لقوائم السماح في الرسائل الخاصة والتوجيه
     - احتمال أقل لحدوث ارتباك في الدردشة الذاتية
 
     نمط السياسة الأدنى:
@@ -126,114 +126,115 @@ openclaw pairing approve whatsapp <CODE>
 
   </Accordion>
 
-  <Accordion title="بديل الرقم الشخصي">
-    يدعم الإعداد التفاعلي وضع الرقم الشخصي ويكتب خط أساس مناسبًا للدردشة الذاتية:
+  <Accordion title="العودة إلى الرقم الشخصي">
+    يدعم الإعداد وضع الرقم الشخصي ويكتب خط أساس مناسبًا للدردشة الذاتية:
 
     - `dmPolicy: "allowlist"`
-    - تتضمن `allowFrom` رقمك الشخصي
+    - يتضمن `allowFrom` رقمك الشخصي
     - `selfChatMode: true`
 
-    في وقت التشغيل، تعتمد وسائل الحماية من الدردشة الذاتية على الرقم الذاتي المرتبط و`allowFrom`.
+    أثناء التشغيل، تعتمد وسائل الحماية الخاصة بالدردشة الذاتية على الرقم الذاتي المرتبط و `allowFrom`.
 
   </Accordion>
 
   <Accordion title="نطاق قناة WhatsApp Web فقط">
-    قناة منصة المراسلة في بنية قنوات OpenClaw الحالية تستند إلى WhatsApp Web ‏(`Baileys`).
+    قناة منصة المراسلة تعتمد على WhatsApp Web ‏(`Baileys`) في بنية قنوات OpenClaw الحالية.
 
-    لا توجد قناة مراسلة WhatsApp منفصلة عبر Twilio ضمن سجل قنوات الدردشة المدمج.
+    لا توجد قناة مراسلة WhatsApp منفصلة عبر Twilio في سجل قنوات الدردشة المضمّن.
 
   </Accordion>
 </AccordionGroup>
 
-## نموذج وقت التشغيل
+## نموذج التشغيل
 
-- يمتلك gateway مقبس WhatsApp وحلقة إعادة الاتصال.
-- تتطلب عمليات الإرسال الصادرة وجود مستمع WhatsApp نشط للحساب الهدف.
-- يتم تجاهل محادثات الحالة والبث (`@status` و`@broadcast`).
-- تستخدم المحادثات المباشرة قواعد جلسات الرسائل الخاصة (`session.dmScope`؛ القيمة الافتراضية `main` تؤدي إلى طي الرسائل الخاصة ضمن الجلسة الرئيسية للوكيل).
-- تكون جلسات المجموعات معزولة (`agent:<agentId>:whatsapp:group:<jid>`).
+- تتولى البوابة مقبس WhatsApp وحلقة إعادة الاتصال.
+- تتطلب عمليات الإرسال الصادرة مستمع WhatsApp نشطًا للحساب المستهدف.
+- يتم تجاهل محادثات الحالة والبث (`@status`, `@broadcast`).
+- تستخدم المحادثات المباشرة قواعد جلسة الرسائل الخاصة (`session.dmScope`؛ والقيمة الافتراضية `main` تدمج الرسائل الخاصة في الجلسة الرئيسية للوكيل).
+- جلسات المجموعات معزولة (`agent:<agentId>:whatsapp:group:<jid>`).
+- يراعي نقل WhatsApp Web متغيرات بيئة الوكيل القياسية على مضيف البوابة (`HTTPS_PROXY`, `HTTP_PROXY`, `NO_PROXY` / والمتغيرات المكافئة بالأحرف الصغيرة). يُفضَّل إعداد الوكيل على مستوى المضيف بدلًا من إعدادات وكيل WhatsApp الخاصة بالقناة.
 
 ## التحكم في الوصول والتفعيل
 
 <Tabs>
   <Tab title="سياسة الرسائل الخاصة">
-    يتحكم `channels.whatsapp.dmPolicy` في الوصول إلى الدردشة المباشرة:
+    يتحكم `channels.whatsapp.dmPolicy` في الوصول إلى المحادثات المباشرة:
 
     - `pairing` (الافتراضي)
     - `allowlist`
-    - `open` (يتطلب أن تتضمن `allowFrom` القيمة `"*"`)
+    - `open` (يتطلب أن يتضمن `allowFrom` القيمة `"*"`)
     - `disabled`
 
-    تقبل `allowFrom` أرقامًا بنمط E.164 (ويتم تطبيعها داخليًا).
+    يقبل `allowFrom` أرقامًا بنمط E.164 (مع تسويتها داخليًا).
 
-    تجاوز الحسابات المتعددة: تكون `channels.whatsapp.accounts.<id>.dmPolicy` (و`allowFrom`) لها الأولوية على القيم الافتراضية على مستوى القناة لذلك الحساب.
+    تجاوز متعدد الحسابات: يحظى `channels.whatsapp.accounts.<id>.dmPolicy` (و `allowFrom`) بالأولوية على الإعدادات الافتراضية على مستوى القناة لذلك الحساب.
 
-    تفاصيل سلوك وقت التشغيل:
+    تفاصيل سلوك التشغيل:
 
-    - يتم الاحتفاظ بعمليات الاقتران في مخزن السماح الخاص بالقناة ودمجها مع `allowFrom` المكوّنة
-    - إذا لم يتم تكوين أي قائمة سماح، يُسمح بالرقم الذاتي المرتبط افتراضيًا
-    - لا يتم أبدًا إقران الرسائل الخاصة الصادرة `fromMe` تلقائيًا
+    - يتم الاحتفاظ بعمليات الاقتران في مخزن السماح الخاص بالقناة ودمجها مع `allowFrom` المكوَّنة
+    - إذا لم تُكوَّن قائمة سماح، فسيُسمح بالرقم الذاتي المرتبط افتراضيًا
+    - لا تُقرن الرسائل الخاصة الصادرة `fromMe` تلقائيًا أبدًا
 
   </Tab>
 
   <Tab title="سياسة المجموعات + قوائم السماح">
-    يتكون الوصول إلى المجموعات من طبقتين:
+    يمتلك الوصول إلى المجموعات طبقتين:
 
     1. **قائمة سماح عضوية المجموعة** (`channels.whatsapp.groups`)
        - إذا تم حذف `groups`، تكون كل المجموعات مؤهلة
-       - إذا وُجدت `groups`، فإنها تعمل كقائمة سماح للمجموعات (مع السماح بـ `"*"`)
+       - إذا كانت `groups` موجودة، فإنها تعمل كقائمة سماح للمجموعات (مع السماح بـ `"*"`)
 
     2. **سياسة مرسل المجموعة** (`channels.whatsapp.groupPolicy` + `groupAllowFrom`)
-       - `open`: يتم تجاوز قائمة سماح المرسلين
+       - `open`: يتم تجاوز قائمة سماح المرسل
        - `allowlist`: يجب أن يطابق المرسل `groupAllowFrom` (أو `*`)
        - `disabled`: حظر كل الرسائل الواردة من المجموعات
 
-    بديل قائمة سماح المرسلين:
+    بديل قائمة سماح المرسل:
 
-    - إذا لم يتم تعيين `groupAllowFrom`، يعود وقت التشغيل إلى `allowFrom` عند توفرها
-    - يتم تقييم قوائم سماح المرسلين قبل تفعيل الإشارة/الرد
+    - إذا لم يتم تعيين `groupAllowFrom`، يعود التشغيل إلى `allowFrom` عند توفره
+    - تُقيَّم قوائم سماح المرسلين قبل تفعيل الإشارة/الرد
 
-    ملاحظة: إذا لم توجد كتلة `channels.whatsapp` إطلاقًا، فإن بديل سياسة المجموعات في وقت التشغيل يكون `allowlist` (مع سجل تحذير)، حتى لو كانت `channels.defaults.groupPolicy` معيّنة.
+    ملاحظة: إذا لم توجد كتلة `channels.whatsapp` على الإطلاق، فسيكون بديل سياسة المجموعات أثناء التشغيل هو `allowlist` (مع سجل تحذير)، حتى إذا كانت `channels.defaults.groupPolicy` معيّنة.
 
   </Tab>
 
   <Tab title="الإشارات + /activation">
-    تتطلب الردود في المجموعات الإشارة افتراضيًا.
+    تتطلب ردود المجموعات الإشارة بشكل افتراضي.
 
-    يتضمن اكتشاف الإشارة:
+    يتضمن اكتشاف الإشارة ما يلي:
 
-    - إشارات WhatsApp الصريحة لهوية bot
-    - أنماط regex المكوّنة للإشارة (`agents.list[].groupChat.mentionPatterns`، والبديل `messages.groupChat.mentionPatterns`)
-    - اكتشاف الرد الضمني على bot ‏(يطابق مرسل الرد هوية bot)
+    - إشارات WhatsApp الصريحة لهوية الروبوت
+    - أنماط regex للإشارة المكوّنة (`agents.list[].groupChat.mentionPatterns`، والبديل `messages.groupChat.mentionPatterns`)
+    - اكتشاف الرد الضمني على الروبوت (يطابق مرسل الرد هوية الروبوت)
 
     ملاحظة أمنية:
 
-    - الاقتباس/الرد يفي فقط بضبط الإشارة؛ ولا يمنح تفويض المرسل
-    - مع `groupPolicy: "allowlist"`، يظل المرسلون غير المدرجين في قائمة السماح محظورين حتى إذا ردوا على رسالة من مستخدم مدرج في قائمة السماح
+    - يلبّي الاقتباس/الرد فقط بوابة الإشارة؛ لكنه **لا** يمنح تفويضًا للمرسل
+    - مع `groupPolicy: "allowlist"`، يظل المرسلون غير المدرجين في قائمة السماح محظورين حتى إذا ردوا على رسالة مستخدم مدرج في القائمة
 
     أمر التفعيل على مستوى الجلسة:
 
     - `/activation mention`
     - `/activation always`
 
-    يقوم `activation` بتحديث حالة الجلسة (وليس التكوين العام). وهو مقيّد بالمالك.
+    يحدّث `activation` حالة الجلسة (وليس الإعداد العام). وهو مقيّد بالمالك.
 
   </Tab>
 </Tabs>
 
 ## سلوك الرقم الشخصي والدردشة الذاتية
 
-عندما يكون الرقم الذاتي المرتبط موجودًا أيضًا في `allowFrom`، يتم تفعيل ضمانات الدردشة الذاتية في WhatsApp:
+عندما يكون الرقم الذاتي المرتبط موجودًا أيضًا في `allowFrom`، يتم تفعيل وسائل الحماية الخاصة بالدردشة الذاتية في WhatsApp:
 
-- تخطي إيصالات القراءة في أدوار الدردشة الذاتية
-- تجاهل سلوك التشغيل التلقائي لإشارة JID الذي قد يؤدي بخلاف ذلك إلى تنبيهك لنفسك
-- إذا لم تكن `messages.responsePrefix` معيّنة، فإن ردود الدردشة الذاتية تستخدم افتراضيًا `[{identity.name}]` أو `[openclaw]`
+- تخطي إيصالات القراءة في دورات الدردشة الذاتية
+- تجاهل سلوك التشغيل التلقائي لإشارة JID الذي قد يؤدي بخلاف ذلك إلى تنبيهك أنت نفسك
+- إذا لم يتم تعيين `messages.responsePrefix`، فستكون بادئة ردود الدردشة الذاتية افتراضيًا `[{identity.name}]` أو `[openclaw]`
 
-## تطبيع الرسائل والسياق
+## تسوية الرسائل والسياق
 
 <AccordionGroup>
-  <Accordion title="الغلاف الوارد + سياق الرد">
-    تُغلَّف رسائل WhatsApp الواردة في الغلاف الوارد المشترك.
+  <Accordion title="غلاف الوارد + سياق الرد">
+    تُغلّف رسائل WhatsApp الواردة داخل الغلاف المشترك للوارد.
 
     إذا وُجد رد مقتبس، يُضاف السياق بهذا الشكل:
 
@@ -243,12 +244,12 @@ openclaw pairing approve whatsapp <CODE>
     [/Replying]
     ```
 
-    كما تتم تعبئة حقول بيانات تعريف الرد عند توفرها (`ReplyToId` و`ReplyToBody` و`ReplyToSender` وJID/E.164 الخاص بالمرسل).
+    تُعبّأ أيضًا حقول بيانات تعريف الرد عند توفرها (`ReplyToId`, `ReplyToBody`, `ReplyToSender`, ومرسل JID/E.164).
 
   </Accordion>
 
-  <Accordion title="عناصر الوسائط النائبة واستخراج الموقع/جهة الاتصال">
-    يتم تطبيع الرسائل الواردة التي تحتوي على وسائط فقط باستخدام عناصر نائبة مثل:
+  <Accordion title="العناصر النائبة للوسائط واستخراج الموقع/جهة الاتصال">
+    تتم تسوية الرسائل الواردة التي تحتوي على وسائط فقط بعناصر نائبة مثل:
 
     - `<media:image>`
     - `<media:video>`
@@ -256,15 +257,15 @@ openclaw pairing approve whatsapp <CODE>
     - `<media:document>`
     - `<media:sticker>`
 
-    يتم تطبيع حمولات الموقع وجهات الاتصال إلى سياق نصي قبل التوجيه.
+    تتم تسوية حمولات الموقع وجهة الاتصال إلى سياق نصي قبل التوجيه.
 
   </Accordion>
 
-  <Accordion title="حقن سجل المجموعات المعلق">
-    بالنسبة إلى المجموعات، يمكن تخزين الرسائل غير المعالجة مؤقتًا وحقنها كسياق عندما يتم تشغيل bot أخيرًا.
+  <Accordion title="حقن سجل المجموعة المعلّق">
+    بالنسبة للمجموعات، يمكن تخزين الرسائل غير المعالجة مؤقتًا وحقنها كسياق عندما يتم تشغيل الروبوت أخيرًا.
 
     - الحد الافتراضي: `50`
-    - التكوين: `channels.whatsapp.historyLimit`
+    - الإعداد: `channels.whatsapp.historyLimit`
     - البديل: `messages.groupChat.historyLimit`
     - `0` يعطّل الميزة
 
@@ -276,9 +277,9 @@ openclaw pairing approve whatsapp <CODE>
   </Accordion>
 
   <Accordion title="إيصالات القراءة">
-    تكون إيصالات القراءة ممكّنة افتراضيًا لرسائل WhatsApp الواردة المقبولة.
+    تكون إيصالات القراءة مفعّلة افتراضيًا لرسائل WhatsApp الواردة المقبولة.
 
-    التعطيل عالميًا:
+    للتعطيل على مستوى عام:
 
     ```json5
     {
@@ -306,51 +307,51 @@ openclaw pairing approve whatsapp <CODE>
     }
     ```
 
-    تتخطى أدوار الدردشة الذاتية إيصالات القراءة حتى عند تمكينها عالميًا.
+    تتخطى دورات الدردشة الذاتية إيصالات القراءة حتى عند تفعيلها على مستوى عام.
 
   </Accordion>
 </AccordionGroup>
 
-## التسليم والتجزئة والوسائط
+## التسليم، والتقسيم، والوسائط
 
 <AccordionGroup>
-  <Accordion title="تجزئة النص">
-    - حد التجزئة الافتراضي: `channels.whatsapp.textChunkLimit = 4000`
+  <Accordion title="تقسيم النص">
+    - الحد الافتراضي للتقسيم: `channels.whatsapp.textChunkLimit = 4000`
     - `channels.whatsapp.chunkMode = "length" | "newline"`
-    - يفضل وضع `newline` حدود الفقرات (الأسطر الفارغة)، ثم يعود إلى التجزئة الآمنة حسب الطول
+    - يفضّل وضع `newline` حدود الفقرات (الأسطر الفارغة)، ثم يعود إلى تقسيم آمن بحسب الطول
   </Accordion>
 
   <Accordion title="سلوك الوسائط الصادرة">
-    - يدعم حمولات الصور والفيديو والصوت (ملاحظة صوتية PTT) والمستندات
-    - تتم إعادة كتابة `audio/ogg` إلى `audio/ogg; codecs=opus` للتوافق مع الملاحظات الصوتية
+    - يدعم حمولات الصور والفيديو والصوت (مذكرة صوتية PTT) والمستندات
+    - يُعاد كتابة `audio/ogg` إلى `audio/ogg; codecs=opus` لتوافق الملاحظات الصوتية
     - يتم دعم تشغيل GIF المتحرك عبر `gifPlayback: true` عند إرسال الفيديو
-    - تُطبَّق التسميات التوضيحية على أول عنصر وسائط عند إرسال حمولات رد متعددة الوسائط
-    - يمكن أن يكون مصدر الوسائط هو HTTP(S) أو `file://` أو مسارات محلية
+    - تُطبّق التسميات التوضيحية على أول عنصر وسائط عند إرسال حمولات رد متعددة الوسائط
+    - يمكن أن يكون مصدر الوسائط HTTP(S) أو `file://` أو مسارات محلية
   </Accordion>
 
-  <Accordion title="حدود حجم الوسائط وسلوك البديل">
-    - حد حفظ الوسائط الواردة: `channels.whatsapp.mediaMaxMb` (الافتراضي `50`)
-    - حد إرسال الوسائط الصادرة: `channels.whatsapp.mediaMaxMb` (الافتراضي `50`)
-    - تستخدم تجاوزات كل حساب `channels.whatsapp.accounts.<accountId>.mediaMaxMb`
-    - يتم تحسين الصور تلقائيًا (تغيير الحجم/اجتياز الجودة) لتلائم الحدود
-    - عند فشل إرسال الوسائط، يرسل البديل الخاص بأول عنصر تحذيرًا نصيًا بدلًا من إسقاط الرد بصمت
+  <Accordion title="حدود حجم الوسائط وسلوك الرجوع">
+    - الحد الأقصى لحفظ الوسائط الواردة: `channels.whatsapp.mediaMaxMb` (الافتراضي `50`)
+    - الحد الأقصى لإرسال الوسائط الصادرة: `channels.whatsapp.mediaMaxMb` (الافتراضي `50`)
+    - تستخدم التجاوزات لكل حساب `channels.whatsapp.accounts.<accountId>.mediaMaxMb`
+    - تُحسَّن الصور تلقائيًا (تغيير الحجم/اختبار الجودة) لتلائم الحدود
+    - عند فشل إرسال الوسائط، يرسل الرجوع الخاص بالعنصر الأول تحذيرًا نصيًا بدلًا من إسقاط الرد بصمت
   </Accordion>
 </AccordionGroup>
 
-## مستوى التفاعل
+## مستوى التفاعلات
 
-يتحكم `channels.whatsapp.reactionLevel` في مدى استخدام الوكيل لتفاعلات emoji على WhatsApp:
+يتحكم `channels.whatsapp.reactionLevel` في مدى استخدام الوكيل لتفاعلات الإيموجي على WhatsApp:
 
-| المستوى       | تفاعلات الإقرار | التفاعلات التي يبدأها الوكيل | الوصف                                            |
-| ------------- | --------------- | ---------------------------- | ------------------------------------------------ |
-| `"off"`       | لا              | لا                           | لا توجد تفاعلات إطلاقًا                          |
-| `"ack"`       | نعم             | لا                           | تفاعلات الإقرار فقط (إيصال ما قبل الرد)         |
-| `"minimal"`   | نعم             | نعم (بشكل محافظ)            | تفاعلات الإقرار + تفاعلات الوكيل مع توجيه محافظ |
-| `"extensive"` | نعم             | نعم (مشجعة)                 | تفاعلات الإقرار + تفاعلات الوكيل مع توجيه مشجع  |
+| المستوى      | تفاعلات الإقرار | تفاعلات يبدأها الوكيل | الوصف                                            |
+| ------------ | --------------- | ---------------------- | ------------------------------------------------ |
+| `"off"`      | لا              | لا                     | بدون أي تفاعلات على الإطلاق                      |
+| `"ack"`      | نعم             | لا                     | تفاعلات الإقرار فقط (إقرار ما قبل الرد)          |
+| `"minimal"`  | نعم             | نعم (بحذر)            | الإقرار + تفاعلات الوكيل مع إرشادات متحفظة       |
+| `"extensive"`| نعم             | نعم (مستحسنة)         | الإقرار + تفاعلات الوكيل مع إرشادات مشجعة        |
 
 الافتراضي: `"minimal"`.
 
-تستخدم تجاوزات كل حساب `channels.whatsapp.accounts.<id>.reactionLevel`.
+تستخدم التجاوزات لكل حساب `channels.whatsapp.accounts.<id>.reactionLevel`.
 
 ```json5
 {
@@ -364,8 +365,8 @@ openclaw pairing approve whatsapp <CODE>
 
 ## تفاعلات الإقرار
 
-يدعم WhatsApp تفاعلات الإقرار الفورية عند الاستلام الوارد عبر `channels.whatsapp.ackReaction`.
-تخضع تفاعلات الإقرار إلى `reactionLevel` — ويتم إخفاؤها عندما تكون قيمة `reactionLevel` هي `"off"`.
+يدعم WhatsApp تفاعلات الإقرار الفورية عند استلام الرسائل الواردة عبر `channels.whatsapp.ackReaction`.
+تخضع تفاعلات الإقرار لـ `reactionLevel` — ويتم كبتها عندما تكون قيمة `reactionLevel` هي `"off"`.
 
 ```json5
 {
@@ -383,46 +384,46 @@ openclaw pairing approve whatsapp <CODE>
 
 ملاحظات السلوك:
 
-- تُرسَل فورًا بعد قبول الرسالة الواردة (قبل الرد)
+- تُرسل فورًا بعد قبول الوارد (قبل الرد)
 - يتم تسجيل الإخفاقات لكنها لا تمنع تسليم الرد العادي
-- في وضع المجموعة `mentions`، يتم التفاعل في الأدوار التي يتم تشغيلها بالإشارة؛ ويعمل تفعيل المجموعة `always` كتجاوز لهذا الفحص
-- يستخدم WhatsApp الإعداد `channels.whatsapp.ackReaction` (ولا يُستخدم هنا الإعداد القديم `messages.ackReaction`)
+- يتفاعل وضع المجموعة `mentions` في الدورات التي يتم تشغيلها بالإشارة؛ ويعمل تفعيل المجموعة `always` كتجاوز لهذا الفحص
+- يستخدم WhatsApp ‏`channels.whatsapp.ackReaction` (ولا يُستخدم هنا الإرثي `messages.ackReaction`)
 
 ## الحسابات المتعددة وبيانات الاعتماد
 
 <AccordionGroup>
-  <Accordion title="اختيار الحساب والقيم الافتراضية">
+  <Accordion title="اختيار الحساب والإعدادات الافتراضية">
     - تأتي معرّفات الحسابات من `channels.whatsapp.accounts`
-    - اختيار الحساب الافتراضي: `default` إذا كان موجودًا، وإلا أول معرّف حساب مكوَّن (مرتب)
-    - يتم تطبيع معرّفات الحسابات داخليًا لأغراض البحث
+    - اختيار الحساب الافتراضي: `default` إذا كان موجودًا، وإلا أول معرّف حساب مُكوَّن (بعد الفرز)
+    - تتم تسوية معرّفات الحسابات داخليًا لأغراض البحث
   </Accordion>
 
-  <Accordion title="مسارات بيانات الاعتماد والتوافق مع الأنظمة القديمة">
+  <Accordion title="مسارات بيانات الاعتماد والتوافق مع الإصدارات السابقة">
     - مسار المصادقة الحالي: `~/.openclaw/credentials/whatsapp/<accountId>/creds.json`
     - ملف النسخة الاحتياطية: `creds.json.bak`
-    - ما زالت مصادقة النظام القديم الافتراضية في `~/.openclaw/credentials/` معرّفًا بها/تُنقل لتدفقات الحساب الافتراضي
+    - لا يزال يتم التعرّف على المصادقة الافتراضية القديمة في `~/.openclaw/credentials/` وترحيلها لتدفقات الحساب الافتراضي
   </Accordion>
 
   <Accordion title="سلوك تسجيل الخروج">
-    يؤدي `openclaw channels logout --channel whatsapp [--account <id>]` إلى مسح حالة مصادقة WhatsApp لذلك الحساب.
+    يقوم `openclaw channels logout --channel whatsapp [--account <id>]` بمسح حالة مصادقة WhatsApp لذلك الحساب.
 
     في أدلة المصادقة القديمة، يتم الاحتفاظ بـ `oauth.json` بينما تتم إزالة ملفات مصادقة Baileys.
 
   </Accordion>
 </AccordionGroup>
 
-## الأدوات والإجراءات وعمليات كتابة التكوين
+## الأدوات والإجراءات وكتابة الإعدادات
 
 - يتضمن دعم أدوات الوكيل إجراء تفاعل WhatsApp ‏(`react`).
 - بوابات الإجراءات:
   - `channels.whatsapp.actions.reactions`
   - `channels.whatsapp.actions.polls`
-- تكون عمليات كتابة التكوين التي تبدأها القناة ممكّنة افتراضيًا (عطّلها عبر `channels.whatsapp.configWrites=false`).
+- تكون عمليات كتابة الإعدادات التي تبدأها القناة مفعّلة افتراضيًا (يمكن تعطيلها عبر `channels.whatsapp.configWrites=false`).
 
 ## استكشاف الأخطاء وإصلاحها
 
 <AccordionGroup>
-  <Accordion title="غير مرتبط (يلزم QR)">
+  <Accordion title="غير مرتبط (يتطلب QR)">
     العَرَض: تشير حالة القناة إلى أنها غير مرتبطة.
 
     الإصلاح:
@@ -434,7 +435,7 @@ openclaw pairing approve whatsapp <CODE>
 
   </Accordion>
 
-  <Accordion title="مرتبط لكن غير متصل / حلقة إعادة اتصال">
+  <Accordion title="مرتبط ولكن غير متصل / حلقة إعادة الاتصال">
     العَرَض: حساب مرتبط مع انقطاعات متكررة أو محاولات إعادة اتصال.
 
     الإصلاح:
@@ -444,52 +445,52 @@ openclaw pairing approve whatsapp <CODE>
     openclaw logs --follow
     ```
 
-    إذا لزم الأمر، أعد الربط باستخدام `channels login`.
+    عند الحاجة، أعد الربط باستخدام `channels login`.
 
   </Accordion>
 
   <Accordion title="لا يوجد مستمع نشط عند الإرسال">
-    تفشل عمليات الإرسال الصادرة بسرعة عندما لا يوجد مستمع gateway نشط للحساب الهدف.
+    تفشل عمليات الإرسال الصادرة سريعًا عندما لا يوجد مستمع بوابة نشط للحساب المستهدف.
 
-    تأكد من أن gateway يعمل وأن الحساب مرتبط.
+    تأكد من أن البوابة قيد التشغيل وأن الحساب مرتبط.
 
   </Accordion>
 
   <Accordion title="يتم تجاهل رسائل المجموعات بشكل غير متوقع">
-    تحقق بالترتيب التالي:
+    تحقق بهذا الترتيب:
 
     - `groupPolicy`
     - `groupAllowFrom` / `allowFrom`
-    - إدخالات قائمة سماح `groups`
-    - ضبط الإشارة (`requireMention` + أنماط الإشارة)
-    - المفاتيح المكررة في `openclaw.json` ‏(JSON5): تتجاوز الإدخالات اللاحقة الإدخالات السابقة، لذا احتفظ بقيمة `groupPolicy` واحدة لكل نطاق
+    - إدخالات قائمة السماح `groups`
+    - بوابة الإشارة (`requireMention` + أنماط الإشارة)
+    - المفاتيح المكررة في `openclaw.json` ‏(JSON5): الإدخالات اللاحقة تتجاوز السابقة، لذا احتفظ بقيمة `groupPolicy` واحدة لكل نطاق
 
   </Accordion>
 
   <Accordion title="تحذير وقت تشغيل Bun">
-    يجب أن يستخدم وقت تشغيل WhatsApp gateway بيئة Node. تُصنَّف Bun على أنها غير متوافقة مع التشغيل المستقر لـ WhatsApp/Telegram gateway.
+    يجب أن يستخدم وقت تشغيل بوابة WhatsApp ‏Node. ويتم تمييز Bun على أنه غير متوافق لتشغيل بوابة WhatsApp/Telegram بشكل مستقر.
   </Accordion>
 </AccordionGroup>
 
-## مؤشرات مرجع التكوين
+## مؤشرات مرجعية للإعداد
 
 المرجع الأساسي:
 
-- [مرجع التكوين - WhatsApp](/gateway/configuration-reference#whatsapp)
+- [مرجع الإعداد - WhatsApp](/ar/gateway/configuration-reference#whatsapp)
 
 حقول WhatsApp عالية الأهمية:
 
-- الوصول: `dmPolicy` و`allowFrom` و`groupPolicy` و`groupAllowFrom` و`groups`
-- التسليم: `textChunkLimit` و`chunkMode` و`mediaMaxMb` و`sendReadReceipts` و`ackReaction` و`reactionLevel`
-- الحسابات المتعددة: `accounts.<id>.enabled` و`accounts.<id>.authDir` والتجاوزات على مستوى الحساب
-- العمليات: `configWrites` و`debounceMs` و`web.enabled` و`web.heartbeatSeconds` و`web.reconnect.*`
-- سلوك الجلسة: `session.dmScope` و`historyLimit` و`dmHistoryLimit` و`dms.<id>.historyLimit`
+- الوصول: `dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`, `groups`
+- التسليم: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `sendReadReceipts`, `ackReaction`, `reactionLevel`
+- الحسابات المتعددة: `accounts.<id>.enabled`, `accounts.<id>.authDir`, والتجاوزات على مستوى الحساب
+- العمليات: `configWrites`, `debounceMs`, `web.enabled`, `web.heartbeatSeconds`, `web.reconnect.*`
+- سلوك الجلسة: `session.dmScope`, `historyLimit`, `dmHistoryLimit`, `dms.<id>.historyLimit`
 
 ## ذو صلة
 
-- [الاقتران](/channels/pairing)
-- [المجموعات](/channels/groups)
-- [الأمان](/gateway/security)
-- [توجيه القنوات](/channels/channel-routing)
-- [التوجيه متعدد الوكلاء](/concepts/multi-agent)
-- [استكشاف الأخطاء وإصلاحها](/channels/troubleshooting)
+- [الاقتران](/ar/channels/pairing)
+- [المجموعات](/ar/channels/groups)
+- [الأمان](/ar/gateway/security)
+- [توجيه القنوات](/ar/channels/channel-routing)
+- [التوجيه متعدد الوكلاء](/ar/concepts/multi-agent)
+- [استكشاف الأخطاء وإصلاحها](/ar/channels/troubleshooting)

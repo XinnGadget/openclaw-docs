@@ -1,62 +1,62 @@
 ---
 read_when:
-    - تريد إنشاء إضافة OpenClaw جديدة
-    - تحتاج إلى بداية سريعة لتطوير الإضافات
-    - أنت تضيف قناة أو موفرًا أو أداة أو قدرة أخرى جديدة إلى OpenClaw
+    - تريد إنشاء plugin جديد لـ OpenClaw
+    - تحتاج إلى دليل بدء سريع لتطوير plugin
+    - تضيف قناة أو مزودًا أو أداة أو قدرة أخرى جديدة إلى OpenClaw
 sidebarTitle: Getting Started
-summary: أنشئ إضافة OpenClaw الأولى الخاصة بك في دقائق
-title: بناء الإضافات
+summary: أنشئ أول plugin لـ OpenClaw خلال دقائق
+title: بناء Plugins
 x-i18n:
-    generated_at: "2026-04-06T03:09:34Z"
+    generated_at: "2026-04-07T07:19:17Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 9be344cb300ecbcba08e593a95bcc93ab16c14b28a0ff0c29b26b79d8249146c
+    source_hash: 509c1f5abe1a0a74966054ed79b71a1a7ee637a43b1214c424acfe62ddf48eef
     source_path: plugins/building-plugins.md
     workflow: 15
 ---
 
-# بناء الإضافات
+# بناء Plugins
 
-توسّع الإضافات OpenClaw بإمكانات جديدة: القنوات، وموفرو النماذج،
+توسّع Plugins قدرات OpenClaw بإمكانات جديدة: القنوات، وموفرو النماذج،
 والكلام، والنسخ الفوري، والصوت الفوري، وفهم الوسائط، وتوليد
-الصور، وتوليد الفيديو، وجلب الويب، والبحث في الويب، وأدوات الوكيل، أو أي
+الصور، وتوليد الفيديو، وجلب الويب، والبحث على الويب، وأدوات الوكيل، أو أي
 مزيج منها.
 
-لا تحتاج إلى إضافة إضافتك إلى مستودع OpenClaw. انشرها إلى
-[ClawHub](/ar/tools/clawhub) أو npm وسيقوم المستخدمون بتثبيتها باستخدام
+لا تحتاج إلى إضافة plugin الخاص بك إلى مستودع OpenClaw. انشره على
+[ClawHub](/ar/tools/clawhub) أو npm وسيقوم المستخدمون بتثبيته باستخدام
 `openclaw plugins install <package-name>`. يحاول OpenClaw استخدام ClawHub أولًا ثم
-يعود إلى npm تلقائيًا.
+يرجع تلقائيًا إلى npm.
 
-## المتطلبات المسبقة
+## المتطلبات الأساسية
 
 - Node >= 22 ومدير حزم (npm أو pnpm)
-- إلمام بـ TypeScript ‏(ESM)
-- للإضافات داخل المستودع: يجب استنساخ المستودع وتشغيل `pnpm install`
+- الإلمام بـ TypeScript ‏(ESM)
+- بالنسبة إلى plugins داخل المستودع: يجب أن يكون المستودع مستنسخًا وقد تم تشغيل `pnpm install`
 
-## ما نوع الإضافة؟
+## ما نوع plugin الذي تريده؟
 
 <CardGroup cols={3}>
-  <Card title="إضافة قناة" icon="messages-square" href="/ar/plugins/sdk-channel-plugins">
-    اربط OpenClaw بمنصة مراسلة (Discord أو IRC أو غير ذلك)
+  <Card title="Channel plugin" icon="messages-square" href="/ar/plugins/sdk-channel-plugins">
+    وصّل OpenClaw بمنصة مراسلة (Discord وIRC وغيرهما)
   </Card>
-  <Card title="إضافة موفر" icon="cpu" href="/ar/plugins/sdk-provider-plugins">
-    أضف موفر نماذج (LLM أو proxy أو نقطة نهاية مخصصة)
+  <Card title="Provider plugin" icon="cpu" href="/ar/plugins/sdk-provider-plugins">
+    أضف مزود نماذج (LLM أو proxy أو endpoint مخصص)
   </Card>
-  <Card title="إضافة أداة / hook" icon="wrench">
+  <Card title="Tool / hook plugin" icon="wrench">
     سجّل أدوات الوكيل أو event hooks أو الخدمات — تابع أدناه
   </Card>
 </CardGroup>
 
-إذا كانت إضافة القناة اختيارية وقد لا تكون مثبّتة عند تشغيل الإعداد/التهيئة
-فاستخدم `createOptionalChannelSetupSurface(...)` من
-`openclaw/plugin-sdk/channel-setup`. فهي تنتج مُكيّف إعداد + زوج معالج
-يعرض متطلب التثبيت ويفشل بشكل مغلق عند عمليات كتابة التكوين الفعلية
-إلى أن يتم تثبيت الإضافة.
+إذا كان Channel plugin اختياريًا وقد لا يكون مثبتًا عند تشغيل
+onboarding/setup، فاستخدم `createOptionalChannelSetupSurface(...)` من
+`openclaw/plugin-sdk/channel-setup`. فهو ينتج setup adapter + wizard
+يعلن عن متطلب التثبيت ويفشل بشكل مغلق عند محاولات كتابة الإعدادات الفعلية
+إلى أن يتم تثبيت plugin.
 
-## بداية سريعة: إضافة أداة
+## بدء سريع: Tool plugin
 
-ينشئ هذا الشرح إضافة دنيا تسجّل أداة وكيل. تحتوي إضافات القنوات
-والموفرين على أدلة مخصصة مرتبطة أعلاه.
+ينشئ هذا الدليل plugin بسيطًا يسجل أداة وكيل. أما Channel plugins
+وProvider plugins فلها أدلة مخصصة مرتبطة أعلاه.
 
 <Steps>
   <Step title="أنشئ الحزمة وmanifest">
@@ -93,9 +93,9 @@ x-i18n:
     ```
     </CodeGroup>
 
-    تحتاج كل إضافة إلى manifest، حتى من دون أي تكوين. راجع
-    [Manifest](/ar/plugins/manifest) للاطلاع على المخطط الكامل. توجد مقتطفات نشر ClawHub
-    الرسمية في `docs/snippets/plugin-publish/`.
+    يحتاج كل plugin إلى manifest، حتى من دون إعدادات. راجع
+    [Manifest](/ar/plugins/manifest) للاطلاع على المخطط الكامل. وتوجد مقتطفات النشر
+    القياسية الخاصة بـ ClawHub في `docs/snippets/plugin-publish/`.
 
   </Step>
 
@@ -123,15 +123,15 @@ x-i18n:
     });
     ```
 
-    يُستخدم `definePluginEntry` للإضافات غير الخاصة بالقنوات. أما القنوات فاستخدم
+    يُستخدم `definePluginEntry` للـ plugins غير الخاصة بالقنوات. أما القنوات فاستخدم
     `defineChannelPluginEntry` — راجع [Channel Plugins](/ar/plugins/sdk-channel-plugins).
-    وللاطلاع على خيارات نقطة الإدخال الكاملة، راجع [Entry Points](/ar/plugins/sdk-entrypoints).
+    وللاطلاع على الخيارات الكاملة لنقطة الإدخال، راجع [Entry Points](/ar/plugins/sdk-entrypoints).
 
   </Step>
 
   <Step title="اختبر وانشر">
 
-    **الإضافات الخارجية:** تحقّق وانشر باستخدام ClawHub، ثم ثبّت:
+    **Plugins الخارجية:** تحقّق وانشر باستخدام ClawHub، ثم ثبّت:
 
     ```bash
     clawhub package publish your-org/your-plugin --dry-run
@@ -139,10 +139,10 @@ x-i18n:
     openclaw plugins install clawhub:@myorg/openclaw-my-plugin
     ```
 
-    يتحقق OpenClaw أيضًا من ClawHub قبل npm عند استخدام مواصفات حزم مجردة مثل
+    يفحص OpenClaw أيضًا ClawHub قبل npm عند استخدام مواصفات حزم مجردة مثل
     `@myorg/openclaw-my-plugin`.
 
-    **الإضافات داخل المستودع:** ضعها تحت شجرة مساحة عمل الإضافات المجمعة — وسيتم اكتشافها تلقائيًا.
+    **Plugins داخل المستودع:** ضَعها ضمن شجرة workspace الخاصة بالـ plugin المضمّن — سيتم اكتشافها تلقائيًا.
 
     ```bash
     pnpm test -- <bundled-plugin-root>/my-plugin/
@@ -151,62 +151,66 @@ x-i18n:
   </Step>
 </Steps>
 
-## قدرات الإضافة
+## قدرات plugin
 
-يمكن لإضافة واحدة تسجيل أي عدد من القدرات عبر الكائن `api`:
+يمكن لـ plugin واحد تسجيل أي عدد من القدرات عبر الكائن `api`:
 
-| القدرة                 | طريقة التسجيل                                  | الدليل المفصل                                                                  |
-| ---------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------ |
-| استدلال النص (LLM)     | `api.registerProvider(...)`                     | [Provider Plugins](/ar/plugins/sdk-provider-plugins)                              |
-| القناة / المراسلة      | `api.registerChannel(...)`                      | [Channel Plugins](/ar/plugins/sdk-channel-plugins)                                |
-| الكلام (TTS/STT)       | `api.registerSpeechProvider(...)`               | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| النسخ الفوري           | `api.registerRealtimeTranscriptionProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| الصوت الفوري           | `api.registerRealtimeVoiceProvider(...)`        | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| فهم الوسائط            | `api.registerMediaUnderstandingProvider(...)`   | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| توليد الصور            | `api.registerImageGenerationProvider(...)`      | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| توليد الموسيقى         | `api.registerMusicGenerationProvider(...)`      | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| توليد الفيديو          | `api.registerVideoGenerationProvider(...)`      | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| جلب الويب              | `api.registerWebFetchProvider(...)`             | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| البحث في الويب         | `api.registerWebSearchProvider(...)`            | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
-| أدوات الوكيل           | `api.registerTool(...)`                         | أدناه                                                                          |
-| أوامر مخصصة            | `api.registerCommand(...)`                      | [Entry Points](/ar/plugins/sdk-entrypoints)                                       |
-| event hooks            | `api.registerHook(...)`                         | [Entry Points](/ar/plugins/sdk-entrypoints)                                       |
-| مسارات HTTP            | `api.registerHttpRoute(...)`                    | [Internals](/ar/plugins/architecture#gateway-http-routes)                         |
-| أوامر CLI فرعية        | `api.registerCli(...)`                          | [Entry Points](/ar/plugins/sdk-entrypoints)                                       |
+| القدرة | طريقة التسجيل | الدليل المفصل |
+| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------- |
+| الاستدلال النصي (LLM) | `api.registerProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins) |
+| CLI inference backend | `api.registerCliBackend(...)` | [CLI Backends](/ar/gateway/cli-backends) |
+| القناة / المراسلة | `api.registerChannel(...)` | [Channel Plugins](/ar/plugins/sdk-channel-plugins) |
+| الكلام (TTS/STT) | `api.registerSpeechProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| النسخ الفوري | `api.registerRealtimeTranscriptionProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| الصوت الفوري | `api.registerRealtimeVoiceProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| فهم الوسائط | `api.registerMediaUnderstandingProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| توليد الصور | `api.registerImageGenerationProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| توليد الموسيقى | `api.registerMusicGenerationProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| توليد الفيديو | `api.registerVideoGenerationProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| جلب الويب | `api.registerWebFetchProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| البحث على الويب | `api.registerWebSearchProvider(...)` | [Provider Plugins](/ar/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+| أدوات الوكيل | `api.registerTool(...)` | أدناه |
+| أوامر مخصصة | `api.registerCommand(...)` | [Entry Points](/ar/plugins/sdk-entrypoints) |
+| Event hooks | `api.registerHook(...)` | [Entry Points](/ar/plugins/sdk-entrypoints) |
+| مسارات HTTP | `api.registerHttpRoute(...)` | [Internals](/ar/plugins/architecture#gateway-http-routes) |
+| أوامر CLI فرعية | `api.registerCli(...)` | [Entry Points](/ar/plugins/sdk-entrypoints) |
 
-للاطلاع على API التسجيل الكامل، راجع [SDK Overview](/ar/plugins/sdk-overview#registration-api).
+للاطلاع على API التسجيل الكامل، راجع [نظرة عامة على SDK](/ar/plugins/sdk-overview#registration-api).
 
-إذا كانت إضافتك تسجّل طرق RPC مخصصة للبوابة، فاحتفظ بها ضمن
-بادئة خاصة بالإضافة. تظل مساحات أسماء الإدارة الأساسية (`config.*`،
-`exec.approvals.*`، `wizard.*`، `update.*`) محجوزة وتُحل دائمًا إلى
-`operator.admin`، حتى إذا طلبت إضافة نطاقًا أضيق.
+إذا كان plugin الخاص بك يسجل أساليب Gateway RPC مخصصة، فاحتفظ بها ضمن
+بادئة خاصة بـ plugin. تظل مساحات أسماء الإدارة الأساسية (`config.*`,
+`exec.approvals.*`, `wizard.*`, `update.*`) محجوزة وتُحل دائمًا إلى
+`operator.admin`، حتى إذا طلب plugin نطاقًا أضيق.
 
-دلالات حواجز hook التي يجب أخذها في الاعتبار:
+دلالات حرس الـ hook التي يجب وضعها في الاعتبار:
 
-- `before_tool_call`: تكون `{ block: true }` نهائية وتوقف المعالجات ذات الأولوية الأدنى.
-- `before_tool_call`: تُعامل `{ block: false }` على أنها لا قرار.
-- `before_tool_call`: تؤدي `{ requireApproval: true }` إلى إيقاف تنفيذ الوكيل مؤقتًا وتطلب من المستخدم الموافقة عبر تراكب موافقات exec أو أزرار Telegram أو تفاعلات Discord أو الأمر `/approve` على أي قناة.
-- `before_install`: تكون `{ block: true }` نهائية وتوقف المعالجات ذات الأولوية الأدنى.
-- `before_install`: تُعامل `{ block: false }` على أنها لا قرار.
-- `message_sending`: تكون `{ cancel: true }` نهائية وتوقف المعالجات ذات الأولوية الأدنى.
-- `message_sending`: تُعامل `{ cancel: false }` على أنها لا قرار.
+- `before_tool_call`: ‏`{ block: true }` نهائية وتوقف المعالجات ذات الأولوية الأقل.
+- `before_tool_call`: ‏`{ block: false }` تُعامل على أنها بدون قرار.
+- `before_tool_call`: ‏`{ requireApproval: true }` توقف تنفيذ الوكيل مؤقتًا وتطلب موافقة المستخدم عبر طبقة exec approval، أو أزرار Telegram، أو تفاعلات Discord، أو الأمر `/approve` على أي قناة.
+- `before_install`: ‏`{ block: true }` نهائية وتوقف المعالجات ذات الأولوية الأقل.
+- `before_install`: ‏`{ block: false }` تُعامل على أنها بدون قرار.
+- `message_sending`: ‏`{ cancel: true }` نهائية وتوقف المعالجات ذات الأولوية الأقل.
+- `message_sending`: ‏`{ cancel: false }` تُعامل على أنها بدون قرار.
 
-يعالج الأمر `/approve` كلًا من موافقات exec وموافقات الإضافات مع رجوع محدود: عندما لا يتم العثور على معرّف موافقة exec، يعيد OpenClaw محاولة المعرّف نفسه عبر موافقات الإضافات. ويمكن تكوين إعادة توجيه موافقات الإضافات بشكل مستقل عبر `approvals.plugin` في التكوين.
+يعالج الأمر `/approve` كلًا من exec approvals وplugin approvals مع fallback
+مقيّد: فعندما لا يتم العثور على معرّف exec approval، يعيد OpenClaw محاولة
+المعرّف نفسه عبر plugin approvals. ويمكن ضبط تمرير plugin approval
+بشكل مستقل عبر `approvals.plugin` في الإعدادات.
 
-إذا كانت بنية الموافقات المخصصة تحتاج إلى اكتشاف حالة الرجوع المحدود نفسها،
+إذا كان من الضروري أن يكتشف منطق approval المخصص حالة fallback المقيّدة نفسها،
 ففضّل استخدام `isApprovalNotFoundError` من `openclaw/plugin-sdk/error-runtime`
-بدلًا من مطابقة سلاسل انتهاء صلاحية الموافقة يدويًا.
+بدلًا من مطابقة سلاسل انتهاء صلاحية approval يدويًا.
 
-راجع [SDK Overview hook decision semantics](/ar/plugins/sdk-overview#hook-decision-semantics) لمزيد من التفاصيل.
+راجع [دلالات قرارات hook في نظرة عامة على SDK](/ar/plugins/sdk-overview#hook-decision-semantics) للتفاصيل.
 
 ## تسجيل أدوات الوكيل
 
 الأدوات هي دوال typed يمكن لـ LLM استدعاؤها. ويمكن أن تكون مطلوبة (متاحة
-دائمًا) أو اختيارية (يشترك فيها المستخدم):
+دائمًا) أو اختيارية (اشتراك من المستخدم):
 
 ```typescript
 register(api) {
-  // أداة مطلوبة — متاحة دائمًا
+  // Required tool — always available
   api.registerTool({
     name: "my_tool",
     description: "Do a thing",
@@ -216,7 +220,7 @@ register(api) {
     },
   });
 
-  // أداة اختيارية — يجب على المستخدم إضافتها إلى allowlist
+  // Optional tool — user must add to allowlist
   api.registerTool(
     {
       name: "workflow_tool",
@@ -231,7 +235,7 @@ register(api) {
 }
 ```
 
-يُفعّل المستخدمون الأدوات الاختيارية في التكوين:
+يفعّل المستخدمون الأدوات الاختيارية في الإعدادات:
 
 ```json5
 {
@@ -240,74 +244,75 @@ register(api) {
 ```
 
 - يجب ألا تتعارض أسماء الأدوات مع الأدوات الأساسية (يتم تخطي التعارضات)
-- استخدم `optional: true` للأدوات ذات التأثيرات الجانبية أو المتطلبات الثنائية الإضافية
-- يمكن للمستخدمين تمكين جميع أدوات إضافة ما عبر إضافة معرّف الإضافة إلى `tools.allow`
+- استخدم `optional: true` للأدوات ذات التأثيرات الجانبية أو متطلبات الملفات التنفيذية الإضافية
+- يمكن للمستخدمين تفعيل جميع أدوات plugin عبر إضافة معرّف plugin إلى `tools.allow`
 
 ## اصطلاحات الاستيراد
 
-استورد دائمًا من مسارات `openclaw/plugin-sdk/<subpath>` المركزة:
+استورد دائمًا من مسارات فرعية مركّزة `openclaw/plugin-sdk/<subpath>`:
 
 ```typescript
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { createPluginRuntimeStore } from "openclaw/plugin-sdk/runtime-store";
 
-// خطأ: جذر أحادي ضخم (مهمل وسيزال)
+// Wrong: monolithic root (deprecated, will be removed)
 import { ... } from "openclaw/plugin-sdk";
 ```
 
-للاطلاع على مرجع المسارات الفرعية الكامل، راجع [SDK Overview](/ar/plugins/sdk-overview).
+للاطلاع على المرجع الكامل للمسارات الفرعية، راجع [نظرة عامة على SDK](/ar/plugins/sdk-overview).
 
-داخل إضافتك، استخدم ملفات barrel المحلية (`api.ts` و`runtime-api.ts`) من أجل
-عمليات الاستيراد الداخلية — ولا تستورد إضافتك أبدًا عبر مسار SDK الخاص بها.
+داخل plugin الخاص بك، استخدم ملفات barrel محلية (`api.ts`, `runtime-api.ts`)
+لعمليات الاستيراد الداخلية — ولا تستورد plugin الخاص بك أبدًا عبر مسار SDK الخاص به.
 
-بالنسبة إلى إضافات الموفرين، احتفظ بالمساعدات الخاصة بالموفر داخل تلك الملفات
-الجامعة في جذر الحزمة ما لم يكن الموصل عامًا حقًا. أمثلة الحزم المجمعة الحالية:
+بالنسبة إلى Provider plugins، احتفظ بالمساعدات الخاصة بالمزود داخل ملفات
+barrel الموجودة في جذر الحزمة ما لم تكن نقطة الربط عامة فعلًا. ومن الأمثلة
+المضمنة الحالية:
 
-- Anthropic: أغلفة تدفق Claude ومساعدات `service_tier` وbeta
-- OpenAI: أدوات بناء الموفّر، ومساعدات النموذج الافتراضي، وموفرو الوقت الحقيقي
-- OpenRouter: أداة بناء الموفّر بالإضافة إلى مساعدات الإعداد/التكوين
+- Anthropic: مغلفات تدفق Claude ومساعدات `service_tier` / beta
+- OpenAI: بُناة المزودات، ومساعدات النماذج الافتراضية، ومزودات الوقت الفعلي
+- OpenRouter: باني المزود بالإضافة إلى مساعدات onboarding/config
 
-إذا كان المساعد مفيدًا فقط داخل حزمة موفّر مجمعة واحدة، فاحتفظ به على ذلك
-الموصل عند جذر الحزمة بدلًا من ترقيته إلى `openclaw/plugin-sdk/*`.
+إذا كان المساعد مفيدًا فقط داخل حزمة مزود مضمّنة واحدة، فأبقِه ضمن
+نقطة الربط الموجودة في جذر تلك الحزمة بدلًا من ترقيته إلى `openclaw/plugin-sdk/*`.
 
-ما تزال بعض موصلات المساعدة المولدة `openclaw/plugin-sdk/<bundled-id>` موجودة من أجل
-صيانة الإضافات المجمعة والتوافق، مثل
-`plugin-sdk/feishu-setup` أو `plugin-sdk/zalo-setup`. تعامل مع هذه باعتبارها
-أسطحًا محجوزة، وليس كنمط افتراضي للإضافات الخارجية الجديدة.
+لا تزال بعض نقاط الربط المساعدة المولدة `openclaw/plugin-sdk/<bundled-id>` موجودة
+لصيانة plugins المضمّنة والتوافق، مثل
+`plugin-sdk/feishu-setup` أو `plugin-sdk/zalo-setup`. تعامل معها على أنها
+أسطح محجوزة، وليست النمط الافتراضي لـ plugins الخارجية الجديدة.
 
 ## قائمة التحقق قبل الإرسال
 
 <Check>يحتوي **package.json** على بيانات `openclaw` الوصفية الصحيحة</Check>
 <Check>يوجد manifest **openclaw.plugin.json** وهو صالح</Check>
 <Check>تستخدم نقطة الإدخال `defineChannelPluginEntry` أو `definePluginEntry`</Check>
-<Check>تستخدم جميع عمليات الاستيراد مسارات `plugin-sdk/<subpath>` المركزة</Check>
-<Check>تستخدم عمليات الاستيراد الداخلية وحدات محلية، وليس عمليات استيراد SDK ذاتية</Check>
-<Check>تنجح الاختبارات (`pnpm test -- <bundled-plugin-root>/my-plugin/`)</Check>
-<Check>ينجح `pnpm check` (للإضافات داخل المستودع)</Check>
+<Check>تستخدم جميع عمليات الاستيراد مسارات مركّزة `plugin-sdk/<subpath>`</Check>
+<Check>تستخدم عمليات الاستيراد الداخلية وحدات محلية، لا عمليات استيراد ذاتية عبر SDK</Check>
+<Check>تجتاز الاختبارات (`pnpm test -- <bundled-plugin-root>/my-plugin/`)</Check>
+<Check>يجتاز `pnpm check` (للـ plugins داخل المستودع)</Check>
 
-## اختبار الإصدارات التجريبية
+## اختبار الإصدار التجريبي
 
-1. راقب وسوم إصدارات GitHub على [openclaw/openclaw](https://github.com/openclaw/openclaw/releases) واشترك عبر `Watch` > `Releases`. تبدو الوسوم التجريبية مثل `v2026.3.N-beta.1`. يمكنك أيضًا تفعيل الإشعارات لحساب OpenClaw الرسمي على X [@openclaw](https://x.com/openclaw) لإعلانات الإصدارات.
-2. اختبر إضافتك مع الوسم التجريبي بمجرد ظهوره. تكون الفترة قبل الإصدار المستقر عادة بضع ساعات فقط.
-3. انشر في سلسلة إضافتك ضمن قناة Discord المسماة `plugin-forum` بعد الاختبار مستخدمًا إما `all good` أو موضحًا ما الذي تعطل. إذا لم تكن لديك سلسلة بعد، فأنشئ واحدة.
-4. إذا تعطل شيء ما، فافتح issue أو حدّث issue بعنوان `Beta blocker: <plugin-name> - <summary>` وطبّق التصنيف `beta-blocker`. ضع رابط issue في سلسلتك.
-5. افتح PR إلى `main` بعنوان `fix(<plugin-id>): beta blocker - <summary>` واربط issue في كل من PR وسلسلة Discord الخاصة بك. لا يستطيع المساهمون وضع التصنيفات على PRs، لذا يكون العنوان هو الإشارة الخاصة بـ PR للمشرفين والأتمتة. يتم دمج العوائق التي لديها PR؛ أما العوائق التي لا تملك PR فقد تُشحن على أي حال. يراقب المشرفون هذه السلاسل أثناء الاختبار التجريبي.
-6. الصمت يعني أن كل شيء على ما يرام. إذا فاتتك النافذة، فمن المرجح أن يصل إصلاحك في الدورة التالية.
+1. راقب وسوم إصدارات GitHub على [openclaw/openclaw](https://github.com/openclaw/openclaw/releases) واشترك عبر `Watch` > `Releases`. تبدو الوسوم التجريبية مثل `v2026.3.N-beta.1`. ويمكنك أيضًا تفعيل الإشعارات للحساب الرسمي لـ OpenClaw على X ‏[@openclaw](https://x.com/openclaw) للإعلانات الخاصة بالإصدارات.
+2. اختبر plugin الخاص بك مقابل الوسم التجريبي بمجرد ظهوره. وعادةً ما تكون النافذة قبل الإصدار المستقر بضع ساعات فقط.
+3. انشر في سلسلة plugin الخاصة بك في قناة Discord ‏`plugin-forum` بعد الاختبار بإحدى العبارتين `all good` أو ما الذي تعطل. وإذا لم تكن لديك سلسلة بعد، فأنشئ واحدة.
+4. إذا تعطل شيء ما، فافتح أو حدّث issue بعنوان `Beta blocker: <plugin-name> - <summary>` وطبّق الوسم `beta-blocker`. ضَع رابط issue في سلسلتك.
+5. افتح PR إلى `main` بعنوان `fix(<plugin-id>): beta blocker - <summary>` واربط issue في كل من PR وسلسلة Discord الخاصة بك. لا يستطيع المساهمون إضافة وسوم إلى PRs، لذا فالعنوان هو الإشارة الخاصة بـ PR للمشرفين وللأتمتة. يتم دمج المشكلات الحرجة التي لها PR؛ أما التي لا تملك واحدًا فقد تُشحن على أي حال. يراقب المشرفون هذه السلاسل أثناء الاختبار التجريبي.
+6. الصمت يعني أن كل شيء على ما يرام. وإذا فاتتك النافذة، فمن المرجح أن يصل إصلاحك في الدورة التالية.
 
 ## الخطوات التالية
 
 <CardGroup cols={2}>
   <Card title="Channel Plugins" icon="messages-square" href="/ar/plugins/sdk-channel-plugins">
-    ابنِ إضافة قناة مراسلة
+    ابنِ Channel plugin للمراسلة
   </Card>
   <Card title="Provider Plugins" icon="cpu" href="/ar/plugins/sdk-provider-plugins">
-    ابنِ إضافة موفر نماذج
+    ابنِ Provider plugin للنماذج
   </Card>
   <Card title="SDK Overview" icon="book-open" href="/ar/plugins/sdk-overview">
     مرجع خريطة الاستيراد وAPI التسجيل
   </Card>
   <Card title="Runtime Helpers" icon="settings" href="/ar/plugins/sdk-runtime">
-    TTS والبحث والوكيل الفرعي عبر api.runtime
+    TTS والبحث وsubagent عبر api.runtime
   </Card>
   <Card title="Testing" icon="test-tubes" href="/ar/plugins/sdk-testing">
     أدوات وأنماط الاختبار
@@ -319,8 +324,8 @@ import { ... } from "openclaw/plugin-sdk";
 
 ## ذو صلة
 
-- [Plugin Architecture](/ar/plugins/architecture) — تعمق في البنية الداخلية
-- [SDK Overview](/ar/plugins/sdk-overview) — مرجع Plugin SDK
-- [Manifest](/ar/plugins/manifest) — تنسيق manifest الخاص بالإضافة
-- [Channel Plugins](/ar/plugins/sdk-channel-plugins) — بناء إضافات القنوات
-- [Provider Plugins](/ar/plugins/sdk-provider-plugins) — بناء إضافات الموفرين
+- [بنية plugin](/ar/plugins/architecture) — نظرة عميقة على البنية الداخلية
+- [نظرة عامة على SDK](/ar/plugins/sdk-overview) — مرجع Plugin SDK
+- [Manifest](/ar/plugins/manifest) — تنسيق manifest الخاص بالـ plugin
+- [Channel Plugins](/ar/plugins/sdk-channel-plugins) — بناء Channel plugins
+- [Provider Plugins](/ar/plugins/sdk-provider-plugins) — بناء Provider plugins

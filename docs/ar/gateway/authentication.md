@@ -1,14 +1,14 @@
 ---
 read_when:
-    - عند تصحيح مصادقة النموذج أو انتهاء صلاحية OAuth
-    - عند توثيق المصادقة أو تخزين بيانات الاعتماد
-summary: 'مصادقة النماذج: OAuth ومفاتيح API وsetup-token القديم الخاص بـ Anthropic'
+    - استكشاف أخطاء مصادقة النماذج أو انتهاء صلاحية OAuth وإصلاحها
+    - توثيق المصادقة أو تخزين بيانات الاعتماد
+summary: 'مصادقة النماذج: OAuth، ومفاتيح API، وإعادة استخدام Claude CLI، وAnthropic setup-token'
 title: المصادقة
 x-i18n:
-    generated_at: "2026-04-06T03:07:32Z"
+    generated_at: "2026-04-07T07:17:10Z"
     model: gpt-5.4
     provider: openai
-    source_hash: f59ede3fcd7e692ad4132287782a850526acf35474b5bfcea29e0e23610636c2
+    source_hash: 9db0ad9eccd7e3e3ca328adaad260bc4288a8ccdbe2dc0c24d9fd049b7ab9231
     source_path: gateway/authentication.md
     workflow: 15
 ---
@@ -16,28 +16,27 @@ x-i18n:
 # المصادقة (موفرو النماذج)
 
 <Note>
-تغطي هذه الصفحة مصادقة **موفر النموذج** (مفاتيح API وOAuth وsetup-token القديم الخاص بـ Anthropic). أما مصادقة **اتصال gateway** (token وكلمة المرور وtrusted-proxy)، فراجع [الإعدادات](/ar/gateway/configuration) و[مصادقة Trusted Proxy](/ar/gateway/trusted-proxy-auth).
+تغطي هذه الصفحة مصادقة **موفر النموذج** (مفاتيح API، وOAuth، وإعادة استخدام Claude CLI، وAnthropic setup-token). أما **مصادقة اتصال gateway** (الرمز المميز، وكلمة المرور، وtrusted-proxy)، فراجع [Configuration](/ar/gateway/configuration) و[Trusted Proxy Auth](/ar/gateway/trusted-proxy-auth).
 </Note>
 
-يدعم OpenClaw كلاً من OAuth ومفاتيح API لموفري النماذج. بالنسبة إلى
-مضيفي gateway الذين يعملون دائمًا، تكون مفاتيح API عادةً الخيار الأكثر قابلية للتنبؤ.
-كما أن تدفقات الاشتراك/OAuth مدعومة أيضًا عندما تتوافق مع نموذج حساب الموفر لديك.
+يدعم OpenClaw OAuth ومفاتيح API لموفري النماذج. بالنسبة إلى مضيفي gateway
+الدائمين، تكون مفاتيح API عادةً الخيار الأكثر قابلية للتنبؤ. كما أن تدفقات
+الاشتراك/OAuth مدعومة أيضًا عندما تتوافق مع نموذج حساب موفر الخدمة لديك.
 
-راجع [/concepts/oauth](/ar/concepts/oauth) للاطلاع على تدفق OAuth الكامل
-ومخطط التخزين.
-وبالنسبة إلى المصادقة المستندة إلى SecretRef (موفرو `env`/`file`/`exec`)، راجع [إدارة الأسرار](/ar/gateway/secrets).
-وللاطلاع على قواعد أهلية بيانات الاعتماد/رموز الأسباب التي يستخدمها `models status --probe`، راجع
-[دلالات بيانات اعتماد المصادقة](/ar/auth-credential-semantics).
+راجع [/concepts/oauth](/ar/concepts/oauth) للاطلاع على تدفق OAuth الكامل وتخطيط
+التخزين.
+وبالنسبة إلى المصادقة المستندة إلى SecretRef (موفرو `env`/`file`/`exec`)، راجع [Secrets Management](/ar/gateway/secrets).
+وبالنسبة إلى قواعد أهلية بيانات الاعتماد/رموز الأسباب المستخدمة بواسطة `models status --probe`، راجع
+[Auth Credential Semantics](/ar/auth-credential-semantics).
 
-## الإعداد الموصى به (مفتاح API، أي موفر)
+## الإعداد الموصى به (API key، أي موفر)
 
-إذا كنت تشغّل gateway طويل الأمد، فابدأ بمفتاح API للموفر
+إذا كنت تشغّل gateway طويل الأمد، فابدأ باستخدام API key لموفر الخدمة
 الذي اخترته.
-وبالنسبة إلى Anthropic تحديدًا، فإن مصادقة مفتاح API هي المسار الآمن. أما
-المصادقة بنمط الاشتراك داخل OpenClaw فهي مسار setup-token قديم
-ويجب التعامل معها باعتبارها مسار **Extra Usage**، وليس مسار حدود الخطة.
+وبالنسبة إلى Anthropic تحديدًا، تظل مصادقة API key هي إعداد الخادم الأكثر
+قابلية للتنبؤ، لكن OpenClaw يدعم أيضًا إعادة استخدام تسجيل دخول Claude CLI محلي.
 
-1. أنشئ مفتاح API في لوحة تحكم الموفر لديك.
+1. أنشئ API key في لوحة موفر الخدمة لديك.
 2. ضعه على **مضيف gateway** (الجهاز الذي يشغّل `openclaw gateway`).
 
 ```bash
@@ -45,8 +44,8 @@ export <PROVIDER>_API_KEY="..."
 openclaw models status
 ```
 
-3. إذا كانت Gateway تعمل تحت systemd/launchd، فمن الأفضل وضع المفتاح في
-   `~/.openclaw/.env` حتى يتمكن daemon من قراءته:
+3. إذا كان Gateway يعمل تحت systemd/launchd، فمن الأفضل وضع المفتاح في
+   `~/.openclaw/.env` حتى يتمكن الـ daemon من قراءته:
 
 ```bash
 cat >> ~/.openclaw/.env <<'EOF'
@@ -54,51 +53,51 @@ cat >> ~/.openclaw/.env <<'EOF'
 EOF
 ```
 
-ثم أعد تشغيل daemon (أو أعد تشغيل عملية Gateway) وتحقق مرة أخرى:
+ثم أعد تشغيل الـ daemon (أو أعد تشغيل عملية Gateway) وتحقق مرة أخرى:
 
 ```bash
 openclaw models status
 openclaw doctor
 ```
 
-إذا كنت تفضل عدم إدارة متغيرات env بنفسك، يمكن لعملية الإعداد الأولي تخزين
-مفاتيح API لاستخدام daemon: `openclaw onboard`.
+إذا كنت تفضل عدم إدارة متغيرات env بنفسك، فيمكن لعملية onboarding تخزين
+مفاتيح API لاستخدام الـ daemon: `openclaw onboard`.
 
-راجع [المساعدة](/ar/help) لمعرفة تفاصيل توريث env (`env.shellEnv`،
-و`~/.openclaw/.env`، وsystemd/launchd).
+راجع [Help](/ar/help) للحصول على تفاصيل حول توريث env (`env.shellEnv`,
+`~/.openclaw/.env`، وsystemd/launchd).
 
-## Anthropic: توافق token القديم
+## Anthropic: Claude CLI وتوافق الرموز المميزة
 
-لا تزال مصادقة setup-token الخاصة بـ Anthropic متاحة في OpenClaw باعتبارها
-مسارًا قديمًا/يدويًا. ولا تزال مستندات Claude Code العامة من Anthropic
-تغطي استخدام Claude Code الطرفي المباشر ضمن خطط Claude، لكن Anthropic
-أبلغت مستخدمي OpenClaw بشكل منفصل أن مسار تسجيل دخول Claude في **OpenClaw**
-يُحتسب على أنه استخدام harness لطرف ثالث ويتطلب **Extra Usage**
-تُفوَّتر بشكل منفصل عن الاشتراك.
+لا تزال مصادقة Anthropic setup-token متاحة في OpenClaw باعتبارها مسارًا
+مدعومًا للرموز المميزة. وقد أخبرنا موظفو Anthropic منذ ذلك الحين أن استخدام Claude CLI
+على نمط OpenClaw مسموح به مرة أخرى، لذلك يتعامل OpenClaw مع إعادة استخدام Claude CLI واستخدام
+`claude -p` على أنهما مسموح بهما لهذا التكامل ما لم تنشر Anthropic
+سياسة جديدة. وعندما تكون إعادة استخدام Claude CLI متاحة على المضيف،
+فهي الآن المسار المفضل.
 
-للحصول على أوضح مسار إعداد، استخدم مفتاح API من Anthropic. وإذا اضطررت إلى الإبقاء على
-مسار Anthropic بنمط الاشتراك داخل OpenClaw، فاستخدم مسار setup-token القديم
-مع توقّع أن Anthropic تتعامل معه باعتباره **Extra Usage**.
+بالنسبة إلى مضيفي gateway طويلَي الأمد، يظل Anthropic API key هو الإعداد الأكثر
+قابلية للتنبؤ. وإذا كنت تريد إعادة استخدام تسجيل دخول Claude موجود على
+المضيف نفسه، فاستخدم مسار Anthropic Claude CLI في onboarding/configure.
 
-إدخال token يدويًا (أي موفر؛ يكتب `auth-profiles.json` ويحدّث الإعدادات):
+إدخال الرمز المميز يدويًا (أي موفر؛ يكتب إلى `auth-profiles.json` + يحدّث الإعداد):
 
 ```bash
 openclaw models auth paste-token --provider openrouter
 ```
 
-كما أن مراجع ملفات تعريف المصادقة مدعومة أيضًا لبيانات الاعتماد الثابتة:
+كما أن مراجع ملف تعريف المصادقة مدعومة أيضًا لبيانات الاعتماد الثابتة:
 
 - يمكن لبيانات اعتماد `api_key` استخدام `keyRef: { source, provider, id }`
 - يمكن لبيانات اعتماد `token` استخدام `tokenRef: { source, provider, id }`
-- ملفات التعريف في وضع OAuth لا تدعم بيانات الاعتماد من نوع SecretRef؛ إذا تم تعيين `auth.profiles.<id>.mode` إلى `"oauth"`، فسيتم رفض إدخال `keyRef`/`tokenRef` المستند إلى SecretRef لهذا الملف التعريفي.
+- لا تدعم الملفات الشخصية ذات وضع OAuth بيانات الاعتماد من نوع SecretRef؛ إذا تم تعيين `auth.profiles.<id>.mode` إلى `"oauth"`، فسيتم رفض إدخال `keyRef`/`tokenRef` المدعوم بـ SecretRef لهذا الملف الشخصي.
 
-فحص مناسب للأتمتة (يعيد `1` عند الانتهاء/الغياب، و`2` عند قرب الانتهاء):
+فحص ملائم للأتمتة (يخرج بالقيمة `1` عند الانتهاء/الغياب، و`2` عند قرب الانتهاء):
 
 ```bash
 openclaw models status --check
 ```
 
-تحققات المصادقة الحية:
+فحوصات مصادقة مباشرة:
 
 ```bash
 openclaw models status --probe
@@ -106,28 +105,26 @@ openclaw models status --probe
 
 ملاحظات:
 
-- يمكن أن تأتي صفوف probe من ملفات تعريف المصادقة أو بيانات اعتماد env أو `models.json`.
-- إذا كانت `auth.order.<provider>` الصريحة تستبعد ملفًا تعريفيًا مخزنًا، فسيعرض probe
-  `excluded_by_auth_order` لذلك الملف بدلًا من محاولة استخدامه.
-- إذا كانت المصادقة موجودة لكن OpenClaw لا يستطيع تحديد نموذج مرشح قابل للفحص
-  لذلك الموفر، فسيعرض probe `status: no_model`.
-- يمكن أن تكون فترات تهدئة rate-limit مرتبطة بنطاق النموذج. وقد يظل الملف التعريفي
-  الذي يمر بفترة تهدئة لنموذج واحد قابلًا للاستخدام مع نموذج شقيق على الموفر نفسه.
+- يمكن أن تأتي صفوف الفحص من ملفات تعريف المصادقة، أو بيانات اعتماد env، أو `models.json`.
+- إذا كان `auth.order.<provider>` الصريح يحذف ملفًا شخصيًا مخزنًا، فسيبلغ الفحص
+  عن `excluded_by_auth_order` لذلك الملف الشخصي بدلًا من محاولة استخدامه.
+- إذا كانت المصادقة موجودة لكن OpenClaw لا يستطيع تحديد نموذج مرشح قابل للفحص لذلك
+  الموفر، فسيبلغ الفحص عن `status: no_model`.
+- يمكن أن تكون فترات التهدئة الناتجة عن حدود المعدل مرتبطة بنموذج معين. قد يظل
+  الملف الشخصي في حالة تهدئة لنموذج واحد قابلًا للاستخدام لنموذج شقيق على الموفر نفسه.
 
-يتم توثيق نصوص التشغيل الاختيارية (systemd/Termux) هنا:
-[نصوص مراقبة المصادقة](/ar/help/scripts#auth-monitoring-scripts)
+تم توثيق نصوص التشغيل الاختيارية (systemd/Termux) هنا:
+[Auth monitoring scripts](/ar/help/scripts#auth-monitoring-scripts)
 
-## ملاحظة حول Anthropic
+## ملاحظة Anthropic
 
-تمت إزالة الواجهة الخلفية `claude-cli` الخاصة بـ Anthropic.
+إن الواجهة الخلفية `claude-cli` الخاصة بـ Anthropic مدعومة مرة أخرى.
 
-- استخدم مفاتيح API من Anthropic لحركة Anthropic في OpenClaw.
-- لا يزال setup-token الخاص بـ Anthropic مسارًا قديمًا/يدويًا ويجب استخدامه مع
-  توقّع فوترة Extra Usage الذي أبلغت به Anthropic مستخدمي OpenClaw.
-- أصبح `openclaw doctor` الآن يكتشف حالة Anthropic Claude CLI القديمة التي أُزيلت. إذا
-  كانت بايتات بيانات الاعتماد المخزنة لا تزال موجودة، فسيحوّلها doctor مرة أخرى إلى
-  ملفات تعريف Anthropic token/OAuth. وإذا لم تكن موجودة، فسيزيل doctor
-  إعداد Claude CLI القديم ويوجهك إلى استرداد مفتاح API أو setup-token.
+- أخبرنا موظفو Anthropic أن مسار تكامل OpenClaw هذا مسموح به مرة أخرى.
+- لذلك يتعامل OpenClaw مع إعادة استخدام Claude CLI واستخدام `claude -p` باعتبارهما مسموحًا بهما
+  للتشغيلات المعتمدة على Anthropic ما لم تنشر Anthropic سياسة جديدة.
+- تظل مفاتيح Anthropic API الخيار الأكثر قابلية للتنبؤ لمضيفي gateway
+  طويلَي الأمد وللتحكم الصريح في الفوترة على جانب الخادم.
 
 ## التحقق من حالة مصادقة النموذج
 
@@ -136,36 +133,36 @@ openclaw models status
 openclaw doctor
 ```
 
-## سلوك تدوير مفاتيح API (gateway)
+## سلوك تدوير API key ‏(gateway)
 
-يدعم بعض الموفرين إعادة محاولة الطلب باستخدام مفاتيح بديلة عندما تصطدم مكالمة API
-بحدود rate limit الخاصة بالموفر.
+تدعم بعض موفري الخدمة إعادة محاولة الطلب باستخدام مفاتيح بديلة عندما تصادف
+استدعاءات API حدًا لمعدل موفر الخدمة.
 
 - ترتيب الأولوية:
   - `OPENCLAW_LIVE_<PROVIDER>_KEY` (تجاوز واحد)
   - `<PROVIDER>_API_KEYS`
   - `<PROVIDER>_API_KEY`
   - `<PROVIDER>_API_KEY_*`
-- يتضمن موفرو Google أيضًا `GOOGLE_API_KEY` كبديل احتياطي إضافي.
+- تتضمن موفرو Google أيضًا `GOOGLE_API_KEY` كخيار احتياطي إضافي.
 - تتم إزالة التكرارات من قائمة المفاتيح نفسها قبل الاستخدام.
-- لا يعيد OpenClaw المحاولة بالمفتاح التالي إلا في أخطاء rate limit (على سبيل المثال
-  `429` أو `rate_limit` أو `quota` أو `resource exhausted` أو `Too many concurrent
-requests` أو `ThrottlingException` أو `concurrency limit reached` أو
+- يعيد OpenClaw المحاولة بالمفتاح التالي فقط لأخطاء حدود المعدل (على سبيل المثال
+  `429`، أو `rate_limit`، أو `quota`، أو `resource exhausted`، أو `Too many concurrent
+requests`، أو `ThrottlingException`، أو `concurrency limit reached`، أو
   `workers_ai ... quota limit exceeded`).
-- لا تتم إعادة محاولة الأخطاء غير المتعلقة بـ rate limit باستخدام مفاتيح بديلة.
-- إذا فشلت كل المفاتيح، فسيتم إرجاع الخطأ النهائي من آخر محاولة.
+- لا تتم إعادة محاولة الأخطاء غير المرتبطة بحدود المعدل باستخدام مفاتيح بديلة.
+- إذا فشلت جميع المفاتيح، فسيتم إرجاع الخطأ النهائي من آخر محاولة.
 
 ## التحكم في بيانات الاعتماد المستخدمة
 
 ### لكل جلسة (أمر الدردشة)
 
-استخدم `/model <alias-or-id>@<profileId>` لتثبيت بيانات اعتماد موفر محددة للجلسة الحالية (أمثلة على معرّفات ملفات التعريف: `anthropic:default` و`anthropic:work`).
+استخدم `/model <alias-or-id>@<profileId>` لتثبيت بيانات اعتماد موفر خدمة محددة للجلسة الحالية (أمثلة على معرّفات الملفات الشخصية: `anthropic:default` و`anthropic:work`).
 
-استخدم `/model` (أو `/model list`) لمنتقي مضغوط؛ واستخدم `/model status` للعرض الكامل (المرشحون + ملف تعريف المصادقة التالي، بالإضافة إلى تفاصيل endpoint الخاصة بالموفر عند تهيئتها).
+استخدم `/model` (أو `/model list`) للحصول على محدد مضغوط؛ واستخدم `/model status` للعرض الكامل (المرشحون + ملف تعريف المصادقة التالي، بالإضافة إلى تفاصيل نقطة نهاية الموفر عند ضبطها).
 
 ### لكل وكيل (تجاوز CLI)
 
-اضبط تجاوزًا صريحًا لترتيب ملفات تعريف المصادقة لوكيل ما (يُخزَّن في `auth-profiles.json` الخاص بذلك الوكيل):
+عيّن تجاوزًا صريحًا لترتيب ملفات تعريف المصادقة لوكيل ما (يتم تخزينه في `auth-state.json` الخاص بذلك الوكيل):
 
 ```bash
 openclaw models auth order get --provider anthropic
@@ -173,36 +170,25 @@ openclaw models auth order set --provider anthropic anthropic:default
 openclaw models auth order clear --provider anthropic
 ```
 
-استخدم `--agent <id>` لاستهداف وكيل محدد؛ واحذفها لاستخدام الوكيل الافتراضي المكوَّن.
-وعند تصحيح مشكلات الترتيب، يعرض `openclaw models status --probe` ملفات التعريف
-المخزنة المستبعدة على أنها `excluded_by_auth_order` بدلًا من تخطيها بصمت.
-وعند تصحيح مشكلات التهدئة، تذكّر أن فترات تهدئة rate-limit قد تكون مرتبطة
+استخدم `--agent <id>` لاستهداف وكيل معين؛ واحذفه لاستخدام الوكيل الافتراضي المضبوط.
+عندما تستكشف أخطاء الترتيب، يعرض `openclaw models status --probe` الملفات الشخصية
+المخزنة المحذوفة على أنها `excluded_by_auth_order` بدلًا من تخطيها بصمت.
+وعندما تستكشف أخطاء التهدئة، تذكر أن فترات التهدئة الناتجة عن حدود المعدل قد تكون مرتبطة
 بمعرّف نموذج واحد بدلًا من ملف تعريف الموفر بالكامل.
 
 ## استكشاف الأخطاء وإصلاحها
 
 ### "لم يتم العثور على بيانات اعتماد"
 
-إذا كان ملف تعريف Anthropic مفقودًا، فقم بتكوين مفتاح API من Anthropic على
-**مضيف gateway** أو أعد إعداد مسار setup-token القديم الخاص بـ Anthropic، ثم تحقق مرة أخرى:
+إذا كان ملف تعريف Anthropic مفقودًا، فاضبط Anthropic API key على
+**مضيف gateway** أو أعد إعداد مسار Anthropic setup-token، ثم تحقق مرة أخرى:
 
 ```bash
 openclaw models status
 ```
 
-### اقتراب انتهاء صلاحية token/انتهاؤها
+### الرمز المميز على وشك الانتهاء/منتهي الصلاحية
 
-شغّل `openclaw models status` للتأكد من الملف التعريفي الذي توشك صلاحيته على الانتهاء. إذا كان
-ملف تعريف token القديم الخاص بـ Anthropic مفقودًا أو منتهي الصلاحية، فقم بتحديث ذلك الإعداد عبر
-setup-token أو انتقل إلى مفتاح API من Anthropic.
-
-إذا كان الجهاز لا يزال يحتوي على حالة Anthropic Claude CLI قديمة ومزالة من
-الإصدارات الأقدم، فشغّل:
-
-```bash
-openclaw doctor --yes
-```
-
-يقوم Doctor بتحويل `anthropic:claude-cli` مرة أخرى إلى Anthropic token/OAuth عندما
-تكون بايتات بيانات الاعتماد المخزنة لا تزال موجودة. وإلا فإنه يزيل ملف تعريف/إعدادات/مراجع نماذج
-Claude CLI القديمة ويترك لك إرشادات الخطوة التالية.
+شغّل `openclaw models status` للتأكد من الملف الشخصي الذي أوشكت صلاحيته على الانتهاء. إذا كان
+ملف تعريف الرمز المميز لـ Anthropic مفقودًا أو منتهي الصلاحية، فقم بتحديث هذا الإعداد عبر
+setup-token أو انتقل إلى Anthropic API key.

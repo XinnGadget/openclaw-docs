@@ -1,29 +1,29 @@
 ---
 read_when:
     - التحقق من تغطية بيانات اعتماد SecretRef
-    - تدقيق ما إذا كانت بيانات الاعتماد مؤهلة لـ `secrets configure` أو `secrets apply`
-    - التحقق من سبب كون بيانات الاعتماد خارج السطح المعتمد
-summary: السطح الرسمي المعتمد وغير المعتمد لبيانات اعتماد SecretRef
+    - تدقيق ما إذا كانت بيانات اعتماد مؤهلة لـ `secrets configure` أو `secrets apply`
+    - التحقق من سبب كون بيانات اعتماد خارج السطح المدعوم
+summary: السطح القياسي المعتمد وغير المعتمد لبيانات اعتماد SecretRef
 title: سطح بيانات اعتماد SecretRef
 x-i18n:
-    generated_at: "2026-04-05T12:55:13Z"
+    generated_at: "2026-04-07T07:21:48Z"
     model: gpt-5.4
     provider: openai
-    source_hash: bf997389de1dae8c059d8dfbf186eda979f864de632a033177d6cd5e5544675d
+    source_hash: 211f4b504c5808f7790683066fc2c8b700c705c598f220a264daf971b81cc593
     source_path: reference/secretref-credential-surface.md
     workflow: 15
 ---
 
 # سطح بيانات اعتماد SecretRef
 
-تحدد هذه الصفحة السطح الرسمي لبيانات اعتماد SecretRef.
+تحدد هذه الصفحة السطح القياسي لبيانات اعتماد SecretRef.
 
-نية النطاق:
+الغرض من النطاق:
 
-- ضمن النطاق: بيانات الاعتماد التي يوفّرها المستخدم مباشرةً والتي لا يقوم OpenClaw بإصدارها أو تدويرها.
-- خارج النطاق: بيانات الاعتماد التي يتم إصدارها أو تدويرها وقت التشغيل، ومواد تحديث OAuth، والعناصر الشبيهة بالجلسات.
+- ضمن النطاق: بيانات الاعتماد التي يزوّدها المستخدم مباشرةً والتي لا يقوم OpenClaw بإصدارها أو تدويرها.
+- خارج النطاق: بيانات الاعتماد التي تُصدر أثناء التشغيل أو التي تتناوب، ومواد تحديث OAuth، والعناصر الشبيهة بالجلسات.
 
-## بيانات الاعتماد المعتمدة
+## بيانات الاعتماد المدعومة
 
 ### أهداف `openclaw.json` (`secrets configure` + `secrets apply` + `secrets audit`)
 
@@ -48,7 +48,6 @@ x-i18n:
 - `talk.providers.*.apiKey`
 - `messages.tts.providers.*.apiKey`
 - `tools.web.fetch.firecrawl.apiKey`
-- `plugins.entries.firecrawl.config.webFetch.apiKey`
 - `plugins.entries.brave.config.webSearch.apiKey`
 - `plugins.entries.google.config.webSearch.apiKey`
 - `plugins.entries.xai.config.webSearch.apiKey`
@@ -108,33 +107,33 @@ x-i18n:
 - `channels.zalo.webhookSecret`
 - `channels.zalo.accounts.*.botToken`
 - `channels.zalo.accounts.*.webhookSecret`
-- `channels.googlechat.serviceAccount` عبر `serviceAccountRef` المجاور (استثناء توافق)
-- `channels.googlechat.accounts.*.serviceAccount` عبر `serviceAccountRef` المجاور (استثناء توافق)
+- `channels.googlechat.serviceAccount` عبر النظير `serviceAccountRef` (استثناء توافق)
+- `channels.googlechat.accounts.*.serviceAccount` عبر النظير `serviceAccountRef` (استثناء توافق)
 
 ### أهداف `auth-profiles.json` (`secrets configure` + `secrets apply` + `secrets audit`)
 
-- `profiles.*.keyRef` (`type: "api_key"`؛ غير معتمد عندما تكون `auth.profiles.<id>.mode = "oauth"`)
-- `profiles.*.tokenRef` (`type: "token"`؛ غير معتمد عندما تكون `auth.profiles.<id>.mode = "oauth"`)
+- `profiles.*.keyRef` (`type: "api_key"`؛ غير مدعوم عندما تكون `auth.profiles.<id>.mode = "oauth"`)
+- `profiles.*.tokenRef` (`type: "token"`؛ غير مدعوم عندما تكون `auth.profiles.<id>.mode = "oauth"`)
 
 [//]: # "secretref-supported-list-end"
 
 ملاحظات:
 
-- تتطلب أهداف خطة ملف التعريف للمصادقة `agentId`.
-- تستهدف إدخالات الخطة `profiles.*.key` / `profiles.*.token` وتكتب المراجع المجاورة (`keyRef` / `tokenRef`).
-- يتم تضمين مراجع ملفات تعريف المصادقة في تحليل وقت التشغيل وتغطية التدقيق.
-- حاجز سياسة OAuth: لا يمكن الجمع بين `auth.profiles.<id>.mode = "oauth"` ومدخلات SecretRef لذلك الملف التعريفي. تفشل عملية البدء/إعادة التحميل وتحليل ملف تعريف المصادقة بسرعة عند انتهاك هذه السياسة.
-- بالنسبة إلى موفري النماذج المُدارين بواسطة SecretRef، فإن إدخالات `agents/*/agent/models.json` المُولَّدة تحتفظ بعلامات غير سرية (وليس قيم الأسرار المحلولة) لأسطح `apiKey`/الترويسات.
-- استمرار العلامات يعتمد على المصدر: يكتب OpenClaw العلامات من لقطة تهيئة المصدر النشطة (قبل التحليل)، وليس من قيم الأسرار المحلولة في وقت التشغيل.
+- تتطلب أهداف خطة ملف تعريف المصادقة `agentId`.
+- تستهدف إدخالات الخطة `profiles.*.key` / `profiles.*.token` وتكتب المراجع النظيرة (`keyRef` / `tokenRef`).
+- تُدرج مراجع ملفات تعريف المصادقة في تحليل وقت التشغيل وتغطية التدقيق.
+- حاجز سياسة OAuth: لا يمكن دمج `auth.profiles.<id>.mode = "oauth"` مع مدخلات SecretRef لذلك الملف التعريفي. يفشل بدء التشغيل/إعادة التحميل وتحليل ملف تعريف المصادقة بسرعة عند انتهاك هذه السياسة.
+- بالنسبة إلى موفري النماذج المُدارين عبر SecretRef، تستمر إدخالات `agents/*/agent/models.json` المُنشأة في حفظ علامات غير سرية (وليس القيم السرية المحلَّلة) لأسطح `apiKey`/الترويسات.
+- حفظ العلامات ذو مصدر موثوق: يكتب OpenClaw العلامات من لقطة تهيئة المصدر النشطة (قبل التحليل)، وليس من القيم السرية المحلَّلة وقت التشغيل.
 - بالنسبة إلى البحث على الويب:
-  - في وضع الموفّر الصريح (عند تعيين `tools.web.search.provider`)، يكون مفتاح الموفّر المحدد فقط نشطًا.
-  - في الوضع التلقائي (عند عدم تعيين `tools.web.search.provider`)، يكون مفتاح الموفّر الأول فقط الذي يتم تحليله حسب ترتيب الأولوية نشطًا.
+  - في وضع الموفّر الصريح (مع تعيين `tools.web.search.provider`)، يكون مفتاح الموفّر المحدد فقط نشطًا.
+  - في الوضع التلقائي (عندما لا يكون `tools.web.search.provider` معيّنًا)، يكون مفتاح الموفّر الأول فقط الذي يُحل وفق الأسبقية نشطًا.
   - في الوضع التلقائي، تُعامل مراجع الموفّرين غير المحددين على أنها غير نشطة حتى يتم تحديدها.
-  - لا تزال مسارات الموفّر القديمة `tools.web.search.*` تُحل خلال نافذة التوافق، لكن السطح الرسمي لـ SecretRef هو `plugins.entries.<plugin>.config.webSearch.*`.
+  - ما تزال مسارات الموفّر القديمة `tools.web.search.*` تُحل خلال نافذة التوافق، لكن السطح القياسي لـ SecretRef هو `plugins.entries.<plugin>.config.webSearch.*`.
 
-## بيانات الاعتماد غير المعتمدة
+## بيانات الاعتماد غير المدعومة
 
-تتضمن بيانات الاعتماد خارج النطاق ما يلي:
+تشمل بيانات الاعتماد الخارجة عن النطاق ما يلي:
 
 [//]: # "secretref-unsupported-list-start"
 
@@ -150,6 +149,6 @@ x-i18n:
 
 [//]: # "secretref-unsupported-list-end"
 
-المبرر:
+المبررات:
 
-- هذه بيانات اعتماد مُصدَرة أو مُدوَّرة أو مرتبطة بالجلسات أو من الفئات الدائمة لـ OAuth التي لا تتوافق مع تحليل SecretRef الخارجي للقراءة فقط.
+- تُصدر هذه البيانات الاعتمادية، أو تُدوَّر، أو تحمل جلسات، أو تنتمي إلى فئات OAuth دائمة لا تتوافق مع تحليل SecretRef الخارجي للقراءة فقط.

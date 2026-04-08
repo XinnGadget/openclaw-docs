@@ -1,34 +1,35 @@
 ---
 read_when:
-    - Estensione di qa-lab o qa-channel
-    - Aggiunta di scenari QA supportati dal repository
-    - Creazione di automazione QA più realistica attorno alla dashboard del Gateway
-summary: Struttura privata dell'automazione QA per qa-lab, qa-channel, scenari inizializzati e report di protocollo
+    - Estendere qa-lab o qa-channel
+    - Aggiungere scenari QA supportati dal repository
+    - Creare un'automazione QA più realistica attorno alla dashboard del Gateway
+summary: Struttura dell'automazione QA privata per qa-lab, qa-channel, scenari predefiniti e report di protocollo
 title: Automazione QA E2E
 x-i18n:
-    generated_at: "2026-04-07T08:12:23Z"
+    generated_at: "2026-04-08T02:14:03Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 113e89d8d3ee8ef3058d95b9aea9a1c2335b07794446be2d231c0faeb044b23b
+    source_hash: 3b4aa5acc8e77303f4045d4f04372494cae21b89d2fdaba856dbb4855ced9d27
     source_path: concepts/qa-e2e-automation.md
     workflow: 15
 ---
 
 # Automazione QA E2E
 
-Lo stack QA privato è pensato per mettere alla prova OpenClaw in modo più realistico,
-seguendo la forma dei canali, rispetto a quanto possa fare un singolo test unitario.
+Lo stack QA privato è pensato per esercitare OpenClaw in modo più realistico,
+con una forma simile a quella dei canali, rispetto a quanto possa fare un
+singolo test unitario.
 
 Componenti attuali:
 
 - `extensions/qa-channel`: canale di messaggi sintetico con superfici per DM, canale, thread,
-  reazioni, modifica ed eliminazione.
-- `extensions/qa-lab`: interfaccia di debug e bus QA per osservare la trascrizione,
-  iniettare messaggi in ingresso ed esportare un report Markdown.
-- `qa/`: risorse iniziali supportate dal repository per l'attività di avvio e gli
-  scenari QA di base.
+  reazione, modifica ed eliminazione.
+- `extensions/qa-lab`: interfaccia utente di debug e bus QA per osservare la trascrizione,
+  iniettare messaggi in ingresso ed esportare un report in Markdown.
+- `qa/`: risorse predefinite supportate dal repository per l'attività iniziale e gli scenari QA
+  di base.
 
-L'attuale flusso dell'operatore QA è un sito QA a due pannelli:
+L'attuale flusso operativo QA è un sito QA a due pannelli:
 
 - Sinistra: dashboard del Gateway (Control UI) con l'agente.
 - Destra: QA Lab, che mostra la trascrizione in stile Slack e il piano dello scenario.
@@ -39,34 +40,48 @@ Eseguilo con:
 pnpm qa:lab:up
 ```
 
-Questo compila il sito QA, avvia la corsia gateway basata su Docker ed espone la
-pagina QA Lab dove un operatore o un ciclo di automazione può assegnare all'agente una
-missione QA, osservare il comportamento reale del canale e registrare cosa ha funzionato, cosa è fallito o
-cosa è rimasto bloccato.
+Questo compila il sito QA, avvia il percorso gateway supportato da Docker ed espone la
+pagina QA Lab in cui un operatore o un ciclo di automazione può assegnare all'agente una
+missione QA, osservare il comportamento reale del canale e registrare ciò che ha funzionato, fallito o
+è rimasto bloccato.
 
-## Risorse iniziali supportate dal repository
+Per un'iterazione più rapida dell'interfaccia utente di QA Lab senza ricompilare ogni volta l'immagine Docker,
+avvia lo stack con un bundle QA Lab montato tramite bind:
 
-Le risorse iniziali si trovano in `qa/`:
+```bash
+pnpm openclaw qa docker-build-image
+pnpm qa:lab:build
+pnpm qa:lab:up:fast
+pnpm qa:lab:watch
+```
 
-- `qa/QA_KICKOFF_TASK.md`
-- `qa/seed-scenarios.json`
+`qa:lab:up:fast` mantiene i servizi Docker su un'immagine precompilata e monta tramite bind
+`extensions/qa-lab/web/dist` nel container `qa-lab`. `qa:lab:watch`
+ricompila quel bundle a ogni modifica e il browser si ricarica automaticamente quando cambia l'hash
+delle risorse di QA Lab.
 
-Queste sono intenzionalmente mantenute in git così che il piano QA sia visibile sia agli esseri umani sia all'
-agente. L'elenco di base dovrebbe rimanere abbastanza ampio da coprire:
+## Risorse predefinite supportate dal repository
 
-- chat DM e nei canali
+Le risorse predefinite si trovano in `qa/`:
+
+- `qa/scenarios.md`
+
+Queste sono intenzionalmente incluse in git in modo che il piano QA sia visibile sia agli esseri umani sia
+all'agente. L'elenco di base dovrebbe rimanere abbastanza ampio da coprire:
+
+- chat in DM e nei canali
 - comportamento dei thread
 - ciclo di vita delle azioni sui messaggi
 - callback cron
 - richiamo della memoria
 - cambio di modello
-- passaggio ai subagenti
+- passaggio a subagent
 - lettura del repository e della documentazione
 - una piccola attività di build come Lobster Invaders
 
 ## Reportistica
 
-`qa-lab` esporta un report di protocollo Markdown dalla timeline osservata del bus.
+`qa-lab` esporta un report di protocollo in Markdown dalla timeline del bus osservata.
 Il report dovrebbe rispondere a:
 
 - Cosa ha funzionato

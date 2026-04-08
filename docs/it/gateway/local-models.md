@@ -1,28 +1,28 @@
 ---
 read_when:
     - Vuoi servire modelli dal tuo box GPU personale
-    - Stai collegando LM Studio o un proxy compatibile con OpenAI
+    - Stai configurando LM Studio o un proxy compatibile con OpenAI
     - Hai bisogno della guida più sicura per i modelli locali
 summary: Esegui OpenClaw su LLM locali (LM Studio, vLLM, LiteLLM, endpoint OpenAI personalizzati)
 title: Modelli locali
 x-i18n:
-    generated_at: "2026-04-05T13:52:20Z"
+    generated_at: "2026-04-08T02:14:56Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 3b99c8fb57f65c0b765fc75bd36933221b5aeb94c4a3f3428f92640ae064f8b6
+    source_hash: d619d72b0e06914ebacb7e9f38b746caf1b9ce8908c9c6638c3acdddbaa025e8
     source_path: gateway/local-models.md
     workflow: 15
 ---
 
 # Modelli locali
 
-L'uso in locale è fattibile, ma OpenClaw si aspetta un contesto ampio + difese robuste contro il prompt injection. Le schede piccole troncano il contesto e indeboliscono la sicurezza. Punta in alto: **≥2 Mac Studio al massimo delle specifiche o un rig GPU equivalente (~$30k+)**. Una singola GPU da **24 GB** funziona solo per prompt più leggeri con latenza più alta. Usa la **variante di modello più grande / full-size che riesci a eseguire**; checkpoint fortemente quantizzati o “small” aumentano il rischio di prompt injection (vedi [Sicurezza](/gateway/security)).
+Il locale è fattibile, ma OpenClaw si aspetta un contesto ampio e forti difese contro il prompt injection. Le schede più piccole troncano il contesto e indeboliscono la sicurezza. Punta in alto: **≥2 Mac Studio al massimo della configurazione o una configurazione GPU equivalente (~$30k+)**. Una singola GPU da **24 GB** funziona solo con prompt più leggeri e con latenza più elevata. Usa la **variante di modello più grande / completa che riesci a eseguire**; checkpoint fortemente quantizzati o “small” aumentano il rischio di prompt injection (vedi [Sicurezza](/it/gateway/security)).
 
-Se vuoi la configurazione locale con meno attrito, inizia con [Ollama](/providers/ollama) e `openclaw onboard`. Questa pagina è la guida con consigli mirati per stack locali di fascia più alta e server locali personalizzati compatibili con OpenAI.
+Se vuoi la configurazione locale con meno attrito, inizia con [Ollama](/it/providers/ollama) e `openclaw onboard`. Questa pagina è la guida con indicazioni precise per stack locali di fascia più alta e server locali personalizzati compatibili con OpenAI.
 
 ## Consigliato: LM Studio + modello locale grande (Responses API)
 
-Il miglior stack locale attuale. Carica un modello grande in LM Studio (ad esempio una build full-size di Qwen, DeepSeek o Llama), abilita il server locale (predefinito `http://127.0.0.1:1234`) e usa Responses API per mantenere separato il ragionamento dal testo finale.
+Il miglior stack locale attuale. Carica un modello grande in LM Studio (ad esempio, una build completa di Qwen, DeepSeek o Llama), abilita il server locale (predefinito `http://127.0.0.1:1234`) e usa Responses API per mantenere il ragionamento separato dal testo finale.
 
 ```json5
 {
@@ -62,13 +62,13 @@ Il miglior stack locale attuale. Carica un modello grande in LM Studio (ad esemp
 **Checklist di configurazione**
 
 - Installa LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
-- In LM Studio, scarica la **build di modello più grande disponibile** (evita varianti “small”/fortemente quantizzate), avvia il server, conferma che `http://127.0.0.1:1234/v1/models` lo elenchi.
-- Sostituisci `my-local-model` con l'ID modello effettivo mostrato in LM Studio.
-- Mantieni il modello caricato; il caricamento a freddo aggiunge latenza di avvio.
+- In LM Studio, scarica la **build di modello più grande disponibile** (evita varianti “small”/fortemente quantizzate), avvia il server e conferma che `http://127.0.0.1:1234/v1/models` lo elenchi.
+- Sostituisci `my-local-model` con l'ID effettivo del modello mostrato in LM Studio.
+- Mantieni il modello caricato; il caricamento a freddo aggiunge latenza all'avvio.
 - Regola `contextWindow`/`maxTokens` se la tua build di LM Studio è diversa.
-- Per WhatsApp, resta su Responses API in modo che venga inviato solo il testo finale.
+- Per WhatsApp, usa Responses API in modo che venga inviato solo il testo finale.
 
-Mantieni configurati anche i modelli ospitati mentre esegui in locale; usa `models.mode: "merge"` così i fallback restano disponibili.
+Mantieni configurati anche i modelli ospitati quando esegui in locale; usa `models.mode: "merge"` in modo che i fallback restino disponibili.
 
 ### Configurazione ibrida: primario ospitato, fallback locale
 
@@ -117,12 +117,12 @@ Inverti l'ordine tra primario e fallback; mantieni lo stesso blocco `providers` 
 
 ### Hosting regionale / instradamento dei dati
 
-- Varianti ospitate di MiniMax/Kimi/GLM esistono anche su OpenRouter con endpoint bloccati per regione (ad esempio ospitati negli Stati Uniti). Scegli lì la variante regionale per mantenere il traffico nella giurisdizione desiderata pur continuando a usare `models.mode: "merge"` per fallback Anthropic/OpenAI.
-- Il solo locale resta il percorso più forte per la privacy; l'instradamento regionale ospitato è la via di mezzo quando ti servono funzionalità del provider ma vuoi controllare il flusso dei dati.
+- Esistono anche varianti MiniMax/Kimi/GLM ospitate su OpenRouter con endpoint vincolati a una regione (ad esempio, ospitati negli Stati Uniti). Scegli lì la variante regionale per mantenere il traffico nella giurisdizione che preferisci continuando a usare `models.mode: "merge"` per i fallback Anthropic/OpenAI.
+- Solo locale resta il percorso più forte per la privacy; l'instradamento regionale ospitato è la via di mezzo quando hai bisogno di funzionalità del provider ma vuoi controllare il flusso dei dati.
 
 ## Altri proxy locali compatibili con OpenAI
 
-vLLM, LiteLLM, OAI-proxy o gateway personalizzati funzionano se espongono un endpoint `/v1` in stile OpenAI. Sostituisci il blocco provider sopra con il tuo endpoint e l'ID modello:
+vLLM, LiteLLM, OAI-proxy o gateway personalizzati funzionano se espongono un endpoint `/v1` in stile OpenAI. Sostituisci il blocco provider sopra con il tuo endpoint e l'ID del modello:
 
 ```json5
 {
@@ -150,20 +150,40 @@ vLLM, LiteLLM, OAI-proxy o gateway personalizzati funzionano se espongono un end
 }
 ```
 
-Mantieni `models.mode: "merge"` così i modelli ospitati restano disponibili come fallback.
+Mantieni `models.mode: "merge"` in modo che i modelli ospitati restino disponibili come fallback.
 
-Nota sul comportamento per backend locali/proxy `/v1`:
+Nota sul comportamento per backend `/v1` locali/con proxy:
 
 - OpenClaw li tratta come route compatibili con OpenAI in stile proxy, non come endpoint OpenAI nativi
-- il model shaping delle richieste solo OpenAI native non si applica qui: niente
-  `service_tier`, niente `store` di Responses, niente model shaping dei payload di compatibilità del ragionamento OpenAI
-  e niente suggerimenti per la prompt cache
-- gli header di attribuzione nascosti di OpenClaw (`originator`, `version`, `User-Agent`)
-  non vengono iniettati su questi URL proxy personalizzati
+- il model shaping delle richieste riservato al solo OpenAI nativo non si applica qui: niente
+  `service_tier`, niente `store` di Responses, niente model shaping del payload di compatibilità per il ragionamento OpenAI
+  e niente suggerimenti per la cache dei prompt
+- le intestazioni di attribuzione nascoste di OpenClaw (`originator`, `version`, `User-Agent`)
+  non vengono iniettate su questi URL proxy personalizzati
+
+Note di compatibilità per backend compatibili con OpenAI più rigidi:
+
+- Alcuni server accettano solo `messages[].content` come stringa su Chat Completions, non
+  array strutturati di parti di contenuto. Imposta
+  `models.providers.<provider>.models[].compat.requiresStringContent: true` per
+  questi endpoint.
+- Alcuni backend locali più piccoli o più rigidi sono instabili con la forma completa dei prompt del runtime
+  agente di OpenClaw, soprattutto quando sono inclusi gli schemi degli strumenti. Se il
+  backend funziona per chiamate dirette minime a `/v1/chat/completions` ma fallisce nei normali
+  turni agente di OpenClaw, prova prima con
+  `models.providers.<provider>.models[].compat.supportsTools: false`.
+- Se il backend continua a fallire solo su esecuzioni OpenClaw più grandi, il problema residuo
+  di solito è la capacità del modello/server a monte o un bug del backend, non il layer di trasporto di OpenClaw.
 
 ## Risoluzione dei problemi
 
 - Il gateway riesce a raggiungere il proxy? `curl http://127.0.0.1:1234/v1/models`.
-- Modello LM Studio non caricato? Ricaricalo; l'avvio a freddo è una causa comune di apparente “blocco”.
-- Errori di contesto? Riduci `contextWindow` o aumenta il limite del server.
-- Sicurezza: i modelli locali saltano i filtri lato provider; mantieni agenti con ambito ristretto e la compaction attiva per limitare il raggio d'azione del prompt injection.
+- Modello LM Studio scaricato dalla memoria? Ricaricalo; l'avvio a freddo è una causa comune di “blocco”.
+- Errori di contesto? Riduci `contextWindow` o aumenta il limite del tuo server.
+- Il server compatibile con OpenAI restituisce `messages[].content ... expected a string`?
+  Aggiungi `compat.requiresStringContent: true` a quella voce di modello.
+- Le chiamate dirette minime a `/v1/chat/completions` funzionano, ma `openclaw infer model run`
+  fallisce su Gemma o su un altro modello locale? Disabilita prima gli schemi degli strumenti con
+  `compat.supportsTools: false`, poi riprova. Se il server continua a bloccarsi solo
+  su prompt OpenClaw più grandi, trattalo come una limitazione del server/modello a monte.
+- Sicurezza: i modelli locali saltano i filtri lato provider; mantieni gli agenti limitati e la compattazione attiva per limitare l'impatto del prompt injection.

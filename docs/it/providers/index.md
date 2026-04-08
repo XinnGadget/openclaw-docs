@@ -5,10 +5,10 @@ read_when:
 summary: Provider di modelli (LLM) supportati da OpenClaw
 title: Directory dei provider
 x-i18n:
-    generated_at: "2026-04-07T08:16:26Z"
+    generated_at: "2026-04-08T02:17:21Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 39d9ace35fd9452a4fb510fd980d251b6e51480e4647f051020bee2f1f2222e1
+    source_hash: e7bee5528b7fc9a982b3d0eaa4930cb77f7bded19a47aec00572b6fcbd823a70
     source_path: providers/index.md
     workflow: 15
 ---
@@ -49,13 +49,14 @@ Cerchi la documentazione dei canali chat (WhatsApp/Telegram/Discord/Slack/Matter
 - [Google (Gemini)](/it/providers/google)
 - [Groq (inferenza LPU)](/it/providers/groq)
 - [Hugging Face (Inference)](/it/providers/huggingface)
+- [inferrs (modelli locali)](/it/providers/inferrs)
 - [Kilocode](/it/providers/kilocode)
 - [LiteLLM (gateway unificato)](/it/providers/litellm)
 - [MiniMax](/it/providers/minimax)
 - [Mistral](/it/providers/mistral)
 - [Moonshot AI (Kimi + Kimi Coding)](/it/providers/moonshot)
 - [NVIDIA](/it/providers/nvidia)
-- [Ollama (modelli cloud + locali)](/it/providers/ollama)
+- [Ollama (cloud + modelli locali)](/it/providers/ollama)
 - [OpenAI (API + Codex)](/it/providers/openai)
 - [OpenCode](/it/providers/opencode)
 - [OpenCode Go](/it/providers/opencode-go)
@@ -79,10 +80,10 @@ Cerchi la documentazione dei canali chat (WhatsApp/Telegram/Discord/Slack/Matter
 
 ## Pagine panoramiche condivise
 
-- [Varianti incluse aggiuntive](/it/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy e Gemini CLI OAuth
-- [Generazione immagini](/it/tools/image-generation) - strumento condiviso `image_generate`, selezione del provider e failover
-- [Generazione musicale](/it/tools/music-generation) - strumento condiviso `music_generate`, selezione del provider e failover
-- [Generazione video](/it/tools/video-generation) - strumento condiviso `video_generate`, selezione del provider e failover
+- [Ulteriori varianti incluse](/it/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy e Gemini CLI OAuth
+- [Generazione di immagini](/it/tools/image-generation) - Strumento condiviso `image_generate`, selezione del provider e failover
+- [Generazione musicale](/it/tools/music-generation) - Strumento condiviso `music_generate`, selezione del provider e failover
+- [Generazione video](/it/tools/video-generation) - Strumento condiviso `video_generate`, selezione del provider e failover
 
 ## Provider di trascrizione
 
@@ -93,4 +94,4 @@ Cerchi la documentazione dei canali chat (WhatsApp/Telegram/Discord/Slack/Matter
 - [Claude Max API Proxy](/it/providers/claude-max-api-proxy) - Proxy della community per credenziali di abbonamento Claude (verifica policy/termini di Anthropic prima dell'uso)
 
 Per il catalogo completo dei provider (xAI, Groq, Mistral, ecc.) e la configurazione avanzata,
-vedi [Provider di modelli](/it/concepts/model-providers).
+vedi [Model providers](/it/concepts/model-providers).

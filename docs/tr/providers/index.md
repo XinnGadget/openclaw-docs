@@ -1,14 +1,14 @@
 ---
 read_when:
     - Bir model sağlayıcısı seçmek istiyorsunuz
-    - Desteklenen LLM backend'lerine hızlı bir genel bakışa ihtiyacınız var
+    - Desteklenen LLM arka uçlarına dair hızlı bir genel bakışa ihtiyacınız var
 summary: OpenClaw tarafından desteklenen model sağlayıcıları (LLM'ler)
 title: Sağlayıcı Dizini
 x-i18n:
-    generated_at: "2026-04-07T08:48:31Z"
+    generated_at: "2026-04-08T02:17:27Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 39d9ace35fd9452a4fb510fd980d251b6e51480e4647f051020bee2f1f2222e1
+    source_hash: e7bee5528b7fc9a982b3d0eaa4930cb77f7bded19a47aec00572b6fcbd823a70
     source_path: providers/index.md
     workflow: 15
 ---
@@ -18,11 +18,11 @@ x-i18n:
 OpenClaw birçok LLM sağlayıcısını kullanabilir. Bir sağlayıcı seçin, kimlik doğrulamasını yapın, ardından
 varsayılan modeli `provider/model` olarak ayarlayın.
 
-Sohbet kanalı belgelerini mi arıyorsunuz (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/vb.)? Bkz. [Channels](/tr/channels).
+Sohbet kanalı belgelerini mi arıyorsunuz (WhatsApp/Telegram/Discord/Slack/Mattermost (eklenti)/vb.)? [Kanallar](/tr/channels) bölümüne bakın.
 
 ## Hızlı başlangıç
 
-1. Sağlayıcı ile kimlik doğrulaması yapın (genellikle `openclaw onboard` üzerinden).
+1. Sağlayıcıyla kimlik doğrulaması yapın (genellikle `openclaw onboard` aracılığıyla).
 2. Varsayılan modeli ayarlayın:
 
 ```json5
@@ -49,6 +49,7 @@ Sohbet kanalı belgelerini mi arıyorsunuz (WhatsApp/Telegram/Discord/Slack/Matt
 - [Google (Gemini)](/tr/providers/google)
 - [Groq (LPU çıkarımı)](/tr/providers/groq)
 - [Hugging Face (Inference)](/tr/providers/huggingface)
+- [inferrs (yerel modeller)](/tr/providers/inferrs)
 - [Kilocode](/tr/providers/kilocode)
 - [LiteLLM (birleşik gateway)](/tr/providers/litellm)
 - [MiniMax](/tr/providers/minimax)
@@ -80,9 +81,9 @@ Sohbet kanalı belgelerini mi arıyorsunuz (WhatsApp/Telegram/Discord/Slack/Matt
 ## Paylaşılan genel bakış sayfaları
 
 - [Ek paketlenmiş varyantlar](/tr/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy ve Gemini CLI OAuth
-- [Görüntü Üretimi](/tr/tools/image-generation) - Paylaşılan `image_generate` aracı, sağlayıcı seçimi ve failover
-- [Müzik Üretimi](/tr/tools/music-generation) - Paylaşılan `music_generate` aracı, sağlayıcı seçimi ve failover
-- [Video Üretimi](/tr/tools/video-generation) - Paylaşılan `video_generate` aracı, sağlayıcı seçimi ve failover
+- [Görüntü Oluşturma](/tr/tools/image-generation) - Paylaşılan `image_generate` aracı, sağlayıcı seçimi ve yük devretme
+- [Müzik Oluşturma](/tr/tools/music-generation) - Paylaşılan `music_generate` aracı, sağlayıcı seçimi ve yük devretme
+- [Video Oluşturma](/tr/tools/video-generation) - Paylaşılan `video_generate` aracı, sağlayıcı seçimi ve yük devretme
 
 ## Transkripsiyon sağlayıcıları
 
@@ -90,7 +91,7 @@ Sohbet kanalı belgelerini mi arıyorsunuz (WhatsApp/Telegram/Discord/Slack/Matt
 
 ## Topluluk araçları
 
-- [Claude Max API Proxy](/tr/providers/claude-max-api-proxy) - Claude abonelik kimlik bilgileri için topluluk proxy'si (kullanmadan önce Anthropic politikasını/şartlarını doğrulayın)
+- [Claude Max API Proxy](/tr/providers/claude-max-api-proxy) - Claude abonelik kimlik bilgileri için topluluk proxy'si (kullanmadan önce Anthropic ilke/şartlarını doğrulayın)
 
 Tam sağlayıcı kataloğu (xAI, Groq, Mistral vb.) ve gelişmiş yapılandırma için
-bkz. [Model sağlayıcıları](/tr/concepts/model-providers).
+[Model sağlayıcıları](/tr/concepts/model-providers) bölümüne bakın.

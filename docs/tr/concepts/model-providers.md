@@ -1,14 +1,14 @@
 ---
 read_when:
-    - Sağlayıcı bazında bir model kurulum başvurusuna ihtiyacınız var
-    - Model sağlayıcıları için örnek yapılandırmalar veya CLI başlangıç komutları istiyorsunuz
-summary: Örnek yapılandırmalar ve CLI akışlarıyla model sağlayıcılarına genel bakış
+    - Sağlayıcı bazında model kurulum başvurusu gerektiğinde
+    - Model sağlayıcıları için örnek yapılandırmalar veya CLI onboarding komutları istediğinizde
+summary: Örnek yapılandırmalar ve CLI akışlarıyla model sağlayıcısı genel bakışı
 title: Model Sağlayıcıları
 x-i18n:
-    generated_at: "2026-04-07T08:46:08Z"
+    generated_at: "2026-04-08T02:15:45Z"
     model: gpt-5.4
     provider: openai
-    source_hash: a9c1f7f8cf09b6047a64189f7440811aafc93d01335f76969afd387cc54c7ab5
+    source_hash: 26b36a2bc19a28a7ef39aa8e81a0050fea1d452ac4969122e5cdf8755e690258
     source_path: concepts/model-providers.md
     workflow: 15
 ---
@@ -16,24 +16,25 @@ x-i18n:
 # Model sağlayıcıları
 
 Bu sayfa **LLM/model sağlayıcılarını** kapsar (WhatsApp/Telegram gibi sohbet kanalları değil).
-Model seçimi kuralları için bkz. [/concepts/models](/tr/concepts/models).
+Model seçim kuralları için bkz. [/concepts/models](/tr/concepts/models).
 
 ## Hızlı kurallar
 
-- Model başvuruları `provider/model` biçimini kullanır (örnek: `opencode/claude-opus-4-6`).
-- `agents.defaults.models` ayarlarsanız, bu allowlist olur.
+- Model başvuruları `provider/model` kullanır (örnek: `opencode/claude-opus-4-6`).
+- `agents.defaults.models` ayarlarsanız bu allowlist olur.
 - CLI yardımcıları: `openclaw onboard`, `openclaw models list`, `openclaw models set <provider/model>`.
-- Geri dönüş çalışma zamanı kuralları, cooldown yoklamaları ve oturum-geçersiz-kılma kalıcılığı
+- Yedek çalışma zamanı kuralları, cooldown propları ve oturum geçersiz kılma kalıcılığı
   [/concepts/model-failover](/tr/concepts/model-failover) içinde belgelenmiştir.
 - `models.providers.*.models[].contextWindow` yerel model meta verisidir;
-  `models.providers.*.models[].contextTokens` ise etkili çalışma zamanı sınırıdır.
-- Sağlayıcı plugin'leri, `registerProvider({ catalog })` aracılığıyla model katalogları ekleyebilir;
+  `models.providers.*.models[].contextTokens` etkin çalışma zamanı sınırıdır.
+- Sağlayıcı plugin’leri `registerProvider({ catalog })` aracılığıyla model katalogları ekleyebilir;
   OpenClaw bu çıktıyı `models.providers` içine birleştirir ve ardından
-  `models.json` dosyasını yazar.
-- Sağlayıcı manifest'leri `providerAuthEnvVars` bildirebilir; böylece genel çevresel değişken tabanlı
+  `models.json` yazar.
+- Sağlayıcı manifest’leri `providerAuthEnvVars` bildirebilir; böylece genel env tabanlı
   kimlik doğrulama yoklamalarının plugin çalışma zamanını yüklemesi gerekmez. Kalan çekirdek env-var
-  eşlemesi artık yalnızca plugin olmayan/çekirdek sağlayıcılar ve Anthropic API-anahtarı-öncelikli onboarding gibi birkaç genel öncelik durumu içindir.
-- Sağlayıcı plugin'leri, aşağıdaki yollarla sağlayıcı çalışma zamanı davranışını da sahiplenebilir:
+  eşlemesi artık yalnızca plugin olmayan/çekirdek sağlayıcılar ve Anthropic için API-key-first onboarding gibi
+  birkaç genel öncelik durumu içindir.
+- Sağlayıcı plugin’leri ayrıca
   `normalizeModelId`, `normalizeTransport`, `normalizeConfig`,
   `applyNativeStreamingUsageCompat`, `resolveConfigApiKey`,
   `resolveSyntheticAuth`, `shouldDeferSyntheticProfileAuth`,
@@ -49,180 +50,217 @@ Model seçimi kuralları için bkz. [/concepts/models](/tr/concepts/models).
   `isCacheTtlEligible`, `buildMissingAuthMessage`, `suppressBuiltInModel`,
   `augmentModelCatalog`, `isBinaryThinking`, `supportsXHighThinking`,
   `resolveDefaultThinkingLevel`, `applyConfigDefaults`, `isModernModelRef`,
-  `prepareRuntimeAuth`, `resolveUsageAuth`, `fetchUsageSnapshot`, ve
-  `onModelSelected`.
+  `prepareRuntimeAuth`, `resolveUsageAuth`, `fetchUsageSnapshot` ve
+  `onModelSelected` aracılığıyla sağlayıcı çalışma zamanı davranışını sahiplenebilir.
 - Not: sağlayıcı çalışma zamanı `capabilities`, paylaşılan çalıştırıcı meta verisidir (sağlayıcı
   ailesi, transkript/araç farklılıkları, taşıma/önbellek ipuçları). Bu,
-  bir plugin'in ne kaydettiğini açıklayan [genel yetenek modeli](/tr/plugins/architecture#public-capability-model)
+  bir plugin’in ne kaydettiğini açıklayan
+  [genel capability modeli](/tr/plugins/architecture#public-capability-model)
   ile aynı şey değildir (metin çıkarımı, konuşma vb.).
 
-## Plugin'e ait sağlayıcı davranışı
+## Plugin’e ait sağlayıcı davranışı
 
-Sağlayıcı plugin'leri artık sağlayıcıya özgü mantığın büyük kısmını sahiplenebilirken OpenClaw
+Sağlayıcı plugin’leri artık sağlayıcıya özgü mantığın çoğunu sahiplenebilirken OpenClaw
 genel çıkarım döngüsünü korur.
 
 Tipik ayrım:
 
-- `auth[].run` / `auth[].runNonInteractive`: sağlayıcı, `openclaw onboard`, `openclaw models auth` ve başsız kurulum
-  için onboarding/giriş akışlarını sahiplenir
+- `auth[].run` / `auth[].runNonInteractive`: sağlayıcı,
+  `openclaw onboard`, `openclaw models auth` ve başsız kurulum için onboarding/login
+  akışlarını sahiplenir
 - `wizard.setup` / `wizard.modelPicker`: sağlayıcı, auth-choice etiketlerini,
-  eski takma adları, onboarding allowlist ipuçlarını ve onboarding/model seçicilerindeki kurulum girişlerini sahiplenir
+  eski takma adları, onboarding allowlist ipuçlarını ve onboarding/model seçimlerinde
+  kurulum girişlerini sahiplenir
 - `catalog`: sağlayıcı `models.providers` içinde görünür
-- `normalizeModelId`: sağlayıcı, arama veya kanonikleştirme öncesinde eski/önizleme model kimliklerini normalize eder
-- `normalizeTransport`: sağlayıcı, genel model derlemesinden önce taşıma ailesi `api` / `baseUrl` değerlerini normalize eder; OpenClaw önce eşleşen sağlayıcıyı,
-  sonra da biri gerçekten taşıma bilgisini değiştirene kadar diğer hook yetenekli sağlayıcı plugin'lerini kontrol eder
-- `normalizeConfig`: sağlayıcı, çalışma zamanı kullanmadan önce `models.providers.<id>` yapılandırmasını normalize eder; OpenClaw önce eşleşen sağlayıcıyı, sonra da biri gerçekten yapılandırmayı değiştirene kadar diğer
-  hook yetenekli sağlayıcı plugin'lerini kontrol eder. Hiçbir sağlayıcı hook'u yapılandırmayı yeniden yazmazsa, birlikte gelen Google ailesi yardımcıları hâlâ desteklenen Google sağlayıcı girdilerini normalize eder.
-- `applyNativeStreamingUsageCompat`: sağlayıcı, yapılandırma sağlayıcıları için uç nokta odaklı yerel streaming-usage uyumluluk yeniden yazımlarını uygular
-- `resolveConfigApiKey`: sağlayıcı, tam çalışma zamanı kimlik doğrulamasını yüklemeye zorlamadan yapılandırma sağlayıcıları için env-marker auth'u çözer.
-  `amazon-bedrock` burada ayrıca yerleşik bir AWS env-marker çözücüsüne de sahiptir; Bedrock çalışma zamanı auth'u AWS SDK varsayılan zincirini kullansa da böyledir.
-- `resolveSyntheticAuth`: sağlayıcı, düz metin sırları kalıcı hale getirmeden yerel/self-hosted veya diğer yapılandırma destekli auth kullanılabilirliğini açığa çıkarabilir
-- `shouldDeferSyntheticProfileAuth`: sağlayıcı, depolanmış sentetik profil yer tutucularını env/config destekli auth'tan daha düşük öncelikli olarak işaretleyebilir
+- `normalizeModelId`: sağlayıcı, arama veya kanonikleştirme öncesinde eski/önizleme model kimliklerini
+  normalize eder
+- `normalizeTransport`: sağlayıcı, genel model derlemesi öncesinde taşıma ailesi `api` / `baseUrl` değerlerini
+  normalize eder; OpenClaw önce eşleşen sağlayıcıyı,
+  sonra gerçekten taşıma üzerinde değişiklik yapana kadar diğer hook destekli sağlayıcı plugin’lerini
+  denetler
+- `normalizeConfig`: sağlayıcı, çalışma zamanı kullanmadan önce `models.providers.<id>` yapılandırmasını
+  normalize eder; OpenClaw önce eşleşen sağlayıcıyı,
+  sonra gerçekten yapılandırmayı değiştirene kadar diğer hook destekli sağlayıcı plugin’lerini
+  denetler. Hiçbir sağlayıcı hook’u yapılandırmayı yeniden yazmazsa, paketlenmiş Google ailesi yardımcıları
+  desteklenen Google sağlayıcı girdilerini yine de normalize eder.
+- `applyNativeStreamingUsageCompat`: sağlayıcı, yapılandırma sağlayıcıları için uç nokta odaklı yerel akış-kullanım uyumluluk yeniden yazımlarını uygular
+- `resolveConfigApiKey`: sağlayıcı, yapılandırma sağlayıcıları için tam çalışma zamanı auth yüklemesini zorlamadan
+  env-marker auth çözümler. Bedrock çalışma zamanı auth’u
+  AWS SDK varsayılan zincirini kullansa da `amazon-bedrock` burada ayrıca
+  yerleşik bir AWS env-marker çözücüsüne sahiptir.
+- `resolveSyntheticAuth`: sağlayıcı, düz metin gizli anahtarları kalıcılaştırmadan
+  local/self-hosted veya diğer yapılandırma destekli auth kullanılabilirliğini ortaya çıkarabilir
+- `shouldDeferSyntheticProfileAuth`: sağlayıcı, depolanmış sentetik profil
+  yer tutucularını env/config destekli auth’tan daha düşük öncelikli olarak işaretleyebilir
 - `resolveDynamicModel`: sağlayıcı, henüz yerel statik katalogda bulunmayan model kimliklerini kabul eder
-- `prepareDynamicModel`: sağlayıcı, dinamik çözümlemeyi yeniden denemeden önce meta veri yenilemesi gerektirir
-- `normalizeResolvedModel`: sağlayıcı, taşıma veya temel URL yeniden yazımları gerektirir
-- `contributeResolvedModelCompat`: sağlayıcı, başka bir uyumlu taşıma üzerinden geldiklerinde bile kendi üretici modelleri için uyumluluk işaretleri ekler
-- `capabilities`: sağlayıcı, transkript/araç/sağlayıcı ailesi farklılıklarını yayınlar
-- `normalizeToolSchemas`: sağlayıcı, gömülü çalıştırıcı bunları görmeden önce araç şemalarını temizler
-- `inspectToolSchemas`: sağlayıcı, normalizasyondan sonra taşımaya özgü şema uyarılarını gösterir
-- `resolveReasoningOutputMode`: sağlayıcı, yerel ile etiketlenmiş reasoning-output sözleşmeleri arasında seçim yapar
-- `prepareExtraParams`: sağlayıcı, model bazında istek parametreleri için varsayılanları uygular veya normalleştirir
-- `createStreamFn`: sağlayıcı, normal akış yolunu tamamen özel bir taşımayla değiştirir
-- `wrapStreamFn`: sağlayıcı, istek başlığı/gövdesi/model uyumluluk sarmalayıcılarını uygular
-- `resolveTransportTurnState`: sağlayıcı, tur başına yerel taşıma başlıkları veya meta verileri sağlar
-- `resolveWebSocketSessionPolicy`: sağlayıcı, yerel WebSocket oturum başlıkları veya oturum cool-down ilkesi sağlar
-- `createEmbeddingProvider`: sağlayıcı, çekirdek embedding switchboard yerine sağlayıcı plugin'i ile birlikte olması gerektiğinde bellek embedding davranışını sahiplenir
-- `formatApiKey`: sağlayıcı, depolanan auth profillerini taşımanın beklediği çalışma zamanı `apiKey` dizgesine dönüştürür
-- `refreshOAuth`: sağlayıcı, paylaşılan `pi-ai` yenileyicilerinin yeterli olmadığı durumlarda OAuth yenilemeyi sahiplenir
-- `buildAuthDoctorHint`: sağlayıcı, OAuth yenileme başarısız olduğunda onarım kılavuzu ekler
-- `matchesContextOverflowError`: sağlayıcı, genel sezgilerin kaçıracağı sağlayıcıya özgü bağlam penceresi taşması hatalarını tanır
-- `classifyFailoverReason`: sağlayıcı, sağlayıcıya özgü ham taşıma/API hatalarını hız sınırı veya aşırı yük gibi geri dönüş nedenlerine eşler
-- `isCacheTtlEligible`: sağlayıcı, hangi upstream model kimliklerinin prompt-cache TTL desteklediğine karar verir
-- `buildMissingAuthMessage`: sağlayıcı, genel auth-store hatasını sağlayıcıya özgü bir kurtarma ipucuyla değiştirir
-- `suppressBuiltInModel`: sağlayıcı, eski upstream satırlarını gizler ve doğrudan çözümleme hataları için üreticiye ait bir hata döndürebilir
-- `augmentModelCatalog`: sağlayıcı, keşif ve yapılandırma birleştirmesinden sonra sentetik/nihai katalog satırları ekler
-- `isBinaryThinking`: sağlayıcı, ikili açık/kapalı düşünme UX'ini sahiplenir
-- `supportsXHighThinking`: sağlayıcı, seçili modelleri `xhigh` içine dahil eder
-- `resolveDefaultThinkingLevel`: sağlayıcı, bir model ailesi için varsayılan `/think` ilkesini sahiplenir
-- `applyConfigDefaults`: sağlayıcı, auth modu, env veya model ailesine göre yapılandırma somutlaştırma sırasında sağlayıcıya özgü genel varsayılanları uygular
-- `isModernModelRef`: sağlayıcı, live/smoke tercihli model eşleştirmesini sahiplenir
-- `prepareRuntimeAuth`: sağlayıcı, yapılandırılmış bir kimlik bilgisini kısa ömürlü bir çalışma zamanı belirtecine dönüştürür
-- `resolveUsageAuth`: sağlayıcı, `/usage` ve ilgili durum/raporlama yüzeyleri için kullanım/kota kimlik bilgilerini çözer
-- `fetchUsageSnapshot`: sağlayıcı, kullanım uç noktası getirme/ayrıştırma işlemini sahiplenirken çekirdek yine özet kabuğunu ve biçimlendirmeyi sahiplenir
-- `onModelSelected`: sağlayıcı, telemetri veya sağlayıcıya ait oturum kayıt tutma gibi model seçimi sonrası yan etkileri çalıştırır
+- `prepareDynamicModel`: sağlayıcı, dinamik çözümlemeyi yeniden denemeden önce meta veri yenilemesine ihtiyaç duyar
+- `normalizeResolvedModel`: sağlayıcı, taşıma veya base URL yeniden yazımlarına ihtiyaç duyar
+- `contributeResolvedModelCompat`: sağlayıcı, başka bir uyumlu taşıma üzerinden gelseler bile
+  kendi satıcı modelleri için uyumluluk bayrakları sağlar
+- `capabilities`: sağlayıcı, transkript/araçlama/sağlayıcı ailesi farklılıklarını yayımlar
+- `normalizeToolSchemas`: sağlayıcı, gömülü çalıştırıcı onları görmeden önce araç şemalarını temizler
+- `inspectToolSchemas`: sağlayıcı, normalleştirme sonrasında taşıma türüne özgü şema uyarılarını yüzeye çıkarır
+- `resolveReasoningOutputMode`: sağlayıcı, yerel ve etiketli
+  reasoning-output sözleşmeleri arasında seçim yapar
+- `prepareExtraParams`: sağlayıcı, model başına istek parametreleri için varsayılanları uygular veya normalize eder
+- `createStreamFn`: sağlayıcı, normal akış yolunu tamamen
+  özel bir taşıma ile değiştirir
+- `wrapStreamFn`: sağlayıcı, istek üstbilgisi/gövdesi/model uyumluluk sarmalayıcıları uygular
+- `resolveTransportTurnState`: sağlayıcı, tur başına yerel taşıma
+  üstbilgileri veya meta verileri sağlar
+- `resolveWebSocketSessionPolicy`: sağlayıcı, yerel WebSocket oturumu
+  üstbilgileri veya oturum cool-down politikasını sağlar
+- `createEmbeddingProvider`: provider plugin’i yerine çekirdek embedding switchboard’a değil,
+  sağlayıcı plugin’ine ait olduğunda bellek embedding davranışını sağlayıcı sahiplenir
+- `formatApiKey`: sağlayıcı, depolanmış auth profillerini taşımanın beklediği
+  çalışma zamanı `apiKey` dizesine biçimlendirir
+- `refreshOAuth`: sağlayıcı, paylaşılan `pi-ai`
+  yenileyiciler yeterli olmadığında OAuth yenilemeyi sahiplenir
+- `buildAuthDoctorHint`: sağlayıcı, OAuth yenileme
+  başarısız olduğunda onarım rehberliği ekler
+- `matchesContextOverflowError`: sağlayıcı, genel sezgilerin kaçıracağı
+  sağlayıcıya özgü context-window taşma hatalarını tanır
+- `classifyFailoverReason`: sağlayıcı, sağlayıcıya özgü ham taşıma/API
+  hatalarını hız sınırı veya aşırı yük gibi failover nedenlerine eşler
+- `isCacheTtlEligible`: sağlayıcı, hangi yukarı akış model kimliklerinin prompt-cache TTL desteklediğine karar verir
+- `buildMissingAuthMessage`: sağlayıcı, genel auth-store hatasını
+  sağlayıcıya özgü bir kurtarma ipucuyla değiştirir
+- `suppressBuiltInModel`: sağlayıcı, eski yukarı akış satırlarını gizler ve doğrudan çözümleme başarısızlıkları için
+  satıcıya ait bir hata döndürebilir
+- `augmentModelCatalog`: sağlayıcı, keşif ve yapılandırma birleştirmesinden sonra
+  sentetik/nihai katalog satırları ekler
+- `isBinaryThinking`: sağlayıcı, ikili açık/kapalı düşünme UX’ini sahiplenir
+- `supportsXHighThinking`: sağlayıcı, seçili modelleri `xhigh` içine alır
+- `resolveDefaultThinkingLevel`: sağlayıcı, bir model ailesi için varsayılan `/think` politikasını sahiplenir
+- `applyConfigDefaults`: sağlayıcı, auth modu, env veya model ailesine göre
+  yapılandırma materyalizasyonu sırasında sağlayıcıya özgü genel varsayılanlar uygular
+- `isModernModelRef`: sağlayıcı, live/smoke tercih edilen model eşleştirmesini sahiplenir
+- `prepareRuntimeAuth`: sağlayıcı, yapılandırılmış bir kimlik bilgisini kısa ömürlü bir
+  çalışma zamanı belirtecine dönüştürür
+- `resolveUsageAuth`: sağlayıcı, `/usage`
+  ve ilgili durum/raporlama yüzeyleri için kullanım/kota kimlik bilgilerini çözer
+- `fetchUsageSnapshot`: sağlayıcı, kullanım uç noktası alma/ayrıştırma işini sahiplenirken
+  çekirdek yine özet kabuğunu ve biçimlendirmeyi sahiplenir
+- `onModelSelected`: sağlayıcı, telemetri veya sağlayıcıya ait oturum kayıt tutma gibi
+  seçim sonrası yan etkileri çalıştırır
 
-Güncel birlikte gelen örnekler:
+Mevcut paketlenmiş örnekler:
 
-- `anthropic`: Claude 4.6 ileri uyumluluk fallback'i, auth onarım ipuçları, kullanım
-  uç noktası getirme, cache-TTL/sağlayıcı ailesi meta verisi ve auth farkındalıklı genel
+- `anthropic`: Claude 4.6 ileri uyumluluk geri dönüşü, auth onarım ipuçları, kullanım
+  uç noktası alma, cache-TTL/sağlayıcı ailesi meta verisi ve auth farkındalıklı genel
   yapılandırma varsayılanları
-- `amazon-bedrock`: Claude'a özgü replay-policy
-  korumaları için sağlayıcıya ait bağlam taşması eşleştirmesi ve Bedrock'a özgü throttle/not-ready hataları için failover
-  nedeni sınıflandırması; ayrıca Anthropic trafiğinde paylaşılan `anthropic-by-model` replay ailesi
+- `amazon-bedrock`: Bedrock’a özgü throttle/not-ready hataları için sağlayıcıya ait context-overflow eşleştirme ve failover
+  neden sınıflandırması; ayrıca Anthropic trafiğindeki yalnızca-Claude replay-policy
+  korumaları için paylaşılan `anthropic-by-model` replay ailesi
 - `anthropic-vertex`: Anthropic-message
-  trafiğinde Claude'a özgü replay-policy korumaları
-- `openrouter`: geçişli model kimlikleri, istek sarmalayıcıları, sağlayıcı yetenek
-  ipuçları, proxy Gemini trafiğinde Gemini thought-signature temizleme, `openrouter-thinking` akış ailesi üzerinden proxy reasoning ekleme, yönlendirme
-  meta verisi iletimi ve cache-TTL ilkesi
-- `github-copilot`: onboarding/cihaz girişi, ileri uyumluluk model fallback'i,
-  Claude-thinking transkript ipuçları, çalışma zamanı belirteç değişimi ve kullanım uç noktası
-  getirme
-- `openai`: GPT-5.4 ileri uyumluluk fallback'i, doğrudan OpenAI taşıma
-  normalizasyonu, Codex farkındalıklı eksik-auth ipuçları, Spark bastırma, sentetik
-  OpenAI/Codex katalog satırları, thinking/live-model ilkesi, kullanım belirteci takma adı
+  trafiği için yalnızca-Claude replay-policy korumaları
+- `openrouter`: doğrudan model kimlikleri, istek sarmalayıcıları, sağlayıcı capability
+  ipuçları, proxy Gemini trafiğinde Gemini thought-signature temizleme,
+  `openrouter-thinking` akış ailesi üzerinden proxy reasoning ekleme, yönlendirme
+  meta verisi iletimi ve cache-TTL politikası
+- `github-copilot`: onboarding/device login, ileri uyumluluk model geri dönüşü,
+  Claude-thinking transkript ipuçları, çalışma zamanı token değişimi ve kullanım uç noktası
+  alma
+- `openai`: GPT-5.4 ileri uyumluluk geri dönüşü, doğrudan OpenAI taşıma
+  normalizasyonu, Codex farkındalıklı eksik auth ipuçları, Spark gizleme, sentetik
+  OpenAI/Codex katalog satırları, thinking/live-model politikası, kullanım token takma ad
   normalizasyonu (`input` / `output` ve `prompt` / `completion` aileleri), yerel OpenAI/Codex
-  sarmalayıcıları için paylaşılan `openai-responses-defaults` akış ailesi, sağlayıcı ailesi meta verisi,
-  `gpt-image-1` için birlikte gelen görsel üretim sağlayıcısı kaydı ve `sora-2` için birlikte gelen video üretim sağlayıcısı
+  sarmalayıcıları için paylaşılan `openai-responses-defaults` akış ailesi, sağlayıcı ailesi
+  meta verisi, `gpt-image-1` için paketlenmiş görüntü oluşturma sağlayıcısı
+  kaydı ve `sora-2` için paketlenmiş video oluşturma sağlayıcısı
   kaydı
-- `google` ve `google-gemini-cli`: Gemini 3.1 ileri uyumluluk fallback'i,
-  yerel Gemini replay doğrulaması, bootstrap replay temizleme, etiketlenmiş
-  reasoning-output modu, modern model eşleştirme, Gemini image-preview modelleri için birlikte gelen görsel üretim
-  sağlayıcısı kaydı ve Veo modelleri için birlikte gelen
-  video üretim sağlayıcısı kaydı; Gemini CLI OAuth ayrıca
-  auth-profile belirteç biçimlendirmesini, usage-token ayrıştırmasını ve kullanım yüzeyleri için kota uç noktası
-  getirmeyi de sahiplenir
-- `moonshot`: paylaşılan taşıma, plugin'e ait thinking payload normalizasyonu
-- `kilocode`: paylaşılan taşıma, plugin'e ait istek başlıkları, reasoning payload
-  normalizasyonu, proxy-Gemini thought-signature temizleme ve cache-TTL
-  ilkesi
-- `zai`: GLM-5 ileri uyumluluk fallback'i, `tool_stream` varsayılanları, cache-TTL
-  ilkesi, binary-thinking/live-model ilkesi ve kullanım auth'u + kota getirme;
-  bilinmeyen `glm-5*` kimlikleri, birlikte gelen `glm-4.7` şablonundan sentetik olarak üretilir
-- `xai`: yerel Responses taşıma normalizasyonu, Grok hızlı varyantları için `/fast` takma ad yeniden yazımları,
-  varsayılan `tool_stream`, xAI'ye özgü tool-schema /
-  reasoning-payload temizliği ve `grok-imagine-video` için birlikte gelen video üretim sağlayıcısı
+- `google` ve `google-gemini-cli`: Gemini 3.1 ileri uyumluluk geri dönüşü,
+  yerel Gemini replay doğrulaması, bootstrap replay temizliği, etiketli
+  reasoning-output modu, modern model eşleştirmesi, Gemini image-preview modelleri için paketlenmiş görüntü oluşturma
+  sağlayıcısı kaydı ve Veo modelleri için paketlenmiş
+  video oluşturma sağlayıcısı kaydı; Gemini CLI OAuth ayrıca
+  auth-profile token biçimlendirmesi, usage-token ayrıştırması ve kullanım yüzeyleri için kota uç noktası
+  alımını da sahiplenir
+- `moonshot`: paylaşılan taşıma, plugin’e ait thinking payload normalizasyonu
+- `kilocode`: paylaşılan taşıma, plugin’e ait istek üstbilgileri, reasoning payload
+  normalizasyonu, proxy-Gemini thought-signature temizliği ve cache-TTL
+  politikası
+- `zai`: GLM-5 ileri uyumluluk geri dönüşü, `tool_stream` varsayılanları, cache-TTL
+  politikası, binary-thinking/live-model politikası ve kullanım auth + kota alımı;
+  bilinmeyen `glm-5*` kimlikleri, paketlenmiş `glm-4.7` şablonundan sentezlenir
+- `xai`: yerel Responses taşıma normalizasyonu, Grok hızlı varyantları için
+  `/fast` takma ad yeniden yazımları, varsayılan `tool_stream`, xAI’ye özgü tool-schema /
+  reasoning-payload temizliği ve `grok-imagine-video` için paketlenmiş video oluşturma sağlayıcısı
   kaydı
-- `mistral`: plugin'e ait yetenek meta verisi
-- `opencode` ve `opencode-go`: plugin'e ait yetenek meta verisi ve ayrıca
-  proxy-Gemini thought-signature temizleme
-- `alibaba`: `alibaba/wan2.6-t2v` gibi doğrudan Wan model başvuruları için plugin'e ait video üretim kataloğu
-- `byteplus`: plugin'e ait kataloglar ve ayrıca Seedance text-to-video/image-to-video modelleri için birlikte gelen video üretim sağlayıcısı
-  kaydı
-- `fal`: barındırılan üçüncü taraf video modelleri için birlikte gelen video üretim sağlayıcısı kaydı ve FLUX görsel modelleri için barındırılan üçüncü taraf
-  görsel üretim sağlayıcısı kaydı
+- `mistral`: plugin’e ait capability meta verisi
+- `opencode` ve `opencode-go`: plugin’e ait capability meta verisi ile birlikte
+  proxy-Gemini thought-signature temizliği
+- `alibaba`: `alibaba/wan2.6-t2v` gibi doğrudan Wan model başvuruları için
+  plugin’e ait video oluşturma kataloğu
+- `byteplus`: plugin’e ait kataloglar ve Seedance text-to-video/image-to-video modelleri için
+  paketlenmiş video oluşturma sağlayıcısı kaydı
+- `fal`: FLUX görüntü modelleri için barındırılan üçüncü taraf görüntü oluşturma sağlayıcısı kaydı ve
+  barındırılan üçüncü taraf video modelleri için paketlenmiş
+  video oluşturma sağlayıcısı kaydı
 - `cloudflare-ai-gateway`, `huggingface`, `kimi`, `nvidia`, `qianfan`,
   `stepfun`, `synthetic`, `venice`, `vercel-ai-gateway` ve `volcengine`:
-  yalnızca plugin'e ait kataloglar
-- `qwen`: metin modelleri için plugin'e ait kataloglar ve ayrıca
-  multimodal yüzeyleri için paylaşılan media-understanding ve video-generation sağlayıcı kayıtları;
-  Qwen video üretimi, `wan2.6-t2v` ve `wan2.7-r2v` gibi birlikte gelen Wan modelleriyle Standard DashScope video
-  uç noktalarını kullanır
+  yalnızca plugin’e ait kataloglar
+- `qwen`: metin modelleri için plugin’e ait kataloglar ile birlikte,
+  çok modlu yüzeyleri için paylaşılan media-understanding ve video-generation sağlayıcısı kayıtları;
+  Qwen video oluşturma, `wan2.6-t2v` ve `wan2.7-r2v` gibi paketlenmiş Wan modelleriyle
+  Standard DashScope video uç noktalarını kullanır
 - `runway`: `gen4.5` gibi yerel
-  Runway görev tabanlı modeller için plugin'e ait video üretim sağlayıcısı kaydı
-- `minimax`: plugin'e ait kataloglar, Hailuo video modelleri için birlikte gelen video üretim sağlayıcısı
-  kaydı, `image-01` için birlikte gelen görsel üretim sağlayıcısı
+  Runway görev tabanlı modeller için plugin’e ait video oluşturma sağlayıcısı kaydı
+- `minimax`: plugin’e ait kataloglar, Hailuo video modelleri için paketlenmiş video oluşturma sağlayıcısı
+  kaydı, `image-01` için paketlenmiş görüntü oluşturma sağlayıcısı
   kaydı, hibrit Anthropic/OpenAI replay-policy
   seçimi ve kullanım auth/snapshot mantığı
-- `together`: plugin'e ait kataloglar ve ayrıca Wan video modelleri için birlikte gelen video üretim sağlayıcısı
+- `together`: plugin’e ait kataloglar ve Wan video modelleri için paketlenmiş video oluşturma sağlayıcısı
   kaydı
-- `xiaomi`: plugin'e ait kataloglar ve ayrıca kullanım auth/snapshot mantığı
+- `xiaomi`: plugin’e ait kataloglar ile kullanım auth/snapshot mantığı
 
-Birlikte gelen `openai` plugin'i artık her iki sağlayıcı kimliğini de sahiplenir: `openai` ve
+Paketlenmiş `openai` plugin’i artık her iki sağlayıcı kimliğini de sahipleniyor: `openai` ve
 `openai-codex`.
 
-Bu, hâlâ OpenClaw'ın normal taşımalarına uyan sağlayıcıları kapsar. Tamamen özel bir istek yürütücüsüne ihtiyaç duyan bir sağlayıcı ise ayrı, daha derin bir genişletme yüzeyidir.
+Bu, OpenClaw’ın normal taşımalarına hâlâ uyan sağlayıcıları kapsar. Tamamen
+özel bir istek yürütücüsüne ihtiyaç duyan sağlayıcılar ayrı, daha derin bir genişletme yüzeyidir.
 
 ## API anahtarı rotasyonu
 
 - Seçili sağlayıcılar için genel sağlayıcı rotasyonunu destekler.
-- Birden çok anahtarı şununla yapılandırın:
-  - `OPENCLAW_LIVE_<PROVIDER>_KEY` (tek live geçersiz kılma, en yüksek öncelik)
-  - `<PROVIDER>_API_KEYS` (virgül veya noktalı virgül listesi)
+- Birden çok anahtarı şu yollarla yapılandırın:
+  - `OPENCLAW_LIVE_<PROVIDER>_KEY` (tek canlı geçersiz kılma, en yüksek öncelik)
+  - `<PROVIDER>_API_KEYS` (virgül veya noktalı virgül ayrımlı liste)
   - `<PROVIDER>_API_KEY` (birincil anahtar)
-  - `<PROVIDER>_API_KEY_*` (numaralı liste, ör. `<PROVIDER>_API_KEY_1`)
-- Google sağlayıcıları için `GOOGLE_API_KEY` de fallback olarak dahil edilir.
-- Anahtar seçme sırası önceliği korur ve değerlerin tekrarını kaldırır.
-- İstekler yalnızca hız sınırı yanıtlarında bir sonraki anahtarla yeniden denenir (örneğin
-  `429`, `rate_limit`, `quota`, `resource exhausted`, `Too many
+  - `<PROVIDER>_API_KEY_*` (numaralandırılmış liste, örn. `<PROVIDER>_API_KEY_1`)
+- Google sağlayıcıları için `GOOGLE_API_KEY` de yedek olarak dahil edilir.
+- Anahtar seçim sırası önceliği korur ve değerleri tekilleştirir.
+- İstekler yalnızca hız sınırı yanıtlarında bir sonraki anahtarla yeniden denenir
+  (örneğin `429`, `rate_limit`, `quota`, `resource exhausted`, `Too many
 concurrent requests`, `ThrottlingException`, `concurrency limit reached`,
-  `workers_ai ... quota limit exceeded` veya periyodik kullanım sınırı mesajları).
-- Hız sınırı dışındaki hatalar anında başarısız olur; anahtar rotasyonu denenmez.
-- Tüm aday anahtarlar başarısız olduğunda, son hata son denemeden döndürülür.
+  `workers_ai ... quota limit exceeded` veya dönemsel kullanım sınırı iletileri).
+- Hız sınırı dışındaki hatalar hemen başarısız olur; anahtar rotasyonu denenmez.
+- Tüm aday anahtarlar başarısız olduğunda son hata, son denemeden döndürülür.
 
 ## Yerleşik sağlayıcılar (pi-ai kataloğu)
 
-OpenClaw, pi‑ai kataloğuyla birlikte gelir. Bu sağlayıcılar için
-`models.providers` yapılandırması **gerekmez**; yalnızca auth ayarlayın + bir model seçin.
+OpenClaw, pi‑ai kataloğuyla gelir. Bu sağlayıcılar için
+`models.providers` yapılandırması **gerekmez**; yalnızca auth ayarlayın ve bir model seçin.
 
 ### OpenAI
 
 - Sağlayıcı: `openai`
 - Auth: `OPENAI_API_KEY`
-- İsteğe bağlı rotasyon: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2` ve ayrıca `OPENCLAW_LIVE_OPENAI_KEY` (tek geçersiz kılma)
+- İsteğe bağlı rotasyon: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, ayrıca `OPENCLAW_LIVE_OPENAI_KEY` (tek geçersiz kılma)
 - Örnek modeller: `openai/gpt-5.4`, `openai/gpt-5.4-pro`
 - CLI: `openclaw onboard --auth-choice openai-api-key`
-- Varsayılan taşıma `auto`dur (önce WebSocket, sonra SSE fallback)
+- Varsayılan taşıma `auto`’dur (önce WebSocket, sonra SSE)
 - Model başına geçersiz kılmak için `agents.defaults.models["openai/<model>"].params.transport` kullanın (`"sse"`, `"websocket"` veya `"auto"`)
-- OpenAI Responses WebSocket warm-up varsayılan olarak `params.openaiWsWarmup` üzerinden etkindir (`true`/`false`)
-- OpenAI öncelikli işleme `agents.defaults.models["openai/<model>"].params.serviceTier` ile etkinleştirilebilir
-- `/fast` ve `params.fastMode`, doğrudan `openai/*` Responses isteklerini `api.openai.com` üzerinde `service_tier=priority` değerine eşler
-- Paylaşılan `/fast` anahtarı yerine açık bir katman istediğinizde `params.serviceTier` kullanın
-- Gizli OpenClaw atıf başlıkları (`originator`, `version`,
-  `User-Agent`) yalnızca `api.openai.com` üzerindeki yerel OpenAI trafiğine uygulanır,
-  genel OpenAI uyumlu proxy'lere değil
-- Yerel OpenAI yolları ayrıca Responses `store`, prompt-cache ipuçları ve
-  OpenAI reasoning-compat payload şekillendirmesini korur; proxy yolları korumaz
-- `openai/gpt-5.3-codex-spark`, canlı OpenAI API bunu reddettiği için OpenClaw'da kasıtlı olarak bastırılmıştır; Spark yalnızca Codex olarak değerlendirilir
+- OpenAI Responses WebSocket ısınması varsayılan olarak `params.openaiWsWarmup` aracılığıyla etkindir (`true`/`false`)
+- OpenAI öncelikli işleme, `agents.defaults.models["openai/<model>"].params.serviceTier` aracılığıyla etkinleştirilebilir
+- `/fast` ve `params.fastMode`, doğrudan `openai/*` Responses isteklerini `api.openai.com` üzerinde `service_tier=priority` olarak eşler
+- Paylaşılan `/fast` anahtarı yerine açık bir katman istiyorsanız `params.serviceTier` kullanın
+- Gizli OpenClaw atıf üstbilgileri (`originator`, `version`,
+  `User-Agent`) yalnızca `api.openai.com` üzerindeki yerel OpenAI trafiğinde uygulanır,
+  genel OpenAI uyumlu proxy’lerde uygulanmaz
+- Yerel OpenAI rotaları ayrıca Responses `store`, prompt-cache ipuçları ve
+  OpenAI reasoning-compat payload şekillendirmesini korur; proxy rotaları korumaz
+- `openai/gpt-5.3-codex-spark`, canlı OpenAI API bunu reddettiği için OpenClaw’da kasıtlı olarak gizlenir; Spark yalnızca Codex’e ait kabul edilir
 
 ```json5
 {
@@ -234,12 +272,13 @@ OpenClaw, pi‑ai kataloğuyla birlikte gelir. Bu sağlayıcılar için
 
 - Sağlayıcı: `anthropic`
 - Auth: `ANTHROPIC_API_KEY`
-- İsteğe bağlı rotasyon: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2` ve ayrıca `OPENCLAW_LIVE_ANTHROPIC_KEY` (tek geçersiz kılma)
+- İsteğe bağlı rotasyon: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2`, ayrıca `OPENCLAW_LIVE_ANTHROPIC_KEY` (tek geçersiz kılma)
 - Örnek model: `anthropic/claude-opus-4-6`
 - CLI: `openclaw onboard --auth-choice apiKey`
-- Doğrudan herkese açık Anthropic istekleri, `api.anthropic.com` adresine gönderilen API anahtarı ve OAuth ile doğrulanmış trafik dahil, paylaşılan `/fast` anahtarını ve `params.fastMode` değerini destekler; OpenClaw bunu Anthropic `service_tier` değerine eşler (`auto` ve `standard_only`)
-- Anthropic notu: Anthropic çalışanları bize OpenClaw tarzı Claude CLI kullanımına yeniden izin verildiğini söyledi, bu nedenle Anthropic yeni bir ilke yayımlamadığı sürece OpenClaw bu entegrasyon için Claude CLI yeniden kullanımını ve `claude -p` kullanımını onaylı kabul eder.
-- Anthropic setup-token, desteklenen bir OpenClaw belirteç yolu olarak kullanılmaya devam eder, ancak OpenClaw artık mümkün olduğunda Claude CLI yeniden kullanımını ve `claude -p` kullanımını tercih eder.
+- Doğrudan genel Anthropic istekleri, `api.anthropic.com` adresine gönderilen API anahtarı ve OAuth kimlik doğrulamalı trafik dahil,
+  paylaşılan `/fast` anahtarını ve `params.fastMode` değerini destekler; OpenClaw bunu Anthropic `service_tier` değerine (`auto` ve `standard_only`) eşler
+- Anthropic notu: Anthropic çalışanları, OpenClaw tarzı Claude CLI kullanımına yeniden izin verildiğini söyledi; bu yüzden Anthropic yeni bir politika yayımlamadığı sürece OpenClaw, Claude CLI yeniden kullanımını ve `claude -p` kullanımını bu entegrasyon için onaylı kabul eder.
+- Anthropic setup-token, desteklenen bir OpenClaw token yolu olarak kullanılmaya devam eder, ancak OpenClaw artık mevcut olduğunda Claude CLI yeniden kullanımını ve `claude -p`’yi tercih eder.
 
 ```json5
 {
@@ -253,16 +292,16 @@ OpenClaw, pi‑ai kataloğuyla birlikte gelir. Bu sağlayıcılar için
 - Auth: OAuth (ChatGPT)
 - Örnek model: `openai-codex/gpt-5.4`
 - CLI: `openclaw onboard --auth-choice openai-codex` veya `openclaw models auth login --provider openai-codex`
-- Varsayılan taşıma `auto`dur (önce WebSocket, sonra SSE fallback)
+- Varsayılan taşıma `auto`’dur (önce WebSocket, sonra SSE)
 - Model başına geçersiz kılmak için `agents.defaults.models["openai-codex/<model>"].params.transport` kullanın (`"sse"`, `"websocket"` veya `"auto"`)
-- `params.serviceTier`, yerel Codex Responses isteklerinde de iletilir (`chatgpt.com/backend-api`)
-- Gizli OpenClaw atıf başlıkları (`originator`, `version`,
-  `User-Agent`) yalnızca `chatgpt.com/backend-api` adresine giden yerel Codex trafiğinde eklenir,
-  genel OpenAI uyumlu proxy'lerde eklenmez
-- Doğrudan `openai/*` ile aynı `/fast` anahtarını ve `params.fastMode` yapılandırmasını paylaşır; OpenClaw bunu `service_tier=priority` değerine eşler
-- `openai-codex/gpt-5.3-codex-spark`, Codex OAuth kataloğu bunu gösterdiğinde kullanılabilir olmaya devam eder; hakka bağlıdır
+- `params.serviceTier`, yerel Codex Responses isteklerinde (`chatgpt.com/backend-api`) de iletilir
+- Gizli OpenClaw atıf üstbilgileri (`originator`, `version`,
+  `User-Agent`) yalnızca
+  `chatgpt.com/backend-api` üzerindeki yerel Codex trafiğine eklenir, genel OpenAI uyumlu proxy’lere eklenmez
+- Doğrudan `openai/*` ile aynı `/fast` anahtarını ve `params.fastMode` yapılandırmasını paylaşır; OpenClaw bunu `service_tier=priority` olarak eşler
+- `openai-codex/gpt-5.3-codex-spark`, Codex OAuth kataloğu bunu açığa çıkardığında kullanılabilir kalır; yetki durumuna bağlıdır
 - `openai-codex/gpt-5.4`, yerel `contextWindow = 1050000` ve varsayılan çalışma zamanı `contextTokens = 272000` değerlerini korur; çalışma zamanı sınırını `models.providers.openai-codex.models[].contextTokens` ile geçersiz kılın
-- İlke notu: OpenAI Codex OAuth, OpenClaw gibi harici araçlar/iş akışları için açıkça desteklenir.
+- Politika notu: OpenAI Codex OAuth, OpenClaw gibi harici araçlar/iş akışları için açıkça desteklenmektedir.
 
 ```json5
 {
@@ -306,30 +345,31 @@ OpenClaw, pi‑ai kataloğuyla birlikte gelir. Bu sağlayıcılar için
 
 - Sağlayıcı: `google`
 - Auth: `GEMINI_API_KEY`
-- İsteğe bağlı rotasyon: `GEMINI_API_KEYS`, `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GOOGLE_API_KEY` fallback'i ve `OPENCLAW_LIVE_GEMINI_KEY` (tek geçersiz kılma)
+- İsteğe bağlı rotasyon: `GEMINI_API_KEYS`, `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GOOGLE_API_KEY` yedeği ve `OPENCLAW_LIVE_GEMINI_KEY` (tek geçersiz kılma)
 - Örnek modeller: `google/gemini-3.1-pro-preview`, `google/gemini-3-flash-preview`
 - Uyumluluk: `google/gemini-3.1-flash-preview` kullanan eski OpenClaw yapılandırması `google/gemini-3-flash-preview` olarak normalize edilir
 - CLI: `openclaw onboard --auth-choice gemini-api-key`
 - Doğrudan Gemini çalıştırmaları ayrıca `agents.defaults.models["google/<model>"].params.cachedContent`
-  (veya eski `cached_content`) değerini de kabul eder; sağlayıcıya özgü bir
-  `cachedContents/...` tutamacını iletmek içindir; Gemini önbellek isabetleri OpenClaw `cacheRead` olarak görünür
+  (veya eski `cached_content`) kabul eder; böylece sağlayıcıya özgü bir
+  `cachedContents/...` işleyicisini iletir; Gemini önbellek isabetleri OpenClaw `cacheRead` olarak görünür
 
 ### Google Vertex ve Gemini CLI
 
 - Sağlayıcılar: `google-vertex`, `google-gemini-cli`
 - Auth: Vertex gcloud ADC kullanır; Gemini CLI kendi OAuth akışını kullanır
-- Dikkat: OpenClaw içindeki Gemini CLI OAuth resmi olmayan bir entegrasyondur. Bazı kullanıcılar üçüncü taraf istemcileri kullandıktan sonra Google hesap kısıtlamaları bildirmiştir. Devam etmeyi seçerseniz Google şartlarını gözden geçirin ve kritik olmayan bir hesap kullanın.
-- Gemini CLI OAuth, birlikte gelen `google` plugin'inin bir parçası olarak sunulur.
-  - Önce Gemini CLI'ı kurun:
+- Dikkat: Gemini CLI OAuth’un OpenClaw içindeki entegrasyonu resmi değildir. Bazı kullanıcılar üçüncü taraf istemcileri kullandıktan sonra Google hesaplarında kısıtlamalar bildiriyor. Devam etmeyi seçerseniz Google şartlarını inceleyin ve kritik olmayan bir hesap kullanın.
+- Gemini CLI OAuth, paketlenmiş `google` plugin’inin bir parçası olarak gönderilir.
+  - Önce Gemini CLI’yi kurun:
     - `brew install gemini-cli`
     - veya `npm install -g @google/gemini-cli`
   - Etkinleştirin: `openclaw plugins enable google`
-  - Giriş: `openclaw models auth login --provider google-gemini-cli --set-default`
-  - Varsayılan model: `google-gemini-cli/gemini-3.1-pro-preview`
-  - Not: `openclaw.json` içine bir client id veya secret yapıştırmazsınız. CLI giriş akışı
-    belirteçleri gateway host üzerindeki auth profillerinde saklar.
-  - Girişten sonra istekler başarısız olursa, gateway host üzerinde `GOOGLE_CLOUD_PROJECT` veya `GOOGLE_CLOUD_PROJECT_ID` ayarlayın.
-  - Gemini CLI JSON yanıtları `response` içinden ayrıştırılır; kullanım, OpenClaw `cacheRead` içine normalize edilmiş `stats.cached` ile birlikte `stats` değerine fallback yapar.
+  - Giriş yapın: `openclaw models auth login --provider google-gemini-cli --set-default`
+  - Varsayılan model: `google-gemini-cli/gemini-3-flash-preview`
+  - Not: istemci kimliğini veya gizli anahtarı `openclaw.json` içine **yapıştırmazsınız**. CLI giriş akışı,
+    token’ları gateway host üzerindeki auth profillerinde depolar.
+  - Girişten sonra istekler başarısız olursa gateway host üzerinde `GOOGLE_CLOUD_PROJECT` veya `GOOGLE_CLOUD_PROJECT_ID` ayarlayın.
+  - Gemini CLI JSON yanıtları `response` alanından ayrıştırılır; kullanım bilgisi
+    `stats` alanına geri döner ve `stats.cached`, OpenClaw `cacheRead` olarak normalize edilir.
 
 ### Z.AI (GLM)
 
@@ -353,39 +393,39 @@ OpenClaw, pi‑ai kataloğuyla birlikte gelir. Bu sağlayıcılar için
 - Auth: `KILOCODE_API_KEY`
 - Örnek model: `kilocode/kilo/auto`
 - CLI: `openclaw onboard --auth-choice kilocode-api-key`
-- Temel URL: `https://api.kilo.ai/api/gateway/`
-- Statik fallback kataloğu `kilocode/kilo/auto` ile gelir; canlı
-  `https://api.kilo.ai/api/gateway/models` keşfi çalışma zamanı kataloğunu
-  daha da genişletebilir.
-- `kilocode/kilo/auto` arkasındaki tam upstream yönlendirme OpenClaw içinde
-  sabit kodlanmış değildir; Kilo Gateway'e aittir.
+- Base URL: `https://api.kilo.ai/api/gateway/`
+- Statik yedek katalog `kilocode/kilo/auto` ile gelir; canlı
+  `https://api.kilo.ai/api/gateway/models` keşfi çalışma zamanı
+  kataloğunu daha da genişletebilir.
+- `kilocode/kilo/auto` arkasındaki tam yukarı akış yönlendirmesi Kilo Gateway’e aittir,
+  OpenClaw içinde sabit kodlanmamıştır.
 
 Kurulum ayrıntıları için bkz. [/providers/kilocode](/tr/providers/kilocode).
 
-### Diğer birlikte gelen sağlayıcı plugin'leri
+### Diğer paketlenmiş sağlayıcı plugin’leri
 
 - OpenRouter: `openrouter` (`OPENROUTER_API_KEY`)
 - Örnek model: `openrouter/auto`
-- OpenClaw, OpenRouter'ın belgelenmiş uygulama-atıf başlıklarını yalnızca
+- OpenClaw, OpenRouter’ın belgelenmiş uygulama atıf üstbilgilerini yalnızca
   istek gerçekten `openrouter.ai` hedefine gidiyorsa uygular
-- OpenRouter'a özgü Anthropic `cache_control` işaretçileri de benzer şekilde
-  rastgele proxy URL'lerine değil, doğrulanmış OpenRouter yollarına kapılıdır
-- OpenRouter, proxy tarzı OpenAI uyumlu yol üzerinde kalır; bu nedenle yerel
-  OpenAI'ya özgü istek şekillendirme (`serviceTier`, Responses `store`,
-  prompt-cache ipuçları, OpenAI reasoning-compat payload'ları) iletilmez
+- OpenRouter’a özgü Anthropic `cache_control` işaretçileri de
+  rastgele proxy URL’lerine değil, yalnızca doğrulanmış OpenRouter rotalarına uygulanır
+- OpenRouter, proxy tarzı OpenAI uyumlu yol üzerinde kalır; dolayısıyla yerel
+  yalnızca OpenAI’ye özgü istek şekillendirme (`serviceTier`, Responses `store`,
+  prompt-cache ipuçları, OpenAI reasoning-compat payload’ları) iletilmez
 - Gemini destekli OpenRouter başvuruları yalnızca proxy-Gemini thought-signature temizliğini korur;
   yerel Gemini replay doğrulaması ve bootstrap yeniden yazımları kapalı kalır
 - Kilo Gateway: `kilocode` (`KILOCODE_API_KEY`)
 - Örnek model: `kilocode/kilo/auto`
 - Gemini destekli Kilo başvuruları aynı proxy-Gemini thought-signature
-  temizleme yolunu korur; `kilocode/kilo/auto` ve reasoning proxy tarafından desteklenmeyen diğer ipuçları
-  proxy reasoning eklemesini atlar
+  temizleme yolunu korur; `kilocode/kilo/auto` ve proxy-reasoning’i desteklemeyen diğer
+  ipuçları proxy reasoning eklemeyi atlar
 - MiniMax: `minimax` (API anahtarı) ve `minimax-portal` (OAuth)
 - Auth: `minimax` için `MINIMAX_API_KEY`; `minimax-portal` için `MINIMAX_OAUTH_TOKEN` veya `MINIMAX_API_KEY`
 - Örnek model: `minimax/MiniMax-M2.7` veya `minimax-portal/MiniMax-M2.7`
-- MiniMax onboarding/API anahtarı kurulumu, açık `input: ["text", "image"]` ile
-  açık M2.7 model tanımları yazar; birlikte gelen sağlayıcı kataloğu bu sağlayıcı yapılandırması somutlaştırılana kadar
-  sohbet başvurularını yalnızca metin olarak tutar
+- MiniMax onboarding/API anahtarı kurulumu, açık M2.7 model tanımları yazar ve
+  `input: ["text", "image"]` içerir; paketlenmiş sağlayıcı kataloğu bu sohbet başvurularını
+  sağlayıcı yapılandırması materyalize edilene kadar yalnızca metin olarak tutar
 - Moonshot: `moonshot` (`MOONSHOT_API_KEY`)
 - Örnek model: `moonshot/kimi-k2.5`
 - Kimi Coding: `kimi` (`KIMI_API_KEY` veya `KIMICODE_API_KEY`)
@@ -411,33 +451,36 @@ Kurulum ayrıntıları için bkz. [/providers/kilocode](/tr/providers/kilocode).
 - BytePlus: `byteplus` (`BYTEPLUS_API_KEY`)
 - Örnek model: `byteplus-plan/ark-code-latest`
 - xAI: `xai` (`XAI_API_KEY`)
-  - Yerel birlikte gelen xAI istekleri xAI Responses yolunu kullanır
+  - Yerel paketlenmiş xAI istekleri xAI Responses yolunu kullanır
   - `/fast` veya `params.fastMode: true`, `grok-3`, `grok-3-mini`,
-    `grok-4` ve `grok-4-0709` değerlerini `*-fast` varyantlarına yeniden yazar
+    `grok-4` ve `grok-4-0709` modellerini `*-fast` varyantlarına yeniden yazar
   - `tool_stream` varsayılan olarak açıktır; devre dışı bırakmak için
-    `agents.defaults.models["xai/<model>"].params.tool_stream` değerini `false` yapın
+    `agents.defaults.models["xai/<model>"].params.tool_stream` değerini `false`
+    yapın
 - Mistral: `mistral` (`MISTRAL_API_KEY`)
 - Örnek model: `mistral/mistral-large-latest`
 - CLI: `openclaw onboard --auth-choice mistral-api-key`
 - Groq: `groq` (`GROQ_API_KEY`)
 - Cerebras: `cerebras` (`CEREBRAS_API_KEY`)
   - Cerebras üzerindeki GLM modelleri `zai-glm-4.7` ve `zai-glm-4.6` kimliklerini kullanır.
-  - OpenAI uyumlu temel URL: `https://api.cerebras.ai/v1`.
+  - OpenAI uyumlu base URL: `https://api.cerebras.ai/v1`.
 - GitHub Copilot: `github-copilot` (`COPILOT_GITHUB_TOKEN` / `GH_TOKEN` / `GITHUB_TOKEN`)
 - Hugging Face Inference örnek modeli: `huggingface/deepseek-ai/DeepSeek-R1`; CLI: `openclaw onboard --auth-choice huggingface-api-key`. Bkz. [Hugging Face (Inference)](/tr/providers/huggingface).
 
-## `models.providers` üzerinden sağlayıcılar (özel/temel URL)
+## `models.providers` üzerinden sağlayıcılar (özel/base URL)
 
-**Özel** sağlayıcılar veya OpenAI/Anthropic uyumlu proxy'ler eklemek için
-`models.providers` (veya `models.json`) kullanın.
+**Özel** sağlayıcılar veya
+OpenAI/Anthropic uyumlu proxy’ler eklemek için `models.providers` (veya `models.json`) kullanın.
 
-Aşağıdaki birlikte gelen birçok sağlayıcı plugin'i zaten varsayılan bir katalog yayınlar.
-Yalnızca varsayılan temel URL'yi, başlıkları veya model listesini geçersiz kılmak istediğinizde açık `models.providers.<id>` girdileri kullanın.
+Aşağıdaki paketlenmiş sağlayıcı plugin’lerinin çoğu zaten varsayılan bir katalog yayımlar.
+Varsayılan base URL, üstbilgiler veya model listesini geçersiz kılmak
+istemediğiniz sürece açık `models.providers.<id>` girdileri kullanmayın.
 
 ### Moonshot AI (Kimi)
 
-Moonshot birlikte gelen bir sağlayıcı plugin'i olarak sunulur. Varsayılan olarak
-yerleşik sağlayıcıyı kullanın ve yalnızca temel URL'yi veya model meta verisini geçersiz kılmanız gerektiğinde açık bir `models.providers.moonshot` girdisi ekleyin:
+Moonshot, paketlenmiş bir sağlayıcı plugin’i olarak gelir. Varsayılan olarak yerleşik sağlayıcıyı
+kullanın; yalnızca base URL veya model meta verisini geçersiz kılmanız gerektiğinde
+açık bir `models.providers.moonshot` girdisi ekleyin:
 
 - Sağlayıcı: `moonshot`
 - Auth: `MOONSHOT_API_KEY`
@@ -476,7 +519,7 @@ Kimi K2 model kimlikleri:
 
 ### Kimi Coding
 
-Kimi Coding, Moonshot AI'nin Anthropic uyumlu uç noktasını kullanır:
+Kimi Coding, Moonshot AI’nin Anthropic uyumlu uç noktasını kullanır:
 
 - Sağlayıcı: `kimi`
 - Auth: `KIMI_API_KEY`
@@ -495,7 +538,7 @@ Eski `kimi/k2p5`, uyumluluk modeli kimliği olarak kabul edilmeye devam eder.
 
 ### Volcano Engine (Doubao)
 
-Volcano Engine (火山引擎), Çin'de Doubao ve diğer modellere erişim sağlar.
+Volcano Engine (火山引擎), Çin’de Doubao ve diğer modellere erişim sağlar.
 
 - Sağlayıcı: `volcengine` (coding: `volcengine-plan`)
 - Auth: `VOLCANO_ENGINE_API_KEY`
@@ -510,13 +553,13 @@ Volcano Engine (火山引擎), Çin'de Doubao ve diğer modellere erişim sağla
 }
 ```
 
-Onboarding varsayılan olarak coding yüzeyini seçer, ancak genel `volcengine/*`
+Onboarding varsayılan olarak coding yüzeyini kullanır, ancak genel `volcengine/*`
 kataloğu da aynı anda kaydedilir.
 
-Onboarding/configure model seçicilerinde, Volcengine auth seçimi hem
-`volcengine/*` hem de `volcengine-plan/*` satırlarını tercih eder. Bu modeller henüz yüklenmediyse,
-OpenClaw boş bir sağlayıcı kapsamlı seçici göstermek yerine filtrelenmemiş
-kataloğa fallback yapar.
+Onboarding/model yapılandırma seçimlerinde Volcengine auth choice,
+hem `volcengine/*` hem de `volcengine-plan/*` satırlarını tercih eder. Bu modeller henüz yüklenmemişse
+OpenClaw, boş bir sağlayıcı kapsamlı seçim göstermek yerine
+filtrelenmemiş kataloğa geri döner.
 
 Kullanılabilir modeller:
 
@@ -551,13 +594,13 @@ BytePlus ARK, uluslararası kullanıcılar için Volcano Engine ile aynı modell
 }
 ```
 
-Onboarding varsayılan olarak coding yüzeyini seçer, ancak genel `byteplus/*`
+Onboarding varsayılan olarak coding yüzeyini kullanır, ancak genel `byteplus/*`
 kataloğu da aynı anda kaydedilir.
 
-Onboarding/configure model seçicilerinde, BytePlus auth seçimi hem
-`byteplus/*` hem de `byteplus-plan/*` satırlarını tercih eder. Bu modeller henüz yüklenmediyse,
-OpenClaw boş bir sağlayıcı kapsamlı seçici göstermek yerine filtrelenmemiş
-kataloğa fallback yapar.
+Onboarding/model yapılandırma seçimlerinde BytePlus auth choice,
+hem `byteplus/*` hem de `byteplus-plan/*` satırlarını tercih eder. Bu modeller henüz yüklenmemişse
+OpenClaw, boş bir sağlayıcı kapsamlı seçim göstermek yerine
+filtrelenmemiş kataloğa geri döner.
 
 Kullanılabilir modeller:
 
@@ -575,7 +618,7 @@ Coding modelleri (`byteplus-plan`):
 
 ### Synthetic
 
-Synthetic, `synthetic` sağlayıcısının arkasında Anthropic uyumlu modeller sunar:
+Synthetic, `synthetic` sağlayıcısı arkasında Anthropic uyumlu modeller sunar:
 
 - Sağlayıcı: `synthetic`
 - Auth: `SYNTHETIC_API_KEY`
@@ -603,7 +646,7 @@ Synthetic, `synthetic` sağlayıcısının arkasında Anthropic uyumlu modeller 
 
 ### MiniMax
 
-MiniMax, özel uç noktalar kullandığı için `models.providers` aracılığıyla yapılandırılır:
+MiniMax, özel uç noktalar kullandığı için `models.providers` üzerinden yapılandırılır:
 
 - MiniMax OAuth (Genel): `--auth-choice minimax-global-oauth`
 - MiniMax OAuth (CN): `--auth-choice minimax-cn-oauth`
@@ -614,20 +657,20 @@ MiniMax, özel uç noktalar kullandığı için `models.providers` aracılığı
 
 Kurulum ayrıntıları, model seçenekleri ve yapılandırma parçacıkları için bkz. [/providers/minimax](/tr/providers/minimax).
 
-MiniMax'in Anthropic uyumlu akış yolunda, OpenClaw düşünmeyi varsayılan olarak
-siz açıkça ayarlamadıkça devre dışı bırakır ve `/fast on`,
-`MiniMax-M2.7` değerini `MiniMax-M2.7-highspeed` olarak yeniden yazar.
+MiniMax’in Anthropic uyumlu akış yolunda OpenClaw,
+siz açıkça ayarlamadığınız sürece düşünmeyi varsayılan olarak devre dışı bırakır ve `/fast on`
+`MiniMax-M2.7` modelini `MiniMax-M2.7-highspeed` olarak yeniden yazar.
 
-Plugin'e ait yetenek ayrımı:
+Plugin’e ait capability ayrımı:
 
 - Metin/sohbet varsayılanları `minimax/MiniMax-M2.7` üzerinde kalır
-- Görsel üretimi `minimax/image-01` veya `minimax-portal/image-01` olur
-- Görsel anlama, her iki MiniMax auth yolunda da plugin'e ait `MiniMax-VL-01`'dir
-- Web araması `minimax` sağlayıcı kimliği üzerinde kalır
+- Görüntü oluşturma `minimax/image-01` veya `minimax-portal/image-01` kullanır
+- Görüntü anlama, her iki MiniMax auth yolunda da plugin’e ait `MiniMax-VL-01` kullanır
+- Web araması `minimax` sağlayıcı kimliğinde kalır
 
 ### Ollama
 
-Ollama birlikte gelen bir sağlayıcı plugin'i olarak sunulur ve Ollama'nın yerel API'sini kullanır:
+Ollama, paketlenmiş bir sağlayıcı plugin’i olarak gelir ve Ollama’nın yerel API’sini kullanır:
 
 - Sağlayıcı: `ollama`
 - Auth: Gerekmez (yerel sunucu)
@@ -647,18 +690,19 @@ ollama pull llama3.3
 }
 ```
 
-Ollama, `OLLAMA_API_KEY` ile katıldığınızda yerelde `http://127.0.0.1:11434` adresinde algılanır
-ve birlikte gelen sağlayıcı plugin'i Ollama'yı doğrudan
-`openclaw onboard` ve model seçiciye ekler. Onboarding, bulut/yerel mod ve özel yapılandırma için bkz. [/providers/ollama](/tr/providers/ollama).
+`OLLAMA_API_KEY` ile katılım gösterdiğinizde Ollama yerel olarak `http://127.0.0.1:11434`
+adresinde algılanır ve paketlenmiş sağlayıcı plugin’i Ollama’yı doğrudan
+`openclaw onboard` ve model seçicisine ekler. Onboarding, cloud/local modu ve özel yapılandırma için
+bkz. [/providers/ollama](/tr/providers/ollama).
 
 ### vLLM
 
-vLLM, yerel/self-hosted OpenAI uyumlu
-sunucular için birlikte gelen bir sağlayıcı plugin'i olarak sunulur:
+vLLM, local/self-hosted OpenAI uyumlu
+sunucular için paketlenmiş bir sağlayıcı plugin’i olarak gelir:
 
 - Sağlayıcı: `vllm`
-- Auth: İsteğe bağlı (sunucunuza bağlıdır)
-- Varsayılan temel URL: `http://127.0.0.1:8000/v1`
+- Auth: İsteğe bağlıdır (sunucunuza bağlıdır)
+- Varsayılan base URL: `http://127.0.0.1:8000/v1`
 
 Yerelde otomatik keşfe katılmak için (sunucunuz auth zorlamıyorsa herhangi bir değer çalışır):
 
@@ -681,14 +725,13 @@ Ayrıntılar için bkz. [/providers/vllm](/tr/providers/vllm).
 ### SGLang
 
 SGLang, hızlı self-hosted
-OpenAI uyumlu sunucular için birlikte gelen bir sağlayıcı plugin'i olarak sunulur:
+OpenAI uyumlu sunucular için paketlenmiş bir sağlayıcı plugin’i olarak gelir:
 
 - Sağlayıcı: `sglang`
-- Auth: İsteğe bağlı (sunucunuza bağlıdır)
-- Varsayılan temel URL: `http://127.0.0.1:30000/v1`
+- Auth: İsteğe bağlıdır (sunucunuza bağlıdır)
+- Varsayılan base URL: `http://127.0.0.1:30000/v1`
 
-Yerelde otomatik keşfe katılmak için (sunucunuz auth'u zorlamıyorsa
-herhangi bir değer çalışır):
+Yerelde otomatik keşfe katılmak için (sunucunuz auth zorlamıyorsa herhangi bir değer çalışır):
 
 ```bash
 export SGLANG_API_KEY="sglang-local"
@@ -706,7 +749,7 @@ Ardından bir model ayarlayın (`/v1/models` tarafından döndürülen kimlikler
 
 Ayrıntılar için bkz. [/providers/sglang](/tr/providers/sglang).
 
-### Yerel proxy'ler (LM Studio, vLLM, LiteLLM, vb.)
+### Yerel proxy’ler (LM Studio, vLLM, LiteLLM vb.)
 
 Örnek (OpenAI uyumlu):
 
@@ -744,19 +787,19 @@ Ayrıntılar için bkz. [/providers/sglang](/tr/providers/sglang).
 Notlar:
 
 - Özel sağlayıcılar için `reasoning`, `input`, `cost`, `contextWindow` ve `maxTokens` isteğe bağlıdır.
-  Atlandıklarında OpenClaw varsayılan olarak şunları kullanır:
+  Atlandıklarında OpenClaw şu varsayılanları kullanır:
   - `reasoning: false`
   - `input: ["text"]`
   - `cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }`
   - `contextWindow: 200000`
   - `maxTokens: 8192`
-- Önerilen: proxy/model sınırlarınızla eşleşen açık değerler ayarlayın.
-- Yerel olmayan uç noktalarda `api: "openai-completions"` için (`api.openai.com` olmayan bir hosta sahip boş olmayan herhangi bir `baseUrl`), OpenClaw desteklenmeyen `developer` rolleri için sağlayıcı 400 hatalarını önlemek amacıyla `compat.supportsDeveloperRole: false` değerini zorlar.
-- Proxy tarzı OpenAI uyumlu yollar ayrıca yerel yalnızca OpenAI'ya özgü istek
+- Önerilir: proxy/model sınırlarınızla eşleşen açık değerler ayarlayın.
+- Yerel olmayan uç noktalarda `api: "openai-completions"` için (ana makinesi `api.openai.com` olmayan boş olmayan herhangi bir `baseUrl`), OpenClaw sağlayıcının desteklemediği `developer` rolleri nedeniyle 400 hatalarından kaçınmak için `compat.supportsDeveloperRole: false` değerini zorunlu kılar.
+- Proxy tarzı OpenAI uyumlu rotalar ayrıca yerel yalnızca OpenAI’ye özgü istek
   şekillendirmesini de atlar: `service_tier` yok, Responses `store` yok, prompt-cache ipuçları yok,
   OpenAI reasoning-compat payload şekillendirmesi yok ve gizli OpenClaw atıf
-  başlıkları yok.
-- `baseUrl` boşsa/atlanırsa, OpenClaw varsayılan OpenAI davranışını korur (`api.openai.com` adresine çözülür).
+  üstbilgileri yok.
+- `baseUrl` boşsa/atlanmışsa OpenClaw varsayılan OpenAI davranışını korur (`api.openai.com` adresine çözülür).
 - Güvenlik için, açık bir `compat.supportsDeveloperRole: true` değeri bile yerel olmayan `openai-completions` uç noktalarında yine geçersiz kılınır.
 
 ## CLI örnekleri
@@ -771,7 +814,7 @@ Ayrıca bkz.: tam yapılandırma örnekleri için [/gateway/configuration](/tr/g
 
 ## İlgili
 
-- [Modeller](/tr/concepts/models) — model yapılandırması ve takma adlar
+- [Models](/tr/concepts/models) — model yapılandırması ve takma adlar
 - [Model Failover](/tr/concepts/model-failover) — fallback zincirleri ve yeniden deneme davranışı
-- [Yapılandırma Başvurusu](/tr/gateway/configuration-reference#agent-defaults) — model yapılandırma anahtarları
-- [Sağlayıcılar](/tr/providers) — sağlayıcı başına kurulum kılavuzları
+- [Configuration Reference](/tr/gateway/configuration-reference#agent-defaults) — model yapılandırma anahtarları
+- [Providers](/tr/providers) — sağlayıcı bazında kurulum kılavuzları

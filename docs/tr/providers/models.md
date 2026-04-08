@@ -1,22 +1,22 @@
 ---
 read_when:
     - Bir model sağlayıcısı seçmek istiyorsunuz
-    - LLM kimlik doğrulaması + model seçimi için hızlı kurulum örnekleri istiyorsunuz
+    - LLM auth + model seçimi için hızlı kurulum örnekleri istiyorsunuz
 summary: OpenClaw tarafından desteklenen model sağlayıcıları (LLM'ler)
 title: Model Sağlayıcısı Hızlı Başlangıç
 x-i18n:
-    generated_at: "2026-04-07T08:48:41Z"
+    generated_at: "2026-04-08T02:17:36Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 500191bfe853241096f97928ced2327a13b6f7f62003cb7452b24886c272e6ba
+    source_hash: 59ee4c2f993fe0ae05fe34f52bc6f3e0fc9a76b10760f56b20ad251e25ee9f20
     source_path: providers/models.md
     workflow: 15
 ---
 
 # Model Sağlayıcıları
 
-OpenClaw birçok LLM sağlayıcısını kullanabilir. Birini seçin, kimlik doğrulamasını yapın, ardından
-varsayılan modeli `provider/model` olarak ayarlayın.
+OpenClaw birçok LLM sağlayıcısını kullanabilir. Birini seçin, kimlik doğrulamasını yapın, ardından varsayılan
+modeli `provider/model` olarak ayarlayın.
 
 ## Hızlı başlangıç (iki adım)
 
@@ -59,9 +59,9 @@ varsayılan modeli `provider/model` olarak ayarlayın.
 
 ## Ek paketlenmiş sağlayıcı varyantları
 
-- `anthropic-vertex` - Vertex kimlik bilgileri kullanılabilir olduğunda örtük Anthropic on Google Vertex desteği; ayrı bir onboarding auth seçimi yok
+- `anthropic-vertex` - Vertex kimlik bilgileri mevcut olduğunda Google Vertex üzerinde örtük Anthropic desteği; ayrı bir onboarding auth seçeneği yoktur
 - `copilot-proxy` - yerel VS Code Copilot Proxy köprüsü; `openclaw onboard --auth-choice copilot-proxy` kullanın
-- `google-gemini-cli` - resmî olmayan Gemini CLI OAuth akışı; yerel bir `gemini` kurulumu gerekir (`brew install gemini-cli` veya `npm install -g @google/gemini-cli`); varsayılan model `google-gemini-cli/gemini-3.1-pro-preview`; `openclaw onboard --auth-choice google-gemini-cli` veya `openclaw models auth login --provider google-gemini-cli --set-default` kullanın
+- `google-gemini-cli` - resmi olmayan Gemini CLI OAuth akışı; yerel bir `gemini` kurulumu gerektirir (`brew install gemini-cli` veya `npm install -g @google/gemini-cli`); varsayılan model `google-gemini-cli/gemini-3-flash-preview`; `openclaw onboard --auth-choice google-gemini-cli` veya `openclaw models auth login --provider google-gemini-cli --set-default` kullanın
 
 Tam sağlayıcı kataloğu (xAI, Groq, Mistral vb.) ve gelişmiş yapılandırma için
-bkz. [Model sağlayıcıları](/tr/concepts/model-providers).
+[Model providers](/tr/concepts/model-providers) bölümüne bakın.

@@ -1,32 +1,33 @@
 ---
 read_when:
-    - OpenClawでZ.AI / GLM modelsを使いたいとき
-    - シンプルな `ZAI_API_KEY` セットアップが必要なとき
-summary: OpenClawでZ.AI（GLM models）を使う
+    - OpenClawでZ.AI / GLMモデルを使いたい
+    - シンプルなZAI_API_KEYのセットアップが必要
+summary: OpenClawでZ.AI（GLMモデル）を使う
 title: Z.AI
 x-i18n:
-    generated_at: "2026-04-05T12:54:49Z"
+    generated_at: "2026-04-08T04:41:48Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 48006cdd580484f0c62e2877b27a6a68d7bc44795b3e97a28213d95182d9acf9
+    source_hash: 66cbd9813ee28d202dcae34debab1b0cf9927793acb00743c1c62b48d9e381f9
     source_path: providers/zai.md
     workflow: 15
 ---
 
 # Z.AI
 
-Z.AIは **GLM** models向けのAPIプラットフォームです。GLM向けREST APIを提供し、認証にはAPI keysを使用します。Z.AI consoleでAPI keyを作成してください。OpenClawは `zai` providerをZ.AI API keyとともに使用します。
+Z.AIは**GLM**モデル向けのAPIプラットフォームです。GLM向けのREST APIを提供し、認証にはAPIキーを使用します。
+APIキーはZ.AIコンソールで作成してください。OpenClawは、Z.AI APIキーとともに`zai`プロバイダーを使用します。
 
 ## CLIセットアップ
 
 ```bash
-# endpoint自動検出付きの汎用API-keyセットアップ
+# エンドポイント自動検出を使った汎用APIキー設定
 openclaw onboard --auth-choice zai-api-key
 
-# Coding Plan Global。Coding Plan利用者向けの推奨
+# Coding Plan Global、Coding Planユーザーに推奨
 openclaw onboard --auth-choice zai-coding-global
 
-# Coding Plan CN（中国リージョン）。Coding Plan利用者向けの推奨
+# Coding Plan CN（中国リージョン）、Coding Planユーザーに推奨
 openclaw onboard --auth-choice zai-coding-cn
 
 # General API
@@ -36,22 +37,22 @@ openclaw onboard --auth-choice zai-global
 openclaw onboard --auth-choice zai-cn
 ```
 
-## Config snippet
+## 設定スニペット
 
 ```json5
 {
   env: { ZAI_API_KEY: "sk-..." },
-  agents: { defaults: { model: { primary: "zai/glm-5" } } },
+  agents: { defaults: { model: { primary: "zai/glm-5.1" } } },
 }
 ```
 
-`zai-api-key` を使うと、OpenClawはkeyから一致するZ.AI endpointを検出し、
-正しいbase URLを自動的に適用できます。特定のCoding Planまたはgeneral API surfaceを
-強制したい場合は、明示的なリージョン選択を使ってください。
+`zai-api-key`を使うと、OpenClawはキーから対応するZ.AIエンドポイントを検出し、
+正しいベースURLを自動的に適用できます。特定のCoding PlanまたはGeneral APIサーフェスを
+強制したい場合は、明示的なリージョン選択を使用してください。
 
-## Bundled GLM catalog
+## バンドル済みGLMカタログ
 
-OpenClawは現在、bundledの `zai` providerを次で初期化します。
+OpenClawは現在、バンドル済みの`zai`プロバイダーに次をシードしています。
 
 - `glm-5.1`
 - `glm-5`
@@ -67,14 +68,14 @@ OpenClawは現在、bundledの `zai` providerを次で初期化します。
 - `glm-4.5-flash`
 - `glm-4.5v`
 
-## 注
+## 注意
 
-- GLM modelsは `zai/<model>` として利用できます（例: `zai/glm-5`）。
-- デフォルトのbundled model ref: `zai/glm-5`
-- 未知の `glm-5*` idも、idが現在のGLM-5 family形状に一致する場合は
-  `glm-4.7` templateからprovider所有metadataを合成することで、
-  bundled provider path上でforward-resolveされます。
-- Z.AIのtool-call streamingでは、`tool_stream` はデフォルトで有効です。無効にするには
-  `agents.defaults.models["zai/<model>"].params.tool_stream` を `false` に設定してください。
-- model familyの概要は [/providers/glm](/providers/glm) を参照してください。
-- Z.AIは、API keyを使ったBearer authを使用します。
+- GLMモデルは`zai/<model>`として利用できます（例: `zai/glm-5`）。
+- デフォルトのバンドル済みモデル参照: `zai/glm-5.1`
+- 不明な`glm-5*` IDも、IDが現在のGLM-5ファミリーの形式に一致する場合、
+  `glm-4.7`テンプレートからプロバイダー所有のメタデータを合成することで、
+  バンドル済みプロバイダーパス上で引き続き解決されます。
+- Z.AIのツールコールストリーミングでは、`tool_stream`がデフォルトで有効です。無効にするには、
+  `agents.defaults.models["zai/<model>"].params.tool_stream`を`false`に設定してください。
+- モデルファミリーの概要は[/providers/glm](/ja-JP/providers/glm)を参照してください。
+- Z.AIは、APIキーを使ったBearer認証を使用します。

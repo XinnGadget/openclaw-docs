@@ -1,51 +1,52 @@
 ---
 read_when:
-    - qa-labまたはqa-channelを拡張する場合
-    - リポジトリに裏付けられたQAシナリオを追加する場合
-    - Gatewayダッシュボード周辺で、より現実に近いQA自動化を構築する場合
+    - qa-lab または qa-channel を拡張する場合
+    - リポジトリに基づくQAシナリオを追加する場合
+    - Gateway ダッシュボードを中心に、より現実的なQA自動化を構築する場合
 summary: qa-lab、qa-channel、シード済みシナリオ、プロトコルレポート向けのプライベートQA自動化の構成
-title: QA E2E自動化
+title: QA E2E 自動化
 x-i18n:
-    generated_at: "2026-04-08T02:13:58Z"
+    generated_at: "2026-04-08T04:41:52Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 3b4aa5acc8e77303f4045d4f04372494cae21b89d2fdaba856dbb4855ced9d27
+    source_hash: 57da147dc06abf9620290104e01a83b42182db1806514114fd9e8467492cda99
     source_path: concepts/qa-e2e-automation.md
     workflow: 15
 ---
 
-# QA E2E自動化
+# QA E2E 自動化
 
-プライベートQAスタックは、単一のユニットテストよりも、より現実的で
-チャネルに近い形でOpenClawを検証することを目的としています。
+プライベートQAスタックは、単一のユニットテストよりも、
+より現実的でチャネルの形に沿った方法でOpenClawを検証することを目的としています。
 
 現在の構成要素:
 
 - `extensions/qa-channel`: DM、channel、thread、
-  reaction、edit、deleteの各操作面を備えた合成メッセージチャネル。
-- `extensions/qa-lab`: トランスクリプトの観察、
-  受信メッセージの注入、Markdownレポートのエクスポートを行うためのデバッガーUIとQAバス。
-- `qa/`: キックオフタスクとベースラインQA
-  シナリオ向けの、リポジトリに裏付けられたシードアセット。
+  reaction、edit、delete の各操作面を備えた合成メッセージチャネル。
+- `extensions/qa-lab`: トランスクリプトを観察し、
+  受信メッセージを注入し、Markdownレポートをエクスポートするための
+  デバッガーUIとQAバス。
+- `qa/`: キックオフタスクおよびベースラインQA
+  シナリオ向けの、リポジトリに基づくシードアセット。
 
-現在のQAオペレーターのフローは、2ペインのQAサイトです:
+現在のQAオペレーターフローは2ペインのQAサイトです:
 
-- 左: エージェントを備えたGatewayダッシュボード（Control UI）。
+- 左: エージェント付きのGateway ダッシュボード（Control UI）。
 - 右: Slack風のトランスクリプトとシナリオ計画を表示するQA Lab。
 
-次のコマンドで実行します:
+実行方法:
 
 ```bash
 pnpm qa:lab:up
 ```
 
-これによりQAサイトがビルドされ、DockerベースのGatewayレーンが起動し、
-オペレーターまたは自動化ループがエージェントにQA
-ミッションを与え、実際のチャネル動作を観察し、成功したこと、失敗したこと、
-またはブロックされたままのことを記録できるQA Labページが公開されます。
+これによりQAサイトがビルドされ、Dockerベースのgatewayレーンが起動し、
+オペレーターまたは自動化ループがエージェントにQAミッションを与え、
+実際のチャネル動作を観察し、何が機能し、何が失敗し、あるいは
+何がブロックされたままだったかを記録できるQA Labページが公開されます。
 
-Dockerイメージを毎回再ビルドせずにQA Lab UIをより高速に反復するには、
-bind mountしたQA Labバンドルでスタックを起動します:
+Dockerイメージを毎回再ビルドせずに、より高速にQA Lab UIを反復開発するには、
+bind mountされたQA Labバンドルでスタックを起動します:
 
 ```bash
 pnpm openclaw qa docker-build-image
@@ -54,43 +55,44 @@ pnpm qa:lab:up:fast
 pnpm qa:lab:watch
 ```
 
-`qa:lab:up:fast` は、事前ビルド済みイメージ上でDockerサービスを維持しつつ、
+`qa:lab:up:fast` は、Dockerサービスを事前ビルド済みイメージで維持しつつ、
 `extensions/qa-lab/web/dist` を `qa-lab` コンテナにbind mountします。`qa:lab:watch`
 は変更時にそのバンドルを再ビルドし、QA Labアセットのハッシュが変わると
-ブラウザは自動的にリロードされます。
+ブラウザは自動的に再読み込みされます。
 
-## リポジトリに裏付けられたシード
+## リポジトリに基づくシード
 
 シードアセットは `qa/` にあります:
 
-- `qa/scenarios.md`
+- `qa/scenarios/index.md`
+- `qa/scenarios/*.md`
 
-これらは、QA計画が人間と
-エージェントの両方から見えるように、意図的にgitに置かれています。
-ベースラインの一覧は、次をカバーできる程度に十分広く保つ必要があります:
+これらは意図的にgitに含められており、人間と
+エージェントの両方がQA計画を確認できます。ベースライン一覧は、少なくとも次を
+カバーできるよう十分に広く保つ必要があります:
 
-- DMとchannelチャット
-- threadの動作
+- DM と channel のチャット
+- thread の動作
 - メッセージアクションのライフサイクル
-- cronコールバック
-- メモリの再呼び出し
-- モデル切り替え
+- cron コールバック
+- メモリの想起
+- モデルの切り替え
 - サブエージェントへの引き継ぎ
-- リポジトリ読み取りとドキュメント読み取り
-- Lobster Invadersのような小さなビルドタスクを1つ
+- リポジトリの読み取りとドキュメントの読み取り
+- Lobster Invaders のような小規模なビルドタスク1件
 
 ## レポート
 
-`qa-lab` は、観測されたバスタイムラインからMarkdownのプロトコルレポートをエクスポートします。
-レポートは次の問いに答える必要があります:
+`qa-lab` は、観察されたバスタイムラインからMarkdownのプロトコルレポートをエクスポートします。
+レポートでは次に答える必要があります:
 
-- 何がうまく動作したか
+- 何が機能したか
 - 何が失敗したか
 - 何がブロックされたままだったか
 - どのフォローアップシナリオを追加する価値があるか
 
 ## 関連ドキュメント
 
-- [Testing](/ja-JP/help/testing)
-- [QA Channel](/ja-JP/channels/qa-channel)
-- [Dashboard](/web/dashboard)
+- [テスト](/ja-JP/help/testing)
+- [QAチャネル](/ja-JP/channels/qa-channel)
+- [ダッシュボード](/web/dashboard)

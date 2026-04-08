@@ -1,39 +1,39 @@
 ---
 read_when:
-    - OpenClawでGLMモデルを使いたい場合
-    - モデル命名規則とセットアップが必要な場合
-summary: GLMモデルファミリーの概要とOpenClawでの使い方
-title: GLM Models
+    - OpenClawでGLMモデルを使いたい
+    - モデルの命名規則と設定方法が必要
+summary: GLMモデルファミリーの概要と、OpenClawでの使い方
+title: GLMモデル
 x-i18n:
-    generated_at: "2026-04-05T12:53:32Z"
+    generated_at: "2026-04-08T04:41:47Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 59622edab5094d991987f9788fbf08b33325e737e7ff88632b0c3ac89412d4c7
+    source_hash: 79a55acfa139847b4b85dbc09f1068cbd2febb1e49f984a23ea9e3b43bc910eb
     source_path: providers/glm.md
     workflow: 15
 ---
 
-# GLM Models
+# GLMモデル
 
-GLMは、Z.AIプラットフォームで利用できる**モデルファミリー**（企業名ではありません）です。OpenClawでは、GLM
-モデルは `zai` providerと、`zai/glm-5` のようなmodel ID経由で利用します。
+GLMは、Z.AIプラットフォームで利用できる**モデルファミリー**（企業ではありません）です。OpenClawでは、GLM
+モデルは`zai`プロバイダーと、`zai/glm-5`のようなモデルIDを通じて利用します。
 
 ## CLIセットアップ
 
 ```bash
-# Generic API-key setup with endpoint auto-detection
+# エンドポイント自動検出を使った汎用APIキー設定
 openclaw onboard --auth-choice zai-api-key
 
-# Coding Plan Global, recommended for Coding Plan users
+# Coding Plan Global。Coding Planユーザーに推奨
 openclaw onboard --auth-choice zai-coding-global
 
-# Coding Plan CN (China region), recommended for Coding Plan users
+# Coding Plan CN（中国リージョン）。Coding Planユーザーに推奨
 openclaw onboard --auth-choice zai-coding-cn
 
 # General API
 openclaw onboard --auth-choice zai-global
 
-# General API CN (China region)
+# General API CN（中国リージョン）
 openclaw onboard --auth-choice zai-cn
 ```
 
@@ -42,17 +42,17 @@ openclaw onboard --auth-choice zai-cn
 ```json5
 {
   env: { ZAI_API_KEY: "sk-..." },
-  agents: { defaults: { model: { primary: "zai/glm-5" } } },
+  agents: { defaults: { model: { primary: "zai/glm-5.1" } } },
 }
 ```
 
-`zai-api-key` を使うと、OpenClawはキーから対応するZ.AI endpointを検出し、
-正しいbase URLを自動適用します。特定のCoding Planまたはgeneral API surfaceを
-強制したい場合は、明示的なリージョンchoiceを使ってください。
+`zai-api-key`を使うと、OpenClawはキーから対応するZ.AIエンドポイントを検出し、
+正しいベースURLを自動的に適用できます。特定のCoding PlanまたはGeneral APIの利用先を
+明示的に固定したい場合は、リージョンを明示した選択肢を使用してください。
 
-## 現在同梱されているGLMモデル
+## 現在バンドルされているGLMモデル
 
-OpenClawは現在、bundled `zai` providerに次のGLM refsを初期投入しています:
+OpenClawは現在、バンドルされた`zai`プロバイダーに以下のGLM参照を初期登録しています。
 
 - `glm-5.1`
 - `glm-5`
@@ -70,6 +70,6 @@ OpenClawは現在、bundled `zai` providerに次のGLM refsを初期投入して
 
 ## 注意
 
-- GLMのversionと提供状況は変わることがあるため、最新情報はZ.AIのdocsを確認してください。
-- デフォルトのbundled model refは `zai/glm-5` です。
-- providerの詳細は [/providers/zai](/providers/zai) を参照してください。
+- GLMのバージョンと提供状況は変更されることがあります。最新情報はZ.AIのドキュメントを確認してください。
+- デフォルトでバンドルされているモデル参照は`zai/glm-5.1`です。
+- プロバイダーの詳細は[/providers/zai](/ja-JP/providers/zai)を参照してください。

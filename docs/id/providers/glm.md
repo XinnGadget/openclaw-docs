@@ -1,14 +1,14 @@
 ---
 read_when:
-    - Anda menginginkan model GLM di OpenClaw
+    - Anda ingin model GLM di OpenClaw
     - Anda memerlukan konvensi penamaan model dan penyiapannya
 summary: Ikhtisar keluarga model GLM + cara menggunakannya di OpenClaw
 title: Model GLM
 x-i18n:
-    generated_at: "2026-04-05T14:03:20Z"
+    generated_at: "2026-04-08T06:00:59Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 59622edab5094d991987f9788fbf08b33325e737e7ff88632b0c3ac89412d4c7
+    source_hash: 79a55acfa139847b4b85dbc09f1068cbd2febb1e49f984a23ea9e3b43bc910eb
     source_path: providers/glm.md
     workflow: 15
 ---
@@ -21,7 +21,7 @@ GLM diakses melalui provider `zai` dan ID model seperti `zai/glm-5`.
 ## Penyiapan CLI
 
 ```bash
-# Penyiapan API key generik dengan deteksi endpoint otomatis
+# Penyiapan kunci API generik dengan deteksi endpoint otomatis
 openclaw onboard --auth-choice zai-api-key
 
 # Coding Plan Global, direkomendasikan untuk pengguna Coding Plan
@@ -42,17 +42,17 @@ openclaw onboard --auth-choice zai-cn
 ```json5
 {
   env: { ZAI_API_KEY: "sk-..." },
-  agents: { defaults: { model: { primary: "zai/glm-5" } } },
+  agents: { defaults: { model: { primary: "zai/glm-5.1" } } },
 }
 ```
 
-`zai-api-key` memungkinkan OpenClaw mendeteksi endpoint Z.AI yang cocok dari key tersebut dan
-menerapkan base URL yang benar secara otomatis. Gunakan pilihan regional eksplisit saat
-Anda ingin memaksa permukaan Coding Plan atau API umum tertentu.
+`zai-api-key` memungkinkan OpenClaw mendeteksi endpoint Z.AI yang cocok dari kunci tersebut dan
+menerapkan base URL yang benar secara otomatis. Gunakan pilihan regional eksplisit jika
+Anda ingin memaksakan Coding Plan tertentu atau permukaan API umum tertentu.
 
 ## Model GLM bawaan saat ini
 
-OpenClaw saat ini mengisi provider `zai` bawaan dengan referensi GLM berikut:
+OpenClaw saat ini menginisialisasi provider `zai` bawaan dengan referensi GLM berikut:
 
 - `glm-5.1`
 - `glm-5`
@@ -71,5 +71,5 @@ OpenClaw saat ini mengisi provider `zai` bawaan dengan referensi GLM berikut:
 ## Catatan
 
 - Versi dan ketersediaan GLM dapat berubah; periksa dokumentasi Z.AI untuk yang terbaru.
-- Referensi model bawaan default adalah `zai/glm-5`.
-- Untuk detail provider, lihat [/providers/zai](/providers/zai).
+- Referensi model bawaan default adalah `zai/glm-5.1`.
+- Untuk detail provider, lihat [/providers/zai](/id/providers/zai).

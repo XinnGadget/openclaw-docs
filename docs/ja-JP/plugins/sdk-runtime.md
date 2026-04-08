@@ -1,29 +1,28 @@
 ---
 read_when:
-    - plugin から core helper（TTS、STT、image gen、web search、subagent）を呼び出す必要がある場合
-    - '`api.runtime` が何を公開しているか理解したい場合'
-    - plugin コードから config、agent、または media helper にアクセスする場合
+    - plugin から core helper（TTS、STT、画像生成、Web 検索、subagent）を呼び出す必要がある場合
+    - api.runtime が何を公開しているかを理解したい場合
+    - plugin コードから config、agent、または media helper にアクセスしている場合
 sidebarTitle: Runtime Helpers
-summary: api.runtime -- plugin で利用できる注入済み runtime helper
+summary: api.runtime -- plugin で利用できる注入済みランタイムヘルパー
 title: Plugin Runtime Helpers
 x-i18n:
-    generated_at: "2026-04-05T12:52:26Z"
+    generated_at: "2026-04-08T02:18:00Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 667edff734fd30f9b05d55eae6360830a45ae8f3012159f88a37b5e05404e666
+    source_hash: acb9e56678e9ed08d0998dfafd7cd1982b592be5bc34d9e2d2c1f70274f8f248
     source_path: plugins/sdk-runtime.md
     workflow: 15
 ---
 
 # Plugin Runtime Helpers
 
-registration 中に各 plugin に注入される `api.runtime` オブジェクトのリファレンスです。
-ホスト内部を直接 import する代わりに、これらの helper を使用してください。
+各 plugin の登録時に注入される `api.runtime` オブジェクトのリファレンスです。
+ホスト内部実装を直接 import する代わりに、これらの helper を使用してください。
 
 <Tip>
-  **チュートリアルを探していますか?** [Channel Plugins](/plugins/sdk-channel-plugins)
-  または [Provider Plugins](/plugins/sdk-provider-plugins) のステップごとのガイドを参照してください。
-  これらの helper が実際の文脈でどのように使われるかを確認できます。
+  **手順付きガイドを探していますか？** これらの helper が実際の文脈でどのように使われるかを段階的に示すガイドについては、[Channel Plugins](/ja-JP/plugins/sdk-channel-plugins)
+  または [Provider Plugins](/ja-JP/plugins/sdk-provider-plugins) を参照してください。
 </Tip>
 
 ```typescript
@@ -32,39 +31,39 @@ register(api) {
 }
 ```
 
-## Runtime namespace
+## ランタイム名前空間
 
 ### `api.runtime.agent`
 
-agent の identity、ディレクトリー、およびセッション管理です。
+agent ID、ディレクトリ、セッション管理です。
 
 ```typescript
-// agent の作業ディレクトリーを解決する
+// agent の作業ディレクトリを解決する
 const agentDir = api.runtime.agent.resolveAgentDir(cfg);
 
 // agent workspace を解決する
 const workspaceDir = api.runtime.agent.resolveAgentWorkspaceDir(cfg);
 
-// agent identity を取得する
+// agent ID を取得する
 const identity = api.runtime.agent.resolveAgentIdentity(cfg);
 
 // デフォルトの thinking レベルを取得する
 const thinking = api.runtime.agent.resolveThinkingDefault(cfg, provider, model);
 
-// agent timeout を取得する
+// agent のタイムアウトを取得する
 const timeoutMs = api.runtime.agent.resolveAgentTimeoutMs(cfg);
 
-// workspace が存在することを保証する
+// workspace の存在を保証する
 await api.runtime.agent.ensureAgentWorkspace(cfg);
 
-// 埋め込み Pi agent を実行する
+// 組み込み Pi agent を実行する
 const agentDir = api.runtime.agent.resolveAgentDir(cfg);
 const result = await api.runtime.agent.runEmbeddedPiAgent({
   sessionId: "my-plugin:task-1",
   runId: crypto.randomUUID(),
   sessionFile: path.join(agentDir, "sessions", "my-plugin-task-1.jsonl"),
   workspaceDir: api.runtime.agent.resolveAgentWorkspaceDir(cfg),
-  prompt: "最新の変更を要約して",
+  prompt: "Summarize the latest changes",
   timeoutMs: api.runtime.agent.resolveAgentTimeoutMs(cfg),
 });
 ```
@@ -80,7 +79,7 @@ const filePath = api.runtime.agent.session.resolveSessionFilePath(cfg, sessionId
 
 ### `api.runtime.agent.defaults`
 
-デフォルトの model および provider 定数です:
+デフォルトのモデル定数と provider 定数:
 
 ```typescript
 const model = api.runtime.agent.defaults.model; // 例: "anthropic/claude-sonnet-4-6"
@@ -95,7 +94,7 @@ const provider = api.runtime.agent.defaults.provider; // 例: "anthropic"
 // subagent 実行を開始する
 const { runId } = await api.runtime.subagent.run({
   sessionKey: "agent:main:subagent:search-helper",
-  message: "このクエリを、焦点を絞った追加検索に展開して。",
+  message: "Expand this query into focused follow-up searches.",
   provider: "openai", // 任意の override
   model: "gpt-4.1-mini", // 任意の override
   deliver: false,
@@ -117,31 +116,29 @@ await api.runtime.subagent.deleteSession({
 ```
 
 <Warning>
-  model override（`provider` / `model`）には、config 内の
-  `plugins.entries.<id>.subagent.allowModelOverride: true` による
-  operator のオプトインが必要です。
-  信頼されていない plugin でも subagent を実行できますが、override リクエストは拒否されます。
+  モデル override（`provider`/`model`）には、config の
+  `plugins.entries.<id>.subagent.allowModelOverride: true` によるオペレーターのオプトインが必要です。
+  信頼されていない plugin でも subagent は実行できますが、override 要求は拒否されます。
 </Warning>
 
 ### `api.runtime.taskFlow`
 
-既存の OpenClaw session key または信頼された tool
-context に Task Flow runtime を bind し、呼び出しごとに owner を渡さずに
-Task Flow を作成して管理します。
+Task Flow ランタイムを既存の OpenClaw セッションキーまたは信頼済み tool
+context にバインドし、毎回 owner を渡さずに Task Flow を作成・管理します。
 
 ```typescript
 const taskFlow = api.runtime.taskFlow.fromToolContext(ctx);
 
 const created = taskFlow.createManaged({
   controllerId: "my-plugin/review-batch",
-  goal: "新しい pull request をレビューする",
+  goal: "Review new pull requests",
 });
 
 const child = taskFlow.runTask({
   flowId: created.flowId,
   runtime: "acp",
   childSessionKey: "agent:main:subagent:reviewer",
-  task: "PR #123 をレビューする",
+  task: "Review PR #123",
   status: "running",
   startedAt: Date.now(),
 });
@@ -154,13 +151,12 @@ const waiting = taskFlow.setWaiting({
 });
 ```
 
-独自の binding layer からすでに信頼された OpenClaw session key を持っている場合は、
-`bindSession({ sessionKey, requesterOrigin })` を使用してください。生の
+自分の binding レイヤーからすでに信頼済みの OpenClaw セッションキーを持っている場合は、`bindSession({ sessionKey, requesterOrigin })` を使用してください。生の
 ユーザー入力から bind しないでください。
 
 ### `api.runtime.tts`
 
-text-to-speech 合成です。
+テキスト読み上げ合成です。
 
 ```typescript
 // 標準 TTS
@@ -169,21 +165,21 @@ const clip = await api.runtime.tts.textToSpeech({
   cfg: api.config,
 });
 
-// 電話向けに最適化された TTS
+// 電話向け最適化 TTS
 const telephonyClip = await api.runtime.tts.textToSpeechTelephony({
   text: "Hello from OpenClaw",
   cfg: api.config,
 });
 
-// 利用可能な voice を一覧表示する
+// 利用可能な音声を一覧表示する
 const voices = await api.runtime.tts.listVoices({
   provider: "elevenlabs",
   cfg: api.config,
 });
 ```
 
-core の `messages.tts` 設定と provider 選択を使用します。PCM audio
-buffer + sample rate を返します。
+core の `messages.tts` 設定と provider 選択を使用します。PCM 音声
+buffer と sample rate を返します。
 
 ### `api.runtime.mediaUnderstanding`
 
@@ -217,11 +213,11 @@ const result = await api.runtime.mediaUnderstanding.runFile({
 });
 ```
 
-出力が生成されない場合（例: 入力がスキップされた場合）は `{ text: undefined }` を返します。
+出力が生成されなかった場合（例: 入力がスキップされた場合）は `{ text: undefined }` を返します。
 
 <Info>
-  `api.runtime.stt.transcribeAudioFile(...)` は、互換性用 alias として
-  `api.runtime.mediaUnderstanding.transcribeAudioFile(...)` のまま残っています。
+  `api.runtime.stt.transcribeAudioFile(...)` は、互換性のための
+  `api.runtime.mediaUnderstanding.transcribeAudioFile(...)` の alias として引き続き利用できます。
 </Info>
 
 ### `api.runtime.imageGeneration`
@@ -230,7 +226,7 @@ const result = await api.runtime.mediaUnderstanding.runFile({
 
 ```typescript
 const result = await api.runtime.imageGeneration.generate({
-  prompt: "夕日を描くロボット",
+  prompt: "A robot painting a sunset",
   cfg: api.config,
 });
 
@@ -239,7 +235,7 @@ const providers = api.runtime.imageGeneration.listProviders({ cfg: api.config })
 
 ### `api.runtime.webSearch`
 
-web 検索です。
+Web 検索です。
 
 ```typescript
 const providers = api.runtime.webSearch.listProviders({ config: api.config });
@@ -252,7 +248,7 @@ const result = await api.runtime.webSearch.search({
 
 ### `api.runtime.media`
 
-低レベルの media ユーティリティです。
+低レベル media ユーティリティです。
 
 ```typescript
 const webMedia = await api.runtime.media.loadWebMedia(url);
@@ -307,7 +303,7 @@ const childLogger = api.runtime.logging.getChildLogger({ plugin: "my-plugin" }, 
 
 ### `api.runtime.modelAuth`
 
-model および provider の auth 解決です。
+モデルおよび provider の認証解決です。
 
 ```typescript
 const auth = await api.runtime.modelAuth.getApiKeyForModel({ model, cfg });
@@ -319,7 +315,7 @@ const providerAuth = await api.runtime.modelAuth.resolveApiKeyForProvider({
 
 ### `api.runtime.state`
 
-state ディレクトリーの解決です。
+状態ディレクトリの解決です。
 
 ```typescript
 const stateDir = api.runtime.state.resolveStateDir();
@@ -327,7 +323,7 @@ const stateDir = api.runtime.state.resolveStateDir();
 
 ### `api.runtime.tools`
 
-memory tool factory と CLI です。
+メモリ tool ファクトリーと CLI です。
 
 ```typescript
 const getTool = api.runtime.tools.createMemoryGetTool(/* ... */);
@@ -337,12 +333,51 @@ api.runtime.tools.registerMemoryCli(/* ... */);
 
 ### `api.runtime.channel`
 
-channel 固有の runtime helper です（channel plugin が読み込まれているときに利用可能です）。
+チャネル固有のランタイム helper です（channel plugin がロードされたときに利用できます）。
 
-## runtime 参照を保存する
+`api.runtime.channel.mentions` は、ランタイム注入を使用する
+バンドルチャネル plugin 向けの共有受信 mention-policy surface です:
 
-`register` callback の外で使用するために runtime 参照を保存するには、
-`createPluginRuntimeStore` を使用してください:
+```typescript
+const mentionMatch = api.runtime.channel.mentions.matchesMentionWithExplicit(text, {
+  mentionRegexes,
+  mentionPatterns,
+});
+
+const decision = api.runtime.channel.mentions.resolveInboundMentionDecision({
+  facts: {
+    canDetectMention: true,
+    wasMentioned: mentionMatch.matched,
+    implicitMentionKinds: api.runtime.channel.mentions.implicitMentionKindWhen(
+      "reply_to_bot",
+      isReplyToBot,
+    ),
+  },
+  policy: {
+    isGroup,
+    requireMention,
+    allowTextCommands,
+    hasControlCommand,
+    commandAuthorized,
+  },
+});
+```
+
+利用可能な mention helper:
+
+- `buildMentionRegexes`
+- `matchesMentionPatterns`
+- `matchesMentionWithExplicit`
+- `implicitMentionKindWhen`
+- `resolveInboundMentionDecision`
+
+`api.runtime.channel.mentions` は、意図的に古い
+`resolveMentionGating*` 互換 helper を公開していません。正規化された
+`{ facts, policy }` パスを優先してください。
+
+## ランタイム参照の保存
+
+`register` コールバックの外で使うためにランタイム参照を保存するには、`createPluginRuntimeStore` を使用します:
 
 ```typescript
 import { createPluginRuntimeStore } from "openclaw/plugin-sdk/runtime-store";
@@ -350,7 +385,7 @@ import type { PluginRuntime } from "openclaw/plugin-sdk/runtime-store";
 
 const store = createPluginRuntimeStore<PluginRuntime>("my-plugin runtime not initialized");
 
-// entry point 内
+// エントリポイント内
 export default defineChannelPluginEntry({
   id: "my-plugin",
   name: "My Plugin",
@@ -369,22 +404,22 @@ export function tryGetRuntime() {
 }
 ```
 
-## そのほかのトップレベル `api` フィールド
+## その他のトップレベル `api` フィールド
 
 `api.runtime` に加えて、API オブジェクトは次も提供します:
 
 | Field                    | Type                      | Description                                                                                 |
 | ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------- |
-| `api.id`                 | `string`                  | plugin id                                                                                   |
-| `api.name`               | `string`                  | plugin の表示名                                                                         |
+| `api.id`                 | `string`                  | plugin ID                                                                                   |
+| `api.name`               | `string`                  | plugin 表示名                                                                                |
 | `api.config`             | `OpenClawConfig`          | 現在の config snapshot（利用可能な場合はアクティブなインメモリ runtime snapshot）                  |
-| `api.pluginConfig`       | `Record<string, unknown>` | `plugins.entries.<id>.config` からの plugin 固有 config                                   |
-| `api.logger`             | `PluginLogger`            | スコープ付き logger（`debug`, `info`, `warn`, `error`）                                            |
-| `api.registrationMode`   | `PluginRegistrationMode`  | 現在の load mode。`"setup-runtime"` は軽量な pre-full-entry startup/setup window です |
-| `api.resolvePath(input)` | `(string) => string`      | plugin ルートからの相対パスを解決する                                                  |
+| `api.pluginConfig`       | `Record<string, unknown>` | `plugins.entries.<id>.config` からの plugin 固有 config                                      |
+| `api.logger`             | `PluginLogger`            | スコープ付き logger（`debug`、`info`、`warn`、`error`）                                      |
+| `api.registrationMode`   | `PluginRegistrationMode`  | 現在のロードモード。`"setup-runtime"` は完全エントリ前の軽量な起動/セットアップ用ウィンドウです |
+| `api.resolvePath(input)` | `(string) => string`      | plugin ルートからの相対パスを解決する                                                      |
 
 ## 関連
 
-- [SDK Overview](/plugins/sdk-overview) -- subpath リファレンス
-- [SDK Entry Points](/plugins/sdk-entrypoints) -- `definePluginEntry` オプション
-- [Plugin Internals](/plugins/architecture) -- capability モデルと registry
+- [SDK Overview](/ja-JP/plugins/sdk-overview) -- サブパスリファレンス
+- [SDK Entry Points](/ja-JP/plugins/sdk-entrypoints) -- `definePluginEntry` オプション
+- [Plugin Internals](/ja-JP/plugins/architecture) -- capability モデルと registry

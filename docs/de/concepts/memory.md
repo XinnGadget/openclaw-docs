@@ -1,23 +1,23 @@
 ---
 read_when:
-    - Sie möchten verstehen, wie der Speicher funktioniert
+    - Sie möchten verstehen, wie Speicher funktioniert
     - Sie möchten wissen, welche Speicherdateien geschrieben werden
 summary: Wie OpenClaw sich Dinge sitzungsübergreifend merkt
-title: Speicherüberblick
+title: Überblick über den Speicher
 x-i18n:
-    generated_at: "2026-04-06T03:06:36Z"
+    generated_at: "2026-04-08T06:01:19Z"
     model: gpt-5.4
     provider: openai
-    source_hash: d19d4fa9c4b3232b7a97f7a382311d2a375b562040de15e9fe4a0b1990b825e7
+    source_hash: 3bb8552341b0b651609edaaae826a22fdc535d240aed4fad4af4b069454004af
     source_path: concepts/memory.md
     workflow: 15
 ---
 
-# Speicherüberblick
+# Überblick über den Speicher
 
-OpenClaw merkt sich Dinge, indem es **einfache Markdown-Dateien** im Workspace
-Ihres Agenten schreibt. Das Modell „erinnert“ sich nur an das, was auf der
-Festplatte gespeichert wird -- es gibt keinen versteckten Zustand.
+OpenClaw merkt sich Dinge, indem **einfache Markdown-Dateien** im Workspace
+Ihres Agenten geschrieben werden. Das Modell „erinnert“ sich nur an das, was
+auf der Festplatte gespeichert wird – es gibt keinen versteckten Zustand.
 
 ## So funktioniert es
 
@@ -30,43 +30,60 @@ Ihr Agent hat drei speicherbezogene Dateien:
 - **`DREAMS.md`** (experimentell, optional) -- Dream Diary und Zusammenfassungen
   von Dreaming-Durchläufen zur menschlichen Überprüfung.
 
-Diese Dateien befinden sich im Workspace des Agenten (Standard:
-`~/.openclaw/workspace`).
+Diese Dateien befinden sich im Agent-Workspace (standardmäßig `~/.openclaw/workspace`).
 
 <Tip>
-Wenn Sie möchten, dass Ihr Agent sich etwas merkt, sagen Sie es ihm einfach:
-„Merke dir, dass ich TypeScript bevorzuge.“ Er schreibt es dann in die passende
-Datei.
+Wenn Sie möchten, dass sich Ihr Agent etwas merkt, bitten Sie ihn einfach darum: „Merke dir, dass ich
+TypeScript bevorzuge.“ Er schreibt es in die passende Datei.
 </Tip>
 
 ## Speicher-Tools
 
-Der Agent hat zwei Tools für die Arbeit mit Speicher:
+Der Agent verfügt über zwei Tools für die Arbeit mit Speicher:
 
 - **`memory_search`** -- findet relevante Notizen mithilfe semantischer Suche,
   auch wenn die Formulierung vom Original abweicht.
 - **`memory_get`** -- liest eine bestimmte Speicherdatei oder einen
   Zeilenbereich.
 
-Beide Tools werden vom aktiven Speicher-Plugin bereitgestellt (Standard:
-`memory-core`).
+Beide Tools werden vom aktiven Speicher-Plugin bereitgestellt (standardmäßig: `memory-core`).
+
+## Begleit-Plugin Memory Wiki
+
+Wenn sich dauerhafter Speicher eher wie eine gepflegte Wissensdatenbank als
+nur wie rohe Notizen verhalten soll, verwenden Sie das gebündelte Plugin `memory-wiki`.
+
+`memory-wiki` kompiliert dauerhaftes Wissen in einen Wiki-Tresor mit:
+
+- deterministischer Seitenstruktur
+- strukturierten Aussagen und Belegen
+- Verfolgung von Widersprüchen und Aktualität
+- generierten Dashboards
+- kompilierten Digests für Agent-/Runtime-Konsumenten
+- wiki-nativen Tools wie `wiki_search`, `wiki_get`, `wiki_apply` und `wiki_lint`
+
+Es ersetzt nicht das aktive Speicher-Plugin. Das aktive Speicher-Plugin ist
+weiterhin für Abruf, Promotion und Dreaming zuständig. `memory-wiki` ergänzt es
+um eine wissensbezogene Ebene mit Herkunftsnachweisen.
+
+Siehe [Memory Wiki](/de/plugins/memory-wiki).
 
 ## Speichersuche
 
 Wenn ein Embedding-Anbieter konfiguriert ist, verwendet `memory_search` eine
-**hybride Suche** -- eine Kombination aus Vektorähnlichkeit (semantische
+**hybride Suche** – eine Kombination aus Vektorähnlichkeit (semantische
 Bedeutung) und Schlüsselwortabgleich (exakte Begriffe wie IDs und Codesymbole).
-Dies funktioniert sofort, sobald Sie einen API-Schlüssel für einen unterstützten
+Das funktioniert sofort, sobald Sie einen API-Schlüssel für einen unterstützten
 Anbieter haben.
 
 <Info>
-OpenClaw erkennt Ihren Embedding-Anbieter automatisch anhand verfügbarer
-API-Schlüssel. Wenn Sie einen konfigurierten OpenAI-, Gemini-, Voyage- oder
-Mistral-Schlüssel haben, ist die Speichersuche automatisch aktiviert.
+OpenClaw erkennt Ihren Embedding-Anbieter automatisch anhand verfügbarer API-Schlüssel. Wenn Sie
+einen OpenAI-, Gemini-, Voyage- oder Mistral-Schlüssel konfiguriert haben, ist
+die Speichersuche automatisch aktiviert.
 </Info>
 
-Details dazu, wie die Suche funktioniert, zu Tuning-Optionen und zur
-Anbietereinrichtung finden Sie unter
+Ausführliche Informationen zur Funktionsweise der Suche, zu
+Optimierungsoptionen und zur Einrichtung von Anbietern finden Sie unter
 [Memory Search](/de/concepts/memory-search).
 
 ## Speicher-Backends
@@ -77,64 +94,73 @@ SQLite-basiert. Funktioniert sofort mit Schlüsselwortsuche, Vektorähnlichkeit 
 hybrider Suche. Keine zusätzlichen Abhängigkeiten.
 </Card>
 <Card title="QMD" icon="search" href="/de/concepts/memory-qmd">
-Local-first-Sidecar mit Reranking, Query Expansion und der Möglichkeit,
+Lokaler Sidecar mit Reranking, Query-Erweiterung und der Möglichkeit,
 Verzeichnisse außerhalb des Workspace zu indizieren.
 </Card>
 <Card title="Honcho" icon="brain" href="/de/concepts/memory-honcho">
-AI-native sitzungsübergreifender Speicher mit Benutzermodellierung,
+KI-nativer sitzungsübergreifender Speicher mit Benutzermodellierung,
 semantischer Suche und Multi-Agent-Bewusstsein. Plugin-Installation.
 </Card>
 </CardGroup>
 
-## Automatischer Speicher-Flush
+## Wissens-Wiki-Ebene
+
+<CardGroup cols={1}>
+<Card title="Memory Wiki" icon="book" href="/de/plugins/memory-wiki">
+Kompiliert dauerhaften Speicher in einen Wiki-Tresor mit Herkunftsnachweisen,
+Dashboards, Bridge-Modus und Obsidian-freundlichen Workflows.
+</Card>
+</CardGroup>
+
+## Automatische Speicherleerung
 
 Bevor [Kompaktierung](/de/concepts/compaction) Ihre Unterhaltung zusammenfasst,
-führt OpenClaw einen stillen Durchlauf aus, der den Agenten daran erinnert,
-wichtigen Kontext in Speicherdateien zu speichern. Dies ist standardmäßig
-aktiviert -- Sie müssen nichts konfigurieren.
+führt OpenClaw einen stillen Turn aus, der den Agenten daran erinnert, wichtigen
+Kontext in Speicherdateien zu sichern. Dies ist standardmäßig aktiviert – Sie
+müssen nichts konfigurieren.
 
 <Tip>
-Der Speicher-Flush verhindert Kontextverlust während der Kompaktierung. Wenn Ihr
-Agent wichtige Fakten in der Unterhaltung hat, die noch nicht in eine Datei
-geschrieben wurden, werden sie automatisch gespeichert, bevor die Zusammenfassung
-erfolgt.
+Die Speicherleerung verhindert Kontextverlust während der Kompaktierung. Wenn Ihr Agent wichtige
+Fakten in der Unterhaltung hat, die noch nicht in eine Datei geschrieben wurden,
+werden sie automatisch gespeichert, bevor die Zusammenfassung erfolgt.
 </Tip>
 
 ## Dreaming (experimentell)
 
-Dreaming ist ein optionaler Konsolidierungsdurchlauf im Hintergrund für den
-Speicher. Er sammelt kurzfristige Signale, bewertet Kandidaten und übernimmt nur
-qualifizierte Einträge in den Langzeitspeicher (`MEMORY.md`).
+Dreaming ist ein optionaler Hintergrunddurchlauf zur Konsolidierung von
+Speicher. Dabei werden kurzfristige Signale gesammelt, Kandidaten bewertet und
+nur qualifizierte Elemente in den Langzeitspeicher (`MEMORY.md`) übernommen.
 
-Es ist darauf ausgelegt, den Langzeitspeicher signalstark zu halten:
+Es soll dafür sorgen, dass der Langzeitspeicher ein starkes Signal-Rausch-Verhältnis behält:
 
 - **Opt-in**: standardmäßig deaktiviert.
-- **Geplant**: Wenn aktiviert, verwaltet `memory-core` automatisch einen
+- **Geplant**: wenn aktiviert, verwaltet `memory-core` automatisch einen
   wiederkehrenden Cron-Job für einen vollständigen Dreaming-Durchlauf.
-- **Schwellenwertbasiert**: Übernahmen müssen Schranken für Bewertung,
-  Erinnerungsfrequenz und Query-Diversität bestehen.
+- **Schwellenwertbasiert**: Übernahmen müssen Grenzwerte für Bewertung,
+  Abruffrequenz und Query-Diversität erfüllen.
 - **Überprüfbar**: Phasenzusammenfassungen und Tagebucheinträge werden zur
   menschlichen Überprüfung in `DREAMS.md` geschrieben.
 
-Zum Phasenverhalten, zu Bewertungssignalen und zu Details des Dream Diary siehe
-[Dreaming (experimental)](/concepts/dreaming).
+Informationen zum Phasenverhalten, zu Bewertungssignalen und Details zum Dream Diary finden Sie unter
+[Dreaming (experimental)](/de/concepts/dreaming).
 
 ## CLI
 
 ```bash
-openclaw memory status          # Indexstatus und Anbieter prüfen
-openclaw memory search "query"  # Über die Befehlszeile suchen
-openclaw memory index --force   # Den Index neu aufbauen
+openclaw memory status          # Check index status and provider
+openclaw memory search "query"  # Search from the command line
+openclaw memory index --force   # Rebuild the index
 ```
 
 ## Weiterführende Informationen
 
-- [Builtin Memory Engine](/de/concepts/memory-builtin) -- Standard-Backend auf SQLite-Basis
-- [QMD Memory Engine](/de/concepts/memory-qmd) -- erweitertes Local-first-Sidecar
-- [Honcho Memory](/de/concepts/memory-honcho) -- AI-native sitzungsübergreifender Speicher
+- [Builtin Memory Engine](/de/concepts/memory-builtin) -- standardmäßiges SQLite-Backend
+- [QMD Memory Engine](/de/concepts/memory-qmd) -- fortgeschrittener lokaler Sidecar
+- [Honcho Memory](/de/concepts/memory-honcho) -- KI-nativer sitzungsübergreifender Speicher
+- [Memory Wiki](/de/plugins/memory-wiki) -- kompilierter Wissens-Tresor und wiki-native Tools
 - [Memory Search](/de/concepts/memory-search) -- Suchpipeline, Anbieter und
-  Tuning
-- [Dreaming (experimental)](/concepts/dreaming) -- Hintergrundübernahme
+  Optimierung
+- [Dreaming (experimental)](/de/concepts/dreaming) -- Hintergrund-Promotion
   von kurzfristigem Abruf in den Langzeitspeicher
 - [Referenz zur Speicherkonfiguration](/de/reference/memory-config) -- alle Konfigurationsoptionen
 - [Kompaktierung](/de/concepts/compaction) -- wie Kompaktierung mit Speicher interagiert

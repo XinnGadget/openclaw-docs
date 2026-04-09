@@ -1,20 +1,20 @@
 ---
 read_when:
-    - Arbeiten an Discord-Kanalfunktionen
-summary: Status, Funktionen und Konfiguration der Discord-Bot-Unterstützung
+    - Arbeiten an Funktionen des Discord-Kanals
+summary: Supportstatus, Funktionen und Konfiguration für Discord-Bots
 title: Discord
 x-i18n:
-    generated_at: "2026-04-06T03:08:00Z"
+    generated_at: "2026-04-09T01:29:47Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 54af2176a1b4fa1681e3f07494def0c652a2730165058848000e71a59e2a9d08
+    source_hash: 3cd2886fad941ae2129e681911309539e9a65a2352b777b538d7f4686a68f73f
     source_path: channels/discord.md
     workflow: 15
 ---
 
 # Discord (Bot API)
 
-Status: bereit für DMs und Guild-Kanäle über das offizielle Discord-Gateway.
+Status: bereit für DMs und Serverkanäle über das offizielle Discord-Gateway.
 
 <CardGroup cols={3}>
   <Card title="Kopplung" icon="link" href="/de/channels/pairing">
@@ -33,7 +33,7 @@ Status: bereit für DMs und Guild-Kanäle über das offizielle Discord-Gateway.
 Sie müssen eine neue Anwendung mit einem Bot erstellen, den Bot zu Ihrem Server hinzufügen und ihn mit OpenClaw koppeln. Wir empfehlen, Ihren Bot zu Ihrem eigenen privaten Server hinzuzufügen. Wenn Sie noch keinen haben, [erstellen Sie zuerst einen](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server) (wählen Sie **Create My Own > For me and my friends**).
 
 <Steps>
-  <Step title="Discord-Anwendung und Bot erstellen">
+  <Step title="Eine Discord-Anwendung und einen Bot erstellen">
     Gehen Sie zum [Discord Developer Portal](https://discord.com/developers/applications) und klicken Sie auf **New Application**. Geben Sie ihr einen Namen wie „OpenClaw“.
 
     Klicken Sie in der Seitenleiste auf **Bot**. Setzen Sie den **Username** auf den Namen, den Ihr OpenClaw-Agent tragen soll.
@@ -44,23 +44,23 @@ Sie müssen eine neue Anwendung mit einem Bot erstellen, den Bot zu Ihrem Server
     Bleiben Sie auf der Seite **Bot**, scrollen Sie nach unten zu **Privileged Gateway Intents** und aktivieren Sie:
 
     - **Message Content Intent** (erforderlich)
-    - **Server Members Intent** (empfohlen; erforderlich für Rollen-Allowlisten und Abgleich von Namen zu IDs)
-    - **Presence Intent** (optional; nur für Presence-Updates erforderlich)
+    - **Server Members Intent** (empfohlen; erforderlich für Rollen-Allowlists und Name-zu-ID-Abgleich)
+    - **Presence Intent** (optional; nur für Präsenzaktualisierungen erforderlich)
 
   </Step>
 
-  <Step title="Bot-Token kopieren">
+  <Step title="Ihren Bot-Token kopieren">
     Scrollen Sie auf der Seite **Bot** wieder nach oben und klicken Sie auf **Reset Token**.
 
     <Note>
-    Trotz des Namens wird dadurch Ihr erstes Token erzeugt — es wird nichts „zurückgesetzt“.
+    Trotz des Namens wird dadurch Ihr erster Token erzeugt — es wird nichts „zurückgesetzt“.
     </Note>
 
-    Kopieren Sie das Token und speichern Sie es an einem sicheren Ort. Das ist Ihr **Bot Token**, und Sie werden es gleich benötigen.
+    Kopieren Sie den Token und speichern Sie ihn irgendwo. Dies ist Ihr **Bot Token**, und Sie werden ihn gleich benötigen.
 
   </Step>
 
-  <Step title="Einladungs-URL erzeugen und den Bot zu Ihrem Server hinzufügen">
+  <Step title="Eine Einladungs-URL erzeugen und den Bot zu Ihrem Server hinzufügen">
     Klicken Sie in der Seitenleiste auf **OAuth2**. Sie erzeugen eine Einladungs-URL mit den richtigen Berechtigungen, um den Bot zu Ihrem Server hinzuzufügen.
 
     Scrollen Sie nach unten zu **OAuth2 URL Generator** und aktivieren Sie:
@@ -68,7 +68,7 @@ Sie müssen eine neue Anwendung mit einem Bot erstellen, den Bot zu Ihrem Server
     - `bot`
     - `applications.commands`
 
-    Darunter erscheint ein Abschnitt **Bot Permissions**. Aktivieren Sie:
+    Darunter wird ein Abschnitt **Bot Permissions** angezeigt. Aktivieren Sie:
 
     - View Channels
     - Send Messages
@@ -77,7 +77,7 @@ Sie müssen eine neue Anwendung mit einem Bot erstellen, den Bot zu Ihrem Server
     - Attach Files
     - Add Reactions (optional)
 
-    Kopieren Sie die unten erzeugte URL, fügen Sie sie in Ihren Browser ein, wählen Sie Ihren Server aus und klicken Sie auf **Continue**, um die Verbindung herzustellen. Sie sollten Ihren Bot nun auf dem Discord-Server sehen.
+    Kopieren Sie die unten erzeugte URL, fügen Sie sie in Ihren Browser ein, wählen Sie Ihren Server aus und klicken Sie auf **Continue**, um die Verbindung herzustellen. Sie sollten Ihren Bot jetzt auf dem Discord-Server sehen.
 
   </Step>
 
@@ -85,22 +85,22 @@ Sie müssen eine neue Anwendung mit einem Bot erstellen, den Bot zu Ihrem Server
     Zurück in der Discord-App müssen Sie den Developer Mode aktivieren, damit Sie interne IDs kopieren können.
 
     1. Klicken Sie auf **User Settings** (Zahnradsymbol neben Ihrem Avatar) → **Advanced** → aktivieren Sie **Developer Mode**
-    2. Klicken Sie in der Seitenleiste mit der rechten Maustaste auf Ihr **Server-Symbol** → **Copy Server ID**
-    3. Klicken Sie mit der rechten Maustaste auf Ihren **eigenen Avatar** → **Copy User ID**
+    2. Rechtsklick auf Ihr **Serversymbol** in der Seitenleiste → **Copy Server ID**
+    3. Rechtsklick auf Ihren **eigenen Avatar** → **Copy User ID**
 
-    Speichern Sie Ihre **Server ID** und **User ID** zusammen mit Ihrem Bot Token — im nächsten Schritt senden Sie alle drei an OpenClaw.
+    Speichern Sie Ihre **Server ID** und **User ID** zusammen mit Ihrem Bot Token — Sie senden alle drei im nächsten Schritt an OpenClaw.
 
   </Step>
 
   <Step title="DMs von Servermitgliedern erlauben">
-    Damit die Kopplung funktioniert, muss Discord Ihrem Bot erlauben, Ihnen eine DM zu senden. Klicken Sie mit der rechten Maustaste auf Ihr **Server-Symbol** → **Privacy Settings** → aktivieren Sie **Direct Messages**.
+    Damit die Kopplung funktioniert, muss Discord zulassen, dass Ihr Bot Ihnen eine DM senden darf. Rechtsklick auf Ihr **Serversymbol** → **Privacy Settings** → aktivieren Sie **Direct Messages**.
 
-    Dadurch können Servermitglieder (einschließlich Bots) Ihnen DMs senden. Lassen Sie dies aktiviert, wenn Sie Discord-DMs mit OpenClaw verwenden möchten. Wenn Sie nur Guild-Kanäle verwenden möchten, können Sie DMs nach der Kopplung deaktivieren.
+    Dadurch können Servermitglieder (einschließlich Bots) Ihnen DMs senden. Lassen Sie dies aktiviert, wenn Sie Discord-DMs mit OpenClaw verwenden möchten. Wenn Sie nur Serverkanäle verwenden möchten, können Sie DMs nach der Kopplung deaktivieren.
 
   </Step>
 
-  <Step title="Bot-Token sicher setzen (nicht im Chat senden)">
-    Ihr Discord-Bot-Token ist ein Geheimnis (wie ein Passwort). Setzen Sie es auf dem Rechner, auf dem OpenClaw läuft, bevor Sie Ihrem Agenten Nachrichten senden.
+  <Step title="Ihren Bot-Token sicher setzen (nicht im Chat senden)">
+    Ihr Discord-Bot-Token ist ein Geheimnis (wie ein Passwort). Setzen Sie ihn auf dem Rechner, auf dem OpenClaw ausgeführt wird, bevor Sie Ihrem Agenten schreiben.
 
 ```bash
 export DISCORD_BOT_TOKEN="YOUR_BOT_TOKEN"
@@ -110,20 +110,20 @@ openclaw config set channels.discord.enabled true --strict-json
 openclaw gateway
 ```
 
-    Wenn OpenClaw bereits als Hintergrunddienst läuft, starten Sie es über die OpenClaw Mac app oder durch Stoppen und erneutes Starten des Prozesses `openclaw gateway run` neu.
+    Wenn OpenClaw bereits als Hintergrunddienst läuft, starten Sie ihn über die OpenClaw-Mac-App neu oder indem Sie den Prozess `openclaw gateway run` stoppen und erneut starten.
 
   </Step>
 
   <Step title="OpenClaw konfigurieren und koppeln">
 
     <Tabs>
-      <Tab title="Fragen Sie Ihren Agenten">
-        Chatten Sie mit Ihrem OpenClaw-Agenten auf einem bereits vorhandenen Kanal (z. B. Telegram) und teilen Sie ihm dies mit. Wenn Discord Ihr erster Kanal ist, verwenden Sie stattdessen den Tab CLI / config.
+      <Tab title="Ihren Agenten fragen">
+        Chatten Sie mit Ihrem OpenClaw-Agenten auf einem bestehenden Kanal (z. B. Telegram) und teilen Sie es ihm mit. Wenn Discord Ihr erster Kanal ist, verwenden Sie stattdessen die Registerkarte CLI / config.
 
-        > „Ich habe mein Discord-Bot-Token bereits in der Konfiguration gesetzt. Bitte schließe die Discord-Einrichtung mit der User ID `<user_id>` und der Server ID `<server_id>` ab.“
+        > „Ich habe meinen Discord-Bot-Token bereits in der Konfiguration gesetzt. Bitte schließe die Discord-Einrichtung mit der User ID `<user_id>` und der Server ID `<server_id>` ab.“
       </Tab>
       <Tab title="CLI / config">
-        Wenn Sie eine dateibasierte Konfiguration bevorzugen, setzen Sie Folgendes:
+        Wenn Sie dateibasierte Konfiguration bevorzugen, setzen Sie Folgendes:
 
 ```json5
 {
@@ -154,10 +154,10 @@ DISCORD_BOT_TOKEN=...
   </Step>
 
   <Step title="Erste DM-Kopplung genehmigen">
-    Warten Sie, bis das Gateway läuft, und senden Sie dann Ihrem Bot eine DM in Discord. Er antwortet mit einem Kopplungscode.
+    Warten Sie, bis das Gateway läuft, und senden Sie Ihrem Bot dann eine DM in Discord. Er antwortet mit einem Kopplungscode.
 
     <Tabs>
-      <Tab title="Fragen Sie Ihren Agenten">
+      <Tab title="Ihren Agenten fragen">
         Senden Sie den Kopplungscode auf Ihrem bestehenden Kanal an Ihren Agenten:
 
         > „Genehmige diesen Discord-Kopplungscode: `<CODE>`“
@@ -174,27 +174,27 @@ openclaw pairing approve discord <CODE>
 
     Kopplungscodes laufen nach 1 Stunde ab.
 
-    Sie sollten nun per DM mit Ihrem Agenten in Discord chatten können.
+    Sie sollten jetzt per DM in Discord mit Ihrem Agenten chatten können.
 
   </Step>
 </Steps>
 
 <Note>
-Die Token-Auflösung ist kontobewusst. Tokenwerte in der Konfiguration haben Vorrang vor dem Env-Fallback. `DISCORD_BOT_TOKEN` wird nur für das Standardkonto verwendet.
-Für erweiterte ausgehende Aufrufe (message-Tool/Kanalaktionen) wird ein explizites aufrufbezogenes `token` für diesen Aufruf verwendet. Dies gilt für Sende- sowie Lese-/Probe-artige Aktionen (zum Beispiel read/search/fetch/thread/pins/permissions). Kontorichtlinie- und Wiederholungseinstellungen stammen weiterhin aus dem ausgewählten Konto im aktiven Runtime-Snapshot.
+Die Token-Auflösung ist kontobewusst. Token-Werte aus der Konfiguration haben Vorrang vor dem Env-Fallback. `DISCORD_BOT_TOKEN` wird nur für das Standardkonto verwendet.
+Für erweiterte ausgehende Aufrufe (message-Tool/Kanalaktionen) wird ein expliziter aufrufbezogener `token` für diesen Aufruf verwendet. Dies gilt für Sende- sowie Lese-/Probe-Aktionen (zum Beispiel read/search/fetch/thread/pins/permissions). Kontorichtlinien und Wiederholungseinstellungen stammen weiterhin aus dem ausgewählten Konto im aktiven Runtime-Snapshot.
 </Note>
 
-## Empfohlen: Einen Guild-Workspace einrichten
+## Empfohlen: Einen Server-Workspace einrichten
 
-Sobald DMs funktionieren, können Sie Ihren Discord-Server als vollständigen Workspace einrichten, in dem jeder Kanal seine eigene Agentensitzung mit eigenem Kontext erhält. Das wird für private Server empfohlen, auf denen nur Sie und Ihr Bot sind.
+Sobald DMs funktionieren, können Sie Ihren Discord-Server als vollständigen Workspace einrichten, in dem jeder Kanal eine eigene Agentensitzung mit eigenem Kontext erhält. Das wird für private Server empfohlen, auf denen nur Sie und Ihr Bot sind.
 
 <Steps>
-  <Step title="Ihren Server zur Guild-Allowlist hinzufügen">
-    Dadurch kann Ihr Agent in jedem Kanal auf Ihrem Server antworten, nicht nur in DMs.
+  <Step title="Ihren Server zur Server-Allowlist hinzufügen">
+    Dadurch kann Ihr Agent in jedem Kanal Ihres Servers antworten, nicht nur in DMs.
 
     <Tabs>
-      <Tab title="Fragen Sie Ihren Agenten">
-        > „Füge meine Discord Server ID `<server_id>` zur Guild-Allowlist hinzu“
+      <Tab title="Ihren Agenten fragen">
+        > „Füge meine Discord Server ID `<server_id>` zur Server-Allowlist hinzu“
       </Tab>
       <Tab title="Konfiguration">
 
@@ -219,15 +219,15 @@ Sobald DMs funktionieren, können Sie Ihren Discord-Server als vollständigen Wo
 
   </Step>
 
-  <Step title="Antworten ohne @mention erlauben">
-    Standardmäßig antwortet Ihr Agent in Guild-Kanälen nur, wenn er per @ erwähnt wird. Für einen privaten Server möchten Sie wahrscheinlich, dass er auf jede Nachricht antwortet.
+  <Step title="Antworten ohne @Erwähnung erlauben">
+    Standardmäßig antwortet Ihr Agent in Serverkanälen nur, wenn er mit @ erwähnt wird. Für einen privaten Server möchten Sie wahrscheinlich, dass er auf jede Nachricht antwortet.
 
     <Tabs>
-      <Tab title="Fragen Sie Ihren Agenten">
-        > „Erlaube meinem Agenten, auf diesem Server zu antworten, ohne per @ erwähnt werden zu müssen“
+      <Tab title="Ihren Agenten fragen">
+        > „Erlaube meinem Agenten, auf diesem Server zu antworten, ohne dass er mit @ erwähnt werden muss“
       </Tab>
       <Tab title="Konfiguration">
-        Setzen Sie `requireMention: false` in Ihrer Guild-Konfiguration:
+        Setzen Sie `requireMention: false` in Ihrer Serverkonfiguration:
 
 ```json5
 {
@@ -248,40 +248,40 @@ Sobald DMs funktionieren, können Sie Ihren Discord-Server als vollständigen Wo
 
   </Step>
 
-  <Step title="Speicher in Guild-Kanälen planen">
-    Standardmäßig wird der Langzeitspeicher (`MEMORY.md`) nur in DM-Sitzungen geladen. Guild-Kanäle laden `MEMORY.md` nicht automatisch.
+  <Step title="Speichernutzung in Serverkanälen planen">
+    Standardmäßig wird Langzeitspeicher (`MEMORY.md`) nur in DM-Sitzungen geladen. In Serverkanälen wird `MEMORY.md` nicht automatisch geladen.
 
     <Tabs>
-      <Tab title="Fragen Sie Ihren Agenten">
-        > „Wenn ich in Discord-Kanälen Fragen stelle, verwende memory_search oder memory_get, wenn du langfristigen Kontext aus MEMORY.md brauchst.“
+      <Tab title="Ihren Agenten fragen">
+        > „Wenn ich in Discord-Kanälen Fragen stelle, verwende memory_search oder memory_get, wenn du Langzeitkontext aus MEMORY.md benötigst.“
       </Tab>
       <Tab title="Manuell">
-        Wenn Sie gemeinsamen Kontext in jedem Kanal benötigen, legen Sie die stabilen Anweisungen in `AGENTS.md` oder `USER.md` ab (sie werden in jede Sitzung injiziert). Behalten Sie Langzeitnotizen in `MEMORY.md` und greifen Sie bei Bedarf mit Speicher-Tools darauf zu.
+        Wenn Sie in jedem Kanal gemeinsamen Kontext benötigen, legen Sie die stabilen Anweisungen in `AGENTS.md` oder `USER.md` ab (sie werden in jede Sitzung injiziert). Behalten Sie Langzeitnotizen in `MEMORY.md` und greifen Sie bei Bedarf mit Speicher-Tools darauf zu.
       </Tab>
     </Tabs>
 
   </Step>
 </Steps>
 
-Erstellen Sie nun einige Kanäle auf Ihrem Discord-Server und beginnen Sie mit dem Chatten. Ihr Agent kann den Kanalnamen sehen, und jeder Kanal erhält seine eigene isolierte Sitzung — so können Sie `#coding`, `#home`, `#research` oder alles einrichten, was zu Ihrem Workflow passt.
+Erstellen Sie nun einige Kanäle auf Ihrem Discord-Server und beginnen Sie zu chatten. Ihr Agent kann den Kanalnamen sehen, und jeder Kanal erhält seine eigene isolierte Sitzung — so können Sie `#coding`, `#home`, `#research` oder was auch immer zu Ihrem Workflow passt einrichten.
 
-## Runtime-Modell
+## Laufzeitmodell
 
 - Das Gateway besitzt die Discord-Verbindung.
-- Antwort-Routing ist deterministisch: Eingehende Discord-Nachrichten werden an Discord zurückbeantwortet.
-- Standardmäßig (`session.dmScope=main`) teilen direkte Chats die Hauptsitzung des Agenten (`agent:main:main`).
-- Guild-Kanäle sind isolierte Sitzungsschlüssel (`agent:<agentId>:discord:channel:<channelId>`).
+- Die Antwortweiterleitung ist deterministisch: Eingehende Discord-Antworten gehen zurück an Discord.
+- Standardmäßig (`session.dmScope=main`) teilen sich Direktchats die Hauptsitzung des Agenten (`agent:main:main`).
+- Serverkanäle sind isolierte Sitzungsschlüssel (`agent:<agentId>:discord:channel:<channelId>`).
 - Gruppen-DMs werden standardmäßig ignoriert (`channels.discord.dm.groupEnabled=false`).
-- Native Slash-Befehle laufen in isolierten Befehlssitzungen (`agent:<agentId>:discord:slash:<userId>`), während weiterhin `CommandTargetSessionKey` an die geroutete Konversationssitzung übergeben wird.
+- Native Slash-Befehle laufen in isolierten Befehlssitzungen (`agent:<agentId>:discord:slash:<userId>`), führen aber weiterhin `CommandTargetSessionKey` zur weitergeleiteten Konversationssitzung mit.
 
-## Forum-Kanäle
+## Forumskanäle
 
 Discord-Forum- und Medienkanäle akzeptieren nur Thread-Beiträge. OpenClaw unterstützt zwei Möglichkeiten, sie zu erstellen:
 
-- Senden Sie eine Nachricht an das Forum-Elternelement (`channel:<forumId>`), um automatisch einen Thread zu erstellen. Der Thread-Titel verwendet die erste nicht leere Zeile Ihrer Nachricht.
-- Verwenden Sie `openclaw message thread create`, um direkt einen Thread zu erstellen. Übergeben Sie für Forum-Kanäle kein `--message-id`.
+- Senden Sie eine Nachricht an das Forum-Parent (`channel:<forumId>`), um automatisch einen Thread zu erstellen. Der Thread-Titel verwendet die erste nicht leere Zeile Ihrer Nachricht.
+- Verwenden Sie `openclaw message thread create`, um direkt einen Thread zu erstellen. Übergeben Sie für Forumskanäle nicht `--message-id`.
 
-Beispiel: An das Forum-Elternelement senden, um einen Thread zu erstellen
+Beispiel: An das Forum-Parent senden, um einen Thread zu erstellen
 
 ```bash
 openclaw message send --channel discord --target channel:<forumId> \
@@ -295,11 +295,11 @@ openclaw message thread create --channel discord --target channel:<forumId> \
   --thread-name "Topic title" --message "Body of the post"
 ```
 
-Forum-Elternelemente akzeptieren keine Discord-Komponenten. Wenn Sie Komponenten benötigen, senden Sie an den Thread selbst (`channel:<threadId>`).
+Forum-Parents akzeptieren keine Discord-Komponenten. Wenn Sie Komponenten benötigen, senden Sie an den Thread selbst (`channel:<threadId>`).
 
 ## Interaktive Komponenten
 
-OpenClaw unterstützt Discord-Komponenten-v2-Container für Agentennachrichten. Verwenden Sie das message-Tool mit einer `components`-Payload. Interaktionsergebnisse werden als normale eingehende Nachrichten an den Agenten zurückgeleitet und folgen den bestehenden Discord-Einstellungen für `replyToMode`.
+OpenClaw unterstützt Discord-Komponenten-v2-Container für Agentennachrichten. Verwenden Sie das message-Tool mit einer `components`-Payload. Interaktionsergebnisse werden als normale eingehende Nachrichten zurück an den Agenten geleitet und folgen den vorhandenen Discord-Einstellungen für `replyToMode`.
 
 Unterstützte Blöcke:
 
@@ -307,23 +307,23 @@ Unterstützte Blöcke:
 - Aktionszeilen erlauben bis zu 5 Buttons oder ein einzelnes Auswahlmenü
 - Auswahltypen: `string`, `user`, `role`, `mentionable`, `channel`
 
-Standardmäßig sind Komponenten einmalig nutzbar. Setzen Sie `components.reusable=true`, um Buttons, Auswahlen und Formulare mehrfach verwendbar zu machen, bis sie ablaufen.
+Standardmäßig sind Komponenten nur einmal verwendbar. Setzen Sie `components.reusable=true`, um Buttons, Auswahlen und Formulare mehrfach verwendbar zu machen, bis sie ablaufen.
 
 Um einzuschränken, wer auf einen Button klicken kann, setzen Sie `allowedUsers` auf diesem Button (Discord-Benutzer-IDs, Tags oder `*`). Wenn dies konfiguriert ist, erhalten nicht passende Benutzer eine ephemere Ablehnung.
 
-Die Slash-Befehle `/model` und `/models` öffnen eine interaktive Modellauswahl mit Dropdowns für Provider und Modell sowie einem Schritt zum Absenden. Die Antwort der Auswahl ist ephemer, und nur der aufrufende Benutzer kann sie verwenden.
+Die Slash-Befehle `/model` und `/models` öffnen einen interaktiven Modellauswähler mit Dropdowns für Provider und Modell sowie einem Schritt zum Absenden. Die Antwort des Auswählers ist ephemer, und nur der aufrufende Benutzer kann sie verwenden.
 
 Dateianhänge:
 
-- `file`-Blöcke müssen auf eine Attachment-Referenz zeigen (`attachment://<filename>`)
+- `file`-Blöcke müssen auf eine Anhangsreferenz zeigen (`attachment://<filename>`)
 - Stellen Sie den Anhang über `media`/`path`/`filePath` bereit (einzelne Datei); verwenden Sie `media-gallery` für mehrere Dateien
-- Verwenden Sie `filename`, um den Upload-Namen zu überschreiben, wenn er mit der Attachment-Referenz übereinstimmen soll
+- Verwenden Sie `filename`, um den Upload-Namen zu überschreiben, wenn er mit der Anhangsreferenz übereinstimmen soll
 
 Modale Formulare:
 
 - Fügen Sie `components.modal` mit bis zu 5 Feldern hinzu
 - Feldtypen: `text`, `checkbox`, `radio`, `select`, `role-select`, `user-select`
-- OpenClaw fügt automatisch einen Auslöser-Button hinzu
+- OpenClaw fügt automatisch einen Auslöse-Button hinzu
 
 Beispiel:
 
@@ -398,32 +398,32 @@ Beispiel:
     - Benannte Konten erben `channels.discord.allowFrom`, wenn ihr eigenes `allowFrom` nicht gesetzt ist.
     - Benannte Konten erben nicht `channels.discord.accounts.default.allowFrom`.
 
-    DM-Zielformat für die Zustellung:
+    DM-Zielformat für Zustellung:
 
     - `user:<id>`
     - `<@id>`-Erwähnung
 
-    Reine numerische IDs sind mehrdeutig und werden abgelehnt, sofern kein expliziter Benutzer-/Kanal-Zieltyp angegeben ist.
+    Reine numerische IDs sind mehrdeutig und werden abgelehnt, sofern nicht explizit eine Art von Benutzer-/Kanalziel angegeben wird.
 
   </Tab>
 
-  <Tab title="Guild-Richtlinie">
-    Die Behandlung von Guilds wird durch `channels.discord.groupPolicy` gesteuert:
+  <Tab title="Serverrichtlinie">
+    Die Serverbehandlung wird durch `channels.discord.groupPolicy` gesteuert:
 
     - `open`
     - `allowlist`
     - `disabled`
 
-    Sichere Baseline, wenn `channels.discord` vorhanden ist, ist `allowlist`.
+    Die sichere Baseline, wenn `channels.discord` vorhanden ist, ist `allowlist`.
 
     Verhalten von `allowlist`:
 
-    - Die Guild muss `channels.discord.guilds` entsprechen (`id` bevorzugt, Slug akzeptiert)
-    - optionale Sender-Allowlisten: `users` (stabile IDs empfohlen) und `roles` (nur Rollen-IDs); wenn eines von beiden konfiguriert ist, sind Sender erlaubt, wenn sie `users` ODER `roles` entsprechen
-    - direktes Matching nach Name/Tag ist standardmäßig deaktiviert; aktivieren Sie `channels.discord.dangerouslyAllowNameMatching: true` nur als Break-Glass-Kompatibilitätsmodus
-    - Namen/Tags werden für `users` unterstützt, aber IDs sind sicherer; `openclaw security audit` warnt, wenn Name-/Tag-Einträge verwendet werden
-    - wenn für eine Guild `channels` konfiguriert ist, werden nicht aufgeführte Kanäle verweigert
-    - wenn eine Guild keinen `channels`-Block hat, sind alle Kanäle in dieser allowlisteten Guild erlaubt
+    - Der Server muss mit `channels.discord.guilds` übereinstimmen (`id` bevorzugt, Slug akzeptiert)
+    - optionale Absender-Allowlists: `users` (stabile IDs empfohlen) und `roles` (nur Rollen-IDs); wenn eines davon konfiguriert ist, sind Absender erlaubt, wenn sie mit `users` ODER `roles` übereinstimmen
+    - direkter Abgleich nach Name/Tag ist standardmäßig deaktiviert; aktivieren Sie `channels.discord.dangerouslyAllowNameMatching: true` nur als Notfall-Kompatibilitätsmodus
+    - Namen/Tags werden für `users` unterstützt, aber IDs sind sicherer; `openclaw security audit` warnt, wenn Namens-/Tag-Einträge verwendet werden
+    - wenn für einen Server `channels` konfiguriert ist, werden nicht aufgeführte Kanäle abgelehnt
+    - wenn ein Server keinen `channels`-Block hat, sind alle Kanäle in diesem erlaubten Server zugelassen
 
     Beispiel:
 
@@ -449,21 +449,21 @@ Beispiel:
 }
 ```
 
-    Wenn Sie nur `DISCORD_BOT_TOKEN` setzen und keinen `channels.discord`-Block erstellen, ist das Runtime-Fallback `groupPolicy="allowlist"` (mit einer Warnung in den Logs), auch wenn `channels.defaults.groupPolicy` auf `open` steht.
+    Wenn Sie nur `DISCORD_BOT_TOKEN` setzen und keinen `channels.discord`-Block erstellen, ist das Laufzeit-Fallback `groupPolicy="allowlist"` (mit einer Warnung in den Logs), selbst wenn `channels.defaults.groupPolicy` auf `open` gesetzt ist.
 
   </Tab>
 
   <Tab title="Erwähnungen und Gruppen-DMs">
-    Guild-Nachrichten sind standardmäßig an Erwähnungen gebunden.
+    Nachrichten in Servern sind standardmäßig durch Erwähnungen geschützt.
 
-    Die Erkennung von Erwähnungen umfasst:
+    Die Erwähnungserkennung umfasst:
 
     - explizite Bot-Erwähnung
     - konfigurierte Erwähnungsmuster (`agents.list[].groupChat.mentionPatterns`, Fallback `messages.groupChat.mentionPatterns`)
     - implizites Antwort-an-Bot-Verhalten in unterstützten Fällen
 
-    `requireMention` wird pro Guild/Kanal konfiguriert (`channels.discord.guilds...`).
-    `ignoreOtherMentions` verwirft optional Nachrichten, die einen anderen Benutzer/eine andere Rolle erwähnen, aber nicht den Bot (ausgenommen @everyone/@here).
+    `requireMention` wird pro Server/Kanal konfiguriert (`channels.discord.guilds...`).
+    `ignoreOtherMentions` verwirft optional Nachrichten, die einen anderen Benutzer/eine andere Rolle, aber nicht den Bot erwähnen (ausgenommen @everyone/@here).
 
     Gruppen-DMs:
 
@@ -473,9 +473,9 @@ Beispiel:
   </Tab>
 </Tabs>
 
-### Rollenbasiertes Agent-Routing
+### Rollenbasiertes Agenten-Routing
 
-Verwenden Sie `bindings[].match.roles`, um Discord-Guild-Mitglieder anhand der Rollen-ID an unterschiedliche Agenten zu routen. Rollenbasierte Bindings akzeptieren nur Rollen-IDs und werden nach Peer- oder Parent-Peer-Bindings und vor reinen Guild-Bindings ausgewertet. Wenn ein Binding zusätzlich andere Match-Felder setzt (zum Beispiel `peer` + `guildId` + `roles`), müssen alle konfigurierten Felder übereinstimmen.
+Verwenden Sie `bindings[].match.roles`, um Discord-Servermitglieder anhand ihrer Rollen-ID an unterschiedliche Agenten weiterzuleiten. Rollenbasierte Bindings akzeptieren nur Rollen-IDs und werden nach Peer- oder Parent-Peer-Bindings und vor rein serverbasierten Bindings ausgewertet. Wenn ein Binding auch andere Match-Felder setzt (zum Beispiel `peer` + `guildId` + `roles`), müssen alle konfigurierten Felder übereinstimmen.
 
 ```json5
 {
@@ -511,21 +511,21 @@ Verwenden Sie `bindings[].match.roles`, um Discord-Guild-Mitglieder anhand der R
   </Accordion>
 
   <Accordion title="Privilegierte Intents">
-    Aktivieren Sie unter **Bot -> Privileged Gateway Intents**:
+    Aktivieren Sie in **Bot -> Privileged Gateway Intents**:
 
     - Message Content Intent
     - Server Members Intent (empfohlen)
 
-    Presence Intent ist optional und nur erforderlich, wenn Sie Presence-Updates empfangen möchten. Das Setzen der Bot-Presence (`setPresence`) erfordert nicht, dass Presence-Updates für Mitglieder aktiviert sind.
+    Presence Intent ist optional und nur erforderlich, wenn Sie Präsenzaktualisierungen empfangen möchten. Das Setzen der Bot-Präsenz (`setPresence`) erfordert nicht, dass Präsenzaktualisierungen für Mitglieder aktiviert sind.
 
   </Accordion>
 
-  <Accordion title="OAuth-Scopes und Basisberechtigungen">
+  <Accordion title="OAuth-Scopes und grundlegende Berechtigungen">
     OAuth-URL-Generator:
 
     - Scopes: `bot`, `applications.commands`
 
-    Typische Basisberechtigungen:
+    Typische grundlegende Berechtigungen:
 
     - View Channels
     - Send Messages
@@ -534,7 +534,7 @@ Verwenden Sie `bindings[].match.roles`, um Discord-Guild-Mitglieder anhand der R
     - Attach Files
     - Add Reactions (optional)
 
-    Vermeiden Sie `Administrator`, sofern nicht ausdrücklich erforderlich.
+    Vermeiden Sie `Administrator`, sofern es nicht ausdrücklich benötigt wird.
 
   </Accordion>
 
@@ -552,15 +552,15 @@ Verwenden Sie `bindings[].match.roles`, um Discord-Guild-Mitglieder anhand der R
 
 ## Native Befehle und Befehlsauthentifizierung
 
-- `commands.native` hat standardmäßig den Wert `"auto"` und ist für Discord aktiviert.
+- `commands.native` ist standardmäßig `"auto"` und für Discord aktiviert.
 - Kanalbezogene Überschreibung: `channels.discord.commands.native`.
 - `commands.native=false` löscht explizit zuvor registrierte native Discord-Befehle.
-- Die Authentifizierung nativer Befehle verwendet dieselben Discord-Allowlisten/-Richtlinien wie die normale Nachrichtenverarbeitung.
+- Die Authentifizierung nativer Befehle verwendet dieselben Discord-Allowlists/-Richtlinien wie die normale Nachrichtenverarbeitung.
 - Befehle können in der Discord-Benutzeroberfläche weiterhin für Benutzer sichtbar sein, die nicht autorisiert sind; die Ausführung erzwingt dennoch die OpenClaw-Authentifizierung und gibt „nicht autorisiert“ zurück.
 
 Siehe [Slash commands](/de/tools/slash-commands) für Befehlskatalog und Verhalten.
 
-Standardmäßige Einstellungen für Slash-Befehle:
+Standard-Slash-Befehlseinstellungen:
 
 - `ephemeral: true`
 
@@ -568,7 +568,7 @@ Standardmäßige Einstellungen für Slash-Befehle:
 
 <AccordionGroup>
   <Accordion title="Antwort-Tags und native Antworten">
-    Discord unterstützt Antwort-Tags in der Agent-Ausgabe:
+    Discord unterstützt Antwort-Tags in der Agentenausgabe:
 
     - `[[reply_to_current]]`
     - `[[reply_to:<id>]]`
@@ -580,26 +580,26 @@ Standardmäßige Einstellungen für Slash-Befehle:
     - `all`
     - `batched`
 
-    Hinweis: `off` deaktiviert implizites Antwort-Threading. Explizite Tags `[[reply_to_*]]` werden weiterhin beachtet.
+    Hinweis: `off` deaktiviert implizites Reply-Threading. Explizite `[[reply_to_*]]`-Tags werden weiterhin berücksichtigt.
     `first` hängt die implizite native Antwortreferenz immer an die erste ausgehende Discord-Nachricht des Turns an.
-    `batched` hängt Discords implizite native Antwortreferenz nur an, wenn der
-    eingehende Turn ein entprellter Stapel mehrerer Nachrichten war. Das ist nützlich,
-    wenn Sie native Antworten hauptsächlich für mehrdeutige, stoßweise Chats möchten,
-    nicht für jeden einzelnen Nachrichtenturn.
+    `batched` hängt Disords implizite native Antwortreferenz nur dann an, wenn der
+    eingehende Turn ein entprelltes Batch aus mehreren Nachrichten war. Das ist nützlich,
+    wenn Sie native Antworten hauptsächlich für mehrdeutige, stoßweise Chats möchten, nicht für
+    jeden einzelnen Turn mit nur einer Nachricht.
 
-    Nachrichten-IDs werden im Kontext/Verlauf sichtbar gemacht, sodass Agenten bestimmte Nachrichten adressieren können.
+    Nachrichten-IDs werden im Kontext/Verlauf offengelegt, sodass Agenten gezielt bestimmte Nachrichten adressieren können.
 
   </Accordion>
 
-  <Accordion title="Live-Stream-Vorschau">
-    OpenClaw kann Entwurfsantworten streamen, indem eine temporäre Nachricht gesendet und während des Eintreffens von Text bearbeitet wird.
+  <Accordion title="Vorschau für Live-Streaming">
+    OpenClaw kann Antwortentwürfe streamen, indem eine temporäre Nachricht gesendet und beim Eintreffen von Text bearbeitet wird.
 
-    - `channels.discord.streaming` steuert das Vorschau-Streaming (`off` | `partial` | `block` | `progress`, Standard: `off`).
-    - Der Standard bleibt `off`, weil Discord-Vorschau-Bearbeitungen schnell an Rate Limits stoßen können, besonders wenn mehrere Bots oder Gateways dasselbe Konto oder denselben Guild-Traffic nutzen.
-    - `progress` wird aus Gründen der kanalübergreifenden Konsistenz akzeptiert und in Discord auf `partial` abgebildet.
+    - `channels.discord.streaming` steuert Vorschau-Streaming (`off` | `partial` | `block` | `progress`, Standard: `off`).
+    - Der Standard bleibt `off`, weil Discord-Vorschau-Bearbeitungen schnell an Ratenlimits stoßen können, insbesondere wenn mehrere Bots oder Gateways dasselbe Konto oder denselben Serververkehr teilen.
+    - `progress` wird zur kanalübergreifenden Konsistenz akzeptiert und in Discord auf `partial` abgebildet.
     - `channels.discord.streamMode` ist ein veralteter Alias und wird automatisch migriert.
-    - `partial` bearbeitet eine einzelne Vorschaunachricht, während Tokens eintreffen.
-    - `block` sendet Entwurfsblöcke in Chunk-Größe (verwenden Sie `draftChunk`, um Größe und Umbruchpunkte anzupassen).
+    - `partial` bearbeitet eine einzelne Vorschau-Nachricht, wenn Tokens eintreffen.
+    - `block` sendet Entwurfsblöcke in Chunk-Größe (verwenden Sie `draftChunk`, um Größe und Trennpunkte abzustimmen).
 
     Beispiel:
 
@@ -630,7 +630,7 @@ Standardmäßige Einstellungen für Slash-Befehle:
 }
 ```
 
-    Vorschau-Streaming ist nur für Text; Medienantworten fallen auf normale Zustellung zurück.
+    Vorschau-Streaming ist nur für Text verfügbar; Medienantworten fallen auf normale Zustellung zurück.
 
     Hinweis: Vorschau-Streaming ist vom Block-Streaming getrennt. Wenn Block-Streaming für Discord explizit
     aktiviert ist, überspringt OpenClaw den Vorschau-Stream, um doppeltes Streaming zu vermeiden.
@@ -638,39 +638,39 @@ Standardmäßige Einstellungen für Slash-Befehle:
   </Accordion>
 
   <Accordion title="Verlauf, Kontext und Thread-Verhalten">
-    Guild-Verlaufskontext:
+    Verlaufskontext in Servern:
 
     - `channels.discord.historyLimit` Standard `20`
     - Fallback: `messages.groupChat.historyLimit`
     - `0` deaktiviert
 
-    Steuerung des DM-Verlaufs:
+    Steuerelemente für DM-Verlauf:
 
     - `channels.discord.dmHistoryLimit`
     - `channels.discord.dms["<user_id>"].historyLimit`
 
     Thread-Verhalten:
 
-    - Discord-Threads werden als Kanalsitzungen geroutet
-    - übergeordnete Thread-Metadaten können für Parent-Session-Verknüpfungen genutzt werden
-    - Thread-Konfiguration erbt die Konfiguration des übergeordneten Kanals, sofern kein threadspezifischer Eintrag existiert
+    - Discord-Threads werden als Kanalsitzungen weitergeleitet
+    - Parent-Thread-Metadaten können für eine Verknüpfung zur übergeordneten Sitzung verwendet werden
+    - Thread-Konfiguration erbt die Konfiguration des Parent-Kanals, sofern kein threadspezifischer Eintrag vorhanden ist
 
     Kanalthemen werden als **nicht vertrauenswürdiger** Kontext injiziert (nicht als System-Prompt).
-    Antwort- und Zitierte-Nachricht-Kontext bleibt derzeit wie empfangen erhalten.
-    Discord-Allowlisten steuern in erster Linie, wer den Agenten auslösen kann, nicht eine vollständige Redaktionsgrenze für ergänzenden Kontext.
+    Antwort- und Kontext aus zitierten Nachrichten bleibt derzeit wie empfangen erhalten.
+    Discord-Allowlists steuern in erster Linie, wer den Agenten auslösen kann, und sind keine vollständige Redaktionsgrenze für ergänzenden Kontext.
 
   </Accordion>
 
-  <Accordion title="Thread-gebundene Sitzungen für Subagents">
-    Discord kann einen Thread an ein Sitzungsziel binden, sodass Folgebotschaften in diesem Thread weiterhin an dieselbe Sitzung geleitet werden (einschließlich Subagent-Sitzungen).
+  <Accordion title="Thread-gebundene Sitzungen für Subagenten">
+    Discord kann einen Thread an ein Sitzungsziel binden, sodass nachfolgende Nachrichten in diesem Thread weiterhin an dieselbe Sitzung weitergeleitet werden (einschließlich Subagent-Sitzungen).
 
     Befehle:
 
-    - `/focus <target>` bindet aktuellen/neuen Thread an ein Subagent-/Sitzungsziel
+    - `/focus <target>` bindet den aktuellen/neuen Thread an ein Subagent-/Sitzungsziel
     - `/unfocus` entfernt die aktuelle Thread-Bindung
     - `/agents` zeigt aktive Läufe und den Bindungsstatus
-    - `/session idle <duration|off>` prüft/aktualisiert das automatische Lösen der Fokusbindung bei Inaktivität
-    - `/session max-age <duration|off>` prüft/aktualisiert das feste maximale Alter für fokussierte Bindungen
+    - `/session idle <duration|off>` prüft/aktualisiert das automatische Lösen des Fokus bei Inaktivität für fokussierte Bindungen
+    - `/session max-age <duration|off>` prüft/aktualisiert das harte Maximalalter für fokussierte Bindungen
 
     Konfiguration:
 
@@ -700,16 +700,16 @@ Standardmäßige Einstellungen für Slash-Befehle:
 
     - `session.threadBindings.*` setzt globale Standardwerte.
     - `channels.discord.threadBindings.*` überschreibt das Discord-Verhalten.
-    - `spawnSubagentSessions` muss auf true gesetzt sein, um Threads für `sessions_spawn({ thread: true })` automatisch zu erstellen/zu binden.
-    - `spawnAcpSessions` muss auf true gesetzt sein, um Threads für ACP (`/acp spawn ... --thread ...` oder `sessions_spawn({ runtime: "acp", thread: true })`) automatisch zu erstellen/zu binden.
-    - Wenn Thread-Bindings für ein Konto deaktiviert sind, sind `/focus` und verwandte Thread-Binding-Operationen nicht verfügbar.
+    - `spawnSubagentSessions` muss `true` sein, damit Threads für `sessions_spawn({ thread: true })` automatisch erstellt/gebunden werden.
+    - `spawnAcpSessions` muss `true` sein, damit Threads für ACP automatisch erstellt/gebunden werden (`/acp spawn ... --thread ...` oder `sessions_spawn({ runtime: "acp", thread: true })`).
+    - Wenn Thread-Bindungen für ein Konto deaktiviert sind, sind `/focus` und verwandte Operationen für Thread-Bindungen nicht verfügbar.
 
     Siehe [Sub-agents](/de/tools/subagents), [ACP Agents](/de/tools/acp-agents) und [Configuration Reference](/de/gateway/configuration-reference).
 
   </Accordion>
 
-  <Accordion title="Persistente ACP-Kanal-Bindungen">
-    Für stabile „always-on“-ACP-Workspaces konfigurieren Sie ACP-Bindungen auf oberster Ebene mit Typisierung, die auf Discord-Konversationen zielen.
+  <Accordion title="Persistente ACP-Kanalbindungen">
+    Für stabile „always-on“-ACP-Workspaces konfigurieren Sie ACP-Bindungen mit Typ auf oberster Ebene, die auf Discord-Konversationen zielen.
 
     Konfigurationspfad:
 
@@ -765,27 +765,27 @@ Standardmäßige Einstellungen für Slash-Befehle:
 
     Hinweise:
 
-    - `/acp spawn codex --bind here` bindet den aktuellen Discord-Kanal oder Thread direkt und hält zukünftige Nachrichten weiterhin an dieselbe ACP-Sitzung geroutet.
-    - Das kann weiterhin bedeuten: „eine frische Codex-ACP-Sitzung starten“, aber es erstellt nicht von selbst einen neuen Discord-Thread. Der bestehende Kanal bleibt die Chat-Oberfläche.
-    - Codex kann weiterhin in seinem eigenen `cwd` oder Backend-Workspace auf der Festplatte laufen. Dieser Workspace ist Runtime-Zustand, kein Discord-Thread.
-    - Thread-Nachrichten können die ACP-Bindung des übergeordneten Kanals erben.
-    - In einem gebundenen Kanal oder Thread setzen `/new` und `/reset` dieselbe ACP-Sitzung direkt zurück.
-    - Temporäre Thread-Bindings funktionieren weiterhin und können die Zielauflösung überschreiben, solange sie aktiv sind.
-    - `spawnAcpSessions` ist nur erforderlich, wenn OpenClaw einen Child-Thread über `--thread auto|here` erstellen/binden muss. Es ist nicht erforderlich für `/acp spawn ... --bind here` im aktuellen Kanal.
+    - `/acp spawn codex --bind here` bindet den aktuellen Discord-Kanal oder Thread direkt vor Ort und hält zukünftige Nachrichten an dieselbe ACP-Sitzung gebunden.
+    - Das kann weiterhin bedeuten: „Eine frische Codex-ACP-Sitzung starten“, aber es wird dadurch nicht von selbst ein neuer Discord-Thread erstellt. Der bestehende Kanal bleibt die Chat-Oberfläche.
+    - Codex kann weiterhin in seinem eigenen `cwd` oder Backend-Workspace auf dem Datenträger laufen. Dieser Workspace ist Laufzeitzustand, kein Discord-Thread.
+    - Thread-Nachrichten können die ACP-Bindung des Parent-Kanals erben.
+    - In einem gebundenen Kanal oder Thread setzen `/new` und `/reset` dieselbe ACP-Sitzung direkt vor Ort zurück.
+    - Temporäre Thread-Bindungen funktionieren weiterhin und können die Zielauflösung überschreiben, solange sie aktiv sind.
+    - `spawnAcpSessions` ist nur erforderlich, wenn OpenClaw einen untergeordneten Thread über `--thread auto|here` erstellen/binden muss. Es ist nicht erforderlich für `/acp spawn ... --bind here` im aktuellen Kanal.
 
-    Siehe [ACP Agents](/de/tools/acp-agents) für Details zum Binding-Verhalten.
+    Siehe [ACP Agents](/de/tools/acp-agents) für Details zum Bindungsverhalten.
 
   </Accordion>
 
-  <Accordion title="Reaktionsbenachrichtigungen">
-    Reaktionsbenachrichtigungsmodus pro Guild:
+  <Accordion title="Benachrichtigungen für Reaktionen">
+    Modus für Reaktionsbenachrichtigungen pro Server:
 
     - `off`
     - `own` (Standard)
     - `all`
     - `allowlist` (verwendet `guilds.<id>.users`)
 
-    Reaktionsereignisse werden in Systemereignisse umgewandelt und an die geroutete Discord-Sitzung angehängt.
+    Reaktionsereignisse werden in Systemereignisse umgewandelt und an die weitergeleitete Discord-Sitzung angehängt.
 
   </Accordion>
 
@@ -797,19 +797,19 @@ Standardmäßige Einstellungen für Slash-Befehle:
     - `channels.discord.accounts.<accountId>.ackReaction`
     - `channels.discord.ackReaction`
     - `messages.ackReaction`
-    - Fallback auf Agentenidentitäts-Emoji (`agents.list[].identity.emoji`, sonst "👀")
+    - Emoji-Fallback der Agentenidentität (`agents.list[].identity.emoji`, sonst "👀")
 
     Hinweise:
 
-    - Discord akzeptiert Unicode-Emoji oder benutzerdefinierte Emoji-Namen.
+    - Discord akzeptiert Unicode-Emojis oder benutzerdefinierte Emoji-Namen.
     - Verwenden Sie `""`, um die Reaktion für einen Kanal oder ein Konto zu deaktivieren.
 
   </Accordion>
 
   <Accordion title="Konfigurationsschreibvorgänge">
-    Durch den Kanal initiierte Konfigurationsschreibvorgänge sind standardmäßig aktiviert.
+    Durch Kanäle initiierte Konfigurationsschreibvorgänge sind standardmäßig aktiviert.
 
-    Dies betrifft `/config set|unset`-Abläufe (wenn Befehlsfunktionen aktiviert sind).
+    Dies betrifft Abläufe für `/config set|unset` (wenn Befehlsfunktionen aktiviert sind).
 
     Deaktivieren:
 
@@ -826,7 +826,7 @@ Standardmäßige Einstellungen für Slash-Befehle:
   </Accordion>
 
   <Accordion title="Gateway-Proxy">
-    Leiten Sie Discord-Gateway-WebSocket-Traffic und Startup-REST-Lookups (Anwendungs-ID + Allowlist-Auflösung) über einen HTTP(S)-Proxy mit `channels.discord.proxy`.
+    Leiten Sie WebSocket-Datenverkehr des Discord-Gateways und REST-Abfragen beim Start (Anwendungs-ID + Allowlist-Auflösung) mit `channels.discord.proxy` über einen HTTP(S)-Proxy.
 
 ```json5
 {
@@ -857,7 +857,7 @@ Standardmäßige Einstellungen für Slash-Befehle:
   </Accordion>
 
   <Accordion title="PluralKit-Unterstützung">
-    Aktivieren Sie die PluralKit-Auflösung, um proxied messages der Identität von Systemmitgliedern zuzuordnen:
+    Aktivieren Sie die PluralKit-Auflösung, um weitergeleitete Nachrichten auf die Identität eines Systemmitglieds abzubilden:
 
 ```json5
 {
@@ -865,7 +865,7 @@ Standardmäßige Einstellungen für Slash-Befehle:
     discord: {
       pluralkit: {
         enabled: true,
-        token: "pk_live_...", // optional; erforderlich für private Systeme
+        token: "pk_live_...", // optional; für private Systeme erforderlich
       },
     },
   },
@@ -874,15 +874,15 @@ Standardmäßige Einstellungen für Slash-Befehle:
 
     Hinweise:
 
-    - Allowlisten können `pk:<memberId>` verwenden
+    - Allowlists können `pk:<memberId>` verwenden
     - Anzeigenamen von Mitgliedern werden nur dann nach Name/Slug abgeglichen, wenn `channels.discord.dangerouslyAllowNameMatching: true` gesetzt ist
-    - Lookups verwenden die ursprüngliche Nachrichten-ID und sind zeitfensterbegrenzt
-    - wenn der Lookup fehlschlägt, werden proxied messages als Bot-Nachrichten behandelt und verworfen, sofern nicht `allowBots=true` gesetzt ist
+    - Abfragen verwenden die ursprüngliche Nachrichten-ID und sind auf ein Zeitfenster begrenzt
+    - wenn die Abfrage fehlschlägt, werden weitergeleitete Nachrichten als Bot-Nachrichten behandelt und verworfen, sofern nicht `allowBots=true`
 
   </Accordion>
 
-  <Accordion title="Presence-Konfiguration">
-    Presence-Updates werden angewendet, wenn Sie ein Status- oder Aktivitätsfeld setzen oder Auto Presence aktivieren.
+  <Accordion title="Präsenzkonfiguration">
+    Präsenzaktualisierungen werden angewendet, wenn Sie ein Status- oder Aktivitätsfeld setzen oder automatische Präsenz aktivieren.
 
     Beispiel nur für Status:
 
@@ -896,7 +896,7 @@ Standardmäßige Einstellungen für Slash-Befehle:
 }
 ```
 
-    Aktivitätsbeispiel (Custom Status ist der Standard-Aktivitätstyp):
+    Aktivitätsbeispiel (benutzerdefinierter Status ist der Standard-Aktivitätstyp):
 
 ```json5
 {
@@ -929,10 +929,10 @@ Standardmäßige Einstellungen für Slash-Befehle:
     - 1: Streaming (erfordert `activityUrl`)
     - 2: Listening
     - 3: Watching
-    - 4: Custom (verwendet den Aktivitätstext als Statuszustand; Emoji ist optional)
+    - 4: Custom (verwendet den Aktivitätstext als Statusstatus; Emoji ist optional)
     - 5: Competing
 
-    Beispiel für Auto Presence (Runtime-Gesundheitssignal):
+    Beispiel für automatische Präsenz (Signal für Laufzeitzustand):
 
 ```json5
 {
@@ -949,72 +949,74 @@ Standardmäßige Einstellungen für Slash-Befehle:
 }
 ```
 
-    Auto Presence ordnet die Runtime-Verfügbarkeit dem Discord-Status zu: healthy => online, degraded oder unknown => idle, exhausted oder unavailable => dnd. Optionale Textüberschreibungen:
+    Die automatische Präsenz ordnet die Laufzeitverfügbarkeit dem Discord-Status zu: healthy => online, degraded oder unknown => idle, exhausted oder unavailable => dnd. Optionale Textüberschreibungen:
 
     - `autoPresence.healthyText`
     - `autoPresence.degradedText`
-    - `autoPresence.exhaustedText` (unterstützt den Platzhalter `{reason}`)
+    - `autoPresence.exhaustedText` (unterstützt Platzhalter `{reason}`)
 
   </Accordion>
 
   <Accordion title="Genehmigungen in Discord">
-    Discord unterstützt button-basierte Genehmigungsverarbeitung in DMs und kann Genehmigungsaufforderungen optional im ursprünglichen Kanal veröffentlichen.
+    Discord unterstützt Genehmigungsabläufe auf Button-Basis in DMs und kann optional Genehmigungsaufforderungen im auslösenden Kanal veröffentlichen.
 
     Konfigurationspfad:
 
     - `channels.discord.execApprovals.enabled`
-    - `channels.discord.execApprovals.approvers` (optional; verwendet nach Möglichkeit `commands.ownerAllowFrom` als Fallback)
+    - `channels.discord.execApprovals.approvers` (optional; fällt nach Möglichkeit auf `commands.ownerAllowFrom` zurück)
     - `channels.discord.execApprovals.target` (`dm` | `channel` | `both`, Standard: `dm`)
     - `agentFilter`, `sessionFilter`, `cleanupAfterResolve`
 
-    Discord aktiviert native Exec-Genehmigungen automatisch, wenn `enabled` nicht gesetzt oder `"auto"` ist und mindestens ein Genehmigender aufgelöst werden kann, entweder aus `execApprovals.approvers` oder aus `commands.ownerAllowFrom`. Discord leitet Exec-Genehmigende nicht aus kanalbezogenem `allowFrom`, veraltetem `dm.allowFrom` oder Direct-Message-`defaultTo` ab. Setzen Sie `enabled: false`, um Discord explizit als nativen Genehmigungs-Client zu deaktivieren.
+    Discord aktiviert native Exec-Genehmigungen automatisch, wenn `enabled` nicht gesetzt oder `"auto"` ist und mindestens ein Genehmiger aufgelöst werden kann, entweder aus `execApprovals.approvers` oder aus `commands.ownerAllowFrom`. Discord leitet Exec-Genehmiger nicht aus kanalbezogenem `allowFrom`, veraltetem `dm.allowFrom` oder direktem `defaultTo` für Direktnachrichten ab. Setzen Sie `enabled: false`, um Discord explizit als nativen Genehmigungs-Client zu deaktivieren.
 
-    Wenn `target` den Wert `channel` oder `both` hat, ist die Genehmigungsaufforderung im Kanal sichtbar. Nur aufgelöste Genehmigende können die Buttons verwenden; andere Benutzer erhalten eine ephemere Ablehnung. Genehmigungsaufforderungen enthalten den Befehlstext, daher sollten Sie die Zustellung im Kanal nur in vertrauenswürdigen Kanälen aktivieren. Wenn die Kanal-ID nicht aus dem Sitzungsschlüssel abgeleitet werden kann, fällt OpenClaw auf DM-Zustellung zurück.
+    Wenn `target` den Wert `channel` oder `both` hat, ist die Genehmigungsaufforderung im Kanal sichtbar. Nur aufgelöste Genehmiger können die Buttons verwenden; andere Benutzer erhalten eine ephemere Ablehnung. Genehmigungsaufforderungen enthalten den Befehlstext, daher sollten Sie die Zustellung im Kanal nur in vertrauenswürdigen Kanälen aktivieren. Wenn die Kanal-ID nicht aus dem Sitzungsschlüssel abgeleitet werden kann, verwendet OpenClaw stattdessen die Zustellung per DM.
 
-    Discord rendert auch die gemeinsamen Genehmigungs-Buttons, die von anderen Chat-Kanälen verwendet werden. Der native Discord-Adapter ergänzt hauptsächlich DM-Routing für Genehmigende und Kanal-Fanout.
+    Discord rendert auch die gemeinsamen Genehmigungsbuttons, die von anderen Chat-Kanälen verwendet werden. Der native Discord-Adapter fügt hauptsächlich das DM-Routing für Genehmiger und die Verteilung an Kanäle hinzu.
     Wenn diese Buttons vorhanden sind, sind sie die primäre UX für Genehmigungen; OpenClaw
-    sollte einen manuellen `/approve`-Befehl nur dann einfügen, wenn das Tool-Ergebnis angibt,
-    dass Chat-Genehmigungen nicht verfügbar sind oder die manuelle Genehmigung der einzige Weg ist.
+    sollte einen manuellen `/approve`-Befehl nur dann einschließen, wenn das Tool-Ergebnis angibt,
+    dass Chat-Genehmigungen nicht verfügbar sind oder nur eine manuelle Genehmigung möglich ist.
 
-    Die Gateway-Authentifizierung für diesen Handler verwendet denselben gemeinsamen Vertrag zur Auflösung von Anmeldedaten wie andere Gateway-Clients:
+    Die Gateway-Authentifizierung für diesen Handler verwendet denselben gemeinsamen Vertrag zur Anmeldedatenauflösung wie andere Gateway-Clients:
 
-    - env-first local auth (`OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD` dann `gateway.auth.*`)
-    - im lokalen Modus kann `gateway.remote.*` nur dann als Fallback verwendet werden, wenn `gateway.auth.*` nicht gesetzt ist; konfigurierte, aber nicht aufgelöste lokale SecretRefs schlagen fail-closed fehl
-    - Unterstützung des Remote-Modus über `gateway.remote.*`, wenn anwendbar
-    - URL-Überschreibungen sind override-sicher: CLI-Überschreibungen verwenden keine impliziten Anmeldedaten erneut, und Env-Überschreibungen verwenden nur Env-Anmeldedaten
+    - env-first-lokale Authentifizierung (`OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD` dann `gateway.auth.*`)
+    - im lokalen Modus kann `gateway.remote.*` nur dann als Fallback verwendet werden, wenn `gateway.auth.*` nicht gesetzt ist; konfigurierte, aber nicht aufgelöste lokale SecretRefs schlagen geschlossen fehl
+    - Unterstützung für den Remote-Modus über `gateway.remote.*`, wenn zutreffend
+    - URL-Überschreibungen sind Override-sicher: CLI-Überschreibungen verwenden keine impliziten Anmeldedaten wieder, und Env-Überschreibungen verwenden nur Env-Anmeldedaten
 
     Verhalten bei der Genehmigungsauflösung:
 
-    - IDs mit dem Präfix `plugin:` werden über `plugin.approval.resolve` aufgelöst.
+    - Mit `plugin:` präfixierte IDs werden über `plugin.approval.resolve` aufgelöst.
     - Andere IDs werden über `exec.approval.resolve` aufgelöst.
-    - Discord führt hier keinen zusätzlichen Exec-zu-Plugin-Fallback-Schritt aus; das ID-Präfix
-      entscheidet, welche Gateway-Methode aufgerufen wird.
+    - Discord führt hier keinen zusätzlichen Exec-zu-Plugin-Fallback durch; das
+      ID-Präfix entscheidet, welche Gateway-Methode aufgerufen wird.
 
     Exec-Genehmigungen laufen standardmäßig nach 30 Minuten ab. Wenn Genehmigungen mit
-    unbekannten Genehmigungs-IDs fehlschlagen, überprüfen Sie die Auflösung der Genehmigenden,
-    die Aktivierung der Funktion und dass die zugestellte Genehmigungs-ID-Art zur ausstehenden Anfrage passt.
+    unbekannten Genehmigungs-IDs fehlschlagen, prüfen Sie die Auflösung der Genehmiger, die Aktivierung der Funktion und
+    ob die zugestellte Art der Genehmigungs-ID zur ausstehenden Anfrage passt.
 
     Zugehörige Dokumentation: [Exec approvals](/de/tools/exec-approvals)
 
   </Accordion>
 </AccordionGroup>
 
-## Tools und Action-Gates
+## Tools und Action Gates
 
-Discord-Nachrichtenaktionen umfassen Messaging, Kanalverwaltung, Moderation, Presence und Metadatenaktionen.
+Discord-Nachrichtenaktionen umfassen Messaging, Kanaladministration, Moderation, Präsenz und Metadatenaktionen.
 
 Zentrale Beispiele:
 
 - Messaging: `sendMessage`, `readMessages`, `editMessage`, `deleteMessage`, `threadReply`
 - Reaktionen: `react`, `reactions`, `emojiList`
 - Moderation: `timeout`, `kick`, `ban`
-- Presence: `setPresence`
+- Präsenz: `setPresence`
 
-Action-Gates befinden sich unter `channels.discord.actions.*`.
+Die Aktion `event-create` akzeptiert einen optionalen Parameter `image` (URL oder lokaler Dateipfad), um das Titelbild des geplanten Ereignisses festzulegen.
+
+Action Gates befinden sich unter `channels.discord.actions.*`.
 
 Standardverhalten der Gates:
 
-| Action-Gruppe                                                                                                                                                            | Standard |
+| Action group                                                                                                                                                             | Standard |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
 | reactions, messages, threads, pins, polls, search, memberInfo, roleInfo, channelInfo, channels, voiceStatus, events, stickers, emojiUploads, stickerUploads, permissions | aktiviert |
 | roles                                                                                                                                                                    | deaktiviert |
@@ -1023,10 +1025,10 @@ Standardverhalten der Gates:
 
 ## Components v2 UI
 
-OpenClaw verwendet Discord components v2 für Exec-Genehmigungen und kontextübergreifende Markierungen. Discord-Nachrichtenaktionen können auch `components` für benutzerdefinierte UI akzeptieren (fortgeschritten; erfordert das Erstellen einer Komponenten-Payload über das Discord-Tool), während veraltete `embeds` weiterhin verfügbar, aber nicht empfohlen sind.
+OpenClaw verwendet Discord components v2 für Exec-Genehmigungen und kanalübergreifende Markierungen. Discord-Nachrichtenaktionen können auch `components` für benutzerdefinierte UI akzeptieren (fortgeschritten; erfordert das Erstellen einer Komponenten-Payload über das Discord-Tool), während veraltete `embeds` weiterhin verfügbar sind, aber nicht empfohlen werden.
 
-- `channels.discord.ui.components.accentColor` setzt die Akzentfarbe, die für Discord-Komponentencontainer verwendet wird (Hex).
-- Pro Konto setzen mit `channels.discord.accounts.<id>.ui.components.accentColor`.
+- `channels.discord.ui.components.accentColor` setzt die Akzentfarbe, die von Discord-Komponentencontainern verwendet wird (hex).
+- Pro Konto mit `channels.discord.accounts.<id>.ui.components.accentColor` setzen.
 - `embeds` werden ignoriert, wenn components v2 vorhanden sind.
 
 Beispiel:
@@ -1047,15 +1049,15 @@ Beispiel:
 
 ## Sprachkanäle
 
-OpenClaw kann Discord-Sprachkanälen für Echtzeit- und fortlaufende Gespräche beitreten. Dies ist getrennt von Anhängen mit Sprachnachrichten.
+OpenClaw kann Discord-Sprachkanälen für Echtzeitgespräche mit kontinuierlicher Interaktion beitreten. Dies ist von Anhängen mit Sprachnachrichten getrennt.
 
 Anforderungen:
 
 - Aktivieren Sie native Befehle (`commands.native` oder `channels.discord.commands.native`).
 - Konfigurieren Sie `channels.discord.voice`.
-- Der Bot benötigt Connect- und Speak-Berechtigungen im Ziel-Sprachkanal.
+- Der Bot benötigt die Berechtigungen Connect + Speak im Ziel-Sprachkanal.
 
-Verwenden Sie den nur für Discord verfügbaren nativen Befehl `/vc join|leave|status`, um Sitzungen zu steuern. Der Befehl verwendet den Standard-Agenten des Kontos und folgt denselben Allowlist- und Group-Policy-Regeln wie andere Discord-Befehle.
+Verwenden Sie den nur für Discord verfügbaren nativen Befehl `/vc join|leave|status`, um Sitzungen zu steuern. Der Befehl verwendet den Standard-Agenten des Kontos und folgt denselben Allowlist- und Gruppenrichtlinienregeln wie andere Discord-Befehle.
 
 Beispiel für automatischen Beitritt:
 
@@ -1085,23 +1087,23 @@ Beispiel für automatischen Beitritt:
 
 Hinweise:
 
-- `voice.tts` überschreibt `messages.tts` nur für die Sprachwiedergabe.
-- Voice-Transcript-Turns leiten den Owner-Status aus Discord-`allowFrom` (oder `dm.allowFrom`) ab; Sprecher ohne Owner-Status können nicht auf owner-only Tools zugreifen (zum Beispiel `gateway` und `cron`).
-- Voice ist standardmäßig aktiviert; setzen Sie `channels.discord.voice.enabled=false`, um es zu deaktivieren.
+- `voice.tts` überschreibt `messages.tts` nur für die Sprachausgabe.
+- Sprach-Transkript-Turns leiten den Eigentümerstatus aus Discord `allowFrom` (oder `dm.allowFrom`) ab; Sprecher ohne Eigentümerstatus können nicht auf Tools zugreifen, die nur Eigentümern vorbehalten sind (zum Beispiel `gateway` und `cron`).
+- Voice ist standardmäßig aktiviert; setzen Sie `channels.discord.voice.enabled=false`, um sie zu deaktivieren.
 - `voice.daveEncryption` und `voice.decryptionFailureTolerance` werden an die Join-Optionen von `@discordjs/voice` durchgereicht.
-- Die Standardwerte von `@discordjs/voice` sind `daveEncryption=true` und `decryptionFailureTolerance=24`, wenn nichts gesetzt ist.
-- OpenClaw überwacht außerdem Entschlüsselungsfehler beim Empfang und stellt automatisch wieder her, indem der Sprachkanal nach wiederholten Fehlern in einem kurzen Zeitfenster verlassen und erneut betreten wird.
-- Wenn Empfangsprotokolle wiederholt `DecryptionFailed(UnencryptedWhenPassthroughDisabled)` anzeigen, kann dies der Upstream-Fehler von `@discordjs/voice` beim Empfang sein, der in [discord.js #11419](https://github.com/discordjs/discord.js/issues/11419) verfolgt wird.
+- Die Standardwerte von `@discordjs/voice` sind `daveEncryption=true` und `decryptionFailureTolerance=24`, wenn sie nicht gesetzt sind.
+- OpenClaw überwacht außerdem Entschlüsselungsfehler beim Empfang und stellt sich nach wiederholten Fehlern in einem kurzen Zeitfenster automatisch wieder her, indem der Sprachkanal verlassen und erneut betreten wird.
+- Wenn Empfangslogs wiederholt `DecryptionFailed(UnencryptedWhenPassthroughDisabled)` anzeigen, könnte dies der Upstream-Receive-Bug von `@discordjs/voice` sein, der in [discord.js #11419](https://github.com/discordjs/discord.js/issues/11419) verfolgt wird.
 
 ## Sprachnachrichten
 
-Discord-Sprachnachrichten zeigen eine Wellenformvorschau an und erfordern OGG/Opus-Audio plus Metadaten. OpenClaw erzeugt die Wellenform automatisch, benötigt dafür aber `ffmpeg` und `ffprobe`, die auf dem Gateway-Host verfügbar sein müssen, um Audiodateien zu prüfen und zu konvertieren.
+Discord-Sprachnachrichten zeigen eine Wellenformvorschau an und erfordern OGG/Opus-Audio plus Metadaten. OpenClaw erzeugt die Wellenform automatisch, benötigt aber `ffmpeg` und `ffprobe`, die auf dem Gateway-Host verfügbar sein müssen, um Audiodateien zu prüfen und zu konvertieren.
 
 Anforderungen und Einschränkungen:
 
 - Geben Sie einen **lokalen Dateipfad** an (URLs werden abgelehnt).
-- Lassen Sie Textinhalt weg (Discord erlaubt nicht Text + Sprachnachricht in derselben Payload).
-- Jedes Audioformat wird akzeptiert; OpenClaw konvertiert bei Bedarf zu OGG/Opus.
+- Lassen Sie Textinhalte weg (Discord erlaubt nicht Text + Sprachnachricht in derselben Payload).
+- Jedes Audioformat wird akzeptiert; OpenClaw konvertiert bei Bedarf in OGG/Opus.
 
 Beispiel:
 
@@ -1112,19 +1114,19 @@ message(action="send", channel="discord", target="channel:123", path="/path/to/a
 ## Fehlerbehebung
 
 <AccordionGroup>
-  <Accordion title="Nicht erlaubte Intents verwendet oder Bot sieht keine Guild-Nachrichten">
+  <Accordion title="Nicht erlaubte Intents verwendet oder Bot sieht keine Servernachrichten">
 
     - Message Content Intent aktivieren
-    - Server Members Intent aktivieren, wenn Sie von Benutzer-/Mitgliedsauflösung abhängig sind
+    - Server Members Intent aktivieren, wenn Sie von Benutzer-/Mitgliederauflösung abhängen
     - Gateway nach Änderung der Intents neu starten
 
   </Accordion>
 
-  <Accordion title="Guild-Nachrichten werden unerwartet blockiert">
+  <Accordion title="Servernachrichten unerwartet blockiert">
 
     - `groupPolicy` prüfen
-    - Guild-Allowlist unter `channels.discord.guilds` prüfen
-    - wenn die Guild-`channels`-Map existiert, sind nur aufgeführte Kanäle erlaubt
+    - Server-Allowlist unter `channels.discord.guilds` prüfen
+    - wenn eine `channels`-Zuordnung für den Server existiert, sind nur aufgelistete Kanäle erlaubt
     - Verhalten von `requireMention` und Erwähnungsmustern prüfen
 
     Nützliche Prüfungen:
@@ -1137,16 +1139,16 @@ openclaw logs --follow
 
   </Accordion>
 
-  <Accordion title="Require mention false, aber weiterhin blockiert">
+  <Accordion title="requireMention false, aber trotzdem blockiert">
     Häufige Ursachen:
 
-    - `groupPolicy="allowlist"` ohne passende Guild-/Kanal-Allowlist
+    - `groupPolicy="allowlist"` ohne passende Server-/Kanal-Allowlist
     - `requireMention` an der falschen Stelle konfiguriert (muss unter `channels.discord.guilds` oder im Kanaleintrag stehen)
-    - Sender durch Guild-/Kanal-`users`-Allowlist blockiert
+    - Absender durch Server-/Kanal-`users`-Allowlist blockiert
 
   </Accordion>
 
-  <Accordion title="Lang laufende Handler laufen ab oder erzeugen doppelte Antworten">
+  <Accordion title="Lang laufende Handler haben Timeouts oder doppelte Antworten">
 
     Typische Logs:
 
@@ -1154,15 +1156,15 @@ openclaw logs --follow
     - `Slow listener detected ...`
     - `discord inbound worker timed out after ...`
 
-    Schalter für Listener-Budget:
+    Regler für Listener-Budget:
 
     - Einzelkonto: `channels.discord.eventQueue.listenerTimeout`
-    - Mehrere Konten: `channels.discord.accounts.<accountId>.eventQueue.listenerTimeout`
+    - mehrere Konten: `channels.discord.accounts.<accountId>.eventQueue.listenerTimeout`
 
-    Schalter für Worker-Lauf-Timeout:
+    Regler für Worker-Laufzeit-Timeout:
 
     - Einzelkonto: `channels.discord.inboundWorker.runTimeoutMs`
-    - Mehrere Konten: `channels.discord.accounts.<accountId>.inboundWorker.runTimeoutMs`
+    - mehrere Konten: `channels.discord.accounts.<accountId>.inboundWorker.runTimeoutMs`
     - Standard: `1800000` (30 Minuten); setzen Sie `0`, um zu deaktivieren
 
     Empfohlene Baseline:
@@ -1186,23 +1188,23 @@ openclaw logs --follow
 }
 ```
 
-    Verwenden Sie `eventQueue.listenerTimeout` für langsames Listener-Setup und `inboundWorker.runTimeoutMs`
-    nur dann, wenn Sie ein separates Sicherheitsventil für in der Warteschlange stehende Agent-Turns möchten.
+    Verwenden Sie `eventQueue.listenerTimeout` für langsame Listener-Einrichtung und `inboundWorker.runTimeoutMs`
+    nur dann, wenn Sie ein separates Sicherheitsventil für in die Warteschlange gestellte Agenten-Turns möchten.
 
   </Accordion>
 
-  <Accordion title="Abweichungen bei der Berechtigungsprüfung">
+  <Accordion title="Abweichungen bei Berechtigungs-Audits">
     Berechtigungsprüfungen von `channels status --probe` funktionieren nur für numerische Kanal-IDs.
 
-    Wenn Sie Slug-Schlüssel verwenden, kann das Runtime-Matching weiterhin funktionieren, aber Probe kann die Berechtigungen nicht vollständig überprüfen.
+    Wenn Sie Slug-Schlüssel verwenden, kann das Runtime-Matching weiterhin funktionieren, aber die Probe kann die Berechtigungen nicht vollständig überprüfen.
 
   </Accordion>
 
-  <Accordion title="DM- und Kopplungsprobleme">
+  <Accordion title="Probleme mit DM und Kopplung">
 
     - DM deaktiviert: `channels.discord.dm.enabled=false`
     - DM-Richtlinie deaktiviert: `channels.discord.dmPolicy="disabled"` (veraltet: `channels.discord.dm.policy`)
-    - wartet auf Genehmigung der Kopplung im Modus `pairing`
+    - im Modus `pairing` wird auf Genehmigung der Kopplung gewartet
 
   </Accordion>
 
@@ -1214,15 +1216,15 @@ openclaw logs --follow
 
   </Accordion>
 
-  <Accordion title="Voice-STT-Ausfälle mit DecryptionFailed(...)">
+  <Accordion title="Voice-STT-Aussetzer mit DecryptionFailed(...)">
 
-    - halten Sie OpenClaw aktuell (`openclaw update`), damit die Discord-Wiederherstellungslogik für Voice-Empfang vorhanden ist
+    - halten Sie OpenClaw aktuell (`openclaw update`), damit die Wiederherstellungslogik für den Empfang von Discord-Voice vorhanden ist
     - bestätigen Sie `channels.discord.voice.daveEncryption=true` (Standard)
     - beginnen Sie mit `channels.discord.voice.decryptionFailureTolerance=24` (Upstream-Standard) und passen Sie nur bei Bedarf an
-    - überwachen Sie Logs auf:
+    - beobachten Sie die Logs auf:
       - `discord voice: DAVE decrypt failures detected`
       - `discord voice: repeated decrypt failures; attempting rejoin`
-    - wenn Fehler nach automatischem erneuten Beitritt weiter auftreten, sammeln Sie Logs und vergleichen Sie sie mit [discord.js #11419](https://github.com/discordjs/discord.js/issues/11419)
+    - wenn die Fehler nach automatischem erneuten Beitritt weiterhin auftreten, sammeln Sie Logs und vergleichen Sie sie mit [discord.js #11419](https://github.com/discordjs/discord.js/issues/11419)
 
   </Accordion>
 </AccordionGroup>
@@ -1239,22 +1241,22 @@ Signalstarke Discord-Felder:
 - Richtlinie: `groupPolicy`, `dm.*`, `guilds.*`, `guilds.*.channels.*`
 - Befehl: `commands.native`, `commands.useAccessGroups`, `configWrites`, `slashCommand.*`
 - Ereigniswarteschlange: `eventQueue.listenerTimeout` (Listener-Budget), `eventQueue.maxQueueSize`, `eventQueue.maxConcurrency`
-- Inbound-Worker: `inboundWorker.runTimeoutMs`
+- Eingangs-Worker: `inboundWorker.runTimeoutMs`
 - Antwort/Verlauf: `replyToMode`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
 - Zustellung: `textChunkLimit`, `chunkMode`, `maxLinesPerMessage`
 - Streaming: `streaming` (veralteter Alias: `streamMode`), `draftChunk`, `blockStreaming`, `blockStreamingCoalesce`
 - Medien/Wiederholung: `mediaMaxMb`, `retry`
   - `mediaMaxMb` begrenzt ausgehende Discord-Uploads (Standard: `100MB`)
 - Aktionen: `actions.*`
-- Presence: `activity`, `status`, `activityType`, `activityUrl`
+- Präsenz: `activity`, `status`, `activityType`, `activityUrl`
 - UI: `ui.components.accentColor`
 - Funktionen: `threadBindings`, oberstes `bindings[]` (`type: "acp"`), `pluralkit`, `execApprovals`, `intents`, `agentComponents`, `heartbeat`, `responsePrefix`
 
 ## Sicherheit und Betrieb
 
-- Behandeln Sie Bot-Tokens als Geheimnisse (`DISCORD_BOT_TOKEN` bevorzugt in überwachten Umgebungen).
+- Behandeln Sie Bot-Tokens als Geheimnisse (`DISCORD_BOT_TOKEN` wird in überwachten Umgebungen bevorzugt).
 - Gewähren Sie Discord-Berechtigungen mit minimalen Rechten.
-- Wenn der Bereitstellungs-/Statuszustand von Befehlen veraltet ist, starten Sie das Gateway neu und prüfen Sie erneut mit `openclaw channels status --probe`.
+- Wenn der Befehlsbereitstellungs-/Statuszustand veraltet ist, starten Sie das Gateway neu und prüfen Sie mit `openclaw channels status --probe` erneut.
 
 ## Verwandt
 

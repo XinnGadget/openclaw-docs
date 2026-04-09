@@ -6,7 +6,7 @@ read_when:
 title: "Сбой Node + tsx"
 ---
 
-# Сбой Node + tsx "__name is not a function"
+# Сбой Node + tsx "\_\_name is not a function"
 
 ## Краткое описание
 

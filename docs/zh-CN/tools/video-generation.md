@@ -3,36 +3,36 @@ read_when:
     - 通过智能体生成视频
     - 配置视频生成提供商和模型
     - 理解 `video_generate` 工具参数
-summary: 使用 12 个提供商后端，从文本、图像或现有视频生成视频
+summary: 使用 12 个提供商后端，从文本、图片或现有视频生成视频
 title: 视频生成
 x-i18n:
-    generated_at: "2026-04-11T01:39:19Z"
+    generated_at: "2026-04-11T01:59:36Z"
     model: gpt-5.4
     provider: openai
-    source_hash: f0949cd819b40b909801d877066bcdea01ca7335f6cdd807cb4155953734ffdc
+    source_hash: 6848d03ef578181902517d068e8d9fe2f845e572a90481bbdf7bd9f1c591f245
     source_path: tools/video-generation.md
     workflow: 15
 ---
 
 # 视频生成
 
-OpenClaw 智能体可以根据文本提示、参考图像或现有视频生成视频。当前支持 12 个提供商后端，每个后端在模型选项、输入模式和功能集方面各不相同。智能体会根据你的配置和可用的 API 密钥自动选择合适的提供商。
+OpenClaw 智能体可以根据文本提示、参考图片或现有视频生成视频。当前支持 12 个提供商后端，每个后端都有不同的模型选项、输入模式和功能集。智能体会根据你的配置和可用的 API 密钥自动选择合适的提供商。
 
 <Note>
-只有在至少有一个视频生成提供商可用时，`video_generate` 工具才会显示。如果你在智能体工具中看不到它，请设置提供商 API 密钥或配置 `agents.defaults.videoGenerationModel`。
+只有在至少有一个视频生成提供商可用时，`video_generate` 工具才会显示。如果你在智能体工具中没有看到它，请设置提供商 API 密钥，或配置 `agents.defaults.videoGenerationModel`。
 </Note>
 
 OpenClaw 将视频生成视为三种运行时模式：
 
 - `generate`：用于没有参考媒体的文生视频请求
-- `imageToVideo`：当请求包含一个或多个参考图像时
-- `videoToVideo`：当请求包含一个或多个参考视频时
+- `imageToVideo`：当请求包含一个或多个参考图片时使用
+- `videoToVideo`：当请求包含一个或多个参考视频时使用
 
-提供商可能支持上述模式中的任意子集。该工具会在提交前验证当前激活的模式，并在 `action=list` 中报告支持的模式。
+提供商可以支持这些模式中的任意子集。工具会在提交前校验当前活动模式，并在 `action=list` 中报告支持的模式。
 
 ## 快速开始
 
-1. 为任意受支持的提供商设置 API 密钥：
+1. 为任一受支持的提供商设置 API 密钥：
 
 ```bash
 export GEMINI_API_KEY="your-key"
@@ -46,33 +46,33 @@ openclaw config set agents.defaults.videoGenerationModel.primary "google/veo-3.1
 
 3. 向智能体发出请求：
 
-> 生成一个 5 秒钟的电影感视频：一只友好的龙虾在日落时分冲浪。
+> 生成一个 5 秒长、电影感十足的视频，内容是一只友好的龙虾在日落时分冲浪。
 
-智能体会自动调用 `video_generate`。不需要进行工具允许列表配置。
+智能体会自动调用 `video_generate`。不需要配置工具允许列表。
 
 ## 生成视频时会发生什么
 
 视频生成是异步的。当智能体在一个会话中调用 `video_generate` 时：
 
-1. OpenClaw 会将请求提交给提供商，并立即返回一个任务 ID。
+1. OpenClaw 将请求提交给提供商，并立即返回一个任务 ID。
 2. 提供商会在后台处理该任务（通常需要 30 秒到 5 分钟，具体取决于提供商和分辨率）。
 3. 当视频准备就绪后，OpenClaw 会通过内部完成事件唤醒同一个会话。
-4. 智能体会将生成完成的视频发布回原始对话中。
+4. 智能体会将生成完成的视频发回原始对话中。
 
-当任务正在进行中时，同一会话中的重复 `video_generate` 调用不会启动新的生成任务，而是返回当前任务状态。你可以使用 `openclaw tasks list` 或 `openclaw tasks show <taskId>` 从 CLI 检查进度。
+当某个任务正在处理中时，同一会话中的重复 `video_generate` 调用不会启动新的生成任务，而是返回当前任务状态。你可以使用 `openclaw tasks list` 或 `openclaw tasks show <taskId>` 在 CLI 中查看进度。
 
-在没有会话支持的智能体运行之外（例如直接调用工具），该工具会回退为内联生成，并在同一轮中返回最终媒体路径。
+在没有会话支撑的智能体运行之外（例如，直接调用工具），该工具会回退为内联生成，并在同一轮中返回最终媒体路径。
 
 ### 任务生命周期
 
-每个 `video_generate` 请求都会经历四种状态：
+每个 `video_generate` 请求都会经过四个状态：
 
-1. **queued** -- 任务已创建，正在等待提供商接受。
-2. **running** -- 提供商正在处理（通常需要 30 秒到 5 分钟，具体取决于提供商和分辨率）。
-3. **succeeded** -- 视频已就绪；智能体会被唤醒并将其发布到对话中。
-4. **failed** -- 提供商错误或超时；智能体会带着错误详情被唤醒。
+1. **queued** -- 任务已创建，等待提供商接受。
+2. **running** -- 提供商正在处理中（通常需要 30 秒到 5 分钟，具体取决于提供商和分辨率）。
+3. **succeeded** -- 视频已准备就绪；智能体会被唤醒并将其发布到对话中。
+4. **failed** -- 提供商错误或超时；智能体会携带错误详情被唤醒。
 
-从 CLI 检查状态：
+通过 CLI 检查状态：
 
 ```bash
 openclaw tasks list
@@ -80,101 +80,101 @@ openclaw tasks show <taskId>
 openclaw tasks cancel <taskId>
 ```
 
-防重复：如果当前会话的视频任务已经处于 `queued` 或 `running` 状态，`video_generate` 会返回现有任务状态，而不是启动新的任务。使用 `action: "status"` 可以显式检查状态，而不会触发新的生成。
+防止重复：如果当前会话已经有一个状态为 `queued` 或 `running` 的视频任务，`video_generate` 会返回现有任务状态，而不是启动新任务。使用 `action: "status"` 可以显式查询状态，而不会触发新的生成。
 
 ## 支持的提供商
 
-| 提供商 | 默认模型                        | 文本 | 图像参考          | 视频参考         | API 密钥                                  |
-| ------ | ------------------------------- | ---- | ----------------- | ---------------- | ----------------------------------------- |
-| Alibaba  | `wan2.6-t2v`                  | 是   | 是（远程 URL）    | 是（远程 URL）   | `MODELSTUDIO_API_KEY`                     |
-| BytePlus（国际版） | `seedance-1-0-lite-t2v-250428` | 是   | 1 张图像          | 否               | `BYTEPLUS_API_KEY`                        |
-| ComfyUI | `workflow`                      | 是   | 1 张图像          | 否               | `COMFY_API_KEY` 或 `COMFY_CLOUD_API_KEY` |
-| fal    | `fal-ai/minimax/video-01-live`  | 是   | 1 张图像          | 否               | `FAL_KEY`                                 |
-| Google | `veo-3.1-fast-generate-preview` | 是   | 1 张图像          | 1 个视频         | `GEMINI_API_KEY`                          |
-| MiniMax | `MiniMax-Hailuo-2.3`           | 是   | 1 张图像          | 否               | `MINIMAX_API_KEY`                         |
-| OpenAI | `sora-2`                        | 是   | 1 张图像          | 1 个视频         | `OPENAI_API_KEY`                          |
-| Qwen   | `wan2.6-t2v`                    | 是   | 是（远程 URL）    | 是（远程 URL）   | `QWEN_API_KEY`                            |
-| Runway | `gen4.5`                        | 是   | 1 张图像          | 1 个视频         | `RUNWAYML_API_SECRET`                     |
-| Together | `Wan-AI/Wan2.2-T2V-A14B`      | 是   | 1 张图像          | 否               | `TOGETHER_API_KEY`                        |
-| Vydra  | `veo3`                          | 是   | 1 张图像（`kling`） | 否             | `VYDRA_API_KEY`                           |
-| xAI    | `grok-imagine-video`            | 是   | 1 张图像          | 1 个视频         | `XAI_API_KEY`                             |
+| 提供商 | 默认模型 | 文本 | 图片参考 | 视频参考 | API 密钥 |
+| -------- | ------------------------------- | ---- | ----------------- | ---------------- | ---------------------------------------- |
+| Alibaba  | `wan2.6-t2v`                    | 是   | 是（远程 URL）    | 是（远程 URL）   | `MODELSTUDIO_API_KEY`                    |
+| BytePlus（国际版） | `seedance-1-0-lite-t2v-250428`  | 是   | 1 张图片          | 否               | `BYTEPLUS_API_KEY`                       |
+| ComfyUI  | `workflow`                      | 是   | 1 张图片          | 否               | `COMFY_API_KEY` 或 `COMFY_CLOUD_API_KEY` |
+| fal      | `fal-ai/minimax/video-01-live`  | 是   | 1 张图片          | 否               | `FAL_KEY`                                |
+| Google   | `veo-3.1-fast-generate-preview` | 是   | 1 张图片          | 1 个视频         | `GEMINI_API_KEY`                         |
+| MiniMax  | `MiniMax-Hailuo-2.3`            | 是   | 1 张图片          | 否               | `MINIMAX_API_KEY`                        |
+| OpenAI   | `sora-2`                        | 是   | 1 张图片          | 1 个视频         | `OPENAI_API_KEY`                         |
+| Qwen     | `wan2.6-t2v`                    | 是   | 是（远程 URL）    | 是（远程 URL）   | `QWEN_API_KEY`                           |
+| Runway   | `gen4.5`                        | 是   | 1 张图片          | 1 个视频         | `RUNWAYML_API_SECRET`                    |
+| Together | `Wan-AI/Wan2.2-T2V-A14B`        | 是   | 1 张图片          | 否               | `TOGETHER_API_KEY`                       |
+| Vydra    | `veo3`                          | 是   | 1 张图片（`kling`） | 否             | `VYDRA_API_KEY`                          |
+| xAI      | `grok-imagine-video`            | 是   | 1 张图片          | 1 个视频         | `XAI_API_KEY`                            |
 
-某些提供商还接受其他附加或替代的 API 密钥环境变量。详情请参见各自的[提供商页面](#related)。
+某些提供商接受额外的或替代的 API 密钥环境变量。详情请参阅各个[提供商页面](#related)。
 
-运行 `video_generate action=list` 可在运行时查看可用提供商、模型和运行时模式。
+运行 `video_generate action=list` 可在运行时查看可用的提供商、模型和运行模式。
 
 ### 声明的能力矩阵
 
 这是 `video_generate`、契约测试以及共享实时扫描所使用的显式模式契约。
 
-| 提供商 | `generate` | `imageToVideo` | `videoToVideo` | 当前共享实时通道                                                                 |
-| ------ | ---------- | -------------- | -------------- | ------------------------------------------------------------------------------- |
-| Alibaba  | 是       | 是             | 是             | `generate`、`imageToVideo`；`videoToVideo` 已跳过，因为该提供商需要远程 `http(s)` 视频 URL |
-| BytePlus（国际版） | 是 | 是          | 否             | `generate`、`imageToVideo`                                                      |
-| ComfyUI | 是         | 是             | 否             | 不在共享扫描中；特定工作流覆盖保留在 Comfy 测试中                               |
-| fal    | 是          | 是             | 否             | `generate`、`imageToVideo`                                                      |
-| Google | 是          | 是             | 是             | `generate`、`imageToVideo`；共享 `videoToVideo` 已跳过，因为当前基于缓冲区的 Gemini/Veo 扫描不接受该输入 |
-| MiniMax | 是         | 是             | 否             | `generate`、`imageToVideo`                                                      |
-| OpenAI | 是          | 是             | 是             | `generate`、`imageToVideo`；共享 `videoToVideo` 已跳过，因为当前这个组织/输入路径需要提供商侧的修补/混编访问 |
-| Qwen   | 是          | 是             | 是             | `generate`、`imageToVideo`；`videoToVideo` 已跳过，因为该提供商需要远程 `http(s)` 视频 URL |
-| Runway | 是          | 是             | 是             | `generate`、`imageToVideo`；只有在所选模型为 `runway/gen4_aleph` 时才会运行 `videoToVideo` |
-| Together | 是        | 是             | 否             | `generate`、`imageToVideo`                                                      |
-| Vydra  | 是          | 是             | 否             | `generate`；共享 `imageToVideo` 已跳过，因为内置 `veo3` 仅支持文本，而内置 `kling` 需要远程图像 URL |
-| xAI    | 是          | 是             | 是             | `generate`、`imageToVideo`；`videoToVideo` 已跳过，因为该提供商当前需要远程 MP4 URL |
+| 提供商 | `generate` | `imageToVideo` | `videoToVideo` | 当前共享实时通道 |
+| -------- | ---------- | -------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Alibaba  | 是         | 是             | 是             | `generate`、`imageToVideo`；`videoToVideo` 被跳过，因为该提供商需要远程 `http(s)` 视频 URL |
+| BytePlus（国际版） | 是 | 是 | 否 | `generate`、`imageToVideo` |
+| ComfyUI  | 是         | 是             | 否             | 不在共享扫描中；与工作流相关的覆盖由 Comfy 测试提供 |
+| fal      | 是         | 是             | 否             | `generate`、`imageToVideo` |
+| Google   | 是         | 是             | 是             | `generate`、`imageToVideo`；共享 `videoToVideo` 被跳过，因为当前基于缓冲区的 Gemini/Veo 扫描不接受该输入 |
+| MiniMax  | 是         | 是             | 否             | `generate`、`imageToVideo` |
+| OpenAI   | 是         | 是             | 是             | `generate`、`imageToVideo`；共享 `videoToVideo` 被跳过，因为当前这个组织/输入路径需要提供商侧的 inpaint/remix 访问 |
+| Qwen     | 是         | 是             | 是             | `generate`、`imageToVideo`；`videoToVideo` 被跳过，因为该提供商需要远程 `http(s)` 视频 URL |
+| Runway   | 是         | 是             | 是             | `generate`、`imageToVideo`；`videoToVideo` 仅在所选模型为 `runway/gen4_aleph` 时运行 |
+| Together | 是         | 是             | 否             | `generate`、`imageToVideo` |
+| Vydra    | 是         | 是             | 否             | `generate`；共享 `imageToVideo` 被跳过，因为内置的 `veo3` 仅支持文本，而内置的 `kling` 需要远程图片 URL |
+| xAI      | 是         | 是             | 是             | `generate`、`imageToVideo`；`videoToVideo` 被跳过，因为该提供商当前需要远程 MP4 URL |
 
 ## 工具参数
 
 ### 必填
 
-| 参数 | 类型   | 描述 |
-| ---- | ------ | ---- |
-| `prompt`  | string | 视频生成的文本描述（`action: "generate"` 时必填） |
+| 参数 | 类型 | 说明 |
+| --------- | ------ | ----------------------------------------------------------------------------- |
+| `prompt`  | string | 要生成的视频的文本描述（当 `action: "generate"` 时必填） |
 
 ### 内容输入
 
-| 参数 | 类型     | 描述 |
-| ---- | -------- | ---- |
-| `image`   | string   | 单个参考图像（路径或 URL） |
-| `images`  | string[] | 多个参考图像（最多 5 个） |
+| 参数 | 类型 | 说明 |
+| --------- | -------- | ------------------------------------ |
+| `image`   | string   | 单个参考图片（路径或 URL） |
+| `images`  | string[] | 多个参考图片（最多 5 张） |
 | `video`   | string   | 单个参考视频（路径或 URL） |
 | `videos`  | string[] | 多个参考视频（最多 4 个） |
 
 ### 风格控制
 
-| 参数 | 类型 | 描述 |
-| ---- | ---- | ---- |
+| 参数 | 类型 | 说明 |
+| ----------------- | ------- | ------------------------------------------------------------------------ |
 | `aspectRatio`     | string  | `1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9` |
 | `resolution`      | string  | `480P`、`720P`、`768P` 或 `1080P` |
-| `durationSeconds` | number  | 目标时长（秒，四舍五入到最接近的提供商支持值） |
+| `durationSeconds` | number  | 目标时长（秒）（会四舍五入到最接近的提供商支持值） |
 | `size`            | string  | 当提供商支持时使用的尺寸提示 |
 | `audio`           | boolean | 在支持时启用生成音频 |
 | `watermark`       | boolean | 在支持时切换提供商水印 |
 
 ### 高级
 
-| 参数 | 类型 | 描述 |
-| ---- | ---- | ---- |
+| 参数 | 类型 | 说明 |
+| ---------- | ------ | ----------------------------------------------- |
 | `action`   | string | `"generate"`（默认）、`"status"` 或 `"list"` |
-| `model`    | string | 提供商/模型覆盖（例如 `runway/gen4.5`） |
+| `model`    | string | 提供商/模型覆盖值（例如 `runway/gen4.5`） |
 | `filename` | string | 输出文件名提示 |
 
-并非所有提供商都支持所有参数。OpenClaw 已经会将时长规范化为最接近的提供商支持值；当回退提供商暴露的是不同的控制界面时，它还会重新映射已转换的几何提示，例如从 size 到 aspectRatio。真正不受支持的覆盖项会在尽力处理的基础上被忽略，并在工具结果中报告为警告。硬性能力限制（例如参考输入过多）会在提交前直接失败。
+并非所有提供商都支持所有参数。OpenClaw 已经会将时长规范化为最接近的提供商支持值，还会在回退提供商暴露不同控制界面时，将类似 size 到宽高比之类的几何提示重新映射。真正不支持的覆盖项会尽力忽略，并在工具结果中报告为警告。硬性能力限制（例如参考输入过多）会在提交前直接失败。
 
 工具结果会报告实际应用的设置。当 OpenClaw 在提供商回退期间重新映射时长或几何参数时，返回的 `durationSeconds`、`size`、`aspectRatio` 和 `resolution` 值会反映实际提交的内容，而 `details.normalization` 会记录从请求值到应用值的转换。
 
 参考输入还会决定运行时模式：
 
 - 没有参考媒体：`generate`
-- 任意图像参考：`imageToVideo`
-- 任意视频参考：`videoToVideo`
+- 任何图片参考：`imageToVideo`
+- 任何视频参考：`videoToVideo`
 
-混合图像和视频参考并不是稳定的共享能力表面。
-每个请求最好只使用一种参考类型。
+图片和视频混合引用并不是稳定的共享能力接口。
+每次请求最好只使用一种参考类型。
 
 ## 操作
 
-- **generate**（默认） -- 根据给定提示和可选参考输入创建视频。
-- **status** -- 检查当前会话中正在进行的视频任务状态，而不启动新的生成。
+- **generate** -- 根据给定提示和可选参考输入生成视频。
+- **status** -- 查询当前会话中正在进行的视频任务状态，而不启动新的生成。
 - **list** -- 显示可用的提供商、模型及其能力。
 
 ## 模型选择
@@ -184,9 +184,9 @@ openclaw tasks cancel <taskId>
 1. **`model` 工具参数** -- 如果智能体在调用中指定了它。
 2. **`videoGenerationModel.primary`** -- 来自配置。
 3. **`videoGenerationModel.fallbacks`** -- 按顺序尝试。
-4. **自动检测** -- 使用具有有效凭证的提供商，先从当前默认提供商开始，然后按字母顺序尝试其余提供商。
+4. **自动检测** -- 使用具有有效身份验证的提供商，从当前默认提供商开始，然后按字母顺序尝试其余提供商。
 
-如果某个提供商失败，系统会自动尝试下一个候选项。如果所有候选项都失败，错误中会包含每次尝试的详细信息。
+如果某个提供商失败，系统会自动尝试下一个候选项。如果所有候选项都失败，错误信息会包含每次尝试的详细信息。
 
 如果你希望视频生成只使用显式配置的 `model`、`primary` 和 `fallbacks` 条目，请设置 `agents.defaults.mediaGenerationAutoProviderFallback: false`。
 
@@ -203,7 +203,21 @@ openclaw tasks cancel <taskId>
 }
 ```
 
-可以使用以下配置固定 fal 上的 Seedance 2.0：
+可以通过以下方式固定使用 fal 上的 HeyGen video-agent：
+
+```json5
+{
+  agents: {
+    defaults: {
+      videoGenerationModel: {
+        primary: "fal/fal-ai/heygen/v2/video-agent",
+      },
+    },
+  },
+}
+```
+
+可以通过以下方式固定使用 fal 上的 Seedance 2.0：
 
 ```json5
 {
@@ -220,23 +234,23 @@ openclaw tasks cancel <taskId>
 ## 提供商说明
 
 | 提供商 | 说明 |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Alibaba  | 使用 DashScope/Model Studio 异步端点。参考图像和视频必须是远程 `http(s)` URL。 |
-| BytePlus（国际版） | 仅支持单张参考图像。 |
-| ComfyUI  | 由工作流驱动的本地或云端执行。通过已配置的图形工作流支持文生视频和图生视频。 |
-| fal      | 对长时间运行任务使用基于队列的流程。仅支持单张参考图像。包含 Seedance 2.0 文生视频和图生视频模型引用。 |
-| Google   | 使用 Gemini/Veo。支持一张参考图像或一个参考视频。 |
-| MiniMax  | 仅支持单张参考图像。 |
-| OpenAI   | 只会传递 `size` 覆盖项。其他风格覆盖项（`aspectRatio`、`resolution`、`audio`、`watermark`）会被忽略，并附带警告。 |
-| Qwen     | 与 Alibaba 使用相同的 DashScope 后端。参考输入必须是远程 `http(s)` URL；本地文件会在一开始就被拒绝。 |
-| Runway   | 通过 data URI 支持本地文件。视频转视频需要 `runway/gen4_aleph`。纯文本生成仅暴露 `16:9` 和 `9:16` 两种宽高比。 |
-| Together | 仅支持单张参考图像。 |
-| Vydra    | 直接使用 `https://www.vydra.ai/api/v1` 以避免重定向过程中丢失认证信息。内置 `veo3` 仅支持文生视频；`kling` 需要远程图像 URL。 |
-| xAI      | 支持文生视频、图生视频，以及基于远程视频的编辑/延展流程。 |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alibaba  | 使用 DashScope/Model Studio 异步端点。参考图片和视频必须是远程 `http(s)` URL。 |
+| BytePlus（国际版） | 仅支持单张参考图片。 |
+| ComfyUI  | 由工作流驱动的本地或云端执行。通过已配置的图形支持文生视频和图生视频。 |
+| fal      | 对长时间运行的任务使用基于队列的流程。仅支持单张参考图片。包含 HeyGen video-agent 以及 Seedance 2.0 文生视频和图生视频模型引用。 |
+| Google   | 使用 Gemini/Veo。支持一张参考图片或一个参考视频。 |
+| MiniMax  | 仅支持单张参考图片。 |
+| OpenAI   | 只会转发 `size` 覆盖项。其他风格覆盖项（`aspectRatio`、`resolution`、`audio`、`watermark`）会被忽略，并附带警告。 |
+| Qwen     | 与 Alibaba 使用相同的 DashScope 后端。参考输入必须是远程 `http(s)` URL；本地文件会被预先拒绝。 |
+| Runway   | 通过 data URI 支持本地文件。视频转视频需要 `runway/gen4_aleph`。纯文本生成仅提供 `16:9` 和 `9:16` 宽高比。 |
+| Together | 仅支持单张参考图片。 |
+| Vydra    | 直接使用 `https://www.vydra.ai/api/v1`，以避免重定向导致身份验证丢失。内置的 `veo3` 仅支持文生视频；`kling` 需要远程图片 URL。 |
+| xAI      | 支持文生视频、图生视频，以及基于远程视频的编辑/扩展流程。 |
 
 ## 提供商能力模式
 
-共享视频生成契约现在允许提供商声明特定模式的能力，而不是仅声明扁平化的聚合限制。新的提供商实现应优先使用显式模式块：
+共享视频生成契约现在允许提供商声明特定模式的能力，而不再仅仅使用扁平的聚合限制。新的提供商实现应优先使用显式模式块：
 
 ```typescript
 capabilities: {
@@ -260,31 +274,31 @@ capabilities: {
 }
 ```
 
-像 `maxInputImages` 和 `maxInputVideos` 这样的扁平聚合字段，不足以声明转换模式支持。提供商应显式声明 `generate`、`imageToVideo` 和 `videoToVideo`，以便实时测试、契约测试以及共享的 `video_generate` 工具能够确定性地验证模式支持。
+像 `maxInputImages` 和 `maxInputVideos` 这样的扁平聚合字段，不足以声明变换模式支持。提供商应显式声明 `generate`、`imageToVideo` 和 `videoToVideo`，这样实时测试、契约测试以及共享的 `video_generate` 工具才能以确定性的方式校验模式支持。
 
 ## 实时测试
 
-共享内置提供商的按需实时覆盖：
+为共享内置提供商启用可选的实时覆盖：
 
 ```bash
 OPENCLAW_LIVE_TEST=1 pnpm test:live -- extensions/video-generation-providers.live.test.ts
 ```
 
-仓库包装命令：
+仓库封装命令：
 
 ```bash
 pnpm test:live:media video
 ```
 
-该实时测试文件会从 `~/.profile` 加载缺失的提供商环境变量，默认优先使用实时/环境变量 API 密钥，而不是已存储的认证配置文件，并运行它能够借助本地媒体安全执行的已声明模式：
+这个实时测试文件会从 `~/.profile` 加载缺失的提供商环境变量，默认优先使用实时/环境变量 API 密钥，而不是已存储的身份验证配置文件，并运行它可以安全地通过本地媒体执行的声明模式：
 
 - 对扫描中的每个提供商运行 `generate`
-- 当 `capabilities.imageToVideo.enabled` 为真时运行 `imageToVideo`
-- 当 `capabilities.videoToVideo.enabled` 为真，且提供商/模型在共享扫描中接受基于缓冲区的本地视频输入时运行 `videoToVideo`
+- 当 `capabilities.imageToVideo.enabled` 时运行 `imageToVideo`
+- 当 `capabilities.videoToVideo.enabled` 且提供商/模型在共享扫描中接受基于缓冲区的本地视频输入时运行 `videoToVideo`
 
 当前共享的 `videoToVideo` 实时通道覆盖：
 
-- 仅 `runway`，并且你选择了 `runway/gen4_aleph` 时
+- 仅 `runway`，并且仅当你选择 `runway/gen4_aleph` 时
 
 ## 配置
 
@@ -303,7 +317,7 @@ pnpm test:live:media video
 }
 ```
 
-或通过 CLI：
+或者通过 CLI：
 
 ```bash
 openclaw config set agents.defaults.videoGenerationModel.primary "qwen/wan2.6-t2v"
@@ -312,7 +326,7 @@ openclaw config set agents.defaults.videoGenerationModel.primary "qwen/wan2.6-t2
 ## 相关内容
 
 - [工具概览](/zh-CN/tools)
-- [后台任务](/zh-CN/automation/tasks) -- 用于异步视频生成的任务跟踪
+- [后台任务](/zh-CN/automation/tasks) -- 异步视频生成的任务跟踪
 - [Alibaba Model Studio](/zh-CN/providers/alibaba)
 - [BytePlus（国际版）](/zh-CN/concepts/model-providers#byteplus-international)
 - [ComfyUI](/zh-CN/providers/comfy)

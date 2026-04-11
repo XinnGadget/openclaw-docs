@@ -3,34 +3,34 @@ read_when:
     - Anda ingin memahami untuk apa memori aktif digunakan
     - Anda ingin mengaktifkan memori aktif untuk agen percakapan
     - Anda ingin menyesuaikan perilaku memori aktif tanpa mengaktifkannya di mana-mana
-summary: Sub-agen memori pemblokir milik plugin yang menyuntikkan memori yang relevan ke dalam sesi chat interaktif
+summary: Sub-agen memori pemblokiran milik plugin yang menyuntikkan memori yang relevan ke dalam sesi chat interaktif
 title: Memori Aktif
 x-i18n:
-    generated_at: "2026-04-10T09:13:15Z"
+    generated_at: "2026-04-11T09:03:47Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 6a51437df4ae4d9d57764601dfcfcdadb269e2895bf49dc82b9f496c1b3cb341
+    source_hash: e8b0e6539e09678e9e8def68795f8bcb992f98509423da3da3123eda88ec1dd5
     source_path: concepts/active-memory.md
     workflow: 15
 ---
 
 # Memori Aktif
 
-Memori aktif adalah sub-agen memori pemblokir opsional milik plugin yang berjalan
+Memori aktif adalah sub-agen memori pemblokiran opsional milik plugin yang berjalan
 sebelum balasan utama untuk sesi percakapan yang memenuhi syarat.
 
-Fitur ini ada karena sebagian besar sistem memori mampu tetapi reaktif. Mereka bergantung pada
-agen utama untuk memutuskan kapan mencari memori, atau pada pengguna untuk mengatakan hal-hal
-seperti "ingat ini" atau "cari memori." Pada saat itu, momen ketika memori akan
+Ini ada karena sebagian besar sistem memori mampu tetapi reaktif. Mereka bergantung pada
+agen utama untuk memutuskan kapan harus mencari memori, atau pada pengguna untuk mengatakan hal-hal
+seperti "ingat ini" atau "cari memori". Pada saat itu, momen ketika memori seharusnya
 membuat balasan terasa alami sudah terlewat.
 
 Memori aktif memberi sistem satu kesempatan terbatas untuk memunculkan memori yang relevan
-sebelum balasan utama dibuat.
+sebelum balasan utama dihasilkan.
 
-## Tempelkan Ini Ke Dalam Agen Anda
+## Tempelkan Ini ke Agen Anda
 
-Tempelkan ini ke dalam agen Anda jika Anda ingin mengaktifkan Memori Aktif dengan
-pengaturan mandiri dan aman sebagai default:
+Tempelkan ini ke agen Anda jika Anda ingin mengaktifkan Memori Aktif dengan
+pengaturan mandiri dan default aman:
 
 ```json5
 {
@@ -56,14 +56,15 @@ pengaturan mandiri dan aman sebagai default:
 }
 ```
 
-Ini mengaktifkan plugin untuk agen `main`, membuatnya tetap terbatas pada sesi
+Ini menyalakan plugin untuk agen `main`, membuatnya tetap terbatas pada sesi
 bergaya pesan langsung secara default, memungkinkannya mewarisi model sesi saat ini terlebih dahulu, dan
-tetap mengizinkan fallback jarak jauh bawaan jika tidak ada model eksplisit atau turunan yang tersedia.
+tetap mengizinkan fallback jarak jauh bawaan jika tidak ada model eksplisit atau
+model turunan yang tersedia.
 
 Setelah itu, mulai ulang gateway:
 
 ```bash
-node scripts/run-node.mjs gateway --profile dev
+openclaw gateway
 ```
 
 Untuk memeriksanya secara langsung dalam percakapan:
@@ -74,13 +75,13 @@ Untuk memeriksanya secara langsung dalam percakapan:
 
 ## Aktifkan memori aktif
 
-Pengaturan yang paling aman adalah:
+Pengaturan paling aman adalah:
 
 1. aktifkan plugin
 2. targetkan satu agen percakapan
-3. biarkan logging tetap aktif hanya saat menyesuaikan
+3. biarkan logging aktif hanya saat melakukan penyesuaian
 
-Mulai dengan ini di `openclaw.json`:
+Mulailah dengan ini di `openclaw.json`:
 
 ```json5
 {
@@ -108,28 +109,28 @@ Mulai dengan ini di `openclaw.json`:
 Lalu mulai ulang gateway:
 
 ```bash
-node scripts/run-node.mjs gateway --profile dev
+openclaw gateway
 ```
 
 Artinya:
 
-- `plugins.entries.active-memory.enabled: true` mengaktifkan plugin
-- `config.agents: ["main"]` hanya mengikutsertakan agen `main` ke dalam memori aktif
-- `config.allowedChatTypes: ["direct"]` membuat memori aktif tetap aktif hanya untuk sesi bergaya pesan langsung secara default
+- `plugins.entries.active-memory.enabled: true` menyalakan plugin
+- `config.agents: ["main"]` hanya mengikutsertakan agen `main` ke memori aktif
+- `config.allowedChatTypes: ["direct"]` membuat memori aktif tetap menyala hanya untuk sesi bergaya pesan langsung secara default
 - jika `config.model` tidak disetel, memori aktif mewarisi model sesi saat ini terlebih dahulu
-- `config.modelFallbackPolicy: "default-remote"` mempertahankan fallback jarak jauh bawaan sebagai default saat tidak ada model eksplisit atau turunan yang tersedia
-- `config.promptStyle: "balanced"` menggunakan gaya prompt default serba guna untuk mode `recent`
+- `config.modelFallbackPolicy: "default-remote"` mempertahankan fallback jarak jauh bawaan sebagai default saat tidak ada model eksplisit atau model turunan yang tersedia
+- `config.promptStyle: "balanced"` menggunakan gaya prompt default serbaguna untuk mode `recent`
 - memori aktif tetap hanya berjalan pada sesi chat interaktif persisten yang memenuhi syarat
 
 ## Cara melihatnya
 
-Memori aktif menyuntikkan konteks sistem tersembunyi untuk model. Fitur ini tidak mengekspos
-tag mentah `<active_memory_plugin>...</active_memory_plugin>` kepada klien.
+Memori aktif menyuntikkan konteks sistem tersembunyi untuk model. Ini tidak menampilkan
+tag mentah `<active_memory_plugin>...</active_memory_plugin>` ke klien.
 
 ## Toggle sesi
 
 Gunakan perintah plugin saat Anda ingin menjeda atau melanjutkan memori aktif untuk
-sesi chat saat ini tanpa mengedit konfigurasi:
+sesi chat saat ini tanpa mengedit config:
 
 ```text
 /active-memory status
@@ -138,11 +139,11 @@ sesi chat saat ini tanpa mengedit konfigurasi:
 ```
 
 Ini berlaku pada cakupan sesi. Ini tidak mengubah
-`plugins.entries.active-memory.enabled`, penargetan agen, atau konfigurasi
-global lainnya.
+`plugins.entries.active-memory.enabled`, penargetan agen, atau konfigurasi global
+lainnya.
 
-Jika Anda ingin perintah tersebut menulis konfigurasi dan menjeda atau melanjutkan memori aktif untuk
-semua sesi, gunakan bentuk global eksplisit:
+Jika Anda ingin perintah tersebut menulis config dan menjeda atau melanjutkan memori aktif untuk
+semua sesi, gunakan bentuk global yang eksplisit:
 
 ```text
 /active-memory status --global
@@ -150,12 +151,12 @@ semua sesi, gunakan bentuk global eksplisit:
 /active-memory on --global
 ```
 
-Bentuk global menulis `plugins.entries.active-memory.config.enabled`. Bentuk ini membiarkan
-`plugins.entries.active-memory.enabled` tetap aktif agar perintah tetap tersedia untuk
+Bentuk global menulis `plugins.entries.active-memory.config.enabled`. Ini tetap membiarkan
+`plugins.entries.active-memory.enabled` menyala sehingga perintah tetap tersedia untuk
 mengaktifkan kembali memori aktif nanti.
 
-Jika Anda ingin melihat apa yang dilakukan memori aktif dalam sesi langsung, aktifkan mode verbose
-untuk sesi tersebut:
+Jika Anda ingin melihat apa yang dilakukan memori aktif dalam sesi langsung, aktifkan mode
+verbose untuk sesi tersebut:
 
 ```text
 /verbose on
@@ -164,12 +165,13 @@ untuk sesi tersebut:
 Dengan verbose diaktifkan, OpenClaw dapat menampilkan:
 
 - baris status memori aktif seperti `Active Memory: ok 842ms recent 34 chars`
-- ringkasan debug yang mudah dibaca seperti `Active Memory Debug: Lemon pepper wings with blue cheese.`
+- ringkasan debug yang dapat dibaca seperti `Active Memory Debug: Lemon pepper wings with blue cheese.`
 
-Baris-baris tersebut berasal dari pass memori aktif yang sama yang memberi makan konteks
-sistem tersembunyi, tetapi diformat untuk manusia alih-alih mengekspos markup prompt mentah.
+Baris-baris tersebut berasal dari proses memori aktif yang sama yang memberi konteks
+sistem tersembunyi, tetapi diformat untuk manusia alih-alih menampilkan markup
+prompt mentah.
 
-Secara default, transkrip sub-agen memori pemblokir bersifat sementara dan dihapus
+Secara default, transkrip sub-agen memori pemblokiran bersifat sementara dan dihapus
 setelah proses selesai.
 
 Contoh alur:
@@ -179,20 +181,20 @@ Contoh alur:
 what wings should i order?
 ```
 
-Bentuk balasan yang diharapkan terlihat:
+Bentuk balasan yang terlihat dan diharapkan:
 
 ```text
-...normal assistant reply...
+...balasan asisten normal...
 
 🧩 Active Memory: ok 842ms recent 34 chars
 🔎 Active Memory Debug: Lemon pepper wings with blue cheese.
 ```
 
-## Kapan fitur ini berjalan
+## Kapan ini berjalan
 
 Memori aktif menggunakan dua gerbang:
 
-1. **Opt-in konfigurasi**
+1. **Opt-in config**
    Plugin harus diaktifkan, dan id agen saat ini harus muncul di
    `plugins.entries.active-memory.config.agents`.
 2. **Kelayakan runtime yang ketat**
@@ -202,23 +204,23 @@ Memori aktif menggunakan dua gerbang:
 Aturan sebenarnya adalah:
 
 ```text
-plugin enabled
+plugin diaktifkan
 +
-agent id targeted
+id agen ditargetkan
 +
-allowed chat type
+jenis chat diizinkan
 +
-eligible interactive persistent chat session
+sesi chat interaktif persisten yang memenuhi syarat
 =
-active memory runs
+memori aktif berjalan
 ```
 
-Jika salah satu dari ini gagal, memori aktif tidak berjalan.
+Jika salah satu dari itu gagal, memori aktif tidak berjalan.
 
 ## Jenis sesi
 
-`config.allowedChatTypes` mengontrol jenis percakapan mana yang boleh menjalankan Memori
-Aktif sama sekali.
+`config.allowedChatTypes` mengontrol jenis percakapan apa saja yang boleh menjalankan Memori
+Aktif.
 
 Default-nya adalah:
 
@@ -226,8 +228,8 @@ Default-nya adalah:
 allowedChatTypes: ["direct"]
 ```
 
-Artinya Memori Aktif berjalan secara default dalam sesi bergaya pesan langsung, tetapi
-tidak dalam sesi grup atau kanal kecuali Anda secara eksplisit mengikutsertakannya.
+Itu berarti Memori Aktif berjalan secara default dalam sesi bergaya pesan langsung, tetapi
+tidak dalam sesi grup atau channel kecuali Anda secara eksplisit mengikutsertakannya.
 
 Contoh:
 
@@ -243,35 +245,35 @@ allowedChatTypes: ["direct", "group"]
 allowedChatTypes: ["direct", "group", "channel"]
 ```
 
-## Di mana fitur ini berjalan
+## Di mana ini berjalan
 
 Memori aktif adalah fitur pengayaan percakapan, bukan fitur inferensi
 di seluruh platform.
 
 | Surface                                                             | Menjalankan memori aktif?                               |
-| ------------------------------------------------------------------- | ------------------------------------------------------ |
-| Sesi persisten Control UI / chat web                                | Ya, jika plugin diaktifkan dan agen ditargetkan        |
-| Sesi kanal interaktif lain pada jalur chat persisten yang sama      | Ya, jika plugin diaktifkan dan agen ditargetkan        |
-| Proses sekali jalan headless                                        | Tidak                                                  |
-| Proses heartbeat/latar belakang                                     | Tidak                                                  |
-| Jalur internal `agent-command` generik                              | Tidak                                                  |
-| Eksekusi sub-agen/helper internal                                   | Tidak                                                  |
+| ------------------------------------------------------------------- | ------------------------------------------------------- |
+| Sesi persisten Control UI / web chat                                | Ya, jika plugin diaktifkan dan agen ditargetkan         |
+| Sesi channel interaktif lain pada jalur chat persisten yang sama    | Ya, jika plugin diaktifkan dan agen ditargetkan         |
+| Proses headless sekali jalan                                        | Tidak                                                   |
+| Proses heartbeat/latar belakang                                     | Tidak                                                   |
+| Jalur internal `agent-command` generik                              | Tidak                                                   |
+| Eksekusi sub-agen/helper internal                                   | Tidak                                                   |
 
 ## Mengapa menggunakannya
 
 Gunakan memori aktif ketika:
 
-- sesi bersifat persisten dan menghadap pengguna
+- sesi bersifat persisten dan berhadapan dengan pengguna
 - agen memiliki memori jangka panjang yang bermakna untuk dicari
-- kontinuitas dan personalisasi lebih penting daripada determinisme prompt mentah
+- kesinambungan dan personalisasi lebih penting daripada determinisme prompt mentah
 
-Fitur ini bekerja sangat baik untuk:
+Ini bekerja sangat baik untuk:
 
 - preferensi yang stabil
 - kebiasaan yang berulang
 - konteks pengguna jangka panjang yang seharusnya muncul secara alami
 
-Fitur ini kurang cocok untuk:
+Ini kurang cocok untuk:
 
 - otomasi
 - worker internal
@@ -291,30 +293,30 @@ flowchart LR
   I --> M["Main Reply"]
 ```
 
-Sub-agen memori pemblokir hanya dapat menggunakan:
+Sub-agen memori pemblokiran hanya dapat menggunakan:
 
 - `memory_search`
 - `memory_get`
 
-Jika koneksinya lemah, sub-agen harus mengembalikan `NONE`.
+Jika koneksinya lemah, seharusnya mengembalikan `NONE`.
 
 ## Mode kueri
 
-`config.queryMode` mengontrol seberapa banyak percakapan yang dilihat oleh sub-agen memori pemblokir.
+`config.queryMode` mengontrol seberapa banyak percakapan yang dilihat sub-agen memori pemblokiran.
 
 ## Gaya prompt
 
-`config.promptStyle` mengontrol seberapa agresif atau ketat sub-agen memori pemblokir
+`config.promptStyle` mengontrol seberapa agresif atau ketat sub-agen memori pemblokiran
 saat memutuskan apakah akan mengembalikan memori.
 
 Gaya yang tersedia:
 
-- `balanced`: default serba guna untuk mode `recent`
-- `strict`: paling tidak agresif; terbaik saat Anda ingin sangat sedikit kebocoran dari konteks di sekitar
-- `contextual`: paling ramah kontinuitas; terbaik saat riwayat percakapan harus lebih diperhatikan
-- `recall-heavy`: lebih bersedia memunculkan memori pada kecocokan yang lebih lemah tetapi masih masuk akal
+- `balanced`: default serbaguna untuk mode `recent`
+- `strict`: paling tidak agresif; terbaik saat Anda ingin sangat sedikit kebocoran dari konteks sekitar
+- `contextual`: paling ramah kesinambungan; terbaik saat riwayat percakapan harus lebih diperhatikan
+- `recall-heavy`: lebih bersedia memunculkan memori pada kecocokan yang lebih lemah tetapi tetap masuk akal
 - `precision-heavy`: secara agresif lebih memilih `NONE` kecuali kecocokannya jelas
-- `preference-only`: dioptimalkan untuk favorit, kebiasaan, rutinitas, selera, dan fakta pribadi yang berulang
+- `preference-only`: dioptimalkan untuk favorit, kebiasaan, rutinitas, selera, dan fakta pribadi berulang
 
 Pemetaan default saat `config.promptStyle` tidak disetel:
 
@@ -337,10 +339,10 @@ promptStyle: "preference-only"
 Jika `config.model` tidak disetel, Memori Aktif mencoba menyelesaikan model dalam urutan ini:
 
 ```text
-explicit plugin model
--> current session model
--> agent primary model
--> optional built-in remote fallback
+model plugin eksplisit
+-> model sesi saat ini
+-> model utama agen
+-> fallback jarak jauh bawaan opsional
 ```
 
 `config.modelFallbackPolicy` mengontrol langkah terakhir.
@@ -357,15 +359,15 @@ Opsi lainnya:
 modelFallbackPolicy: "resolved-only"
 ```
 
-Gunakan `resolved-only` jika Anda ingin Memori Aktif melewati recall alih-alih melakukan
+Gunakan `resolved-only` jika Anda ingin Memori Aktif melewati recall alih-alih
 fallback ke default jarak jauh bawaan saat tidak ada model eksplisit atau turunan
 yang tersedia.
 
-## Jalur keluar lanjutan
+## Escape hatch lanjutan
 
 Opsi-opsi ini sengaja tidak menjadi bagian dari pengaturan yang direkomendasikan.
 
-`config.thinking` dapat menimpa level thinking sub-agen memori pemblokir:
+`config.thinking` dapat mengganti tingkat thinking sub-agen memori pemblokiran:
 
 ```json5
 thinking: "medium"
@@ -378,24 +380,24 @@ thinking: "off"
 ```
 
 Jangan aktifkan ini secara default. Memori Aktif berjalan di jalur balasan, jadi waktu
-thinking tambahan secara langsung meningkatkan latensi yang terlihat oleh pengguna.
+thinking tambahan secara langsung menambah latensi yang terlihat oleh pengguna.
 
-`config.promptAppend` menambahkan instruksi operator tambahan setelah prompt default Memori
-Aktif dan sebelum konteks percakapan:
+`config.promptAppend` menambahkan instruksi operator tambahan setelah prompt Memori
+Aktif default dan sebelum konteks percakapan:
 
 ```json5
 promptAppend: "Prefer stable long-term preferences over one-off events."
 ```
 
-`config.promptOverride` menggantikan prompt default Memori Aktif. OpenClaw
+`config.promptOverride` mengganti prompt Memori Aktif default. OpenClaw
 tetap menambahkan konteks percakapan setelahnya:
 
 ```json5
 promptOverride: "You are a memory search agent. Return NONE or one compact user fact."
 ```
 
-Kustomisasi prompt tidak direkomendasikan kecuali Anda memang sengaja menguji
-kontrak recall yang berbeda. Prompt default disetel untuk mengembalikan `NONE`
+Kustomisasi prompt tidak direkomendasikan kecuali Anda sengaja menguji kontrak
+recall yang berbeda. Prompt default disetel untuk mengembalikan `NONE`
 atau konteks fakta pengguna yang ringkas untuk model utama.
 
 ### `message`
@@ -403,7 +405,7 @@ atau konteks fakta pengguna yang ringkas untuk model utama.
 Hanya pesan pengguna terbaru yang dikirim.
 
 ```text
-Latest user message only
+Hanya pesan pengguna terbaru
 ```
 
 Gunakan ini ketika:
@@ -414,19 +416,19 @@ Gunakan ini ketika:
 
 Timeout yang direkomendasikan:
 
-- mulai sekitar `3000` hingga `5000` md
+- mulai sekitar `3000` hingga `5000` ms
 
 ### `recent`
 
-Pesan pengguna terbaru plus sedikit ekor percakapan terbaru dikirim.
+Pesan pengguna terbaru ditambah sedikit ekor percakapan terbaru dikirim.
 
 ```text
-Recent conversation tail:
+Ekor percakapan terbaru:
 user: ...
 assistant: ...
 user: ...
 
-Latest user message:
+Pesan pengguna terbaru:
 ...
 ```
 
@@ -437,14 +439,14 @@ Gunakan ini ketika:
 
 Timeout yang direkomendasikan:
 
-- mulai sekitar `15000` md
+- mulai sekitar `15000` ms
 
 ### `full`
 
-Percakapan lengkap dikirim ke sub-agen memori pemblokir.
+Percakapan lengkap dikirim ke sub-agen memori pemblokiran.
 
 ```text
-Full conversation context:
+Konteks percakapan lengkap:
 user: ...
 assistant: ...
 user: ...
@@ -454,12 +456,12 @@ user: ...
 Gunakan ini ketika:
 
 - kualitas recall terkuat lebih penting daripada latensi
-- percakapan berisi penyiapan penting yang jauh di belakang dalam utas
+- percakapan berisi penyiapan penting yang jauh di belakang dalam thread
 
 Timeout yang direkomendasikan:
 
 - tingkatkan secara signifikan dibandingkan `message` atau `recent`
-- mulai sekitar `15000` md atau lebih tinggi tergantung ukuran utas
+- mulai sekitar `15000` ms atau lebih tinggi tergantung ukuran thread
 
 Secara umum, timeout harus meningkat seiring ukuran konteks:
 
@@ -469,17 +471,17 @@ message < recent < full
 
 ## Persistensi transkrip
 
-Proses sub-agen memori pemblokir Memori Aktif membuat transkrip `session.jsonl` nyata
-selama panggilan sub-agen memori pemblokir.
+Proses sub-agen memori pemblokiran Memori Aktif membuat transkrip `session.jsonl` nyata
+selama panggilan sub-agen memori pemblokiran.
 
 Secara default, transkrip tersebut bersifat sementara:
 
-- ditulis ke direktori sementara
-- hanya digunakan untuk proses sub-agen memori pemblokir
-- langsung dihapus setelah proses selesai
+- ditulis ke direktori temp
+- hanya digunakan untuk proses sub-agen memori pemblokiran
+- dihapus segera setelah proses selesai
 
-Jika Anda ingin menyimpan transkrip sub-agen memori pemblokir tersebut di disk untuk debugging atau
-pemeriksaan, aktifkan persistensi secara eksplisit:
+Jika Anda ingin menyimpan transkrip sub-agen memori pemblokiran tersebut di disk untuk debugging atau
+inspeksi, aktifkan persistensi secara eksplisit:
 
 ```json5
 {
@@ -498,7 +500,7 @@ pemeriksaan, aktifkan persistensi secara eksplisit:
 }
 ```
 
-Saat diaktifkan, memori aktif menyimpan transkrip di direktori terpisah di bawah
+Saat diaktifkan, memori aktif menyimpan transkrip dalam direktori terpisah di bawah
 folder sesi agen target, bukan di jalur transkrip percakapan pengguna utama.
 
 Tata letak default secara konseptual adalah:
@@ -511,7 +513,7 @@ Anda dapat mengubah subdirektori relatif dengan `config.transcriptDir`.
 
 Gunakan ini dengan hati-hati:
 
-- transkrip sub-agen memori pemblokir dapat cepat menumpuk pada sesi yang sibuk
+- transkrip sub-agen memori pemblokiran dapat menumpuk dengan cepat pada sesi yang sibuk
 - mode kueri `full` dapat menduplikasi banyak konteks percakapan
 - transkrip ini berisi konteks prompt tersembunyi dan memori yang dipanggil kembali
 
@@ -523,34 +525,34 @@ Semua konfigurasi memori aktif berada di bawah:
 plugins.entries.active-memory
 ```
 
-Bidang yang paling penting adalah:
+Kolom yang paling penting adalah:
 
-| Key                         | Type                                                                                                 | Arti                                                                                                   |
-| --------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `enabled`                   | `boolean`                                                                                            | Mengaktifkan plugin itu sendiri                                                                         |
-| `config.agents`             | `string[]`                                                                                           | Id agen yang dapat menggunakan memori aktif                                                             |
-| `config.model`              | `string`                                                                                             | Referensi model sub-agen memori pemblokir opsional; jika tidak disetel, memori aktif menggunakan model sesi saat ini |
-| `config.queryMode`          | `"message" \| "recent" \| "full"`                                                                    | Mengontrol seberapa banyak percakapan yang dilihat sub-agen memori pemblokir                           |
-| `config.promptStyle`        | `"balanced" \| "strict" \| "contextual" \| "recall-heavy" \| "precision-heavy" \| "preference-only"` | Mengontrol seberapa agresif atau ketat sub-agen memori pemblokir saat memutuskan apakah akan mengembalikan memori |
-| `config.thinking`           | `"off" \| "minimal" \| "low" \| "medium" \| "high" \| "xhigh" \| "adaptive"`                         | Override thinking lanjutan untuk sub-agen memori pemblokir; default `off` untuk kecepatan             |
-| `config.promptOverride`     | `string`                                                                                             | Penggantian prompt penuh lanjutan; tidak direkomendasikan untuk penggunaan normal                       |
-| `config.promptAppend`       | `string`                                                                                             | Instruksi tambahan lanjutan yang ditambahkan ke prompt default atau prompt yang dioverride             |
-| `config.timeoutMs`          | `number`                                                                                             | Timeout keras untuk sub-agen memori pemblokir                                                           |
-| `config.maxSummaryChars`    | `number`                                                                                             | Jumlah total karakter maksimum yang diizinkan dalam ringkasan active-memory                            |
-| `config.logging`            | `boolean`                                                                                            | Mengeluarkan log memori aktif saat penyesuaian                                                          |
-| `config.persistTranscripts` | `boolean`                                                                                            | Menyimpan transkrip sub-agen memori pemblokir di disk alih-alih menghapus file sementara               |
-| `config.transcriptDir`      | `string`                                                                                             | Direktori relatif transkrip sub-agen memori pemblokir di bawah folder sesi agen                        |
+| Key                         | Type                                                                                                 | Arti                                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `enabled`                   | `boolean`                                                                                            | Mengaktifkan plugin itu sendiri                                                                       |
+| `config.agents`             | `string[]`                                                                                           | ID agen yang dapat menggunakan memori aktif                                                           |
+| `config.model`              | `string`                                                                                             | Referensi model sub-agen memori pemblokiran opsional; jika tidak disetel, memori aktif menggunakan model sesi saat ini |
+| `config.queryMode`          | `"message" \| "recent" \| "full"`                                                                    | Mengontrol seberapa banyak percakapan yang dilihat sub-agen memori pemblokiran                        |
+| `config.promptStyle`        | `"balanced" \| "strict" \| "contextual" \| "recall-heavy" \| "precision-heavy" \| "preference-only"` | Mengontrol seberapa agresif atau ketat sub-agen memori pemblokiran saat memutuskan apakah akan mengembalikan memori |
+| `config.thinking`           | `"off" \| "minimal" \| "low" \| "medium" \| "high" \| "xhigh" \| "adaptive"`                         | Override thinking lanjutan untuk sub-agen memori pemblokiran; default `off` untuk kecepatan          |
+| `config.promptOverride`     | `string`                                                                                             | Penggantian prompt penuh lanjutan; tidak direkomendasikan untuk penggunaan normal                     |
+| `config.promptAppend`       | `string`                                                                                             | Instruksi tambahan lanjutan yang ditambahkan ke prompt default atau prompt override                   |
+| `config.timeoutMs`          | `number`                                                                                             | Timeout keras untuk sub-agen memori pemblokiran                                                       |
+| `config.maxSummaryChars`    | `number`                                                                                             | Jumlah total karakter maksimum yang diizinkan dalam ringkasan active-memory                           |
+| `config.logging`            | `boolean`                                                                                            | Mengeluarkan log memori aktif saat penyesuaian                                                        |
+| `config.persistTranscripts` | `boolean`                                                                                            | Menyimpan transkrip sub-agen memori pemblokiran di disk alih-alih menghapus file temp                |
+| `config.transcriptDir`      | `string`                                                                                             | Direktori relatif transkrip sub-agen memori pemblokiran di bawah folder sesi agen                    |
 
-Bidang penyesuaian yang berguna:
+Kolom penyesuaian yang berguna:
 
-| Key                           | Type     | Arti                                                          |
-| ----------------------------- | -------- | ------------------------------------------------------------- |
+| Key                           | Type     | Arti                                                           |
+| ----------------------------- | -------- | -------------------------------------------------------------- |
 | `config.maxSummaryChars`      | `number` | Jumlah total karakter maksimum yang diizinkan dalam ringkasan active-memory |
 | `config.recentUserTurns`      | `number` | Giliran pengguna sebelumnya yang disertakan saat `queryMode` adalah `recent` |
 | `config.recentAssistantTurns` | `number` | Giliran asisten sebelumnya yang disertakan saat `queryMode` adalah `recent` |
-| `config.recentUserChars`      | `number` | Karakter maksimum per giliran pengguna terbaru                |
-| `config.recentAssistantChars` | `number` | Karakter maksimum per giliran asisten terbaru                 |
-| `config.cacheTtlMs`           | `number` | Penggunaan ulang cache untuk kueri identik yang berulang      |
+| `config.recentUserChars`      | `number` | Maks karakter per giliran pengguna terbaru                     |
+| `config.recentAssistantChars` | `number` | Maks karakter per giliran asisten terbaru                      |
+| `config.cacheTtlMs`           | `number` | Penggunaan ulang cache untuk kueri identik yang berulang       |
 
 ## Pengaturan yang direkomendasikan
 
@@ -576,25 +578,25 @@ Mulailah dengan `recent`.
 }
 ```
 
-Jika Anda ingin memeriksa perilaku langsung saat menyesuaikan, gunakan `/verbose on` di
+Jika Anda ingin memeriksa perilaku langsung saat melakukan penyesuaian, gunakan `/verbose on` di
 sesi tersebut alih-alih mencari perintah debug active-memory terpisah.
 
 Lalu beralih ke:
 
-- `message` jika Anda menginginkan latensi yang lebih rendah
-- `full` jika Anda memutuskan bahwa konteks tambahan sepadan dengan sub-agen memori pemblokir yang lebih lambat
+- `message` jika Anda ingin latensi lebih rendah
+- `full` jika Anda memutuskan konteks tambahan sepadan dengan sub-agen memori pemblokiran yang lebih lambat
 
 ## Debugging
 
 Jika memori aktif tidak muncul di tempat yang Anda harapkan:
 
-1. Pastikan plugin diaktifkan di bawah `plugins.entries.active-memory.enabled`.
-2. Pastikan id agen saat ini tercantum dalam `config.agents`.
-3. Pastikan Anda menguji melalui sesi chat interaktif persisten.
+1. Konfirmasikan plugin diaktifkan di bawah `plugins.entries.active-memory.enabled`.
+2. Konfirmasikan ID agen saat ini tercantum di `config.agents`.
+3. Konfirmasikan Anda menguji melalui sesi chat interaktif persisten.
 4. Aktifkan `config.logging: true` dan pantau log gateway.
 5. Verifikasi bahwa pencarian memori itu sendiri berfungsi dengan `openclaw memory status --deep`.
 
-Jika hasil memori berisik, perketat:
+Jika hasil memori terlalu berisik, perketat:
 
 - `maxSummaryChars`
 

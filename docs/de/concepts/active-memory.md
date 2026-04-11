@@ -3,13 +3,13 @@ read_when:
     - Sie möchten verstehen, wofür der aktive Speicher da ist
     - Sie möchten den aktiven Speicher für einen Konversationsagenten aktivieren
     - Sie möchten das Verhalten des aktiven Speichers abstimmen, ohne ihn überall zu aktivieren
-summary: Ein plugin-eigener blockierender Speicher-Sub-Agent, der relevanten Speicher in interaktive Chatsitzungen einspeist
+summary: Ein plugin-eigener blockierender Speicher-Sub-Agent, der relevanten Speicher in interaktive Chat-Sitzungen einspeist
 title: Aktiver Speicher
 x-i18n:
-    generated_at: "2026-04-10T06:21:13Z"
+    generated_at: "2026-04-11T06:08:36Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 6a51437df4ae4d9d57764601dfcfcdadb269e2895bf49dc82b9f496c1b3cb341
+    source_hash: e8b0e6539e09678e9e8def68795f8bcb992f98509423da3da3123eda88ec1dd5
     source_path: concepts/active-memory.md
     workflow: 15
 ---
@@ -20,17 +20,17 @@ Der aktive Speicher ist ein optionaler plugin-eigener blockierender Speicher-Sub
 vor der Hauptantwort für berechtigte Konversationssitzungen ausgeführt wird.
 
 Er existiert, weil die meisten Speichersysteme leistungsfähig, aber reaktiv sind. Sie verlassen sich darauf,
-dass der Haupt-Agent entscheidet, wann der Speicher durchsucht wird, oder darauf, dass der Benutzer Dinge sagt
-wie „Merke dir das“ oder „Suche im Speicher“. Dann ist der Moment, in dem der Speicher die Antwort natürlich
+dass der Haupt-Agent entscheidet, wann der Speicher durchsucht werden soll, oder darauf, dass der Benutzer Dinge sagt
+wie „Merke dir das“ oder „Durchsuche den Speicher“. Dann ist der Moment, in dem der Speicher die Antwort natürlich
 hätte wirken lassen, bereits vorbei.
 
-Der aktive Speicher gibt dem System eine begrenzte Möglichkeit, relevanten Speicher anzuzeigen,
-bevor die Hauptantwort generiert wird.
+Der aktive Speicher gibt dem System eine begrenzte Gelegenheit, relevanten Speicher sichtbar zu machen,
+bevor die Hauptantwort erzeugt wird.
 
 ## Fügen Sie dies in Ihren Agenten ein
 
 Fügen Sie dies in Ihren Agenten ein, wenn Sie den aktiven Speicher mit einer
-eigenständigen Einrichtung mit sicheren Standardeinstellungen aktivieren möchten:
+eigenständigen Einrichtung mit sicheren Standardwerten aktivieren möchten:
 
 ```json5
 {
@@ -56,17 +56,17 @@ eigenständigen Einrichtung mit sicheren Standardeinstellungen aktivieren möcht
 }
 ```
 
-Dadurch wird das Plugin für den `main`-Agenten aktiviert, standardmäßig auf Sitzungen
-im Stil von Direktnachrichten beschränkt, es kann zuerst das aktuelle Sitzungsmodell erben und
-erlaubt weiterhin den integrierten Remote-Fallback, wenn kein explizites oder geerbtes Modell verfügbar ist.
+Dadurch wird das Plugin für den `main`-Agenten aktiviert, standardmäßig auf Sitzungen im Stil von Direktnachrichten
+beschränkt, es kann zunächst das aktuelle Sitzungsmodell erben, und
+der integrierte Remote-Fallback ist weiterhin erlaubt, wenn kein explizites oder geerbtes Modell verfügbar ist.
 
 Starten Sie danach das Gateway neu:
 
 ```bash
-node scripts/run-node.mjs gateway --profile dev
+openclaw gateway
 ```
 
-Zur Live-Prüfung in einer Konversation:
+So prüfen Sie es live in einer Unterhaltung:
 
 ```text
 /verbose on
@@ -77,7 +77,7 @@ Zur Live-Prüfung in einer Konversation:
 Die sicherste Einrichtung ist:
 
 1. das Plugin aktivieren
-2. einen Konversationsagenten auswählen
+2. einen Konversationsagenten anvisieren
 3. die Protokollierung nur während der Abstimmung eingeschaltet lassen
 
 Beginnen Sie mit Folgendem in `openclaw.json`:
@@ -108,28 +108,28 @@ Beginnen Sie mit Folgendem in `openclaw.json`:
 Starten Sie dann das Gateway neu:
 
 ```bash
-node scripts/run-node.mjs gateway --profile dev
+openclaw gateway
 ```
 
-Das bedeutet:
+Das bedeutet Folgendes:
 
 - `plugins.entries.active-memory.enabled: true` aktiviert das Plugin
-- `config.agents: ["main"]` aktiviert den aktiven Speicher nur für den `main`-Agenten
-- `config.allowedChatTypes: ["direct"]` beschränkt den aktiven Speicher standardmäßig auf Sitzungen im Stil von Direktnachrichten
-- wenn `config.model` nicht gesetzt ist, übernimmt der aktive Speicher zuerst das aktuelle Sitzungsmodell
+- `config.agents: ["main"]` meldet nur den `main`-Agenten für den aktiven Speicher an
+- `config.allowedChatTypes: ["direct"]` lässt den aktiven Speicher standardmäßig nur für Sitzungen im Stil von Direktnachrichten aktiviert
+- wenn `config.model` nicht gesetzt ist, erbt der aktive Speicher zunächst das aktuelle Sitzungsmodell
 - `config.modelFallbackPolicy: "default-remote"` behält den integrierten Remote-Fallback als Standard bei, wenn kein explizites oder geerbtes Modell verfügbar ist
-- `config.promptStyle: "balanced"` verwendet den standardmäßigen allgemeinen Prompt-Stil für den Modus `recent`
-- der aktive Speicher wird weiterhin nur für berechtigte interaktive persistente Chatsitzungen ausgeführt
+- `config.promptStyle: "balanced"` verwendet den allgemeinen Standard-Prompt-Stil für den `recent`-Modus
+- der aktive Speicher wird weiterhin nur in berechtigten interaktiven persistenten Chat-Sitzungen ausgeführt
 
-## So sehen Sie ihn
+## Wie Sie ihn sehen können
 
-Der aktive Speicher fügt versteckten Systemkontext für das Modell ein. Er zeigt dem Client
-keine rohen Tags `<active_memory_plugin>...</active_memory_plugin>` an.
+Der aktive Speicher fügt verborgenen Systemkontext für das Modell ein. Er zeigt
+keine rohen `<active_memory_plugin>...</active_memory_plugin>`-Tags an den Client an.
 
 ## Sitzungsumschaltung
 
 Verwenden Sie den Plugin-Befehl, wenn Sie den aktiven Speicher für die
-aktuelle Chatsitzung pausieren oder fortsetzen möchten, ohne die Konfiguration zu bearbeiten:
+aktuelle Chat-Sitzung pausieren oder fortsetzen möchten, ohne die Konfiguration zu bearbeiten:
 
 ```text
 /active-memory status
@@ -138,11 +138,11 @@ aktuelle Chatsitzung pausieren oder fortsetzen möchten, ohne die Konfiguration 
 ```
 
 Dies ist auf die Sitzung beschränkt. Es ändert nicht
-`plugins.entries.active-memory.enabled`, die Agentenauswahl oder andere globale
+`plugins.entries.active-memory.enabled`, die Agentenausrichtung oder andere globale
 Konfigurationen.
 
-Wenn der Befehl die Konfiguration schreiben und den aktiven Speicher für
-alle Sitzungen pausieren oder fortsetzen soll, verwenden Sie die explizite globale Form:
+Wenn Sie möchten, dass der Befehl die Konfiguration schreibt und den aktiven Speicher für
+alle Sitzungen pausiert oder fortsetzt, verwenden Sie die explizite globale Form:
 
 ```text
 /active-memory status --global
@@ -151,11 +151,10 @@ alle Sitzungen pausieren oder fortsetzen soll, verwenden Sie die explizite globa
 ```
 
 Die globale Form schreibt `plugins.entries.active-memory.config.enabled`. Sie lässt
-`plugins.entries.active-memory.enabled` aktiviert, sodass der Befehl später weiterhin verfügbar bleibt,
-um den aktiven Speicher wieder einzuschalten.
+`plugins.entries.active-memory.enabled` aktiviert, sodass der Befehl weiterhin verfügbar bleibt, um den aktiven Speicher später wieder einzuschalten.
 
-Wenn Sie sehen möchten, was der aktive Speicher in einer Live-Sitzung tut, schalten Sie
-den ausführlichen Modus für diese Sitzung ein:
+Wenn Sie sehen möchten, was der aktive Speicher in einer Live-Sitzung tut, schalten Sie den ausführlichen
+Modus für diese Sitzung ein:
 
 ```text
 /verbose on
@@ -166,11 +165,11 @@ Wenn der ausführliche Modus aktiviert ist, kann OpenClaw Folgendes anzeigen:
 - eine Statuszeile für den aktiven Speicher wie `Active Memory: ok 842ms recent 34 chars`
 - eine lesbare Debug-Zusammenfassung wie `Active Memory Debug: Lemon pepper wings with blue cheese.`
 
-Diese Zeilen stammen aus demselben Durchlauf des aktiven Speichers, der den versteckten
-Systemkontext speist, sind aber für Menschen formatiert, statt rohe Prompt-Markup offenzulegen.
+Diese Zeilen stammen aus demselben Durchlauf des aktiven Speichers, der den verborgenen
+Systemkontext speist, sind aber für Menschen formatiert, statt rohes Prompt-Markup anzuzeigen.
 
-Standardmäßig ist das Transkript des blockierenden Speicher-Sub-Agenten temporär und wird
-nach Abschluss des Durchlaufs gelöscht.
+Standardmäßig ist das Transkript des blockierenden Speicher-Sub-Agenten temporär und wird gelöscht,
+nachdem der Durchlauf abgeschlossen ist.
 
 Beispielablauf:
 
@@ -179,10 +178,10 @@ Beispielablauf:
 what wings should i order?
 ```
 
-Erwartete sichtbare Antwortform:
+Erwartete sichtbare Form der Antwort:
 
 ```text
-...normale Assistentenantwort...
+...normal assistant reply...
 
 🧩 Active Memory: ok 842ms recent 34 chars
 🔎 Active Memory Debug: Lemon pepper wings with blue cheese.
@@ -192,32 +191,32 @@ Erwartete sichtbare Antwortform:
 
 Der aktive Speicher verwendet zwei Gates:
 
-1. **Config-Opt-in**
+1. **Konfigurations-Opt-in**
    Das Plugin muss aktiviert sein, und die aktuelle Agenten-ID muss in
-   `plugins.entries.active-memory.config.agents` enthalten sein.
-2. **Strikte Laufzeitberechtigung**
-   Selbst wenn er aktiviert und ausgewählt ist, wird der aktive Speicher nur für berechtigte
-   interaktive persistente Chatsitzungen ausgeführt.
+   `plugins.entries.active-memory.config.agents` erscheinen.
+2. **Strenge Laufzeitberechtigung**
+   Selbst wenn der aktive Speicher aktiviert und anvisiert ist, wird er nur für berechtigte
+   interaktive persistente Chat-Sitzungen ausgeführt.
 
 Die tatsächliche Regel lautet:
 
 ```text
-Plugin aktiviert
+plugin enabled
 +
-Agenten-ID ausgewählt
+agent id targeted
 +
-zulässiger Chattyp
+allowed chat type
 +
-berechtigte interaktive persistente Chatsitzung
+eligible interactive persistent chat session
 =
-aktiver Speicher wird ausgeführt
+active memory runs
 ```
 
-Wenn eine dieser Bedingungen nicht erfüllt ist, wird der aktive Speicher nicht ausgeführt.
+Wenn eine dieser Bedingungen fehlschlägt, wird der aktive Speicher nicht ausgeführt.
 
 ## Sitzungstypen
 
-`config.allowedChatTypes` steuert, in welchen Arten von Konversationen der aktive
+`config.allowedChatTypes` steuert, in welchen Arten von Unterhaltungen der aktive
 Speicher überhaupt ausgeführt werden darf.
 
 Der Standard ist:
@@ -226,8 +225,8 @@ Der Standard ist:
 allowedChatTypes: ["direct"]
 ```
 
-Das bedeutet, dass der aktive Speicher standardmäßig in Sitzungen im Stil von Direktnachrichten ausgeführt wird,
-aber nicht in Gruppen- oder Kanalsitzungen, es sei denn, Sie aktivieren sie ausdrücklich.
+Das bedeutet, dass der aktive Speicher standardmäßig in Sitzungen im Stil von Direktnachrichten ausgeführt wird, aber
+nicht in Gruppen- oder Kanalsitzungen, es sei denn, Sie melden diese ausdrücklich an.
 
 Beispiele:
 
@@ -245,50 +244,50 @@ allowedChatTypes: ["direct", "group", "channel"]
 
 ## Wo er ausgeführt wird
 
-Der aktive Speicher ist eine Funktion zur Anreicherung von Konversationen, keine plattformweite
+Der aktive Speicher ist eine Funktion zur Anreicherung von Unterhaltungen, keine plattformweite
 Inferenzfunktion.
 
-| Oberfläche                                                          | Führt aktiven Speicher aus?                             |
+| Oberfläche                                                          | Wird der aktive Speicher ausgeführt?                    |
 | ------------------------------------------------------------------- | ------------------------------------------------------- |
-| Control UI / persistente Web-Chat-Sitzungen                         | Ja, wenn das Plugin aktiviert ist und der Agent ausgewählt ist |
-| Andere interaktive Kanalsitzungen auf demselben persistenten Chatpfad | Ja, wenn das Plugin aktiviert ist und der Agent ausgewählt ist |
-| Headless-Einmalausführungen                                         | Nein                                                    |
-| Heartbeat-/Hintergrundausführungen                                  | Nein                                                    |
+| Control UI / persistente Web-Chat-Sitzungen                         | Ja, wenn das Plugin aktiviert ist und der Agent anvisiert ist |
+| Andere interaktive Kanalsitzungen auf demselben persistenten Chat-Pfad | Ja, wenn das Plugin aktiviert ist und der Agent anvisiert ist |
+| Headless-Einmaldurchläufe                                           | Nein                                                    |
+| Heartbeat-/Hintergrunddurchläufe                                    | Nein                                                    |
 | Generische interne `agent-command`-Pfade                            | Nein                                                    |
-| Ausführung von Sub-Agenten/internen Hilfen                          | Nein                                                    |
+| Ausführung von Sub-Agenten/internen Hilfsfunktionen                 | Nein                                                    |
 
-## Warum ihn verwenden
+## Warum Sie ihn verwenden sollten
 
 Verwenden Sie den aktiven Speicher, wenn:
 
-- die Sitzung persistent und benutzerseitig ist
+- die Sitzung persistent und benutzerorientiert ist
 - der Agent über sinnvollen Langzeitspeicher verfügt, der durchsucht werden kann
-- Kontinuität und Personalisierung wichtiger sind als reine Prompt-Deterministik
+- Kontinuität und Personalisierung wichtiger sind als rohe Prompt-Deterministik
 
 Er funktioniert besonders gut für:
 
 - stabile Präferenzen
 - wiederkehrende Gewohnheiten
-- langfristigen Benutzerkontext, der natürlich erscheinen soll
+- langfristigen Benutzerkontext, der natürlich sichtbar werden soll
 
-Er ist ungeeignet für:
+Er passt schlecht zu:
 
 - Automatisierung
-- interne Worker
-- Einmal-API-Aufgaben
-- Orte, an denen versteckte Personalisierung überraschend wäre
+- internen Workern
+- einmaligen API-Aufgaben
+- Orten, an denen verborgene Personalisierung überraschend wäre
 
-## Funktionsweise
+## Wie er funktioniert
 
 Die Laufzeitform ist:
 
 ```mermaid
 flowchart LR
-  U["Benutzernachricht"] --> Q["Speicherabfrage erstellen"]
-  Q --> R["Blockierender Speicher-Sub-Agent für aktiven Speicher"]
-  R -->|NONE oder leer| M["Hauptantwort"]
-  R -->|relevante Zusammenfassung| I["Versteckten Systemkontext active_memory_plugin anhängen"]
-  I --> M["Hauptantwort"]
+  U["User Message"] --> Q["Build Memory Query"]
+  Q --> R["Active Memory Blocking Memory Sub-Agent"]
+  R -->|NONE or empty| M["Main Reply"]
+  R -->|relevant summary| I["Append Hidden active_memory_plugin System Context"]
+  I --> M["Main Reply"]
 ```
 
 Der blockierende Speicher-Sub-Agent kann nur Folgendes verwenden:
@@ -300,20 +299,20 @@ Wenn die Verbindung schwach ist, sollte er `NONE` zurückgeben.
 
 ## Abfragemodi
 
-`config.queryMode` steuert, wie viel Konversation der blockierende Speicher-Sub-Agent sieht.
+`config.queryMode` steuert, wie viel von der Unterhaltung der blockierende Speicher-Sub-Agent sieht.
 
 ## Prompt-Stile
 
-`config.promptStyle` steuert, wie bereitwillig oder streng der blockierende Speicher-Sub-Agent ist,
-wenn er entscheidet, ob Speicher zurückgegeben wird.
+`config.promptStyle` steuert, wie eifrig oder streng der blockierende Speicher-Sub-Agent ist,
+wenn er entscheidet, ob Speicher zurückgegeben werden soll.
 
 Verfügbare Stile:
 
-- `balanced`: allgemeiner Standard für den Modus `recent`
-- `strict`: am wenigsten bereitwillig; am besten, wenn Sie nur sehr wenig Einfluss aus nahem Kontext möchten
-- `contextual`: am stärksten auf Kontinuität ausgerichtet; am besten, wenn der Konversationsverlauf stärker zählen soll
-- `recall-heavy`: eher bereit, Speicher auch bei schwächeren, aber noch plausiblen Übereinstimmungen anzuzeigen
-- `precision-heavy`: bevorzugt aggressiv `NONE`, sofern die Übereinstimmung nicht offensichtlich ist
+- `balanced`: allgemeiner Standard für den `recent`-Modus
+- `strict`: am wenigsten eifrig; am besten, wenn Sie sehr wenig Übersprechen aus dem nahen Kontext möchten
+- `contextual`: am kontinuitätsfreundlichsten; am besten, wenn der Unterhaltungsverlauf stärker zählen soll
+- `recall-heavy`: eher bereit, Speicher bei weicheren, aber weiterhin plausiblen Übereinstimmungen sichtbar zu machen
+- `precision-heavy`: bevorzugt aggressiv `NONE`, es sei denn, die Übereinstimmung ist offensichtlich
 - `preference-only`: optimiert für Favoriten, Gewohnheiten, Routinen, Geschmack und wiederkehrende persönliche Fakten
 
 Standardzuordnung, wenn `config.promptStyle` nicht gesetzt ist:
@@ -337,10 +336,10 @@ promptStyle: "preference-only"
 Wenn `config.model` nicht gesetzt ist, versucht der aktive Speicher, ein Modell in dieser Reihenfolge aufzulösen:
 
 ```text
-explizites Plugin-Modell
--> aktuelles Sitzungsmodell
--> primäres Agentenmodell
--> optionaler integrierter Remote-Fallback
+explicit plugin model
+-> current session model
+-> agent primary model
+-> optional built-in remote fallback
 ```
 
 `config.modelFallbackPolicy` steuert den letzten Schritt.
@@ -357,15 +356,15 @@ Andere Option:
 modelFallbackPolicy: "resolved-only"
 ```
 
-Verwenden Sie `resolved-only`, wenn der aktive Speicher das Abrufen überspringen soll, statt auf den
-integrierten Remote-Standard zurückzufallen, wenn kein explizites oder geerbtes Modell
+Verwenden Sie `resolved-only`, wenn Sie möchten, dass der aktive Speicher das Erinnern überspringt, statt
+auf den integrierten Standard-Remote-Fallback zurückzugreifen, wenn kein explizites oder geerbtes Modell
 verfügbar ist.
 
-## Erweiterte Notausgänge
+## Erweiterte Ausweichmöglichkeiten
 
-Diese Optionen gehören absichtlich nicht zur empfohlenen Einrichtung.
+Diese Optionen sind absichtlich nicht Teil der empfohlenen Einrichtung.
 
-`config.thinking` kann die Denkleistung des blockierenden Speicher-Sub-Agenten überschreiben:
+`config.thinking` kann die Denkstufe des blockierenden Speicher-Sub-Agenten überschreiben:
 
 ```json5
 thinking: "medium"
@@ -378,73 +377,73 @@ thinking: "off"
 ```
 
 Aktivieren Sie dies nicht standardmäßig. Der aktive Speicher läuft im Antwortpfad, daher erhöht zusätzliche
-Denkzeit direkt die für Benutzer sichtbare Latenz.
+Denkzeit direkt die für den Benutzer sichtbare Latenz.
 
-`config.promptAppend` fügt nach dem standardmäßigen Prompt für den aktiven
-Speicher und vor dem Konversationskontext zusätzliche Operator-Anweisungen hinzu:
-
-```json5
-promptAppend: "Bevorzuge stabile langfristige Präferenzen gegenüber einmaligen Ereignissen."
-```
-
-`config.promptOverride` ersetzt den standardmäßigen Prompt für den aktiven Speicher. OpenClaw
-hängt den Konversationskontext danach weiterhin an:
+`config.promptAppend` fügt nach dem Standard-Prompt für den aktiven
+Speicher und vor dem Unterhaltungskontext zusätzliche Bedieneranweisungen hinzu:
 
 ```json5
-promptOverride: "Du bist ein Speicher-Suchagent. Gib NONE oder einen kompakten Benutzerfakt zurück."
+promptAppend: "Prefer stable long-term preferences over one-off events."
 ```
 
-Eine Prompt-Anpassung wird nicht empfohlen, es sei denn, Sie testen absichtlich einen
-anderen Abrufvertrag. Der Standard-Prompt ist darauf abgestimmt, entweder `NONE`
-oder kompakten Benutzerfakt-Kontext für das Hauptmodell zurückzugeben.
+`config.promptOverride` ersetzt den Standard-Prompt für den aktiven Speicher. OpenClaw
+hängt den Unterhaltungskontext danach weiterhin an:
+
+```json5
+promptOverride: "You are a memory search agent. Return NONE or one compact user fact."
+```
+
+Eine Anpassung des Prompts wird nicht empfohlen, es sei denn, Sie testen bewusst einen
+anderen Erinnerungsvertrag. Der Standard-Prompt ist darauf abgestimmt, entweder `NONE`
+oder kompakten Benutzerfakten-Kontext für das Hauptmodell zurückzugeben.
 
 ### `message`
 
-Es wird nur die neueste Benutzernachricht gesendet.
+Nur die neueste Benutzernachricht wird gesendet.
 
 ```text
-Nur die neueste Benutzernachricht
+Latest user message only
 ```
 
 Verwenden Sie dies, wenn:
 
 - Sie das schnellste Verhalten möchten
-- Sie die stärkste Ausrichtung auf den Abruf stabiler Präferenzen möchten
-- Folgezüge keinen Konversationskontext benötigen
+- Sie die stärkste Ausrichtung auf das Erinnern stabiler Präferenzen möchten
+- Folgerunden keinen Unterhaltungskontext benötigen
 
-Empfohlene Zeitüberschreitung:
+Empfohlenes Timeout:
 
 - beginnen Sie bei etwa `3000` bis `5000` ms
 
 ### `recent`
 
-Die neueste Benutzernachricht plus ein kleiner aktueller Konversationsverlauf wird gesendet.
+Die neueste Benutzernachricht plus ein kurzer aktueller Unterhaltungsverlauf wird gesendet.
 
 ```text
-Aktueller Konversationsverlauf:
+Recent conversation tail:
 user: ...
 assistant: ...
 user: ...
 
-Neueste Benutzernachricht:
+Latest user message:
 ...
 ```
 
 Verwenden Sie dies, wenn:
 
-- Sie ein besseres Gleichgewicht zwischen Geschwindigkeit und konversationeller Verankerung möchten
-- Folgefragen oft von den letzten wenigen Zügen abhängen
+- Sie eine bessere Balance aus Geschwindigkeit und Verankerung in der Unterhaltung möchten
+- Anschlussfragen oft von den letzten wenigen Runden abhängen
 
-Empfohlene Zeitüberschreitung:
+Empfohlenes Timeout:
 
 - beginnen Sie bei etwa `15000` ms
 
 ### `full`
 
-Die vollständige Konversation wird an den blockierenden Speicher-Sub-Agenten gesendet.
+Die vollständige Unterhaltung wird an den blockierenden Speicher-Sub-Agenten gesendet.
 
 ```text
-Vollständiger Konversationskontext:
+Full conversation context:
 user: ...
 assistant: ...
 user: ...
@@ -453,15 +452,15 @@ user: ...
 
 Verwenden Sie dies, wenn:
 
-- die bestmögliche Abrufqualität wichtiger ist als Latenz
-- die Konversation wichtige Vorbereitungen weit oben im Verlauf enthält
+- die bestmögliche Erinnerungsqualität wichtiger ist als Latenz
+- die Unterhaltung weit hinten im Thread wichtige Vorbereitung enthält
 
-Empfohlene Zeitüberschreitung:
+Empfohlenes Timeout:
 
-- erhöhen Sie sie deutlich im Vergleich zu `message` oder `recent`
+- erhöhen Sie es deutlich im Vergleich zu `message` oder `recent`
 - beginnen Sie bei etwa `15000` ms oder höher, abhängig von der Thread-Größe
 
-Im Allgemeinen sollte die Zeitüberschreitung mit der Kontextgröße zunehmen:
+Im Allgemeinen sollte das Timeout mit der Kontextgröße zunehmen:
 
 ```text
 message < recent < full
@@ -469,13 +468,14 @@ message < recent < full
 
 ## Transkriptpersistenz
 
-Läufe des blockierenden Speicher-Sub-Agenten für den aktiven Speicher erstellen während des Aufrufs des blockierenden Speicher-Sub-Agenten ein echtes `session.jsonl`-Transkript.
+Durchläufe des blockierenden Speicher-Sub-Agenten des aktiven Speichers erzeugen während des Aufrufs des blockierenden Speicher-Sub-Agenten ein echtes `session.jsonl`-
+Transkript.
 
 Standardmäßig ist dieses Transkript temporär:
 
 - es wird in ein temporäres Verzeichnis geschrieben
-- es wird nur für den Lauf des blockierenden Speicher-Sub-Agenten verwendet
-- es wird unmittelbar nach Abschluss des Laufs gelöscht
+- es wird nur für den Durchlauf des blockierenden Speicher-Sub-Agenten verwendet
+- es wird sofort gelöscht, nachdem der Durchlauf abgeschlossen ist
 
 Wenn Sie diese Transkripte des blockierenden Speicher-Sub-Agenten zur Fehlerbehebung oder
 Inspektion auf dem Datenträger behalten möchten, aktivieren Sie die Persistenz ausdrücklich:
@@ -497,8 +497,8 @@ Inspektion auf dem Datenträger behalten möchten, aktivieren Sie die Persistenz
 }
 ```
 
-Wenn aktiviert, speichert der aktive Speicher Transkripte in einem separaten Verzeichnis unter dem
-Sitzungsordner des Ziel-Agenten, nicht im Transkriptpfad der Haupt-Benutzerkonversation.
+Wenn dies aktiviert ist, speichert der aktive Speicher Transkripte in einem separaten Verzeichnis unter dem
+Sitzungsordner des Ziel-Agenten, nicht im Transkriptpfad der Haupt-Benutzerunterhaltung.
 
 Das Standardlayout ist konzeptionell:
 
@@ -510,9 +510,9 @@ Sie können das relative Unterverzeichnis mit `config.transcriptDir` ändern.
 
 Verwenden Sie dies mit Vorsicht:
 
-- Transkripte des blockierenden Speicher-Sub-Agenten können sich bei stark ausgelasteten Sitzungen schnell ansammeln
-- der Abfragemodus `full` kann viel Konversationskontext duplizieren
-- diese Transkripte enthalten versteckten Prompt-Kontext und abgerufene Erinnerungen
+- Transkripte des blockierenden Speicher-Sub-Agenten können sich in stark genutzten Sitzungen schnell ansammeln
+- der Abfragemodus `full` kann viel Unterhaltungskontext duplizieren
+- diese Transkripte enthalten verborgenen Prompt-Kontext und abgerufene Erinnerungen
 
 ## Konfiguration
 
@@ -524,31 +524,31 @@ plugins.entries.active-memory
 
 Die wichtigsten Felder sind:
 
-| Schlüssel                    | Typ                                                                                                  | Bedeutung                                                                                              |
-| --------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `enabled`                   | `boolean`                                                                                            | Aktiviert das Plugin selbst                                                                            |
-| `config.agents`             | `string[]`                                                                                           | Agenten-IDs, die den aktiven Speicher verwenden dürfen                                                 |
-| `config.model`              | `string`                                                                                             | Optionale Modell-Referenz für den blockierenden Speicher-Sub-Agenten; wenn nicht gesetzt, verwendet der aktive Speicher das aktuelle Sitzungsmodell |
-| `config.queryMode`          | `"message" \| "recent" \| "full"`                                                                    | Steuert, wie viel Konversation der blockierende Speicher-Sub-Agent sieht                              |
-| `config.promptStyle`        | `"balanced" \| "strict" \| "contextual" \| "recall-heavy" \| "precision-heavy" \| "preference-only"` | Steuert, wie bereitwillig oder streng der blockierende Speicher-Sub-Agent ist, wenn er entscheidet, ob Speicher zurückgegeben wird |
-| `config.thinking`           | `"off" \| "minimal" \| "low" \| "medium" \| "high" \| "xhigh" \| "adaptive"`                         | Erweiterte Überschreibung der Denkleistung für den blockierenden Speicher-Sub-Agenten; Standard `off` für Geschwindigkeit |
-| `config.promptOverride`     | `string`                                                                                             | Erweiterter vollständiger Ersatz des Prompts; für den normalen Einsatz nicht empfohlen                 |
-| `config.promptAppend`       | `string`                                                                                             | Erweiterte zusätzliche Anweisungen, die an den Standard- oder überschriebenen Prompt angehängt werden |
-| `config.timeoutMs`          | `number`                                                                                             | Harte Zeitüberschreitung für den blockierenden Speicher-Sub-Agenten                                   |
-| `config.maxSummaryChars`    | `number`                                                                                             | Maximal zulässige Gesamtzahl von Zeichen in der Active-Memory-Zusammenfassung                         |
-| `config.logging`            | `boolean`                                                                                            | Gibt während der Abstimmung Protokolle des aktiven Speichers aus                                       |
-| `config.persistTranscripts` | `boolean`                                                                                            | Behält Transkripte des blockierenden Speicher-Sub-Agenten auf dem Datenträger, statt temporäre Dateien zu löschen |
-| `config.transcriptDir`      | `string`                                                                                             | Relatives Transkriptverzeichnis des blockierenden Speicher-Sub-Agenten unter dem Sitzungsordner des Agenten |
+| Schlüssel                    | Typ                                                                                                  | Bedeutung                                                                                                     |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `enabled`                    | `boolean`                                                                                            | Aktiviert das Plugin selbst                                                                                   |
+| `config.agents`              | `string[]`                                                                                           | Agenten-IDs, die den aktiven Speicher verwenden dürfen                                                       |
+| `config.model`               | `string`                                                                                             | Optionale Modellreferenz für den blockierenden Speicher-Sub-Agenten; wenn nicht gesetzt, verwendet der aktive Speicher das aktuelle Sitzungsmodell |
+| `config.queryMode`           | `"message" \| "recent" \| "full"`                                                                    | Steuert, wie viel Unterhaltung der blockierende Speicher-Sub-Agent sieht                                     |
+| `config.promptStyle`         | `"balanced" \| "strict" \| "contextual" \| "recall-heavy" \| "precision-heavy" \| "preference-only"` | Steuert, wie eifrig oder streng der blockierende Speicher-Sub-Agent ist, wenn er entscheidet, ob Speicher zurückgegeben werden soll |
+| `config.thinking`            | `"off" \| "minimal" \| "low" \| "medium" \| "high" \| "xhigh" \| "adaptive"`                         | Erweiterte Überschreibung der Denkstufe für den blockierenden Speicher-Sub-Agenten; Standard ist `off` für Geschwindigkeit |
+| `config.promptOverride`      | `string`                                                                                             | Erweiterter vollständiger Prompt-Ersatz; für den normalen Gebrauch nicht empfohlen                           |
+| `config.promptAppend`        | `string`                                                                                             | Erweiterte zusätzliche Anweisungen, die an den Standard- oder überschriebenen Prompt angehängt werden        |
+| `config.timeoutMs`           | `number`                                                                                             | Harte Zeitüberschreitung für den blockierenden Speicher-Sub-Agenten                                          |
+| `config.maxSummaryChars`     | `number`                                                                                             | Maximal zulässige Gesamtzahl von Zeichen in der Active-Memory-Zusammenfassung                                |
+| `config.logging`             | `boolean`                                                                                            | Gibt während der Abstimmung Logs des aktiven Speichers aus                                                   |
+| `config.persistTranscripts`  | `boolean`                                                                                            | Behält Transkripte des blockierenden Speicher-Sub-Agenten auf dem Datenträger, statt temporäre Dateien zu löschen |
+| `config.transcriptDir`       | `string`                                                                                             | Relatives Transkriptverzeichnis des blockierenden Speicher-Sub-Agenten unter dem Sitzungsordner des Agenten |
 
 Nützliche Felder zur Abstimmung:
 
-| Schlüssel                     | Typ      | Bedeutung                                                    |
+| Schlüssel                      | Typ      | Bedeutung                                                    |
 | ----------------------------- | -------- | ------------------------------------------------------------ |
 | `config.maxSummaryChars`      | `number` | Maximal zulässige Gesamtzahl von Zeichen in der Active-Memory-Zusammenfassung |
-| `config.recentUserTurns`      | `number` | Frühere Benutzerzüge, die einbezogen werden, wenn `queryMode` `recent` ist |
-| `config.recentAssistantTurns` | `number` | Frühere Assistentenzüge, die einbezogen werden, wenn `queryMode` `recent` ist |
-| `config.recentUserChars`      | `number` | Maximale Zeichenzahl pro aktuellem Benutzerzug               |
-| `config.recentAssistantChars` | `number` | Maximale Zeichenzahl pro aktuellem Assistentenzug            |
+| `config.recentUserTurns`      | `number` | Vorherige Benutzerrunden, die eingeschlossen werden, wenn `queryMode` auf `recent` gesetzt ist |
+| `config.recentAssistantTurns` | `number` | Vorherige Assistentenrunden, die eingeschlossen werden, wenn `queryMode` auf `recent` gesetzt ist |
+| `config.recentUserChars`      | `number` | Maximale Zeichen pro aktueller Benutzerrunde                 |
+| `config.recentAssistantChars` | `number` | Maximale Zeichen pro aktueller Assistentenrunde              |
 | `config.cacheTtlMs`           | `number` | Cache-Wiederverwendung für wiederholte identische Abfragen   |
 
 ## Empfohlene Einrichtung
@@ -576,7 +576,7 @@ Beginnen Sie mit `recent`.
 ```
 
 Wenn Sie das Live-Verhalten während der Abstimmung prüfen möchten, verwenden Sie `/verbose on` in der
-Sitzung, statt nach einem separaten Debug-Befehl für den aktiven Speicher zu suchen.
+Sitzung, anstatt nach einem separaten Debug-Befehl für den aktiven Speicher zu suchen.
 
 Wechseln Sie dann zu:
 
@@ -589,20 +589,20 @@ Wenn der aktive Speicher nicht dort angezeigt wird, wo Sie ihn erwarten:
 
 1. Bestätigen Sie, dass das Plugin unter `plugins.entries.active-memory.enabled` aktiviert ist.
 2. Bestätigen Sie, dass die aktuelle Agenten-ID in `config.agents` aufgeführt ist.
-3. Bestätigen Sie, dass Sie über eine interaktive persistente Chatsitzung testen.
-4. Aktivieren Sie `config.logging: true` und beobachten Sie die Gateway-Protokolle.
-5. Verifizieren Sie, dass die Speichersuche selbst mit `openclaw memory status --deep` funktioniert.
+3. Bestätigen Sie, dass Sie über eine interaktive persistente Chat-Sitzung testen.
+4. Aktivieren Sie `config.logging: true` und beobachten Sie die Gateway-Logs.
+5. Vergewissern Sie sich mit `openclaw memory status --deep`, dass die Speichersuche selbst funktioniert.
 
-Wenn Speicher-Treffer zu ungenau sind, verschärfen Sie:
+Wenn Speichertreffer verrauscht sind, verringern Sie:
 
 - `maxSummaryChars`
 
 Wenn der aktive Speicher zu langsam ist:
 
-- `queryMode` verringern
-- `timeoutMs` verringern
-- die Anzahl aktueller Züge reduzieren
-- die Zeichenobergrenzen pro Zug reduzieren
+- verringern Sie `queryMode`
+- verringern Sie `timeoutMs`
+- reduzieren Sie die Anzahl der aktuellen Runden
+- reduzieren Sie die Zeichenobergrenzen pro Runde
 
 ## Verwandte Seiten
 

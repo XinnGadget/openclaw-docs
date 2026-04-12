@@ -1,61 +1,70 @@
 ---
 read_when:
-    - أنت تريد استخدام توليد الصور عبر fal في OpenClaw
-    - أنت بحاجة إلى تدفق المصادقة `FAL_KEY`
-    - أنت تريد القيم الافتراضية لـ `image_generate` أو `video_generate` في fal
+    - تريد استخدام توليد الصور عبر fal في OpenClaw
+    - تحتاج إلى تدفق المصادقة FAL_KEY
+    - تريد إعدادات fal الافتراضية لـ `image_generate` أو `video_generate`
 summary: إعداد توليد الصور والفيديو عبر fal في OpenClaw
 title: fal
 x-i18n:
-    generated_at: "2026-04-11T02:47:44Z"
+    generated_at: "2026-04-12T23:30:23Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 9bfe4f69124e922a79a516a1bd78f0c00f7a45f3c6f68b6d39e0d196fa01beb3
+    source_hash: ff275233179b4808d625383efe04189ad9e92af09944ba39f1e953e77378e347
     source_path: providers/fal.md
     workflow: 15
 ---
 
 # fal
 
-يشحن OpenClaw موفّر `fal` مضمّنًا لتوليد الصور والفيديو المستضاف.
+يوفّر OpenClaw مزود `fal` مدمجًا لتوليد الصور والفيديو المستضاف.
 
-- الموفّر: `fal`
-- المصادقة: `FAL_KEY` (الأساسي؛ كما يعمل `FAL_API_KEY` كخيار احتياطي)
-- API: نقاط نهاية نماذج fal
+| الخاصية | القيمة                                                        |
+| ------- | ------------------------------------------------------------- |
+| Provider | `fal`                                                         |
+| المصادقة | `FAL_KEY` (الأساسي؛ كما يعمل `FAL_API_KEY` كخيار احتياطي)    |
+| API     | نقاط نهاية نماذج fal                                          |
 
-## البدء السريع
+## البدء
 
-1. عيّن مفتاح API:
-
-```bash
-openclaw onboard --auth-choice fal-api-key
-```
-
-2. عيّن نموذج صور افتراضيًا:
-
-```json5
-{
-  agents: {
-    defaults: {
-      imageGenerationModel: {
-        primary: "fal/fal-ai/flux/dev",
+<Steps>
+  <Step title="تعيين مفتاح API">
+    ```bash
+    openclaw onboard --auth-choice fal-api-key
+    ```
+  </Step>
+  <Step title="تعيين نموذج صور افتراضي">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          imageGenerationModel: {
+            primary: "fal/fal-ai/flux/dev",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Step>
+</Steps>
 
 ## توليد الصور
 
-يستخدم موفّر توليد الصور المضمّن `fal` افتراضيًا
+القيمة الافتراضية لمزود توليد الصور `fal` المدمج هي
 `fal/fal-ai/flux/dev`.
 
-- التوليد: حتى 4 صور لكل طلب
-- وضع التحرير: مفعّل، مع صورة مرجعية واحدة
-- يدعم `size` و`aspectRatio` و`resolution`
-- الملاحظة الحالية في التحرير: لا تدعم نقطة نهاية تحرير الصور في fal
-  تجاوزات `aspectRatio`
+| الإمكانية      | القيمة                    |
+| -------------- | ------------------------- |
+| الحد الأقصى للصور | 4 لكل طلب                |
+| وضع التحرير     | مفعّل، صورة مرجعية واحدة  |
+| تجاوزات الحجم   | مدعومة                    |
+| نسبة الأبعاد    | مدعومة                    |
+| الدقة           | مدعومة                    |
 
-لاستخدام fal كموفّر الصور الافتراضي:
+<Warning>
+نقطة نهاية تحرير الصور في fal **لا** تدعم تجاوزات `aspectRatio`.
+</Warning>
+
+لاستخدام fal كمزود الصور الافتراضي:
 
 ```json5
 {
@@ -71,49 +80,73 @@ openclaw onboard --auth-choice fal-api-key
 
 ## توليد الفيديو
 
-يستخدم موفّر توليد الفيديو المضمّن `fal` افتراضيًا
+القيمة الافتراضية لمزود توليد الفيديو `fal` المدمج هي
 `fal/fal-ai/minimax/video-01-live`.
 
-- الأوضاع: تحويل النص إلى فيديو وتدفّقات مرجعية بصورة واحدة
-- وقت التشغيل: تدفّق إرسال/حالة/نتيجة مدعوم بطابور للمهام طويلة التشغيل
-- مرجع نموذج وكيل الفيديو HeyGen:
-  - `fal/fal-ai/heygen/v2/video-agent`
-- مراجع نموذج Seedance 2.0:
-  - `fal/bytedance/seedance-2.0/fast/text-to-video`
-  - `fal/bytedance/seedance-2.0/fast/image-to-video`
-  - `fal/bytedance/seedance-2.0/text-to-video`
-  - `fal/bytedance/seedance-2.0/image-to-video`
+| الإمكانية | القيمة                                                        |
+| ---------- | ------------------------------------------------------------ |
+| الأوضاع    | نص إلى فيديو، ومرجع بصورة واحدة                              |
+| وقت التشغيل | مسار إرسال/حالة/نتيجة مدعوم بالطابور للمهام طويلة التشغيل   |
 
-لاستخدام Seedance 2.0 كنموذج الفيديو الافتراضي:
+<AccordionGroup>
+  <Accordion title="نماذج الفيديو المتاحة">
+    **وكيل فيديو HeyGen:**
 
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "fal/bytedance/seedance-2.0/fast/text-to-video",
+    - `fal/fal-ai/heygen/v2/video-agent`
+
+    **Seedance 2.0:**
+
+    - `fal/bytedance/seedance-2.0/fast/text-to-video`
+    - `fal/bytedance/seedance-2.0/fast/image-to-video`
+    - `fal/bytedance/seedance-2.0/text-to-video`
+    - `fal/bytedance/seedance-2.0/image-to-video`
+
+  </Accordion>
+
+  <Accordion title="مثال إعداد Seedance 2.0">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/bytedance/seedance-2.0/fast/text-to-video",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Accordion>
 
-لاستخدام وكيل الفيديو HeyGen كنموذج الفيديو الافتراضي:
-
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "fal/fal-ai/heygen/v2/video-agent",
+  <Accordion title="مثال إعداد وكيل فيديو HeyGen">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/fal-ai/heygen/v2/video-agent",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+استخدم `openclaw models list --provider fal` لعرض القائمة الكاملة لنماذج fal
+المتاحة، بما في ذلك أي إدخالات أضيفت مؤخرًا.
+</Tip>
 
 ## ذو صلة
 
-- [توليد الصور](/ar/tools/image-generation)
-- [توليد الفيديو](/ar/tools/video-generation)
-- [مرجع الإعدادات](/ar/gateway/configuration-reference#agent-defaults)
+<CardGroup cols={2}>
+  <Card title="توليد الصور" href="/ar/tools/image-generation" icon="image">
+    معلمات أداة الصور المشتركة واختيار Provider.
+  </Card>
+  <Card title="توليد الفيديو" href="/ar/tools/video-generation" icon="video">
+    معلمات أداة الفيديو المشتركة واختيار Provider.
+  </Card>
+  <Card title="مرجع الإعدادات" href="/ar/gateway/configuration-reference#agent-defaults" icon="gear">
+    الإعدادات الافتراضية للوكيل، بما في ذلك اختيار نموذج الصور والفيديو.
+  </Card>
+</CardGroup>

@@ -1,14 +1,14 @@
 ---
 read_when:
-    - Anda ingin menggunakan Z.AI / model GLM di OpenClaw
-    - Anda memerlukan penyiapan `ZAI_API_KEY` yang sederhana
+    - Anda menginginkan model Z.AI / GLM di OpenClaw
+    - Anda memerlukan setup `ZAI_API_KEY` yang sederhana
 summary: Gunakan Z.AI (model GLM) dengan OpenClaw
 title: Z.AI
 x-i18n:
-    generated_at: "2026-04-08T06:01:07Z"
+    generated_at: "2026-04-12T23:33:25Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 66cbd9813ee28d202dcae34debab1b0cf9927793acb00743c1c62b48d9e381f9
+    source_hash: 972b467dab141c8c5126ac776b7cb6b21815c27da511b3f34e12bd9e9ac953b7
     source_path: providers/zai.md
     workflow: 15
 ---
@@ -16,67 +16,157 @@ x-i18n:
 # Z.AI
 
 Z.AI adalah platform API untuk model **GLM**. Platform ini menyediakan REST API untuk GLM dan menggunakan kunci API
-untuk autentikasi. Buat kunci API Anda di konsol Z.AI. OpenClaw menggunakan provider `zai`
+untuk auth. Buat kunci API Anda di konsol Z.AI. OpenClaw menggunakan provider `zai`
 dengan kunci API Z.AI.
 
-## Penyiapan CLI
+- Provider: `zai`
+- Auth: `ZAI_API_KEY`
+- API: Z.AI Chat Completions (auth Bearer)
 
-```bash
-# Penyiapan kunci API generik dengan deteksi otomatis endpoint
-openclaw onboard --auth-choice zai-api-key
+## Memulai
 
-# Coding Plan Global, direkomendasikan untuk pengguna Coding Plan
-openclaw onboard --auth-choice zai-coding-global
+<Tabs>
+  <Tab title="Deteksi otomatis endpoint">
+    **Paling cocok untuk:** sebagian besar pengguna. OpenClaw mendeteksi endpoint Z.AI yang cocok dari kunci dan otomatis menerapkan base URL yang benar.
 
-# Coding Plan CN (wilayah Tiongkok), direkomendasikan untuk pengguna Coding Plan
-openclaw onboard --auth-choice zai-coding-cn
+    <Steps>
+      <Step title="Jalankan onboarding">
+        ```bash
+        openclaw onboard --auth-choice zai-api-key
+        ```
+      </Step>
+      <Step title="Tetapkan model default">
+        ```json5
+        {
+          env: { ZAI_API_KEY: "sk-..." },
+          agents: { defaults: { model: { primary: "zai/glm-5.1" } } },
+        }
+        ```
+      </Step>
+      <Step title="Verifikasi bahwa model tersedia">
+        ```bash
+        openclaw models list --provider zai
+        ```
+      </Step>
+    </Steps>
 
-# API umum
-openclaw onboard --auth-choice zai-global
+  </Tab>
 
-# API umum CN (wilayah Tiongkok)
-openclaw onboard --auth-choice zai-cn
-```
+  <Tab title="Endpoint regional eksplisit">
+    **Paling cocok untuk:** pengguna yang ingin memaksa permukaan API Coding Plan atau API umum tertentu.
 
-## Cuplikan konfigurasi
+    <Steps>
+      <Step title="Pilih pilihan onboarding yang tepat">
+        ```bash
+        # Coding Plan Global (disarankan untuk pengguna Coding Plan)
+        openclaw onboard --auth-choice zai-coding-global
 
-```json5
-{
-  env: { ZAI_API_KEY: "sk-..." },
-  agents: { defaults: { model: { primary: "zai/glm-5.1" } } },
-}
-```
+        # Coding Plan CN (region Tiongkok)
+        openclaw onboard --auth-choice zai-coding-cn
 
-`zai-api-key` memungkinkan OpenClaw mendeteksi endpoint Z.AI yang cocok dari kunci tersebut dan
-menerapkan URL dasar yang benar secara otomatis. Gunakan pilihan regional yang eksplisit saat
-Anda ingin memaksakan permukaan Coding Plan atau API umum tertentu.
+        # API umum
+        openclaw onboard --auth-choice zai-global
+
+        # API umum CN (region Tiongkok)
+        openclaw onboard --auth-choice zai-cn
+        ```
+      </Step>
+      <Step title="Tetapkan model default">
+        ```json5
+        {
+          env: { ZAI_API_KEY: "sk-..." },
+          agents: { defaults: { model: { primary: "zai/glm-5.1" } } },
+        }
+        ```
+      </Step>
+      <Step title="Verifikasi bahwa model tersedia">
+        ```bash
+        openclaw models list --provider zai
+        ```
+      </Step>
+    </Steps>
+
+  </Tab>
+</Tabs>
 
 ## Katalog GLM bawaan
 
-Saat ini OpenClaw mengisi provider `zai` bawaan dengan:
+OpenClaw saat ini mengisi provider `zai` bawaan dengan:
 
-- `glm-5.1`
-- `glm-5`
-- `glm-5-turbo`
-- `glm-5v-turbo`
-- `glm-4.7`
-- `glm-4.7-flash`
-- `glm-4.7-flashx`
-- `glm-4.6`
-- `glm-4.6v`
-- `glm-4.5`
-- `glm-4.5-air`
-- `glm-4.5-flash`
-- `glm-4.5v`
+| Model ref            | Catatan       |
+| -------------------- | ------------- |
+| `zai/glm-5.1`        | Model default |
+| `zai/glm-5`          |               |
+| `zai/glm-5-turbo`    |               |
+| `zai/glm-5v-turbo`   |               |
+| `zai/glm-4.7`        |               |
+| `zai/glm-4.7-flash`  |               |
+| `zai/glm-4.7-flashx` |               |
+| `zai/glm-4.6`        |               |
+| `zai/glm-4.6v`       |               |
+| `zai/glm-4.5`        |               |
+| `zai/glm-4.5-air`    |               |
+| `zai/glm-4.5-flash`  |               |
+| `zai/glm-4.5v`       |               |
 
-## Catatan
+<Tip>
+Model GLM tersedia sebagai `zai/<model>` (contoh: `zai/glm-5`). Ref model bawaan default adalah `zai/glm-5.1`.
+</Tip>
 
-- Model GLM tersedia sebagai `zai/<model>` (contoh: `zai/glm-5`).
-- Referensi model bawaan default: `zai/glm-5.1`
-- ID `glm-5*` yang tidak dikenal tetap di-resolve secara forward pada jalur provider bawaan dengan
-  menyintesis metadata milik provider dari template `glm-4.7` saat ID tersebut
-  cocok dengan bentuk keluarga GLM-5 saat ini.
-- `tool_stream` diaktifkan secara default untuk streaming pemanggilan alat Z.AI. Setel
-  `agents.defaults.models["zai/<model>"].params.tool_stream` ke `false` untuk menonaktifkannya.
-- Lihat [/providers/glm](/id/providers/glm) untuk ikhtisar keluarga model.
-- Z.AI menggunakan autentikasi Bearer dengan kunci API Anda.
+## Konfigurasi lanjutan
+
+<AccordionGroup>
+  <Accordion title="Forward-resolving model GLM-5 yang tidak dikenal">
+    ID `glm-5*` yang tidak dikenal tetap di-forward-resolve pada jalur provider bawaan dengan
+    mensintesis metadata milik provider dari template `glm-4.7` ketika ID tersebut
+    cocok dengan bentuk keluarga GLM-5 saat ini.
+  </Accordion>
+
+  <Accordion title="Streaming pemanggilan tool">
+    `tool_stream` diaktifkan secara default untuk streaming pemanggilan tool Z.AI. Untuk menonaktifkannya:
+
+    ```json5
+    {
+      agents: {
+        defaults: {
+          models: {
+            "zai/<model>": {
+              params: { tool_stream: false },
+            },
+          },
+        },
+      },
+    }
+    ```
+
+  </Accordion>
+
+  <Accordion title="Pemahaman gambar">
+    Plugin Z.AI bawaan mendaftarkan pemahaman gambar.
+
+    | Properti      | Nilai       |
+    | ------------- | ----------- |
+    | Model         | `glm-4.6v`  |
+
+    Pemahaman gambar otomatis diselesaikan dari auth Z.AI yang dikonfigurasi — tidak
+    diperlukan config tambahan.
+
+  </Accordion>
+
+  <Accordion title="Detail auth">
+    - Z.AI menggunakan auth Bearer dengan kunci API Anda.
+    - Pilihan onboarding `zai-api-key` mendeteksi otomatis endpoint Z.AI yang cocok dari prefiks kunci.
+    - Gunakan pilihan regional eksplisit (`zai-coding-global`, `zai-coding-cn`, `zai-global`, `zai-cn`) ketika Anda ingin memaksa permukaan API tertentu.
+  </Accordion>
+</AccordionGroup>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="Keluarga model GLM" href="/id/providers/glm" icon="microchip">
+    Gambaran umum keluarga model untuk GLM.
+  </Card>
+  <Card title="Pemilihan model" href="/id/concepts/model-providers" icon="layers">
+    Memilih provider, ref model, dan perilaku failover.
+  </Card>
+</CardGroup>

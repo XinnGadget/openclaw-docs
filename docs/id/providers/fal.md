@@ -1,59 +1,68 @@
 ---
 read_when:
     - Anda ingin menggunakan pembuatan gambar fal di OpenClaw
-    - Anda memerlukan alur autentikasi `FAL_KEY`
+    - Anda memerlukan alur auth `FAL_KEY`
     - Anda ingin default fal untuk `image_generate` atau `video_generate`
 summary: setup pembuatan gambar dan video fal di OpenClaw
 title: fal
 x-i18n:
-    generated_at: "2026-04-11T02:47:09Z"
+    generated_at: "2026-04-12T23:30:37Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 9bfe4f69124e922a79a516a1bd78f0c00f7a45f3c6f68b6d39e0d196fa01beb3
+    source_hash: ff275233179b4808d625383efe04189ad9e92af09944ba39f1e953e77378e347
     source_path: providers/fal.md
     workflow: 15
 ---
 
 # fal
 
-OpenClaw menyertakan provider `fal` bawaan untuk pembuatan gambar dan video terhosting.
+OpenClaw menyediakan provider `fal` bawaan untuk pembuatan gambar dan video terhosting.
 
-- Provider: `fal`
-- Auth: `FAL_KEY` (kanonis; `FAL_API_KEY` juga berfungsi sebagai fallback)
-- API: endpoint model fal
+| Properti | Nilai                                                         |
+| -------- | ------------------------------------------------------------- |
+| Provider | `fal`                                                         |
+| Auth     | `FAL_KEY` (kanonis; `FAL_API_KEY` juga berfungsi sebagai fallback) |
+| API      | endpoint model fal                                            |
 
-## Mulai cepat
+## Memulai
 
-1. Setel API key:
-
-```bash
-openclaw onboard --auth-choice fal-api-key
-```
-
-2. Setel model gambar default:
-
-```json5
-{
-  agents: {
-    defaults: {
-      imageGenerationModel: {
-        primary: "fal/fal-ai/flux/dev",
+<Steps>
+  <Step title="Tetapkan kunci API">
+    ```bash
+    openclaw onboard --auth-choice fal-api-key
+    ```
+  </Step>
+  <Step title="Tetapkan model gambar default">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          imageGenerationModel: {
+            primary: "fal/fal-ai/flux/dev",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Step>
+</Steps>
 
 ## Pembuatan gambar
 
-Provider pembuatan gambar `fal` bawaan menggunakan default
+Provider image-generation `fal` bawaan secara default menggunakan
 `fal/fal-ai/flux/dev`.
 
-- Hasilkan: hingga 4 gambar per permintaan
-- Mode edit: diaktifkan, 1 gambar referensi
-- Mendukung `size`, `aspectRatio`, dan `resolution`
-- Keterbatasan edit saat ini: endpoint edit gambar fal **tidak** mendukung
-  override `aspectRatio`
+| Capability     | Nilai                     |
+| -------------- | ------------------------- |
+| Max images     | 4 per permintaan          |
+| Edit mode      | Diaktifkan, 1 gambar referensi |
+| Size overrides | Didukung                  |
+| Aspect ratio   | Didukung                  |
+| Resolution     | Didukung                  |
+
+<Warning>
+Endpoint edit gambar fal **tidak** mendukung override `aspectRatio`.
+</Warning>
 
 Untuk menggunakan fal sebagai provider gambar default:
 
@@ -71,49 +80,73 @@ Untuk menggunakan fal sebagai provider gambar default:
 
 ## Pembuatan video
 
-Provider pembuatan video `fal` bawaan menggunakan default
+Provider video-generation `fal` bawaan secara default menggunakan
 `fal/fal-ai/minimax/video-01-live`.
 
-- Mode: text-to-video dan alur satu gambar referensi
-- Runtime: alur submit/status/result berbasis antrean untuk job yang berjalan lama
-- Referensi model agen video HeyGen:
-  - `fal/fal-ai/heygen/v2/video-agent`
-- Referensi model Seedance 2.0:
-  - `fal/bytedance/seedance-2.0/fast/text-to-video`
-  - `fal/bytedance/seedance-2.0/fast/image-to-video`
-  - `fal/bytedance/seedance-2.0/text-to-video`
-  - `fal/bytedance/seedance-2.0/image-to-video`
+| Capability | Nilai                                                        |
+| ---------- | ------------------------------------------------------------ |
+| Modes      | Teks-ke-video, referensi satu gambar                         |
+| Runtime    | Alur submit/status/result berbasis antrean untuk job berdurasi panjang |
 
-Untuk menggunakan Seedance 2.0 sebagai model video default:
+<AccordionGroup>
+  <Accordion title="Model video yang tersedia">
+    **Video-agent HeyGen:**
 
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "fal/bytedance/seedance-2.0/fast/text-to-video",
+    - `fal/fal-ai/heygen/v2/video-agent`
+
+    **Seedance 2.0:**
+
+    - `fal/bytedance/seedance-2.0/fast/text-to-video`
+    - `fal/bytedance/seedance-2.0/fast/image-to-video`
+    - `fal/bytedance/seedance-2.0/text-to-video`
+    - `fal/bytedance/seedance-2.0/image-to-video`
+
+  </Accordion>
+
+  <Accordion title="Contoh config Seedance 2.0">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/bytedance/seedance-2.0/fast/text-to-video",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Accordion>
 
-Untuk menggunakan agen video HeyGen sebagai model video default:
-
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "fal/fal-ai/heygen/v2/video-agent",
+  <Accordion title="Contoh config video-agent HeyGen">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/fal-ai/heygen/v2/video-agent",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Gunakan `openclaw models list --provider fal` untuk melihat daftar lengkap model fal
+yang tersedia, termasuk entri yang baru ditambahkan.
+</Tip>
 
 ## Terkait
 
-- [Image Generation](/id/tools/image-generation)
-- [Video Generation](/id/tools/video-generation)
-- [Configuration Reference](/id/gateway/configuration-reference#agent-defaults)
+<CardGroup cols={2}>
+  <Card title="Pembuatan gambar" href="/id/tools/image-generation" icon="image">
+    Parameter tool gambar bersama dan pemilihan provider.
+  </Card>
+  <Card title="Pembuatan video" href="/id/tools/video-generation" icon="video">
+    Parameter tool video bersama dan pemilihan provider.
+  </Card>
+  <Card title="Referensi konfigurasi" href="/id/gateway/configuration-reference#agent-defaults" icon="gear">
+    Default agen termasuk pemilihan model gambar dan video.
+  </Card>
+</CardGroup>

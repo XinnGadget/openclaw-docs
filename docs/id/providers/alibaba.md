@@ -1,79 +1,123 @@
 ---
 read_when:
-    - Anda ingin menggunakan pembuatan video Alibaba Wan di OpenClaw
-    - Anda memerlukan penyiapan API key Model Studio atau DashScope untuk pembuatan video
-summary: Pembuatan video Wan Alibaba Model Studio di OpenClaw
+    - Anda ingin menggunakan generasi video Wan Alibaba di OpenClaw
+    - Anda memerlukan penyiapan kunci API Model Studio atau DashScope untuk generasi video
+summary: Generasi video Wan Alibaba Model Studio di OpenClaw
 title: Alibaba Model Studio
 x-i18n:
-    generated_at: "2026-04-06T03:09:13Z"
+    generated_at: "2026-04-12T23:28:52Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 97a1eddc7cbd816776b9368f2a926b5ef9ee543f08d151a490023736f67dc635
+    source_hash: a6e97d929952cdba7740f5ab3f6d85c18286b05596a4137bf80bbc8b54f32662
     source_path: providers/alibaba.md
     workflow: 15
 ---
 
 # Alibaba Model Studio
 
-OpenClaw menyediakan provider pembuatan video `alibaba` bawaan untuk model Wan di
+OpenClaw menyediakan provider generasi video `alibaba` bawaan untuk model Wan di
 Alibaba Model Studio / DashScope.
 
 - Provider: `alibaba`
-- Auth yang direkomendasikan: `MODELSTUDIO_API_KEY`
+- Autentikasi yang disarankan: `MODELSTUDIO_API_KEY`
 - Juga diterima: `DASHSCOPE_API_KEY`, `QWEN_API_KEY`
-- API: pembuatan video asinkron DashScope / Model Studio
+- API: generasi video asinkron DashScope / Model Studio
 
-## Mulai cepat
+## Memulai
 
-1. Setel API key:
-
-```bash
-openclaw onboard --auth-choice qwen-standard-api-key
-```
-
-2. Setel model video default:
-
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "alibaba/wan2.6-t2v",
+<Steps>
+  <Step title="Tetapkan kunci API">
+    ```bash
+    openclaw onboard --auth-choice qwen-standard-api-key
+    ```
+  </Step>
+  <Step title="Tetapkan model video default">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "alibaba/wan2.6-t2v",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Step>
+  <Step title="Verifikasi bahwa provider tersedia">
+    ```bash
+    openclaw models list --provider alibaba
+    ```
+  </Step>
+</Steps>
+
+<Note>
+Kunci autentikasi apa pun yang diterima (`MODELSTUDIO_API_KEY`, `DASHSCOPE_API_KEY`, `QWEN_API_KEY`) akan berfungsi. Pilihan onboarding `qwen-standard-api-key` mengonfigurasi kredensial DashScope bersama.
+</Note>
 
 ## Model Wan bawaan
 
 Provider `alibaba` bawaan saat ini mendaftarkan:
 
-- `alibaba/wan2.6-t2v`
-- `alibaba/wan2.6-i2v`
-- `alibaba/wan2.6-r2v`
-- `alibaba/wan2.6-r2v-flash`
-- `alibaba/wan2.7-r2v`
+| Model ref                  | Mode                           |
+| -------------------------- | ------------------------------ |
+| `alibaba/wan2.6-t2v`       | Teks-ke-video                  |
+| `alibaba/wan2.6-i2v`       | Gambar-ke-video                |
+| `alibaba/wan2.6-r2v`       | Referensi-ke-video             |
+| `alibaba/wan2.6-r2v-flash` | Referensi-ke-video (cepat)     |
+| `alibaba/wan2.7-r2v`       | Referensi-ke-video             |
 
-## Batas saat ini
+## Batasan saat ini
 
-- Hingga **1** video keluaran per permintaan
-- Hingga **1** gambar masukan
-- Hingga **4** video masukan
-- Durasi hingga **10 detik**
-- Mendukung `size`, `aspectRatio`, `resolution`, `audio`, dan `watermark`
-- Mode gambar/video referensi saat ini memerlukan **URL http(s) remote**
+| Parameter             | Batas                                                     |
+| --------------------- | --------------------------------------------------------- |
+| Video output          | Hingga **1** per permintaan                               |
+| Gambar input          | Hingga **1**                                              |
+| Video input           | Hingga **4**                                              |
+| Durasi                | Hingga **10 detik**                                       |
+| Kontrol yang didukung | `size`, `aspectRatio`, `resolution`, `audio`, `watermark` |
+| Gambar/video referensi | Hanya URL `http(s)` jarak jauh                           |
 
-## Hubungan dengan Qwen
+<Warning>
+Mode gambar/video referensi saat ini memerlukan **URL http(s) jarak jauh**. Path file lokal tidak didukung untuk input referensi.
+</Warning>
 
-Provider `qwen` bawaan juga menggunakan endpoint DashScope yang dihosting Alibaba untuk
-pembuatan video Wan. Gunakan:
+## Konfigurasi lanjutan
 
-- `qwen/...` saat Anda menginginkan permukaan provider Qwen yang kanonis
-- `alibaba/...` saat Anda menginginkan permukaan video Wan langsung milik vendor
+<AccordionGroup>
+  <Accordion title="Hubungan dengan Qwen">
+    Provider `qwen` bawaan juga menggunakan endpoint DashScope yang dihosting Alibaba untuk
+    generasi video Wan. Gunakan:
+
+    - `qwen/...` saat Anda menginginkan permukaan provider Qwen kanonis
+    - `alibaba/...` saat Anda menginginkan permukaan video Wan langsung milik vendor
+
+    Lihat [dokumentasi provider Qwen](/id/providers/qwen) untuk detail lebih lanjut.
+
+  </Accordion>
+
+  <Accordion title="Prioritas kunci autentikasi">
+    OpenClaw memeriksa kunci autentikasi dalam urutan ini:
+
+    1. `MODELSTUDIO_API_KEY` (disarankan)
+    2. `DASHSCOPE_API_KEY`
+    3. `QWEN_API_KEY`
+
+    Salah satu dari ini akan mengautentikasi provider `alibaba`.
+
+  </Accordion>
+</AccordionGroup>
 
 ## Terkait
 
-- [Video Generation](/tools/video-generation)
-- [Qwen](/id/providers/qwen)
-- [Configuration Reference](/id/gateway/configuration-reference#agent-defaults)
+<CardGroup cols={2}>
+  <Card title="Generasi video" href="/id/tools/video-generation" icon="video">
+    Parameter tool video bersama dan pemilihan provider.
+  </Card>
+  <Card title="Qwen" href="/id/providers/qwen" icon="microchip">
+    Penyiapan provider Qwen dan integrasi DashScope.
+  </Card>
+  <Card title="Referensi konfigurasi" href="/id/gateway/configuration-reference#agent-defaults" icon="gear">
+    Default agent dan konfigurasi model.
+  </Card>
+</CardGroup>

@@ -1,87 +1,138 @@
 ---
 read_when:
-    - Anda ingin menggunakan GitHub Copilot sebagai model provider
+    - Anda ingin menggunakan GitHub Copilot sebagai provider model
     - Anda memerlukan alur `openclaw models auth login-github-copilot`
 summary: Masuk ke GitHub Copilot dari OpenClaw menggunakan device flow
 title: GitHub Copilot
 x-i18n:
-    generated_at: "2026-04-05T14:03:20Z"
+    generated_at: "2026-04-12T23:30:48Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 92857c119c314e698f922dbdbbc15d21b64d33a25979a2ec0ac1e82e586db6d6
+    source_hash: 51fee006e7d4e78e37b0c29356b0090b132de727d99b603441767d3fb642140b
     source_path: providers/github-copilot.md
     workflow: 15
 ---
 
 # GitHub Copilot
 
-## Apa itu GitHub Copilot?
-
 GitHub Copilot adalah asisten coding AI dari GitHub. Ini menyediakan akses ke model
-Copilot untuk akun dan paket GitHub Anda. OpenClaw dapat menggunakan Copilot sebagai
-model provider dengan dua cara berbeda.
+Copilot untuk akun dan paket GitHub Anda. OpenClaw dapat menggunakan Copilot sebagai provider model
+dengan dua cara yang berbeda.
 
 ## Dua cara menggunakan Copilot di OpenClaw
 
-### 1) Provider GitHub Copilot bawaan (`github-copilot`)
+<Tabs>
+  <Tab title="Provider bawaan (github-copilot)">
+    Gunakan alur login perangkat native untuk mendapatkan token GitHub, lalu menukarkannya dengan
+    token API Copilot saat OpenClaw berjalan. Ini adalah jalur **default** dan paling sederhana
+    karena tidak memerlukan VS Code.
 
-Gunakan alur login perangkat native untuk mendapatkan token GitHub, lalu tukarkan token tersebut dengan
-token API Copilot saat OpenClaw berjalan. Ini adalah jalur **default** dan paling sederhana
-karena tidak memerlukan VS Code.
+    <Steps>
+      <Step title="Jalankan perintah login">
+        ```bash
+        openclaw models auth login-github-copilot
+        ```
 
-### 2) Plugin Copilot Proxy (`copilot-proxy`)
+        Anda akan diminta mengunjungi URL dan memasukkan kode satu kali. Biarkan
+        terminal tetap terbuka sampai selesai.
+      </Step>
+      <Step title="Setel model default">
+        ```bash
+        openclaw models set github-copilot/gpt-4o
+        ```
 
-Gunakan extension VS Code **Copilot Proxy** sebagai bridge lokal. OpenClaw berkomunikasi dengan
-endpoint `/v1` milik proxy dan menggunakan daftar model yang Anda konfigurasi di sana. Pilih ini
-jika Anda sudah menjalankan Copilot Proxy di VS Code atau perlu merutekannya melalui itu.
-Anda harus mengaktifkan plugin dan menjaga extension VS Code tetap berjalan.
+        Atau di config:
 
-Gunakan GitHub Copilot sebagai model provider (`github-copilot`). Perintah login menjalankan
-alur perangkat GitHub, menyimpan auth profile, dan memperbarui konfigurasi Anda agar menggunakan
-profil tersebut.
+        ```json5
+        {
+          agents: { defaults: { model: { primary: "github-copilot/gpt-4o" } } },
+        }
+        ```
+      </Step>
+    </Steps>
 
-## Setup CLI
+  </Tab>
+
+  <Tab title="Plugin Copilot Proxy (copilot-proxy)">
+    Gunakan ekstensi VS Code **Copilot Proxy** sebagai bridge lokal. OpenClaw berbicara ke
+    endpoint `/v1` milik proxy dan menggunakan daftar model yang Anda konfigurasikan di sana.
+
+    <Note>
+    Pilih ini ketika Anda sudah menjalankan Copilot Proxy di VS Code atau perlu merutekan
+    melaluinya. Anda harus mengaktifkan Plugin dan menjaga ekstensi VS Code tetap berjalan.
+    </Note>
+
+  </Tab>
+</Tabs>
+
+## Flag opsional
+
+| Flag            | Deskripsi                                            |
+| --------------- | ---------------------------------------------------- |
+| `--yes`         | Lewati prompt konfirmasi                             |
+| `--set-default` | Terapkan juga model default yang direkomendasikan provider |
 
 ```bash
-openclaw models auth login-github-copilot
-```
-
-Anda akan diminta mengunjungi URL dan memasukkan kode sekali pakai. Biarkan terminal
-tetap terbuka sampai proses selesai.
-
-### Flag opsional
-
-```bash
+# Lewati konfirmasi
 openclaw models auth login-github-copilot --yes
-```
 
-Untuk juga menerapkan model default yang direkomendasikan provider dalam satu langkah, gunakan
-perintah auth generik berikut:
-
-```bash
+# Login dan setel model default dalam satu langkah
 openclaw models auth login --provider github-copilot --method device --set-default
 ```
 
-## Setel model default
+<AccordionGroup>
+  <Accordion title="Memerlukan TTY interaktif">
+    Alur login perangkat memerlukan TTY interaktif. Jalankan langsung di
+    terminal, bukan di skrip non-interaktif atau pipeline CI.
+  </Accordion>
 
-```bash
-openclaw models set github-copilot/gpt-4o
-```
+  <Accordion title="Ketersediaan model bergantung pada paket Anda">
+    Ketersediaan model Copilot bergantung pada paket GitHub Anda. Jika suatu model
+    ditolak, coba ID lain (misalnya `github-copilot/gpt-4.1`).
+  </Accordion>
 
-### Potongan konfigurasi
+  <Accordion title="Pemilihan transport">
+    ID model Claude menggunakan transport Anthropic Messages secara otomatis. GPT,
+    model seri-o, dan Gemini tetap menggunakan transport OpenAI Responses. OpenClaw
+    memilih transport yang benar berdasarkan ref model.
+  </Accordion>
 
-```json5
-{
-  agents: { defaults: { model: { primary: "github-copilot/gpt-4o" } } },
-}
-```
+  <Accordion title="Urutan resolusi variabel environment">
+    OpenClaw menyelesaikan auth Copilot dari variabel environment dalam
+    urutan prioritas berikut:
 
-## Catatan
+    | Prioritas | Variabel              | Catatan                               |
+    | --------- | --------------------- | ------------------------------------- |
+    | 1         | `COPILOT_GITHUB_TOKEN` | Prioritas tertinggi, khusus Copilot |
+    | 2         | `GH_TOKEN`            | Token GitHub CLI (fallback)           |
+    | 3         | `GITHUB_TOKEN`        | Token GitHub standar (terendah)       |
 
-- Memerlukan TTY interaktif; jalankan langsung di terminal.
-- Ketersediaan model Copilot bergantung pada paket Anda; jika sebuah model ditolak, coba
-  ID lain (misalnya `github-copilot/gpt-4.1`).
-- ID model Claude menggunakan transport Anthropic Messages secara otomatis; model GPT, seri o,
-  dan Gemini tetap menggunakan transport OpenAI Responses.
-- Login menyimpan token GitHub di penyimpanan auth profile dan menukarkannya dengan
-  token API Copilot saat OpenClaw berjalan.
+    Saat beberapa variabel disetel, OpenClaw menggunakan yang berprioritas tertinggi.
+    Alur login perangkat (`openclaw models auth login-github-copilot`) menyimpan
+    tokennya di penyimpanan profil auth dan memiliki prioritas di atas semua
+    variabel environment.
+
+  </Accordion>
+
+  <Accordion title="Penyimpanan token">
+    Login menyimpan token GitHub di penyimpanan profil auth dan menukarkannya
+    dengan token API Copilot saat OpenClaw berjalan. Anda tidak perlu mengelola
+    token secara manual.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Memerlukan TTY interaktif. Jalankan perintah login langsung di terminal, bukan
+di dalam skrip headless atau job CI.
+</Warning>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="Pemilihan model" href="/id/concepts/model-providers" icon="layers">
+    Memilih provider, ref model, dan perilaku failover.
+  </Card>
+  <Card title="OAuth dan auth" href="/id/gateway/authentication" icon="key">
+    Detail auth dan aturan penggunaan ulang kredensial.
+  </Card>
+</CardGroup>

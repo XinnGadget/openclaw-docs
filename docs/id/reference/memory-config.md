@@ -1,91 +1,97 @@
 ---
 read_when:
-    - Anda ingin mengonfigurasi penyedia pencarian memori atau model embedding
+    - Anda ingin mengonfigurasi provider pencarian memori atau model embedding
     - Anda ingin menyiapkan backend QMD
-    - Anda ingin menyetel pencarian hibrida, MMR, atau peluruhan temporal
+    - Anda ingin menyetel pencarian hibrida, MMR, atau temporal decay
     - Anda ingin mengaktifkan pengindeksan memori multimodal
-summary: Semua opsi konfigurasi untuk pencarian memori, penyedia embedding, QMD, pencarian hibrida, dan pengindeksan multimodal
-title: Referensi konfigurasi Memori
+summary: Semua knob konfigurasi untuk pencarian memori, provider embedding, QMD, pencarian hibrida, dan pengindeksan multimodal
+title: Referensi konfigurasi memori
 x-i18n:
-    generated_at: "2026-04-10T09:13:33Z"
+    generated_at: "2026-04-12T23:33:38Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 5f9076bdfad95b87bd70625821bf401326f8eaeb53842b70823881419dbe43cb
+    source_hash: 299ca9b69eea292ea557a2841232c637f5c1daf2bc0f73c0a42f7c0d8d566ce2
     source_path: reference/memory-config.md
     workflow: 15
 ---
 
-# Referensi konfigurasi Memori
+# Referensi konfigurasi memori
 
-Halaman ini mencantumkan setiap opsi konfigurasi untuk pencarian memori OpenClaw. Untuk gambaran konseptual, lihat:
+Halaman ini mencantumkan setiap knob konfigurasi untuk pencarian memori OpenClaw. Untuk
+ikhtisar konseptual, lihat:
 
 - [Ikhtisar Memori](/id/concepts/memory) -- cara kerja memori
-- [Mesin Bawaan](/id/concepts/memory-builtin) -- backend SQLite bawaan
-- [Mesin QMD](/id/concepts/memory-qmd) -- sidecar yang mengutamakan lokal
-- [Pencarian Memori](/id/concepts/memory-search) -- alur pencarian dan penyetelan
-- [Memori Aktif](/id/concepts/active-memory) -- mengaktifkan sub-agen memori untuk sesi interaktif
+- [Builtin Engine](/id/concepts/memory-builtin) -- backend SQLite default
+- [QMD Engine](/id/concepts/memory-qmd) -- sidecar local-first
+- [Pencarian Memori](/id/concepts/memory-search) -- pipeline pencarian dan penyetelan
+- [Active Memory](/id/concepts/active-memory) -- mengaktifkan sub-agent memori untuk sesi interaktif
 
-Semua pengaturan pencarian memori berada di bawah `agents.defaults.memorySearch` dalam `openclaw.json` kecuali dinyatakan lain.
+Semua pengaturan pencarian memori berada di bawah `agents.defaults.memorySearch` dalam
+`openclaw.json` kecuali jika disebutkan lain.
 
-Jika Anda mencari toggle fitur **memori aktif** dan konfigurasi sub-agen, itu berada di bawah `plugins.entries.active-memory`, bukan `memorySearch`.
+Jika Anda mencari toggle fitur **Active Memory** dan config sub-agent,
+itu berada di bawah `plugins.entries.active-memory`, bukan `memorySearch`.
 
-Memori aktif menggunakan model dua gerbang:
+Active Memory menggunakan model dua gerbang:
 
-1. plugin harus diaktifkan dan menargetkan id agen saat ini
-2. permintaan harus berupa sesi obrolan persisten interaktif yang memenuhi syarat
+1. plugin harus diaktifkan dan menargetkan id agent saat ini
+2. permintaan harus berupa sesi chat persisten interaktif yang memenuhi syarat
 
-Lihat [Memori Aktif](/id/concepts/active-memory) untuk model aktivasi, konfigurasi yang dimiliki plugin, persistensi transkrip, dan pola rollout yang aman.
+Lihat [Active Memory](/id/concepts/active-memory) untuk model aktivasi,
+config milik plugin, persistensi transkrip, dan pola rollout yang aman.
 
 ---
 
-## Pemilihan penyedia
+## Pemilihan provider
 
-| Kunci      | Tipe      | Default          | Deskripsi                                                                                   |
-| ---------- | --------- | ---------------- | ------------------------------------------------------------------------------------------- |
-| `provider` | `string`  | terdeteksi otomatis | ID adaptor embedding: `openai`, `gemini`, `voyage`, `mistral`, `bedrock`, `ollama`, `local` |
-| `model`    | `string`  | default penyedia | Nama model embedding                                                                        |
-| `fallback` | `string`  | `"none"`         | ID adaptor fallback saat adaptor utama gagal                                                |
-| `enabled`  | `boolean` | `true`           | Mengaktifkan atau menonaktifkan pencarian memori                                            |
+| Key        | Tipe      | Default          | Deskripsi                                                                                 |
+| ---------- | --------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| `provider` | `string`  | terdeteksi otomatis | ID adapter embedding: `openai`, `gemini`, `voyage`, `mistral`, `bedrock`, `ollama`, `local` |
+| `model`    | `string`  | default provider | Nama model embedding                                                                      |
+| `fallback` | `string`  | `"none"`         | ID adapter fallback saat yang utama gagal                                                 |
+| `enabled`  | `boolean` | `true`           | Mengaktifkan atau menonaktifkan pencarian memori                                          |
 
 ### Urutan deteksi otomatis
 
-Ketika `provider` tidak ditetapkan, OpenClaw memilih yang pertama tersedia:
+Saat `provider` tidak ditetapkan, OpenClaw memilih yang pertama tersedia:
 
-1. `local` -- jika `memorySearch.local.modelPath` dikonfigurasi dan file ada.
-2. `openai` -- jika kunci OpenAI dapat diurai.
-3. `gemini` -- jika kunci Gemini dapat diurai.
-4. `voyage` -- jika kunci Voyage dapat diurai.
-5. `mistral` -- jika kunci Mistral dapat diurai.
-6. `bedrock` -- jika rantai kredensial AWS SDK terurai (instance role, access key, profile, SSO, web identity, atau shared config).
+1. `local` -- jika `memorySearch.local.modelPath` dikonfigurasi dan file tersebut ada.
+2. `openai` -- jika key OpenAI dapat di-resolve.
+3. `gemini` -- jika key Gemini dapat di-resolve.
+4. `voyage` -- jika key Voyage dapat di-resolve.
+5. `mistral` -- jika key Mistral dapat di-resolve.
+6. `bedrock` -- jika rantai kredensial AWS SDK dapat di-resolve (instance role, access key, profile, SSO, web identity, atau shared config).
 
-`ollama` didukung tetapi tidak dideteksi otomatis (tetapkan secara eksplisit).
+`ollama` didukung tetapi tidak terdeteksi otomatis (tetapkan secara eksplisit).
 
 ### Resolusi kunci API
 
-Embedding jarak jauh memerlukan kunci API. Bedrock menggunakan rantai kredensial default AWS SDK sebagai gantinya (instance role, SSO, access key).
+Embedding jarak jauh memerlukan kunci API. Bedrock menggunakan rantai kredensial default AWS SDK
+sebagai gantinya (instance role, SSO, access key).
 
-| Penyedia | Variabel env                  | Kunci konfigurasi                |
-| -------- | ----------------------------- | -------------------------------- |
-| OpenAI   | `OPENAI_API_KEY`              | `models.providers.openai.apiKey` |
-| Gemini   | `GEMINI_API_KEY`              | `models.providers.google.apiKey` |
-| Voyage   | `VOYAGE_API_KEY`              | `models.providers.voyage.apiKey` |
-| Mistral  | `MISTRAL_API_KEY`             | `models.providers.mistral.apiKey` |
-| Bedrock  | rantai kredensial AWS         | Tidak memerlukan kunci API       |
-| Ollama   | `OLLAMA_API_KEY` (placeholder) | --                              |
+| Provider | Env var                        | Key config                         |
+| -------- | ------------------------------ | ---------------------------------- |
+| OpenAI   | `OPENAI_API_KEY`               | `models.providers.openai.apiKey`   |
+| Gemini   | `GEMINI_API_KEY`               | `models.providers.google.apiKey`   |
+| Voyage   | `VOYAGE_API_KEY`               | `models.providers.voyage.apiKey`   |
+| Mistral  | `MISTRAL_API_KEY`              | `models.providers.mistral.apiKey`  |
+| Bedrock  | Rantai kredensial AWS          | Tidak memerlukan kunci API         |
+| Ollama   | `OLLAMA_API_KEY` (placeholder) | --                                 |
 
-Codex OAuth hanya mencakup chat/completions dan tidak memenuhi permintaan embedding.
+Codex OAuth hanya mencakup chat/completions dan tidak memenuhi permintaan
+embedding.
 
 ---
 
-## Konfigurasi endpoint jarak jauh
+## Config endpoint jarak jauh
 
-Untuk endpoint kustom yang kompatibel dengan OpenAI atau mengganti default penyedia:
+Untuk endpoint kustom yang kompatibel dengan OpenAI atau mengoverride default provider:
 
-| Kunci            | Tipe     | Deskripsi                                       |
-| ---------------- | -------- | ----------------------------------------------- |
-| `remote.baseUrl` | `string` | URL basis API kustom                            |
-| `remote.apiKey`  | `string` | Mengganti kunci API                             |
-| `remote.headers` | `object` | Header HTTP tambahan (digabung dengan default penyedia) |
+| Key              | Tipe     | Deskripsi                                        |
+| ---------------- | -------- | ------------------------------------------------ |
+| `remote.baseUrl` | `string` | Base URL API kustom                              |
+| `remote.apiKey`  | `string` | Override kunci API                               |
+| `remote.headers` | `object` | Header HTTP tambahan (digabung dengan default provider) |
 
 ```json5
 {
@@ -106,24 +112,24 @@ Untuk endpoint kustom yang kompatibel dengan OpenAI atau mengganti default penye
 
 ---
 
-## Konfigurasi khusus Gemini
+## Config khusus Gemini
 
-| Kunci                  | Tipe     | Default                | Deskripsi                                 |
-| ---------------------- | -------- | ---------------------- | ----------------------------------------- |
+| Key                    | Tipe     | Default                | Deskripsi                                |
+| ---------------------- | -------- | ---------------------- | ---------------------------------------- |
 | `model`                | `string` | `gemini-embedding-001` | Juga mendukung `gemini-embedding-2-preview` |
-| `outputDimensionality` | `number` | `3072`                 | Untuk Embedding 2: 768, 1536, atau 3072   |
+| `outputDimensionality` | `number` | `3072`                 | Untuk Embedding 2: 768, 1536, atau 3072  |
 
 <Warning>
-Mengubah model atau `outputDimensionality` memicu pengindeksan ulang penuh secara otomatis.
+Mengubah model atau `outputDimensionality` memicu reindex penuh otomatis.
 </Warning>
 
 ---
 
-## Konfigurasi embedding Bedrock
+## Config embedding Bedrock
 
 Bedrock menggunakan rantai kredensial default AWS SDK -- tidak memerlukan kunci API.
-Jika OpenClaw berjalan di EC2 dengan instance role yang mendukung Bedrock, cukup tetapkan
-penyedia dan model:
+Jika OpenClaw berjalan di EC2 dengan instance role yang mengaktifkan Bedrock, cukup tetapkan
+provider dan model:
 
 ```json5
 {
@@ -138,7 +144,7 @@ penyedia dan model:
 }
 ```
 
-| Kunci                  | Tipe     | Default                        | Deskripsi                    |
+| Key                    | Tipe     | Default                        | Deskripsi                    |
 | ---------------------- | -------- | ------------------------------ | ---------------------------- |
 | `model`                | `string` | `amazon.titan-embed-text-v2:0` | ID model embedding Bedrock apa pun |
 | `outputDimensionality` | `number` | default model                  | Untuk Titan V2: 256, 512, atau 1024 |
@@ -147,20 +153,21 @@ penyedia dan model:
 
 Model berikut didukung (dengan deteksi keluarga dan default dimensi):
 
-| ID Model                                   | Penyedia   | Default Dim | Dim yang dapat dikonfigurasi |
-| ------------------------------------------ | ---------- | ----------- | ---------------------------- |
-| `amazon.titan-embed-text-v2:0`             | Amazon     | 1024        | 256, 512, 1024               |
-| `amazon.titan-embed-text-v1`               | Amazon     | 1536        | --                           |
-| `amazon.titan-embed-g1-text-02`            | Amazon     | 1536        | --                           |
-| `amazon.titan-embed-image-v1`              | Amazon     | 1024        | --                           |
-| `amazon.nova-2-multimodal-embeddings-v1:0` | Amazon     | 1024        | 256, 384, 1024, 3072         |
-| `cohere.embed-english-v3`                  | Cohere     | 1024        | --                           |
-| `cohere.embed-multilingual-v3`             | Cohere     | 1024        | --                           |
-| `cohere.embed-v4:0`                        | Cohere     | 1536        | 256-1536                     |
-| `twelvelabs.marengo-embed-3-0-v1:0`        | TwelveLabs | 512         | --                           |
-| `twelvelabs.marengo-embed-2-7-v1:0`        | TwelveLabs | 1024        | --                           |
+| ID Model                                   | Provider   | Dims Default | Dims yang Dapat Dikonfigurasi |
+| ------------------------------------------ | ---------- | ------------ | ----------------------------- |
+| `amazon.titan-embed-text-v2:0`             | Amazon     | 1024         | 256, 512, 1024               |
+| `amazon.titan-embed-text-v1`               | Amazon     | 1536         | --                           |
+| `amazon.titan-embed-g1-text-02`            | Amazon     | 1536         | --                           |
+| `amazon.titan-embed-image-v1`              | Amazon     | 1024         | --                           |
+| `amazon.nova-2-multimodal-embeddings-v1:0` | Amazon     | 1024         | 256, 384, 1024, 3072         |
+| `cohere.embed-english-v3`                  | Cohere     | 1024         | --                           |
+| `cohere.embed-multilingual-v3`             | Cohere     | 1024         | --                           |
+| `cohere.embed-v4:0`                        | Cohere     | 1536         | 256-1536                     |
+| `twelvelabs.marengo-embed-3-0-v1:0`        | TwelveLabs | 512          | --                           |
+| `twelvelabs.marengo-embed-2-7-v1:0`        | TwelveLabs | 1024         | --                           |
 
-Varian dengan sufiks throughput (misalnya, `amazon.titan-embed-text-v1:2:8k`) mewarisi konfigurasi model dasar.
+Varian dengan sufiks throughput (misalnya, `amazon.titan-embed-text-v1:2:8k`) mewarisi
+konfigurasi model dasarnya.
 
 ### Autentikasi
 
@@ -169,15 +176,15 @@ Autentikasi Bedrock menggunakan urutan resolusi kredensial AWS SDK standar:
 1. Variabel lingkungan (`AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`)
 2. Cache token SSO
 3. Kredensial token web identity
-4. File kredensial dan konfigurasi bersama
+4. File shared credentials dan config
 5. Kredensial metadata ECS atau EC2
 
-Region diurai dari `AWS_REGION`, `AWS_DEFAULT_REGION`, `baseUrl` penyedia
+Region di-resolve dari `AWS_REGION`, `AWS_DEFAULT_REGION`, `baseUrl` provider
 `amazon-bedrock`, atau default ke `us-east-1`.
 
 ### Izin IAM
 
-Role atau pengguna IAM memerlukan:
+Role atau user IAM memerlukan:
 
 ```json
 {
@@ -187,7 +194,7 @@ Role atau pengguna IAM memerlukan:
 }
 ```
 
-Untuk hak akses minimum, batasi `InvokeModel` ke model tertentu:
+Untuk least-privilege, batasi `InvokeModel` ke model tertentu:
 
 ```
 arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v2:0
@@ -195,11 +202,11 @@ arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v2:0
 
 ---
 
-## Konfigurasi embedding lokal
+## Config embedding lokal
 
-| Kunci                 | Tipe     | Default                | Deskripsi                      |
-| --------------------- | -------- | ---------------------- | ------------------------------ |
-| `local.modelPath`     | `string` | terunduh otomatis      | Jalur ke file model GGUF       |
+| Key                   | Tipe     | Default                | Deskripsi                    |
+| --------------------- | -------- | ---------------------- | ---------------------------- |
+| `local.modelPath`     | `string` | diunduh otomatis       | Path ke file model GGUF      |
 | `local.modelCacheDir` | `string` | default node-llama-cpp | Direktori cache untuk model yang diunduh |
 
 Model default: `embeddinggemma-300m-qat-Q8_0.gguf` (~0.6 GB, diunduh otomatis).
@@ -207,32 +214,32 @@ Memerlukan build native: `pnpm approve-builds` lalu `pnpm rebuild node-llama-cpp
 
 ---
 
-## Konfigurasi pencarian hibrida
+## Config pencarian hibrida
 
 Semua berada di bawah `memorySearch.query.hybrid`:
 
-| Kunci                 | Tipe      | Default | Deskripsi                           |
-| --------------------- | --------- | ------- | ----------------------------------- |
-| `enabled`             | `boolean` | `true`  | Aktifkan pencarian hibrida BM25 + vektor |
-| `vectorWeight`        | `number`  | `0.7`   | Bobot untuk skor vektor (0-1)       |
-| `textWeight`          | `number`  | `0.3`   | Bobot untuk skor BM25 (0-1)         |
-| `candidateMultiplier` | `number`  | `4`     | Pengali ukuran kumpulan kandidat    |
+| Key                   | Tipe      | Default | Deskripsi                         |
+| --------------------- | --------- | ------- | --------------------------------- |
+| `enabled`             | `boolean` | `true`  | Aktifkan pencarian hibrida BM25 + vector |
+| `vectorWeight`        | `number`  | `0.7`   | Bobot untuk skor vector (0-1)     |
+| `textWeight`          | `number`  | `0.3`   | Bobot untuk skor BM25 (0-1)       |
+| `candidateMultiplier` | `number`  | `4`     | Pengali ukuran kumpulan kandidat  |
 
 ### MMR (keragaman)
 
-| Kunci         | Tipe      | Default | Deskripsi                             |
-| ------------- | --------- | ------- | ------------------------------------- |
-| `mmr.enabled` | `boolean` | `false` | Aktifkan pemeringkatan ulang MMR      |
+| Key           | Tipe      | Default | Deskripsi                            |
+| ------------- | --------- | ------- | ------------------------------------ |
+| `mmr.enabled` | `boolean` | `false` | Aktifkan pemeringkatan ulang MMR     |
 | `mmr.lambda`  | `number`  | `0.7`   | 0 = keragaman maksimum, 1 = relevansi maksimum |
 
-### Peluruhan temporal (keterkinian)
+### Temporal decay (keterkinian)
 
-| Kunci                        | Tipe      | Default | Deskripsi                    |
+| Key                          | Tipe      | Default | Deskripsi                    |
 | ---------------------------- | --------- | ------- | ---------------------------- |
-| `temporalDecay.enabled`      | `boolean` | `false` | Aktifkan dorongan keterkinian |
+| `temporalDecay.enabled`      | `boolean` | `false` | Aktifkan peningkatan keterkinian |
 | `temporalDecay.halfLifeDays` | `number`  | `30`    | Skor menjadi setengah setiap N hari |
 
-File permanen (`MEMORY.md`, file non-tanggal di `memory/`) tidak pernah dikenai peluruhan.
+File evergreen (`MEMORY.md`, file tanpa tanggal di `memory/`) tidak pernah dikenai decay.
 
 ### Contoh lengkap
 
@@ -257,10 +264,10 @@ File permanen (`MEMORY.md`, file non-tanggal di `memory/`) tidak pernah dikenai 
 
 ---
 
-## Jalur memori tambahan
+## Path memori tambahan
 
-| Kunci        | Tipe       | Deskripsi                               |
-| ------------ | ---------- | --------------------------------------- |
+| Key          | Tipe       | Deskripsi                              |
+| ------------ | ---------- | -------------------------------------- |
 | `extraPaths` | `string[]` | Direktori atau file tambahan untuk diindeks |
 
 ```json5
@@ -275,18 +282,19 @@ File permanen (`MEMORY.md`, file non-tanggal di `memory/`) tidak pernah dikenai 
 }
 ```
 
-Jalur dapat berupa absolut atau relatif terhadap workspace. Direktori dipindai
+Path dapat berupa absolut atau relatif terhadap workspace. Direktori dipindai
 secara rekursif untuk file `.md`. Penanganan symlink bergantung pada backend aktif:
-mesin bawaan mengabaikan symlink, sedangkan QMD mengikuti perilaku pemindai QMD
+builtin engine mengabaikan symlink, sedangkan QMD mengikuti perilaku scanner QMD
 yang mendasarinya.
 
-Untuk pencarian transkrip lintas agen yang dicakup per agen, gunakan
+Untuk pencarian transkrip lintas-agent yang dibatasi agent, gunakan
 `agents.list[].memorySearch.qmd.extraCollections` alih-alih `memory.qmd.paths`.
-Koleksi tambahan tersebut mengikuti bentuk `{ path, name, pattern? }` yang sama, tetapi
-digabung per agen dan dapat mempertahankan nama bersama yang eksplisit ketika jalurnya
-mengarah ke luar workspace saat ini.
-Jika jalur hasil resolusi yang sama muncul di `memory.qmd.paths` dan
-`memorySearch.qmd.extraCollections`, QMD mempertahankan entri pertama dan melewati duplikat.
+Extra collection tersebut mengikuti bentuk `{ path, name, pattern? }` yang sama, tetapi
+digabung per agent dan dapat mempertahankan nama bersama yang eksplisit saat path
+menunjuk ke luar workspace saat ini.
+Jika path hasil resolve yang sama muncul di `memory.qmd.paths` dan
+`memorySearch.qmd.extraCollections`, QMD mempertahankan entri pertama dan melewati
+duplikatnya.
 
 ---
 
@@ -294,11 +302,11 @@ Jika jalur hasil resolusi yang sama muncul di `memory.qmd.paths` dan
 
 Indeks gambar dan audio bersama Markdown menggunakan Gemini Embedding 2:
 
-| Kunci                     | Tipe       | Default    | Deskripsi                               |
-| ------------------------- | ---------- | ---------- | --------------------------------------- |
-| `multimodal.enabled`      | `boolean`  | `false`    | Aktifkan pengindeksan multimodal        |
+| Key                       | Tipe       | Default    | Deskripsi                                |
+| ------------------------- | ---------- | ---------- | ---------------------------------------- |
+| `multimodal.enabled`      | `boolean`  | `false`    | Aktifkan pengindeksan multimodal         |
 | `multimodal.modalities`   | `string[]` | --         | `["image"]`, `["audio"]`, atau `["all"]` |
-| `multimodal.maxFileBytes` | `number`   | `10000000` | Ukuran file maksimum untuk pengindeksan |
+| `multimodal.maxFileBytes` | `number`   | `10000000` | Ukuran file maksimum untuk pengindeksan  |
 
 Hanya berlaku untuk file di `extraPaths`. Root memori default tetap hanya Markdown.
 Memerlukan `gemini-embedding-2-preview`. `fallback` harus `"none"`.
@@ -310,27 +318,27 @@ Format yang didukung: `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`, `.heic`, `.heif`
 
 ## Cache embedding
 
-| Kunci              | Tipe      | Default | Deskripsi                     |
-| ------------------ | --------- | ------- | ----------------------------- |
-| `cache.enabled`    | `boolean` | `false` | Cache embedding potongan di SQLite |
+| Key                | Tipe      | Default | Deskripsi                           |
+| ------------------ | --------- | ------- | ----------------------------------- |
+| `cache.enabled`    | `boolean` | `false` | Cache embedding chunk di SQLite     |
 | `cache.maxEntries` | `number`  | `50000` | Jumlah maksimum embedding yang di-cache |
 
-Mencegah embedding ulang pada teks yang tidak berubah selama pengindeksan ulang atau pembaruan transkrip.
+Mencegah embedding ulang teks yang tidak berubah selama reindex atau pembaruan transkrip.
 
 ---
 
 ## Pengindeksan batch
 
-| Kunci                         | Tipe      | Default | Deskripsi                    |
-| ----------------------------- | --------- | ------- | ---------------------------- |
-| `remote.batch.enabled`        | `boolean` | `false` | Aktifkan API embedding batch |
-| `remote.batch.concurrency`    | `number`  | `2`     | Pekerjaan batch paralel      |
-| `remote.batch.wait`           | `boolean` | `true`  | Tunggu penyelesaian batch    |
-| `remote.batch.pollIntervalMs` | `number`  | --      | Interval polling             |
-| `remote.batch.timeoutMinutes` | `number`  | --      | Batas waktu batch            |
+| Key                           | Tipe      | Default | Deskripsi                     |
+| ----------------------------- | --------- | ------- | ----------------------------- |
+| `remote.batch.enabled`        | `boolean` | `false` | Aktifkan API embedding batch  |
+| `remote.batch.concurrency`    | `number`  | `2`     | Job batch paralel             |
+| `remote.batch.wait`           | `boolean` | `true`  | Tunggu batch selesai          |
+| `remote.batch.pollIntervalMs` | `number`  | --      | Interval polling              |
+| `remote.batch.timeoutMinutes` | `number`  | --      | Timeout batch                 |
 
 Tersedia untuk `openai`, `gemini`, dan `voyage`. Batch OpenAI biasanya
-paling cepat dan paling murah untuk backfill berukuran besar.
+paling cepat dan paling murah untuk backfill besar.
 
 ---
 
@@ -338,89 +346,88 @@ paling cepat dan paling murah untuk backfill berukuran besar.
 
 Indeks transkrip sesi dan tampilkan melalui `memory_search`:
 
-| Kunci                         | Tipe       | Default      | Deskripsi                              |
-| ----------------------------- | ---------- | ------------ | -------------------------------------- |
-| `experimental.sessionMemory`  | `boolean`  | `false`      | Aktifkan pengindeksan sesi             |
+| Key                           | Tipe       | Default      | Deskripsi                                |
+| ----------------------------- | ---------- | ------------ | ---------------------------------------- |
+| `experimental.sessionMemory`  | `boolean`  | `false`      | Aktifkan pengindeksan sesi               |
 | `sources`                     | `string[]` | `["memory"]` | Tambahkan `"sessions"` untuk menyertakan transkrip |
-| `sync.sessions.deltaBytes`    | `number`   | `100000`     | Ambang byte untuk pengindeksan ulang   |
-| `sync.sessions.deltaMessages` | `number`   | `50`         | Ambang pesan untuk pengindeksan ulang  |
+| `sync.sessions.deltaBytes`    | `number`   | `100000`     | Ambang byte untuk reindex                |
+| `sync.sessions.deltaMessages` | `number`   | `50`         | Ambang jumlah pesan untuk reindex        |
 
-Pengindeksan sesi bersifat opt-in dan berjalan secara asinkron. Hasilnya dapat sedikit
-tidak mutakhir. Log sesi berada di disk, jadi perlakukan akses filesystem sebagai batas
+Pengindeksan sesi bersifat opt-in dan berjalan secara asinkron. Hasil dapat sedikit
+stale. Log sesi berada di disk, jadi perlakukan akses filesystem sebagai batas
 kepercayaan.
 
 ---
 
-## Akselerasi vektor SQLite (sqlite-vec)
+## Akselerasi vector SQLite (`sqlite-vec`)
 
-| Kunci                        | Tipe      | Default | Deskripsi                          |
+| Key                          | Tipe      | Default | Deskripsi                          |
 | ---------------------------- | --------- | ------- | ---------------------------------- |
-| `store.vector.enabled`       | `boolean` | `true`  | Gunakan sqlite-vec untuk kueri vektor |
-| `store.vector.extensionPath` | `string`  | bundled | Ganti jalur sqlite-vec             |
+| `store.vector.enabled`       | `boolean` | `true`  | Gunakan `sqlite-vec` untuk query vector |
+| `store.vector.extensionPath` | `string`  | bundled | Override path `sqlite-vec`         |
 
-Ketika sqlite-vec tidak tersedia, OpenClaw secara otomatis beralih ke
-similaritas kosinus dalam proses.
+Saat `sqlite-vec` tidak tersedia, OpenClaw otomatis kembali ke cosine
+similarity dalam proses.
 
 ---
 
 ## Penyimpanan indeks
 
-| Kunci               | Tipe     | Default                               | Deskripsi                                   |
-| ------------------- | -------- | ------------------------------------- | ------------------------------------------- |
-| `store.path`        | `string` | `~/.openclaw/memory/{agentId}.sqlite` | Lokasi indeks (mendukung token `{agentId}`) |
-| `store.fts.tokenizer` | `string` | `unicode61`                         | Tokenizer FTS5 (`unicode61` atau `trigram`) |
+| Key                   | Tipe     | Default                               | Deskripsi                                   |
+| --------------------- | -------- | ------------------------------------- | ------------------------------------------- |
+| `store.path`          | `string` | `~/.openclaw/memory/{agentId}.sqlite` | Lokasi indeks (mendukung token `{agentId}`) |
+| `store.fts.tokenizer` | `string` | `unicode61`                           | Tokenizer FTS5 (`unicode61` atau `trigram`) |
 
 ---
 
-## Konfigurasi backend QMD
+## Config backend QMD
 
 Tetapkan `memory.backend = "qmd"` untuk mengaktifkan. Semua pengaturan QMD berada di bawah
 `memory.qmd`:
 
-| Kunci                    | Tipe      | Default  | Deskripsi                                  |
-| ------------------------ | --------- | -------- | ------------------------------------------ |
-| `command`                | `string`  | `qmd`    | Jalur executable QMD                       |
+| Key                      | Tipe      | Default  | Deskripsi                                   |
+| ------------------------ | --------- | -------- | ------------------------------------------- |
+| `command`                | `string`  | `qmd`    | Path executable QMD                         |
 | `searchMode`             | `string`  | `search` | Perintah pencarian: `search`, `vsearch`, `query` |
-| `includeDefaultMemory`   | `boolean` | `true`   | Indeks otomatis `MEMORY.md` + `memory/**/*.md` |
-| `paths[]`                | `array`   | --       | Jalur tambahan: `{ name, path, pattern? }` |
-| `sessions.enabled`       | `boolean` | `false`  | Indeks transkrip sesi                      |
-| `sessions.retentionDays` | `number`  | --       | Retensi transkrip                          |
-| `sessions.exportDir`     | `string`  | --       | Direktori ekspor                           |
+| `includeDefaultMemory`   | `boolean` | `true`   | Otomatis mengindeks `MEMORY.md` + `memory/**/*.md` |
+| `paths[]`                | `array`   | --       | Path tambahan: `{ name, path, pattern? }`   |
+| `sessions.enabled`       | `boolean` | `false`  | Indeks transkrip sesi                       |
+| `sessions.retentionDays` | `number`  | --       | Retensi transkrip                           |
+| `sessions.exportDir`     | `string`  | --       | Direktori ekspor                            |
 
-OpenClaw lebih memilih bentuk kueri koleksi QMD dan MCP saat ini, tetapi tetap
-mendukung rilis QMD yang lebih lama dengan beralih ke flag koleksi `--mask` lama
-dan nama tool MCP lama saat diperlukan.
+OpenClaw lebih memilih bentuk collection dan query MCP QMD saat ini, tetapi tetap
+membuat rilis QMD lama berfungsi dengan kembali ke flag collection `--mask` lama
+dan nama tool MCP lama bila diperlukan.
 
-Override model QMD tetap berada di sisi QMD, bukan di konfigurasi OpenClaw. Jika Anda perlu
-mengganti model QMD secara global, tetapkan variabel lingkungan seperti
-`QMD_EMBED_MODEL`, `QMD_RERANK_MODEL`, dan `QMD_GENERATE_MODEL` di lingkungan runtime
-gateway.
+Override model QMD tetap berada di sisi QMD, bukan config OpenClaw. Jika Anda perlu
+mengoverride model QMD secara global, tetapkan variabel lingkungan seperti
+`QMD_EMBED_MODEL`, `QMD_RERANK_MODEL`, dan `QMD_GENERATE_MODEL` di lingkungan runtime gateway.
 
 ### Jadwal pembaruan
 
-| Kunci                     | Tipe      | Default | Deskripsi                              |
+| Key                       | Tipe      | Default | Deskripsi                              |
 | ------------------------- | --------- | ------- | -------------------------------------- |
-| `update.interval`         | `string`  | `5m`    | Interval penyegaran                    |
+| `update.interval`         | `string`  | `5m`    | Interval refresh                       |
 | `update.debounceMs`       | `number`  | `15000` | Debounce perubahan file                |
-| `update.onBoot`           | `boolean` | `true`  | Segarkan saat startup                  |
-| `update.waitForBootSync`  | `boolean` | `false` | Blokir startup sampai penyegaran selesai |
+| `update.onBoot`           | `boolean` | `true`  | Refresh saat startup                   |
+| `update.waitForBootSync`  | `boolean` | `false` | Blok startup sampai refresh selesai    |
 | `update.embedInterval`    | `string`  | --      | Cadence embedding terpisah             |
-| `update.commandTimeoutMs` | `number`  | --      | Batas waktu untuk perintah QMD         |
-| `update.updateTimeoutMs`  | `number`  | --      | Batas waktu untuk operasi update QMD   |
-| `update.embedTimeoutMs`   | `number`  | --      | Batas waktu untuk operasi embedding QMD |
+| `update.commandTimeoutMs` | `number`  | --      | Timeout untuk perintah QMD             |
+| `update.updateTimeoutMs`  | `number`  | --      | Timeout untuk operasi update QMD       |
+| `update.embedTimeoutMs`   | `number`  | --      | Timeout untuk operasi embed QMD        |
 
 ### Batas
 
-| Kunci                     | Tipe     | Default | Deskripsi                      |
-| ------------------------- | -------- | ------- | ------------------------------ |
+| Key                       | Tipe     | Default | Deskripsi                     |
+| ------------------------- | -------- | ------- | ----------------------------- |
 | `limits.maxResults`       | `number` | `6`     | Jumlah maksimum hasil pencarian |
-| `limits.maxSnippetChars`  | `number` | --      | Batasi panjang cuplikan        |
-| `limits.maxInjectedChars` | `number` | --      | Batasi total karakter yang disisipkan |
-| `limits.timeoutMs`        | `number` | `4000`  | Batas waktu pencarian          |
+| `limits.maxSnippetChars`  | `number` | --      | Batasi panjang snippet        |
+| `limits.maxInjectedChars` | `number` | --      | Batasi total karakter yang diinjeksi |
+| `limits.timeoutMs`        | `number` | `4000`  | Timeout pencarian             |
 
 ### Cakupan
 
-Mengontrol sesi mana yang dapat menerima hasil pencarian QMD. Skemanya sama seperti
+Mengontrol sesi mana yang dapat menerima hasil pencarian QMD. Skemanya sama dengan
 [`session.sendPolicy`](/id/gateway/configuration-reference#session):
 
 ```json5
@@ -436,18 +443,21 @@ Mengontrol sesi mana yang dapat menerima hasil pencarian QMD. Skemanya sama sepe
 }
 ```
 
-Default-nya hanya DM. `match.keyPrefix` cocok dengan kunci sesi yang dinormalisasi;
-`match.rawKeyPrefix` cocok dengan kunci mentah termasuk `agent:<id>:`.
+Default bawaan mengizinkan sesi direct dan channel, sambil tetap menolak
+grup.
+
+Default-nya hanya DM. `match.keyPrefix` mencocokkan key sesi yang dinormalisasi;
+`match.rawKeyPrefix` mencocokkan key mentah termasuk `agent:<id>:`.
 
 ### Sitasi
 
 `memory.citations` berlaku untuk semua backend:
 
-| Nilai            | Perilaku                                            |
-| ---------------- | --------------------------------------------------- |
-| `auto` (default) | Sertakan footer `Source: <path#line>` dalam cuplikan |
-| `on`             | Selalu sertakan footer                              |
-| `off`            | Hilangkan footer (jalur tetap diteruskan ke agen secara internal) |
+| Value            | Perilaku                                             |
+| ---------------- | ---------------------------------------------------- |
+| `auto` (default) | Sertakan footer `Source: <path#line>` di snippet     |
+| `on`             | Selalu sertakan footer                               |
+| `off`            | Hilangkan footer (path tetap diteruskan ke agent secara internal) |
 
 ### Contoh QMD lengkap
 
@@ -477,17 +487,17 @@ Default-nya hanya DM. `match.keyPrefix` cocok dengan kunci sesi yang dinormalisa
 Dreaming dikonfigurasi di bawah `plugins.entries.memory-core.config.dreaming`,
 bukan di bawah `agents.defaults.memorySearch`.
 
-Dreaming berjalan sebagai satu sweep terjadwal dan menggunakan fase internal light/deep/REM sebagai
+Dreaming berjalan sebagai satu sapuan terjadwal dan menggunakan fase internal light/deep/REM sebagai
 detail implementasi.
 
 Untuk perilaku konseptual dan slash command, lihat [Dreaming](/id/concepts/dreaming).
 
 ### Pengaturan pengguna
 
-| Kunci       | Tipe      | Default     | Deskripsi                                      |
-| ----------- | --------- | ----------- | ---------------------------------------------- |
-| `enabled`   | `boolean` | `false`     | Aktifkan atau nonaktifkan dreaming sepenuhnya  |
-| `frequency` | `string`  | `0 3 * * *` | Cadence cron opsional untuk sweep dreaming penuh |
+| Key         | Tipe      | Default     | Deskripsi                                        |
+| ----------- | --------- | ----------- | ------------------------------------------------ |
+| `enabled`   | `boolean` | `false`     | Aktifkan atau nonaktifkan Dreaming sepenuhnya    |
+| `frequency` | `string`  | `0 3 * * *` | Cadence Cron opsional untuk sapuan Dreaming penuh |
 
 ### Contoh
 
@@ -512,4 +522,4 @@ Catatan:
 
 - Dreaming menulis status mesin ke `memory/.dreams/`.
 - Dreaming menulis output naratif yang dapat dibaca manusia ke `DREAMS.md` (atau `dreams.md` yang sudah ada).
-- Kebijakan dan ambang fase light/deep/REM adalah perilaku internal, bukan konfigurasi yang menghadap pengguna.
+- Kebijakan fase light/deep/REM dan ambangnya adalah perilaku internal, bukan config yang menghadap pengguna.

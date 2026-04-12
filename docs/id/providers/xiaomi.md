@@ -1,46 +1,68 @@
 ---
 read_when:
-    - Anda ingin model Xiaomi MiMo di OpenClaw
+    - Anda ingin menggunakan model Xiaomi MiMo di OpenClaw
     - Anda memerlukan penyiapan `XIAOMI_API_KEY`
 summary: Gunakan model Xiaomi MiMo dengan OpenClaw
 title: Xiaomi MiMo
 x-i18n:
-    generated_at: "2026-04-05T14:04:24Z"
+    generated_at: "2026-04-12T23:33:19Z"
     model: gpt-5.4
     provider: openai
-    source_hash: a2533fa99b29070e26e0e1fbde924e1291c89b1fbc2537451bcc0eb677ea6949
+    source_hash: cd5a526764c796da7e1fff61301bc2ec618e1cf3857894ba2ef4b6dd9c4dc339
     source_path: providers/xiaomi.md
     workflow: 15
 ---
 
 # Xiaomi MiMo
 
-Xiaomi MiMo adalah platform API untuk model **MiMo**. OpenClaw menggunakan endpoint Xiaomi
-yang kompatibel dengan OpenAI dengan autentikasi kunci API. Buat kunci API Anda di
-[konsol Xiaomi MiMo](https://platform.xiaomimimo.com/#/console/api-keys), lalu konfigurasikan
-provider bawaan `xiaomi` dengan kunci tersebut.
+Xiaomi MiMo adalah platform API untuk model **MiMo**. OpenClaw menggunakan endpoint
+Xiaomi yang kompatibel dengan OpenAI dengan autentikasi API key.
 
-## Katalog bawaan
+| Properti | Nilai                           |
+| -------- | ------------------------------- |
+| Provider | `xiaomi`                        |
+| Auth     | `XIAOMI_API_KEY`                |
+| API      | Kompatibel dengan OpenAI        |
+| Base URL | `https://api.xiaomimimo.com/v1` |
 
-- Base URL: `https://api.xiaomimimo.com/v1`
-- API: `openai-completions`
-- Otorisasi: `Bearer $XIAOMI_API_KEY`
+## Memulai
 
-| Model ref              | Input       | Konteks   | Output maks | Catatan                     |
-| ---------------------- | ----------- | --------- | ----------- | --------------------------- |
-| `xiaomi/mimo-v2-flash` | teks        | 262,144   | 8,192       | Model default               |
-| `xiaomi/mimo-v2-pro`   | teks        | 1,048,576 | 32,000      | Reasoning diaktifkan        |
-| `xiaomi/mimo-v2-omni`  | teks, gambar | 262,144   | 32,000      | Multimodal dengan reasoning |
+<Steps>
+  <Step title="Dapatkan API key">
+    Buat API key di [konsol Xiaomi MiMo](https://platform.xiaomimimo.com/#/console/api-keys).
+  </Step>
+  <Step title="Jalankan onboarding">
+    ```bash
+    openclaw onboard --auth-choice xiaomi-api-key
+    ```
 
-## Penyiapan CLI
+    Atau berikan key secara langsung:
 
-```bash
-openclaw onboard --auth-choice xiaomi-api-key
-# atau non-interaktif
-openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
-```
+    ```bash
+    openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
+    ```
 
-## Cuplikan konfigurasi
+  </Step>
+  <Step title="Verifikasi bahwa model tersedia">
+    ```bash
+    openclaw models list --provider xiaomi
+    ```
+  </Step>
+</Steps>
+
+## Model yang tersedia
+
+| Ref model              | Input       | Konteks   | Output maks | Reasoning | Catatan       |
+| ---------------------- | ----------- | --------- | ----------- | --------- | ------------- |
+| `xiaomi/mimo-v2-flash` | text        | 262,144   | 8,192       | Tidak     | Model default |
+| `xiaomi/mimo-v2-pro`   | text        | 1,048,576 | 32,000      | Ya        | Konteks besar |
+| `xiaomi/mimo-v2-omni`  | text, image | 262,144   | 32,000      | Ya        | Multimodal    |
+
+<Tip>
+Ref model default adalah `xiaomi/mimo-v2-flash`. Provider disisipkan secara otomatis saat `XIAOMI_API_KEY` disetel atau profil auth tersedia.
+</Tip>
+
+## Contoh config
 
 ```json5
 {
@@ -88,9 +110,43 @@ openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
 }
 ```
 
-## Catatan
+<AccordionGroup>
+  <Accordion title="Perilaku penyisipan otomatis">
+    Provider `xiaomi` disisipkan secara otomatis saat `XIAOMI_API_KEY` disetel di environment Anda atau profil auth tersedia. Anda tidak perlu mengonfigurasi provider secara manual kecuali ingin mengoverride metadata model atau base URL.
+  </Accordion>
 
-- Ref model default: `xiaomi/mimo-v2-flash`.
-- Model bawaan tambahan: `xiaomi/mimo-v2-pro`, `xiaomi/mimo-v2-omni`.
-- Provider disuntikkan secara otomatis saat `XIAOMI_API_KEY` disetel (atau ada profil auth).
-- Lihat [/concepts/model-providers](/id/concepts/model-providers) untuk aturan provider.
+  <Accordion title="Detail model">
+    - **mimo-v2-flash** — ringan dan cepat, ideal untuk tugas teks umum. Tidak mendukung reasoning.
+    - **mimo-v2-pro** — mendukung reasoning dengan jendela konteks 1M token untuk beban kerja dokumen panjang.
+    - **mimo-v2-omni** — model multimodal dengan reasoning yang menerima input teks dan gambar.
+
+    <Note>
+    Semua model menggunakan prefiks `xiaomi/` (misalnya `xiaomi/mimo-v2-pro`).
+    </Note>
+
+  </Accordion>
+
+  <Accordion title="Pemecahan masalah">
+    - Jika model tidak muncul, pastikan `XIAOMI_API_KEY` sudah disetel dan valid.
+    - Saat Gateway berjalan sebagai daemon, pastikan key tersedia untuk proses tersebut (misalnya di `~/.openclaw/.env` atau melalui `env.shellEnv`).
+
+    <Warning>
+    Key yang hanya disetel di shell interaktif Anda tidak terlihat oleh proses gateway yang dikelola daemon. Gunakan config `~/.openclaw/.env` atau `env.shellEnv` agar tersedia secara persisten.
+    </Warning>
+
+  </Accordion>
+</AccordionGroup>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="Pemilihan model" href="/id/concepts/model-providers" icon="layers">
+    Memilih provider, ref model, dan perilaku failover.
+  </Card>
+  <Card title="Referensi konfigurasi" href="/id/gateway/configuration" icon="gear">
+    Referensi konfigurasi OpenClaw lengkap.
+  </Card>
+  <Card title="Konsol Xiaomi MiMo" href="https://platform.xiaomimimo.com" icon="arrow-up-right-from-square">
+    Dashboard Xiaomi MiMo dan pengelolaan API key.
+  </Card>
+</CardGroup>

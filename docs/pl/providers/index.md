@@ -1,14 +1,14 @@
 ---
 read_when:
-    - Chcesz wybrać dostawcę modelu
+    - Chcesz wybrać dostawcę modeli
     - Potrzebujesz szybkiego przeglądu obsługiwanych backendów LLM
-summary: Dostawcy modeli (LLM) obsługiwani przez OpenClaw
+summary: Dostawcy modeli (LLM-y) obsługiwani przez OpenClaw
 title: Katalog dostawców
 x-i18n:
-    generated_at: "2026-04-08T02:17:13Z"
+    generated_at: "2026-04-13T08:50:40Z"
     model: gpt-5.4
     provider: openai
-    source_hash: e7bee5528b7fc9a982b3d0eaa4930cb77f7bded19a47aec00572b6fcbd823a70
+    source_hash: 3bc682d008119719826f71f74959ab32bedf14214459f5e6ac9cb70371d3c540
     source_path: providers/index.md
     workflow: 15
 ---
@@ -18,7 +18,7 @@ x-i18n:
 OpenClaw może korzystać z wielu dostawców LLM. Wybierz dostawcę, uwierzytelnij się, a następnie ustaw
 domyślny model jako `provider/model`.
 
-Szukasz dokumentacji kanałów czatu (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/itp.)? Zobacz [Kanały](/pl/channels).
+Szukasz dokumentacji kanałów czatu (WhatsApp/Telegram/Discord/Slack/Mattermost (Plugin)/itp.)? Zobacz [Kanały](/pl/channels).
 
 ## Szybki start
 
@@ -47,16 +47,17 @@ Szukasz dokumentacji kanałów czatu (WhatsApp/Telegram/Discord/Slack/Mattermost
 - [GitHub Copilot](/pl/providers/github-copilot)
 - [Modele GLM](/pl/providers/glm)
 - [Google (Gemini)](/pl/providers/google)
-- [Groq (inferencja LPU)](/pl/providers/groq)
-- [Hugging Face (inferencja)](/pl/providers/huggingface)
+- [Groq (wnioskowanie LPU)](/pl/providers/groq)
+- [Hugging Face (Inference)](/pl/providers/huggingface)
 - [inferrs (modele lokalne)](/pl/providers/inferrs)
 - [Kilocode](/pl/providers/kilocode)
 - [LiteLLM (ujednolicona brama)](/pl/providers/litellm)
+- [LM Studio (modele lokalne)](/pl/providers/lmstudio)
 - [MiniMax](/pl/providers/minimax)
 - [Mistral](/pl/providers/mistral)
 - [Moonshot AI (Kimi + Kimi Coding)](/pl/providers/moonshot)
 - [NVIDIA](/pl/providers/nvidia)
-- [Ollama (chmura + modele lokalne)](/pl/providers/ollama)
+- [Ollama (modele chmurowe i lokalne)](/pl/providers/ollama)
 - [OpenAI (API + Codex)](/pl/providers/openai)
 - [OpenCode](/pl/providers/opencode)
 - [OpenCode Go](/pl/providers/opencode-go)
@@ -81,9 +82,9 @@ Szukasz dokumentacji kanałów czatu (WhatsApp/Telegram/Discord/Slack/Mattermost
 ## Wspólne strony przeglądowe
 
 - [Dodatkowe dołączone warianty](/pl/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy i Gemini CLI OAuth
-- [Generowanie obrazów](/pl/tools/image-generation) - Współdzielone narzędzie `image_generate`, wybór dostawcy i failover
-- [Generowanie muzyki](/pl/tools/music-generation) - Współdzielone narzędzie `music_generate`, wybór dostawcy i failover
-- [Generowanie wideo](/pl/tools/video-generation) - Współdzielone narzędzie `video_generate`, wybór dostawcy i failover
+- [Generowanie obrazów](/pl/tools/image-generation) - Wspólne narzędzie `image_generate`, wybór dostawcy i failover
+- [Generowanie muzyki](/pl/tools/music-generation) - Wspólne narzędzie `music_generate`, wybór dostawcy i failover
+- [Generowanie wideo](/pl/tools/video-generation) - Wspólne narzędzie `video_generate`, wybór dostawcy i failover
 
 ## Dostawcy transkrypcji
 
@@ -91,6 +92,7 @@ Szukasz dokumentacji kanałów czatu (WhatsApp/Telegram/Discord/Slack/Mattermost
 
 ## Narzędzia społeczności
 
-- [Claude Max API Proxy](/pl/providers/claude-max-api-proxy) - Społecznościowy proxy dla poświadczeń subskrypcji Claude (przed użyciem zweryfikuj zasady/warunki Anthropic)
+- [Claude Max API Proxy](/pl/providers/claude-max-api-proxy) - Społecznościowy proxy dla poświadczeń subskrypcji Claude (przed użyciem sprawdź zasady/warunki Anthropic)
 
-Pełny katalog dostawców (xAI, Groq, Mistral itd.) oraz zaawansowaną konfigurację znajdziesz w [Dostawcy modeli](/pl/concepts/model-providers).
+Pełny katalog dostawców (xAI, Groq, Mistral itp.) oraz zaawansowaną konfigurację
+znajdziesz w sekcji [Dostawcy modeli](/pl/concepts/model-providers).

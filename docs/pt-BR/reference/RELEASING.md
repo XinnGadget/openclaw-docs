@@ -1,164 +1,182 @@
 ---
 read_when:
-    - Procurando definições públicas de canais de release
-    - Procurando nomenclatura de versões e cadência
-summary: Canais públicos de release, nomenclatura de versões e cadência
-title: Política de release
+    - Procurando definições de canais de lançamento públicos
+    - Procurando nomenclatura de versão e cadência
+summary: Canais de lançamento públicos, nomenclatura de versão e cadência
+title: Política de lançamento
 x-i18n:
-    generated_at: "2026-04-12T23:33:26Z"
+    generated_at: "2026-04-14T02:08:34Z"
     model: gpt-5.4
     provider: openai
-    source_hash: dffc1ee5fdbb20bd1bf4b3f817d497fc0d87f70ed6c669d324fea66dc01d0b0b
+    source_hash: fdc32839447205d74ba7a20a45fbac8e13b199174b442a1e260e3fce056c63da
     source_path: reference/RELEASING.md
     workflow: 15
 ---
 
-# Política de release
+# Política de lançamento
 
-O OpenClaw tem três lanes públicas de release:
+O OpenClaw tem três canais de lançamento públicos:
 
-- stable: releases com tag que publicam no npm `beta` por padrão, ou no npm `latest` quando solicitado explicitamente
-- beta: tags de prerelease que publicam no npm `beta`
-- dev: a ponta móvel da `main`
+- stable: lançamentos com tag que publicam no npm `beta` por padrão, ou no npm `latest` quando solicitado explicitamente
+- beta: tags de pré-lançamento que publicam no npm `beta`
+- dev: a cabeça móvel de `main`
 
-## Nomenclatura de versões
+## Nomenclatura de versão
 
-- Versão de release stable: `YYYY.M.D`
-  - Tag git: `vYYYY.M.D`
-- Versão de release de correção stable: `YYYY.M.D-N`
-  - Tag git: `vYYYY.M.D-N`
-- Versão de prerelease beta: `YYYY.M.D-beta.N`
-  - Tag git: `vYYYY.M.D-beta.N`
-- Não use zero à esquerda no mês nem no dia
-- `latest` significa a release stable atual promovida no npm
-- `beta` significa o alvo atual de instalação beta
-- Releases stable e correções stable publicam no npm `beta` por padrão; operadores de release podem direcionar para `latest` explicitamente, ou promover depois um build beta validado
-- Toda release do OpenClaw envia o pacote npm e o app macOS juntos
+- Versão de lançamento stable: `YYYY.M.D`
+  - Tag Git: `vYYYY.M.D`
+- Versão de lançamento de correção stable: `YYYY.M.D-N`
+  - Tag Git: `vYYYY.M.D-N`
+- Versão de pré-lançamento beta: `YYYY.M.D-beta.N`
+  - Tag Git: `vYYYY.M.D-beta.N`
+- Não use preenchimento com zero para mês ou dia
+- `latest` significa o lançamento npm stable promovido atual
+- `beta` significa o alvo de instalação beta atual
+- Lançamentos stable e lançamentos de correção stable publicam no npm `beta` por padrão; operadores de lançamento podem direcionar para `latest` explicitamente, ou promover depois uma build beta validada
+- Todo lançamento do OpenClaw envia o pacote npm e o app macOS juntos
 
-## Cadência de release
+## Cadência de lançamento
 
-- Releases passam primeiro por beta
-- Stable só vem depois que o beta mais recente é validado
-- Procedimento detalhado de release, aprovações, credenciais e observações de recuperação são
+- Os lançamentos passam primeiro por beta
+- Stable só vem depois que o beta mais recente for validado
+- Procedimento detalhado de lançamento, aprovações, credenciais e notas de recuperação são
   apenas para mantenedores
 
-## Preflight de release
+## Verificações prévias de lançamento
 
 - Execute `pnpm build && pnpm ui:build` antes de `pnpm release:check` para que os
-  artefatos esperados de release em `dist/*` e o bundle da Control UI existam para a etapa
-  de validação do pack
-- Execute `pnpm release:check` antes de toda release com tag
-- As verificações de release agora rodam em um workflow manual separado:
+  artefatos de lançamento esperados em `dist/*` e o bundle da UI de Controle existam para a etapa
+  de validação do pacote
+- Execute `pnpm release:check` antes de todo lançamento com tag
+- As verificações de lançamento agora são executadas em um workflow manual separado:
   `OpenClaw Release Checks`
-- Essa divisão é intencional: mantenha o caminho real de release no npm curto,
-  determinístico e focado em artefatos, enquanto verificações live mais lentas ficam na
-  própria lane para não atrasarem nem bloquearem a publicação
-- As verificações de release precisam ser disparadas a partir da ref de workflow `main` para que a
-  lógica do workflow e os secrets permaneçam canônicos
-- Esse workflow aceita uma tag de release existente ou o commit SHA completo atual de 40 caracteres da `main`
+- Essa separação é intencional: mantenha o caminho real de lançamento npm curto,
+  determinístico e focado em artefatos, enquanto verificações live mais lentas ficam em sua
+  própria trilha para não atrasarem nem bloquearem a publicação
+- As verificações de lançamento devem ser disparadas a partir da ref de workflow `main` para que a
+  lógica do workflow e os segredos permaneçam canônicos
+- Esse workflow aceita uma tag de lançamento existente ou o SHA completo de 40 caracteres
+  atual do commit `main`
 - No modo commit-SHA, ele aceita apenas o HEAD atual de `origin/main`; use uma
-  tag de release para commits de release mais antigos
-- O preflight apenas de validação de `OpenClaw NPM Release` também aceita o commit SHA completo atual de 40 caracteres da `main` sem exigir uma tag enviada
-- Esse caminho por SHA é apenas de validação e não pode ser promovido a uma publicação real
-- No modo SHA, o workflow sintetiza `v<package.json version>` apenas para a verificação de metadados do pacote; a publicação real ainda exige uma tag de release real
-- Ambos os workflows mantêm o caminho real de publicação e promoção em runners hospedados pelo GitHub, enquanto o caminho de validação não mutante pode usar os runners Linux maiores da Blacksmith
+  tag de lançamento para commits de lançamento mais antigos
+- A verificação prévia somente de validação de `OpenClaw NPM Release` também aceita o
+  SHA completo atual de 40 caracteres do commit `main` sem exigir uma tag enviada
+- Esse caminho por SHA é somente para validação e não pode ser promovido a uma publicação real
+- No modo SHA, o workflow sintetiza `v<package.json version>` apenas para a
+  verificação de metadados do pacote; a publicação real ainda exige uma tag de lançamento real
+- Ambos os workflows mantêm o caminho real de publicação e promoção em runners
+  hospedados pelo GitHub, enquanto o caminho de validação não mutável pode usar os
+  runners Linux Blacksmith maiores
 - Esse workflow executa
   `OPENCLAW_LIVE_TEST=1 OPENCLAW_LIVE_CACHE_TEST=1 pnpm test:live:cache`
-  usando os workflow secrets `OPENAI_API_KEY` e `ANTHROPIC_API_KEY`
-- O preflight de release npm não espera mais pela lane separada de verificações de release
+  usando os segredos de workflow `OPENAI_API_KEY` e `ANTHROPIC_API_KEY`
+- A verificação prévia de lançamento npm não espera mais pela trilha separada de verificações de lançamento
 - Execute `RELEASE_TAG=vYYYY.M.D node --import tsx scripts/openclaw-npm-release-check.ts`
-  (ou a tag beta/correction correspondente) antes da aprovação
-- Depois da publicação no npm, execute
+  (ou a tag beta/correção correspondente) antes da aprovação
+- Após a publicação no npm, execute
   `node --import tsx scripts/openclaw-npm-postpublish-verify.ts YYYY.M.D`
-  (ou a versão beta/correction correspondente) para verificar o caminho de instalação
+  (ou a versão beta/correção correspondente) para verificar o caminho de instalação
   publicado no registro em um prefixo temporário novo
-- A automação de release dos mantenedores agora usa preflight-then-promote:
-  - a publicação real no npm deve passar por um `preflight_run_id` bem-sucedido no npm
-  - releases stable no npm usam `beta` por padrão
-  - a publicação stable no npm pode direcionar para `latest` explicitamente via entrada do workflow
-  - a promoção stable no npm de `beta` para `latest` ainda está disponível como modo manual explícito no workflow confiável `OpenClaw NPM Release`
-  - esse modo de promoção ainda precisa de um `NPM_TOKEN` válido no ambiente `npm-release` porque o gerenciamento de `dist-tag` no npm é separado da publicação confiável
-  - a `macOS Release` pública é apenas de validação
-  - a publicação real privada para mac deve passar por um `preflight_run_id` e `validate_run_id`
-    privados do mac bem-sucedidos
-  - os caminhos reais de publicação promovem artefatos preparados em vez de reconstruí-los
+- A automação de lançamento dos mantenedores agora usa preflight-then-promote:
+  - a publicação npm real precisa passar por um `preflight_run_id` npm bem-sucedido
+  - lançamentos npm stable usam `beta` por padrão
+  - a publicação npm stable pode direcionar para `latest` explicitamente via entrada do workflow
+  - a promoção npm stable de `beta` para `latest` continua disponível como um modo manual explícito no workflow confiável `OpenClaw NPM Release`
+  - publicações stable diretas também podem executar um modo explícito de sincronização de dist-tag que
+    faz `latest` e `beta` apontarem para a versão stable já publicada
+  - esses modos de dist-tag ainda precisam de um `NPM_TOKEN` válido no ambiente `npm-release`, porque o gerenciamento de `npm dist-tag` é separado da publicação confiável
+  - `macOS Release` público é somente para validação
+  - a publicação privada real para mac deve passar por `preflight_run_id` e `validate_run_id`
+    privados de mac bem-sucedidos
+  - os caminhos de publicação reais promovem artefatos preparados em vez de reconstruí-los
     novamente
-- Para releases de correção stable como `YYYY.M.D-N`, o verificador pós-publicação
+- Para lançamentos de correção stable como `YYYY.M.D-N`, o verificador pós-publicação
   também verifica o mesmo caminho de upgrade em prefixo temporário de `YYYY.M.D` para `YYYY.M.D-N`
-  para que correções de release não deixem silenciosamente instalações globais antigas no
-  payload stable base
-- O preflight de release npm falha de forma fechada a menos que o tarball inclua tanto
-  `dist/control-ui/index.html` quanto uma carga útil não vazia em `dist/control-ui/assets/`
-  para que não enviemos novamente um dashboard do navegador vazio
-- Se o trabalho de release tocou no planejamento de CI, manifests de timing de extensões ou
-  matrizes de teste de extensões, regenere e revise as saídas da matriz do workflow
-  `checks-node-extensions` pertencentes ao planner a partir de `.github/workflows/ci.yml`
-  antes da aprovação para que as notas de release não descrevam um layout de CI desatualizado
-- A prontidão de release stable do macOS também inclui as superfícies do updater:
-  - a release no GitHub precisa terminar com os pacotes `.zip`, `.dmg` e `.dSYM.zip`
-  - `appcast.xml` na `main` precisa apontar para o novo zip stable depois da publicação
-  - o app empacotado precisa manter um bundle id não debug, uma URL de feed Sparkle não vazia
-    e um `CFBundleVersion` igual ou superior ao piso canônico de build do Sparkle
-    para aquela versão de release
+  para que correções de lançamento não possam deixar silenciosamente instalações globais mais antigas na
+  carga do stable base
+- A verificação prévia de lançamento npm falha de forma fechada a menos que o tarball inclua
+  tanto `dist/control-ui/index.html` quanto uma carga útil não vazia em `dist/control-ui/assets/`
+  para que não enviemos novamente um painel do navegador vazio
+- Se o trabalho de lançamento tocou no planejamento de CI, manifests de temporização de extensões ou
+  matrizes de teste de extensões, regenere e revise as saídas de matriz do workflow
+  `checks-node-extensions` de propriedade do planner a partir de `.github/workflows/ci.yml`
+  antes da aprovação para que as notas de lançamento não descrevam um layout de CI desatualizado
+- A prontidão para lançamento stable no macOS também inclui as superfícies do atualizador:
+  - o lançamento no GitHub deve terminar com os arquivos empacotados `.zip`, `.dmg` e `.dSYM.zip`
+  - `appcast.xml` em `main` deve apontar para o novo zip stable após a publicação
+  - o app empacotado deve manter um bundle id não-debug, uma URL de feed Sparkle não vazia
+    e um `CFBundleVersion` igual ou acima do piso de build Sparkle canônico
+    para essa versão de lançamento
 
 ## Entradas do workflow NPM
 
 `OpenClaw NPM Release` aceita estas entradas controladas pelo operador:
 
-- `tag`: tag de release obrigatória, como `v2026.4.2`, `v2026.4.2-1` ou
+- `tag`: tag de lançamento obrigatória, como `v2026.4.2`, `v2026.4.2-1` ou
   `v2026.4.2-beta.1`; quando `preflight_only=true`, também pode ser o
-  commit SHA completo atual de 40 caracteres da `main` para preflight apenas de validação
-- `preflight_only`: `true` para apenas validação/build/package, `false` para o
+  SHA completo atual de 40 caracteres do commit `main` para verificação prévia somente de validação
+- `preflight_only`: `true` para somente validação/build/pacote, `false` para o
   caminho de publicação real
 - `preflight_run_id`: obrigatório no caminho de publicação real para que o workflow reutilize
-  o tarball preparado da execução de preflight bem-sucedida
+  o tarball preparado da execução de verificação prévia bem-sucedida
 - `npm_dist_tag`: tag npm de destino para o caminho de publicação; o padrão é `beta`
-- `promote_beta_to_latest`: `true` para pular a publicação e mover um build stable
-  `beta` já publicado para `latest`
+- `promote_beta_to_latest`: `true` para pular a publicação e mover uma build stable `beta`
+  já publicada para `latest`
+- `sync_stable_dist_tags`: `true` para pular a publicação e fazer `latest` e
+  `beta` apontarem para uma versão stable já publicada
 
 `OpenClaw Release Checks` aceita estas entradas controladas pelo operador:
 
-- `ref`: tag de release existente ou o commit SHA completo atual de 40 caracteres
-  da `main` a ser validado
+- `ref`: tag de lançamento existente ou o SHA completo de 40 caracteres do commit
+  atual `main` para validar
 
 Regras:
 
-- Tags stable e correction podem publicar em `beta` ou `latest`
-- Tags beta prerelease podem publicar apenas em `beta`
-- Entrada com commit SHA completo é permitida apenas quando `preflight_only=true`
-- O modo commit-SHA das verificações de release também exige o HEAD atual de `origin/main`
-- O caminho de publicação real deve usar o mesmo `npm_dist_tag` usado durante o preflight;
+- Tags stable e de correção podem publicar em `beta` ou `latest`
+- Tags de pré-lançamento beta podem publicar apenas em `beta`
+- A entrada com SHA completo de commit é permitida apenas quando `preflight_only=true`
+- O modo commit-SHA das verificações de lançamento também exige o HEAD atual de `origin/main`
+- O caminho de publicação real deve usar o mesmo `npm_dist_tag` usado durante a verificação prévia;
   o workflow verifica esses metadados antes de a publicação continuar
-- O modo de promoção deve usar uma tag stable ou correction, `preflight_only=false`,
+- O modo de promoção deve usar uma tag stable ou de correção, `preflight_only=false`,
   `preflight_run_id` vazio e `npm_dist_tag=beta`
-- O modo de promoção também exige um `NPM_TOKEN` válido no ambiente `npm-release`
-  porque `npm dist-tag add` ainda precisa de auth npm regular
+- O modo de sincronização de dist-tag deve usar uma tag stable ou de correção,
+  `preflight_only=false`, `preflight_run_id` vazio, `npm_dist_tag=latest`
+  e `promote_beta_to_latest=false`
+- Os modos de promoção e sincronização de dist-tag também exigem um `NPM_TOKEN` válido porque
+  `npm dist-tag add` ainda precisa de autenticação npm normal; a publicação confiável cobre
+  apenas o caminho de publicação do pacote
 
-## Sequência de release stable no npm
+## Sequência de lançamento npm stable
 
-Ao criar uma release stable no npm:
+Ao fazer um lançamento npm stable:
 
 1. Execute `OpenClaw NPM Release` com `preflight_only=true`
-   - Antes de existir uma tag, você pode usar o commit SHA completo atual da `main` para uma
-     execução de validação dry run do workflow de preflight
+   - Antes de existir uma tag, você pode usar o SHA completo de `main` atual para uma
+     execução seca somente de validação do workflow de verificação prévia
 2. Escolha `npm_dist_tag=beta` para o fluxo normal beta-first, ou `latest` apenas
-   quando quiser intencionalmente uma publicação stable direta
+   quando você quiser intencionalmente uma publicação stable direta
 3. Execute `OpenClaw Release Checks` separadamente com a mesma tag ou o
-   commit SHA completo atual da `main` quando quiser cobertura live do prompt cache
+   SHA completo atual de `main` quando quiser cobertura live de cache de prompt
    - Isso é separado de propósito para que a cobertura live continue disponível sem
      reacoplar verificações demoradas ou instáveis ao workflow de publicação
 4. Salve o `preflight_run_id` bem-sucedido
 5. Execute `OpenClaw NPM Release` novamente com `preflight_only=false`, a mesma
    `tag`, o mesmo `npm_dist_tag` e o `preflight_run_id` salvo
-6. Se a release chegou em `beta`, execute `OpenClaw NPM Release` mais tarde com a
+6. Se o lançamento caiu em `beta`, execute `OpenClaw NPM Release` mais tarde com a
    mesma `tag` stable, `promote_beta_to_latest=true`, `preflight_only=false`,
-   `preflight_run_id` vazio e `npm_dist_tag=beta` quando quiser mover esse
-   build publicado para `latest`
+   `preflight_run_id` vazio e `npm_dist_tag=beta` quando quiser mover essa
+   build publicada para `latest`
+7. Se o lançamento foi intencionalmente publicado diretamente em `latest` e `beta`
+   deve seguir a mesma build stable, execute `OpenClaw NPM Release` com a mesma
+   `tag` stable, `sync_stable_dist_tags=true`, `promote_beta_to_latest=false`,
+   `preflight_only=false`, `preflight_run_id` vazio e `npm_dist_tag=latest`
 
-O modo de promoção ainda exige a aprovação do ambiente `npm-release` e um
-`NPM_TOKEN` válido nesse ambiente.
+Os modos de promoção e sincronização de dist-tag ainda exigem a aprovação do ambiente
+`npm-release` e um `NPM_TOKEN` válido acessível a essa execução do workflow.
 
-Isso mantém documentados e visíveis para o operador tanto o caminho de publicação direta quanto o caminho de promoção beta-first.
+Isso mantém tanto o caminho de publicação direta quanto o caminho de promoção beta-first
+documentados e visíveis para o operador.
 
 ## Referências públicas
 
@@ -168,6 +186,6 @@ Isso mantém documentados e visíveis para o operador tanto o caminho de publica
 - [`scripts/package-mac-dist.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/package-mac-dist.sh)
 - [`scripts/make_appcast.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/make_appcast.sh)
 
-Os mantenedores usam a documentação privada de release em
+Os mantenedores usam a documentação privada de lançamento em
 [`openclaw/maintainers/release/README.md`](https://github.com/openclaw/maintainers/blob/main/release/README.md)
-como runbook real.
+para o runbook real.

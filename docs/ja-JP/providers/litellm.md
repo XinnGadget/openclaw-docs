@@ -1,56 +1,71 @@
 ---
 read_when:
-    - OpenClawをLiteLLM proxy経由でルーティングしたい場合
-    - LiteLLM経由でコスト追跡、ロギング、またはモデルルーティングが必要な場合
-summary: 統一されたモデルアクセスとコスト追跡のためにOpenClawをLiteLLM Proxy経由で実行する
+    - LiteLLM プロキシ経由で OpenClaw をルーティングしたい
+    - LiteLLM 経由でコスト追跡、ロギング、またはモデルルーティングが必要です
+summary: 統一されたモデルアクセスとコスト追跡のために LiteLLM Proxy 経由で OpenClaw を実行する
 title: LiteLLM
 x-i18n:
-    generated_at: "2026-04-05T12:53:54Z"
+    generated_at: "2026-04-12T23:32:01Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 4e8ca73458186285bc06967b397b8a008791dc58eea1159d6c358e1a794982d1
+    source_hash: 766692eb83a1be83811d8e09a970697530ffdd4f3392247cfb2927fd590364a0
     source_path: providers/litellm.md
     workflow: 15
 ---
 
 # LiteLLM
 
-[LiteLLM](https://litellm.ai)は、100以上のモデルプロバイダーに対する統一APIを提供するオープンソースのLLM Gatewayです。OpenClawをLiteLLM経由でルーティングすると、一元化されたコスト追跡、ロギング、およびOpenClaw設定を変更せずにバックエンドを切り替える柔軟性が得られます。
+[LiteLLM](https://litellm.ai) は、100 を超える model provider に対する統一 API を提供するオープンソースの LLM Gateway です。OpenClaw を LiteLLM 経由でルーティングすると、コスト追跡、ロギングの一元化、および OpenClaw の設定を変えずにバックエンドを切り替える柔軟性が得られます。
 
-## OpenClawでLiteLLMを使う理由
+<Tip>
+**OpenClaw と一緒に LiteLLM を使う理由**
 
-- **コスト追跡** — すべてのモデルにわたってOpenClawが正確にいくら使っているかを確認できる
-- **モデルルーティング** — 設定変更なしでClaude、GPT-4、Gemini、Bedrockを切り替えられる
-- **仮想キー** — OpenClaw用に支出上限付きキーを作成できる
+- **コスト追跡** — すべてのモデルにまたがる OpenClaw の支出を正確に確認できます
+- **モデルルーティング** — 設定変更なしで Claude、GPT-4、Gemini、Bedrock を切り替えられます
+- **仮想キー** — OpenClaw 用に支出上限付きキーを作成できます
 - **ロギング** — デバッグ用の完全なリクエスト/レスポンスログ
-- **フォールバック** — 主プロバイダーがダウンしている場合の自動フェイルオーバー
+- **フォールバック** — プライマリー provider が停止していても自動フェイルオーバー
+  </Tip>
 
 ## クイックスタート
 
-### オンボーディング経由
+<Tabs>
+  <Tab title="オンボーディング（推奨）">
+    **最適な用途:** 動作する LiteLLM セットアップに最速で到達したい場合。
 
-```bash
-openclaw onboard --auth-choice litellm-api-key
-```
+    <Steps>
+      <Step title="オンボーディングを実行する">
+        ```bash
+        openclaw onboard --auth-choice litellm-api-key
+        ```
+      </Step>
+    </Steps>
 
-### 手動セットアップ
+  </Tab>
 
-1. LiteLLM Proxyを起動します:
+  <Tab title="手動セットアップ">
+    **最適な用途:** インストールと設定を完全に制御したい場合。
 
-```bash
-pip install 'litellm[proxy]'
-litellm --model claude-opus-4-6
-```
+    <Steps>
+      <Step title="LiteLLM Proxy を起動する">
+        ```bash
+        pip install 'litellm[proxy]'
+        litellm --model claude-opus-4-6
+        ```
+      </Step>
+      <Step title="OpenClaw を LiteLLM に向ける">
+        ```bash
+        export LITELLM_API_KEY="your-litellm-key"
 
-2. OpenClawをLiteLLMへ向けます:
+        openclaw
+        ```
 
-```bash
-export LITELLM_API_KEY="your-litellm-key"
+        これで完了です。OpenClaw は LiteLLM 経由でルーティングされます。
+      </Step>
+    </Steps>
 
-openclaw
-```
-
-これで完了です。OpenClawはLiteLLM経由でルーティングされます。
+  </Tab>
+</Tabs>
 
 ## 設定
 
@@ -99,68 +114,91 @@ export LITELLM_API_KEY="sk-litellm-key"
 }
 ```
 
-## 仮想キー
+## 高度なトピック
 
-支出上限付きのOpenClaw専用キーを作成します:
+<AccordionGroup>
+  <Accordion title="仮想キー">
+    支出上限付きの OpenClaw 専用キーを作成します。
 
-```bash
-curl -X POST "http://localhost:4000/key/generate" \
-  -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "key_alias": "openclaw",
-    "max_budget": 50.00,
-    "budget_duration": "monthly"
-  }'
-```
+    ```bash
+    curl -X POST "http://localhost:4000/key/generate" \
+      -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "key_alias": "openclaw",
+        "max_budget": 50.00,
+        "budget_duration": "monthly"
+      }'
+    ```
 
-生成されたキーを`LITELLM_API_KEY`として使用してください。
+    生成されたキーを `LITELLM_API_KEY` として使用します。
 
-## モデルルーティング
+  </Accordion>
 
-LiteLLMは、モデルリクエストを異なるバックエンドへルーティングできます。LiteLLMの`config.yaml`で設定します:
+  <Accordion title="モデルルーティング">
+    LiteLLM は model リクエストを異なるバックエンドへルーティングできます。LiteLLM の `config.yaml` で設定します。
 
-```yaml
-model_list:
-  - model_name: claude-opus-4-6
-    litellm_params:
-      model: claude-opus-4-6
-      api_key: os.environ/ANTHROPIC_API_KEY
+    ```yaml
+    model_list:
+      - model_name: claude-opus-4-6
+        litellm_params:
+          model: claude-opus-4-6
+          api_key: os.environ/ANTHROPIC_API_KEY
 
-  - model_name: gpt-4o
-    litellm_params:
-      model: gpt-4o
-      api_key: os.environ/OPENAI_API_KEY
-```
+      - model_name: gpt-4o
+        litellm_params:
+          model: gpt-4o
+          api_key: os.environ/OPENAI_API_KEY
+    ```
 
-OpenClawは引き続き`claude-opus-4-6`を要求し、ルーティングはLiteLLMが処理します。
+    OpenClaw は引き続き `claude-opus-4-6` をリクエストし、ルーティングは LiteLLM が処理します。
 
-## 使用状況の確認
+  </Accordion>
 
-LiteLLMのダッシュボードまたはAPIを確認します:
+  <Accordion title="使用量の確認">
+    LiteLLM のダッシュボードまたは API を確認します。
 
-```bash
-# キー情報
-curl "http://localhost:4000/key/info" \
-  -H "Authorization: Bearer sk-litellm-key"
+    ```bash
+    # キー情報
+    curl "http://localhost:4000/key/info" \
+      -H "Authorization: Bearer sk-litellm-key"
 
-# 支出ログ
-curl "http://localhost:4000/spend/logs" \
-  -H "Authorization: Bearer $LITELLM_MASTER_KEY"
-```
+    # 支出ログ
+    curl "http://localhost:4000/spend/logs" \
+      -H "Authorization: Bearer $LITELLM_MASTER_KEY"
+    ```
 
-## 注記
+  </Accordion>
 
-- LiteLLMはデフォルトで`http://localhost:4000`上で動作します
-- OpenClawは、LiteLLMのproxyスタイルOpenAI互換`/v1`
-  エンドポイント経由で接続します
-- LiteLLM経由では、OpenAIネイティブ専用のリクエスト整形は適用されません:
-  `service_tier`なし、Responsesの`store`なし、prompt-cacheヒントなし、
-  OpenAI reasoning互換ペイロード整形なし
-- カスタムLiteLLM base URLでは、隠しOpenClaw attributionヘッダー
-  （`originator`、`version`、`User-Agent`）は注入されません
+  <Accordion title="プロキシ動作に関する注意">
+    - LiteLLM はデフォルトで `http://localhost:4000` で動作します
+    - OpenClaw は LiteLLM のプロキシ型 OpenAI 互換 `/v1`
+      エンドポイント経由で接続します
+    - LiteLLM 経由ではネイティブ OpenAI 専用のリクエスト整形は適用されません:
+      `service_tier`、Responses の `store`、プロンプトキャッシュヒント、
+      OpenAI reasoning 互換ペイロード整形はありません
+    - カスタム LiteLLM base URL には、隠し OpenClaw attribution ヘッダー（`originator`、`version`、`User-Agent`）
+      は注入されません
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+一般的な provider 設定とフェイルオーバー動作については、[モデル provider](/ja-JP/concepts/model-providers) を参照してください。
+</Note>
 
 ## 関連
 
-- [LiteLLM Docs](https://docs.litellm.ai)
-- [Model Providers](/concepts/model-providers)
+<CardGroup cols={2}>
+  <Card title="LiteLLM Docs" href="https://docs.litellm.ai" icon="book">
+    公式 LiteLLM ドキュメントと API リファレンス。
+  </Card>
+  <Card title="モデル provider" href="/ja-JP/concepts/model-providers" icon="layers">
+    すべての provider、model ref、フェイルオーバー動作の概要。
+  </Card>
+  <Card title="設定" href="/ja-JP/gateway/configuration" icon="gear">
+    完全な設定リファレンス。
+  </Card>
+  <Card title="モデル選択" href="/ja-JP/concepts/models" icon="brain">
+    モデルの選び方と設定方法。
+  </Card>
+</CardGroup>

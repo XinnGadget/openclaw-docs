@@ -2,48 +2,48 @@
 read_when:
     - تريد تشغيل OpenClaw مقابل خادم inferrs محلي
     - أنت تقدّم Gemma أو نموذجًا آخر عبر inferrs
-    - تحتاج إلى علامات التوافق الدقيقة في OpenClaw الخاصة بـ inferrs
-summary: تشغيل OpenClaw عبر inferrs (خادم محلي متوافق مع OpenAI)
+    - تحتاج إلى أعلام التوافق الدقيقة في OpenClaw لـ inferrs
+summary: شغّل OpenClaw عبر inferrs ‏(خادم محلي متوافق مع OpenAI)
 title: inferrs
 x-i18n:
-    generated_at: "2026-04-09T01:29:48Z"
+    generated_at: "2026-04-12T23:30:57Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 03b9d5a9935c75fd369068bacb7807a5308cd0bd74303b664227fb664c3a2098
+    source_hash: 847dcc131fe51dfe163dcd60075dbfaa664662ea2a5c3986ccb08ddd37e8c31f
     source_path: providers/inferrs.md
     workflow: 15
 ---
 
 # inferrs
 
-يمكن لـ [inferrs](https://github.com/ericcurtin/inferrs) تقديم النماذج المحلية خلف
-واجهة `/v1` API متوافقة مع OpenAI. يعمل OpenClaw مع `inferrs` عبر المسار العام
+يمكن لـ [inferrs](https://github.com/ericcurtin/inferrs) تقديم النماذج المحلية عبر
+واجهة `/v1` متوافقة مع OpenAI. يعمل OpenClaw مع `inferrs` من خلال المسار العام
 `openai-completions`.
 
-من الأفضل حاليًا التعامل مع `inferrs` كخلفية مخصصة مستضافة ذاتيًا ومتوافقة مع OpenAI،
-وليس كإضافة موفر مخصصة في OpenClaw.
+من الأفضل حاليًا التعامل مع `inferrs` كواجهة خلفية OpenAI-compatible ذاتية الاستضافة
+مخصصة، وليس كـ Plugin مزوّد مخصص في OpenClaw.
 
-## بدء سريع
+## البدء
 
-1. ابدأ `inferrs` مع نموذج.
-
-مثال:
-
-```bash
-inferrs serve google/gemma-4-E2B-it \
-  --host 127.0.0.1 \
-  --port 8080 \
-  --device metal
-```
-
-2. تحقق من إمكانية الوصول إلى الخادم.
-
-```bash
-curl http://127.0.0.1:8080/health
-curl http://127.0.0.1:8080/v1/models
-```
-
-3. أضف إدخال موفر صريحًا في OpenClaw ووجّه نموذجك الافتراضي إليه.
+<Steps>
+  <Step title="بدء inferrs مع نموذج">
+    ```bash
+    inferrs serve google/gemma-4-E2B-it \
+      --host 127.0.0.1 \
+      --port 8080 \
+      --device metal
+    ```
+  </Step>
+  <Step title="التحقق من إمكانية الوصول إلى الخادم">
+    ```bash
+    curl http://127.0.0.1:8080/health
+    curl http://127.0.0.1:8080/v1/models
+    ```
+  </Step>
+  <Step title="إضافة إدخال مزوّد في OpenClaw">
+    أضف إدخال مزوّد صريحًا ووجّه إليه نموذجك الافتراضي. راجع مثال الإعداد الكامل أدناه.
+  </Step>
+</Steps>
 
 ## مثال إعداد كامل
 
@@ -88,93 +88,130 @@ curl http://127.0.0.1:8080/v1/models
 }
 ```
 
-## لماذا تهم `requiresStringContent`
+## متقدم
 
-تقبل بعض مسارات Chat Completions في `inferrs` فقط
-`messages[].content` النصية، وليس مصفوفات أجزاء المحتوى المنظمة.
+<AccordionGroup>
+  <Accordion title="سبب أهمية requiresStringContent">
+    تقبل بعض مسارات Chat Completions في `inferrs` فقط
+    السلاسل النصية في `messages[].content`، وليس مصفوفات أجزاء المحتوى المنظمة.
 
-إذا فشلت عمليات OpenClaw مع خطأ مثل:
+    <Warning>
+    إذا فشلت عمليات OpenClaw برسالة خطأ مثل:
 
-```text
-messages[1].content: invalid type: sequence, expected a string
-```
+    ```text
+    messages[1].content: invalid type: sequence, expected a string
+    ```
 
-فاضبط:
+    فاضبط `compat.requiresStringContent: true` في إدخال النموذج.
+    </Warning>
 
-```json5
-compat: {
-  requiresStringContent: true
-}
-```
+    ```json5
+    compat: {
+      requiresStringContent: true
+    }
+    ```
 
-سيقوم OpenClaw بتسطيح أجزاء المحتوى النصية البحتة إلى سلاسل نصية عادية قبل إرسال
-الطلب.
+    سيقوم OpenClaw بتسطيح أجزاء المحتوى النصية الخالصة إلى سلاسل نصية عادية قبل إرسال
+    الطلب.
 
-## ملاحظة Gemma ومخطط الأدوات
+  </Accordion>
 
-بعض التركيبات الحالية من `inferrs` + Gemma تقبل الطلبات المباشرة الصغيرة إلى
-`/v1/chat/completions` لكنها لا تزال تفشل في أدوار وقت تشغيل وكيل OpenClaw
-الكاملة.
+  <Accordion title="ملاحظة حول Gemma ومخطط الأدوات">
+    بعض التركيبات الحالية من `inferrs` + Gemma تقبل الطلبات الصغيرة المباشرة
+    إلى `/v1/chat/completions` ولكنها ما تزال تفشل في أدوار وقت تشغيل وكيل OpenClaw
+    الكاملة.
 
-إذا حدث ذلك، فجرّب هذا أولًا:
+    إذا حدث ذلك، فجرّب هذا أولًا:
 
-```json5
-compat: {
-  requiresStringContent: true,
-  supportsTools: false
-}
-```
+    ```json5
+    compat: {
+      requiresStringContent: true,
+      supportsTools: false
+    }
+    ```
 
-هذا يعطّل سطح مخطط الأدوات في OpenClaw لهذا النموذج ويمكن أن يقلل ضغط
-الموجّه على الخلفيات المحلية الأكثر تشددًا.
+    يؤدي ذلك إلى تعطيل سطح مخطط أدوات OpenClaw لهذا النموذج، ويمكن أن يقلل ضغط الموجّه
+    على الواجهات الخلفية المحلية الأكثر تشددًا.
 
-إذا كانت الطلبات المباشرة الصغيرة لا تزال تعمل لكن أدوار وكيل OpenClaw العادية تستمر في
-الانهيار داخل `inferrs`، فعادةً ما تكون المشكلة المتبقية سلوكًا صاعدًا في النموذج/الخادم
-وليس في طبقة النقل الخاصة بـ OpenClaw.
+    إذا استمرت الطلبات المباشرة الصغيرة في العمل ولكن أدوار وكيل OpenClaw العادية واصلت
+    التعطل داخل `inferrs`، فعادةً ما تكون المشكلة المتبقية ناتجة عن سلوك النموذج/الخادم
+    في المنبع وليس عن طبقة النقل في OpenClaw.
 
-## اختبار دخان يدوي
+  </Accordion>
 
-بعد الإعداد، اختبر الطبقتين كلتيهما:
+  <Accordion title="اختبار Smoke يدوي">
+    بعد الإعداد، اختبر الطبقتين كلتيهما:
 
-```bash
-curl http://127.0.0.1:8080/v1/chat/completions \
-  -H 'content-type: application/json' \
-  -d '{"model":"google/gemma-4-E2B-it","messages":[{"role":"user","content":"What is 2 + 2?"}],"stream":false}'
+    ```bash
+    curl http://127.0.0.1:8080/v1/chat/completions \
+      -H 'content-type: application/json' \
+      -d '{"model":"google/gemma-4-E2B-it","messages":[{"role":"user","content":"What is 2 + 2?"}],"stream":false}'
+    ```
 
-openclaw infer model run \
-  --model inferrs/google/gemma-4-E2B-it \
-  --prompt "What is 2 + 2? Reply with one short sentence." \
-  --json
-```
+    ```bash
+    openclaw infer model run \
+      --model inferrs/google/gemma-4-E2B-it \
+      --prompt "What is 2 + 2? Reply with one short sentence." \
+      --json
+    ```
 
-إذا نجح الأمر الأول لكن الثاني فشل، فاستخدم ملاحظات استكشاف الأخطاء وإصلاحها
-أدناه.
+    إذا نجح الأمر الأول لكن الثاني فشل، فراجع قسم استكشاف الأخطاء وإصلاحها أدناه.
+
+  </Accordion>
+
+  <Accordion title="سلوك نمط الوكيل">
+    يتم التعامل مع `inferrs` كواجهة خلفية `/v1` متوافقة مع OpenAI بنمط الوكيل، وليس
+    كنقطة نهاية OpenAI أصلية.
+
+    - لا ينطبق هنا تشكيل الطلبات الخاص بـ OpenAI الأصلي فقط
+    - لا يوجد `service_tier`، ولا `store` الخاص بـ Responses، ولا تلميحات cache للموجّه، ولا
+      تشكيل حمولة reasoning-compat الخاص بـ OpenAI
+    - لا يتم حقن ترويسات الإسناد المخفية في OpenClaw (`originator` و`version` و`User-Agent`)
+      على عناوين `inferrs` الأساسية المخصصة
+
+  </Accordion>
+</AccordionGroup>
 
 ## استكشاف الأخطاء وإصلاحها
 
-- فشل `curl /v1/models`: إما أن `inferrs` غير مشغّل، أو غير قابل للوصول، أو
-  غير مربوط بالمضيف/المنفذ المتوقع.
-- `messages[].content ... expected a string`: اضبط
-  `compat.requiresStringContent: true`.
-- تنجح الاستدعاءات المباشرة الصغيرة إلى `/v1/chat/completions`، لكن `openclaw infer model run`
-  يفشل: جرّب `compat.supportsTools: false`.
-- لم يعد OpenClaw يتلقى أخطاء مخطط، لكن `inferrs` لا يزال يتعطل في الأدوار الأكبر
-  للوكلاء: تعامل مع ذلك على أنه قيد صاعد في `inferrs` أو النموذج وقلل
-  ضغط الموجّه أو بدّل الخلفية/النموذج المحلي.
+<AccordionGroup>
+  <Accordion title="فشل curl /v1/models">
+    `inferrs` غير مشغّل، أو لا يمكن الوصول إليه، أو غير مرتبط
+    بالمضيف/المنفذ المتوقعين. تأكد من بدء تشغيل الخادم واستماعه على العنوان الذي
+    ضبطته.
+  </Accordion>
 
-## سلوك نمط الوكيل
+  <Accordion title="messages[].content كان متوقعًا أن تكون سلسلة نصية">
+    اضبط `compat.requiresStringContent: true` في إدخال النموذج. راجع
+    قسم `requiresStringContent` أعلاه لمزيد من التفاصيل.
+  </Accordion>
 
-يُعامل `inferrs` على أنه خلفية `/v1` متوافقة مع OpenAI بنمط الوكيل، وليس
-كنقطة نهاية OpenAI أصلية.
+  <Accordion title="نجحت استدعاءات /v1/chat/completions المباشرة لكن openclaw infer model run فشل">
+    جرّب ضبط `compat.supportsTools: false` لتعطيل سطح مخطط الأدوات.
+    راجع الملاحظة أعلاه حول مخطط أدوات Gemma.
+  </Accordion>
 
-- لا ينطبق هنا تشكيل الطلبات الأصلي الخاص بـ OpenAI فقط
-- لا `service_tier`، ولا `store` في Responses، ولا تلميحات لذاكرة الموجهات المؤقتة، ولا
-  تشكيل لحمولات التوافق مع استدلال OpenAI
-- لا يتم حقن رؤوس الإسناد المخفية الخاصة بـ OpenClaw (`originator` و`version` و`User-Agent`)
-  على عناوين URL الأساسية المخصصة لـ `inferrs`
+  <Accordion title="ما يزال inferrs يتعطل في أدوار الوكيل الأكبر">
+    إذا لم يعد OpenClaw يتلقى أخطاء schema لكن `inferrs` ما يزال يتعطل في أدوار
+    الوكيل الأكبر، فتعامل مع ذلك باعتباره قيدًا في `inferrs` أو النموذج في المنبع. قلّل
+    ضغط الموجّه أو انتقل إلى واجهة خلفية أو نموذج محلي مختلف.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+للمساعدة العامة، راجع [استكشاف الأخطاء وإصلاحها](/ar/help/troubleshooting) و[الأسئلة الشائعة](/ar/help/faq).
+</Tip>
 
 ## راجع أيضًا
 
-- [النماذج المحلية](/ar/gateway/local-models)
-- [استكشاف أخطاء البوابة وإصلاحها](/ar/gateway/troubleshooting#local-openai-compatible-backend-passes-direct-probes-but-agent-runs-fail)
-- [موفرو النماذج](/ar/concepts/model-providers)
+<CardGroup cols={2}>
+  <Card title="النماذج المحلية" href="/ar/gateway/local-models" icon="server">
+    تشغيل OpenClaw مع خوادم النماذج المحلية.
+  </Card>
+  <Card title="استكشاف أخطاء Gateway وإصلاحها" href="/ar/gateway/troubleshooting#local-openai-compatible-backend-passes-direct-probes-but-agent-runs-fail" icon="wrench">
+    تصحيح أخطاء الواجهات الخلفية المحلية المتوافقة مع OpenAI التي تنجح في probes المباشرة لكنها تفشل في تشغيلات الوكيل.
+  </Card>
+  <Card title="مزوّدو النماذج" href="/ar/concepts/model-providers" icon="layers">
+    نظرة عامة على جميع المزوّدين، ومراجع النماذج، وسلوك التحويل الاحتياطي.
+  </Card>
+</CardGroup>

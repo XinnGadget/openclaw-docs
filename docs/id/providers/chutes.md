@@ -2,91 +2,108 @@
 read_when:
     - Anda ingin menggunakan Chutes dengan OpenClaw
     - Anda memerlukan jalur penyiapan OAuth atau API key
-    - Anda ingin mengetahui model default, alias, atau perilaku penemuan
+    - Anda ingin model default, alias, atau perilaku penemuan model
 summary: Penyiapan Chutes (OAuth atau API key, penemuan model, alias)
 title: Chutes
 x-i18n:
-    generated_at: "2026-04-05T14:03:02Z"
+    generated_at: "2026-04-12T23:29:48Z"
     model: gpt-5.4
     provider: openai
-    source_hash: e275f32e7a19fa5b4c64ffabfb4bf116dd5c9ab95bfa25bd3b1a15d15e237674
+    source_hash: 07c52b1d1d2792412e6daabc92df5310434b3520116d9e0fd2ad26bfa5297e1c
     source_path: providers/chutes.md
     workflow: 15
 ---
 
 # Chutes
 
-[Chutes](https://chutes.ai) mengekspos katalog model open-source melalui API
-yang kompatibel dengan OpenAI. OpenClaw mendukung auth OAuth berbasis browser
-dan auth API key langsung untuk provider `chutes` bawaan.
+[Chutes](https://chutes.ai) menyediakan katalog model open-source melalui
+API yang kompatibel dengan OpenAI. OpenClaw mendukung auth OAuth berbasis browser dan
+auth API key langsung untuk provider `chutes` bawaan.
 
-- Provider: `chutes`
-- API: kompatibel dengan OpenAI
-- Base URL: `https://llm.chutes.ai/v1`
-- Auth:
-  - OAuth melalui `openclaw onboard --auth-choice chutes`
-  - API key melalui `openclaw onboard --auth-choice chutes-api-key`
-  - Variabel lingkungan runtime: `CHUTES_API_KEY`, `CHUTES_OAUTH_TOKEN`
+| Property | Value                        |
+| -------- | ---------------------------- |
+| Provider | `chutes`                     |
+| API      | Kompatibel dengan OpenAI     |
+| Base URL | `https://llm.chutes.ai/v1`   |
+| Auth     | OAuth atau API key (lihat di bawah) |
 
-## Mulai cepat
+## Memulai
 
-### OAuth
+<Tabs>
+  <Tab title="OAuth">
+    <Steps>
+      <Step title="Jalankan alur onboarding OAuth">
+        ```bash
+        openclaw onboard --auth-choice chutes
+        ```
+        OpenClaw meluncurkan alur browser secara lokal, atau menampilkan alur URL + tempel-pengalihan
+        pada host jarak jauh/headless. Token OAuth diperbarui otomatis melalui profil auth OpenClaw.
+      </Step>
+      <Step title="Verifikasi model default">
+        Setelah onboarding, model default disetel ke
+        `chutes/zai-org/GLM-4.7-TEE` dan katalog Chutes bawaan
+        didaftarkan.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="API key">
+    <Steps>
+      <Step title="Dapatkan API key">
+        Buat key di
+        [chutes.ai/settings/api-keys](https://chutes.ai/settings/api-keys).
+      </Step>
+      <Step title="Jalankan alur onboarding API key">
+        ```bash
+        openclaw onboard --auth-choice chutes-api-key
+        ```
+      </Step>
+      <Step title="Verifikasi model default">
+        Setelah onboarding, model default disetel ke
+        `chutes/zai-org/GLM-4.7-TEE` dan katalog Chutes bawaan
+        didaftarkan.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
-```bash
-openclaw onboard --auth-choice chutes
-```
-
-OpenClaw meluncurkan alur browser secara lokal, atau menampilkan URL + alur
-tempel-redirect pada host remote/headless. Token OAuth diperbarui otomatis melalui
-profil auth OpenClaw.
-
-Override OAuth opsional:
-
-- `CHUTES_CLIENT_ID`
-- `CHUTES_CLIENT_SECRET`
-- `CHUTES_OAUTH_REDIRECT_URI`
-- `CHUTES_OAUTH_SCOPES`
-
-### API key
-
-```bash
-openclaw onboard --auth-choice chutes-api-key
-```
-
-Dapatkan key Anda di
-[chutes.ai/settings/api-keys](https://chutes.ai/settings/api-keys).
-
-Kedua jalur auth mendaftarkan katalog Chutes bawaan dan menyetel model default
-ke `chutes/zai-org/GLM-4.7-TEE`.
+<Note>
+Kedua jalur auth mendaftarkan katalog Chutes bawaan dan menyetel model default ke
+`chutes/zai-org/GLM-4.7-TEE`. Variabel environment runtime: `CHUTES_API_KEY`,
+`CHUTES_OAUTH_TOKEN`.
+</Note>
 
 ## Perilaku penemuan
 
-Saat auth Chutes tersedia, OpenClaw meminta katalog Chutes dengan kredensial
-tersebut dan menggunakan model yang ditemukan. Jika penemuan gagal, OpenClaw
-fallback ke katalog statis bawaan sehingga onboarding dan startup tetap berfungsi.
+Saat auth Chutes tersedia, OpenClaw mengueri katalog Chutes dengan
+kredensial tersebut dan menggunakan model yang ditemukan. Jika penemuan gagal, OpenClaw
+kembali menggunakan katalog statis bawaan agar onboarding dan startup tetap berfungsi.
 
 ## Alias default
 
-OpenClaw juga mendaftarkan tiga alias kemudahan untuk katalog Chutes bawaan:
+OpenClaw mendaftarkan tiga alias praktis untuk katalog Chutes bawaan:
 
-- `chutes-fast` -> `chutes/zai-org/GLM-4.7-FP8`
-- `chutes-pro` -> `chutes/deepseek-ai/DeepSeek-V3.2-TEE`
-- `chutes-vision` -> `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506`
+| Alias           | Model target                                          |
+| --------------- | ----------------------------------------------------- |
+| `chutes-fast`   | `chutes/zai-org/GLM-4.7-FP8`                          |
+| `chutes-pro`    | `chutes/deepseek-ai/DeepSeek-V3.2-TEE`                |
+| `chutes-vision` | `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506` |
 
-## Katalog awal bawaan
+## Katalog pemula bawaan
 
-Katalog fallback bawaan mencakup referensi Chutes saat ini seperti:
+Katalog fallback bawaan mencakup ref Chutes saat ini:
 
-- `chutes/zai-org/GLM-4.7-TEE`
-- `chutes/zai-org/GLM-5-TEE`
-- `chutes/deepseek-ai/DeepSeek-V3.2-TEE`
-- `chutes/deepseek-ai/DeepSeek-R1-0528-TEE`
-- `chutes/moonshotai/Kimi-K2.5-TEE`
-- `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506`
-- `chutes/Qwen/Qwen3-Coder-Next-TEE`
-- `chutes/openai/gpt-oss-120b-TEE`
+| Model ref                                             |
+| ----------------------------------------------------- |
+| `chutes/zai-org/GLM-4.7-TEE`                          |
+| `chutes/zai-org/GLM-5-TEE`                            |
+| `chutes/deepseek-ai/DeepSeek-V3.2-TEE`                |
+| `chutes/deepseek-ai/DeepSeek-R1-0528-TEE`             |
+| `chutes/moonshotai/Kimi-K2.5-TEE`                     |
+| `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506` |
+| `chutes/Qwen/Qwen3-Coder-Next-TEE`                    |
+| `chutes/openai/gpt-oss-120b-TEE`                      |
 
-## Contoh config
+## Contoh konfigurasi
 
 ```json5
 {
@@ -102,8 +119,42 @@ Katalog fallback bawaan mencakup referensi Chutes saat ini seperti:
 }
 ```
 
-## Catatan
+<AccordionGroup>
+  <Accordion title="Override OAuth">
+    Anda dapat menyesuaikan alur OAuth dengan variabel environment opsional:
 
-- Bantuan OAuth dan persyaratan app redirect: [dokumen OAuth Chutes](https://chutes.ai/docs/sign-in-with-chutes/overview)
-- Penemuan API key dan OAuth sama-sama menggunakan ID provider `chutes`.
-- Model Chutes didaftarkan sebagai `chutes/<model-id>`.
+    | Variable | Purpose |
+    | -------- | ------- |
+    | `CHUTES_CLIENT_ID` | ID klien OAuth kustom |
+    | `CHUTES_CLIENT_SECRET` | Secret klien OAuth kustom |
+    | `CHUTES_OAUTH_REDIRECT_URI` | URI pengalihan kustom |
+    | `CHUTES_OAUTH_SCOPES` | Scope OAuth kustom |
+
+    Lihat [dokumentasi OAuth Chutes](https://chutes.ai/docs/sign-in-with-chutes/overview)
+    untuk persyaratan aplikasi pengalihan dan bantuan.
+
+  </Accordion>
+
+  <Accordion title="Catatan">
+    - Penemuan berbasis API key dan OAuth sama-sama menggunakan id provider `chutes`.
+    - Model Chutes didaftarkan sebagai `chutes/<model-id>`.
+    - Jika penemuan gagal saat startup, katalog statis bawaan digunakan secara otomatis.
+  </Accordion>
+</AccordionGroup>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="Provider model" href="/id/concepts/model-providers" icon="layers">
+    Aturan provider, ref model, dan perilaku failover.
+  </Card>
+  <Card title="Referensi konfigurasi" href="/id/gateway/configuration-reference" icon="gear">
+    Skema konfigurasi lengkap termasuk pengaturan provider.
+  </Card>
+  <Card title="Chutes" href="https://chutes.ai" icon="arrow-up-right-from-square">
+    Dashboard Chutes dan dokumentasi API.
+  </Card>
+  <Card title="API key Chutes" href="https://chutes.ai/settings/api-keys" icon="key">
+    Buat dan kelola API key Chutes.
+  </Card>
+</CardGroup>

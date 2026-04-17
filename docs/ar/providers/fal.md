@@ -2,60 +2,69 @@
 read_when:
     - تريد استخدام توليد الصور عبر fal في OpenClaw
     - تحتاج إلى تدفق المصادقة FAL_KEY
-    - تريد الإعدادات الافتراضية لـ fal من أجل image_generate أو video_generate
+    - تريد إعدادات fal الافتراضية لـ `image_generate` أو `video_generate`
 summary: إعداد توليد الصور والفيديو عبر fal في OpenClaw
 title: fal
 x-i18n:
-    generated_at: "2026-04-06T03:11:21Z"
+    generated_at: "2026-04-12T23:30:23Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 1922907d2c8360c5877a56495323d54bd846d47c27a801155e3d11e3f5706fbd
+    source_hash: ff275233179b4808d625383efe04189ad9e92af09944ba39f1e953e77378e347
     source_path: providers/fal.md
     workflow: 15
 ---
 
 # fal
 
-يوفر OpenClaw موفر `fal` مجمعًا لتوليد الصور والفيديو المستضاف.
+يوفّر OpenClaw مزود `fal` مدمجًا لتوليد الصور والفيديو المستضاف.
 
-- الموفّر: `fal`
-- المصادقة: `FAL_KEY` (الأساسي؛ ويعمل `FAL_API_KEY` أيضًا كخيار احتياطي)
-- API: نقاط نهاية نماذج fal
+| الخاصية | القيمة                                                        |
+| ------- | ------------------------------------------------------------- |
+| Provider | `fal`                                                         |
+| المصادقة | `FAL_KEY` (الأساسي؛ كما يعمل `FAL_API_KEY` كخيار احتياطي)    |
+| API     | نقاط نهاية نماذج fal                                          |
 
-## بداية سريعة
+## البدء
 
-1. اضبط API key:
-
-```bash
-openclaw onboard --auth-choice fal-api-key
-```
-
-2. اضبط نموذج الصور الافتراضي:
-
-```json5
-{
-  agents: {
-    defaults: {
-      imageGenerationModel: {
-        primary: "fal/fal-ai/flux/dev",
+<Steps>
+  <Step title="تعيين مفتاح API">
+    ```bash
+    openclaw onboard --auth-choice fal-api-key
+    ```
+  </Step>
+  <Step title="تعيين نموذج صور افتراضي">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          imageGenerationModel: {
+            primary: "fal/fal-ai/flux/dev",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Step>
+</Steps>
 
 ## توليد الصور
 
-يستخدم موفّر توليد الصور `fal` المجمّع افتراضيًا
+القيمة الافتراضية لمزود توليد الصور `fal` المدمج هي
 `fal/fal-ai/flux/dev`.
 
-- التوليد: حتى 4 صور لكل طلب
-- وضع التحرير: مفعّل، مع صورة مرجعية واحدة
-- يدعم `size` و`aspectRatio` و`resolution`
-- ملاحظة حالية على التحرير: لا تدعم نقطة نهاية تحرير الصور في fal
-  تجاوزات `aspectRatio`
+| الإمكانية      | القيمة                    |
+| -------------- | ------------------------- |
+| الحد الأقصى للصور | 4 لكل طلب                |
+| وضع التحرير     | مفعّل، صورة مرجعية واحدة  |
+| تجاوزات الحجم   | مدعومة                    |
+| نسبة الأبعاد    | مدعومة                    |
+| الدقة           | مدعومة                    |
 
-لاستخدام fal كموفّر الصور الافتراضي:
+<Warning>
+نقطة نهاية تحرير الصور في fal **لا** تدعم تجاوزات `aspectRatio`.
+</Warning>
+
+لاستخدام fal كمزود الصور الافتراضي:
 
 ```json5
 {
@@ -71,28 +80,73 @@ openclaw onboard --auth-choice fal-api-key
 
 ## توليد الفيديو
 
-يستخدم موفّر توليد الفيديو `fal` المجمّع افتراضيًا
+القيمة الافتراضية لمزود توليد الفيديو `fal` المدمج هي
 `fal/fal-ai/minimax/video-01-live`.
 
-- الأوضاع: تحويل النص إلى فيديو وتدفقات مرجعية بصورة واحدة
-- وقت التشغيل: تدفق إرسال/حالة/نتيجة مدعوم بالطابور للمهام طويلة التشغيل
+| الإمكانية | القيمة                                                        |
+| ---------- | ------------------------------------------------------------ |
+| الأوضاع    | نص إلى فيديو، ومرجع بصورة واحدة                              |
+| وقت التشغيل | مسار إرسال/حالة/نتيجة مدعوم بالطابور للمهام طويلة التشغيل   |
 
-لاستخدام fal كموفّر الفيديو الافتراضي:
+<AccordionGroup>
+  <Accordion title="نماذج الفيديو المتاحة">
+    **وكيل فيديو HeyGen:**
 
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "fal/fal-ai/minimax/video-01-live",
+    - `fal/fal-ai/heygen/v2/video-agent`
+
+    **Seedance 2.0:**
+
+    - `fal/bytedance/seedance-2.0/fast/text-to-video`
+    - `fal/bytedance/seedance-2.0/fast/image-to-video`
+    - `fal/bytedance/seedance-2.0/text-to-video`
+    - `fal/bytedance/seedance-2.0/image-to-video`
+
+  </Accordion>
+
+  <Accordion title="مثال إعداد Seedance 2.0">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/bytedance/seedance-2.0/fast/text-to-video",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="مثال إعداد وكيل فيديو HeyGen">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/fal-ai/heygen/v2/video-agent",
+          },
+        },
+      },
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+استخدم `openclaw models list --provider fal` لعرض القائمة الكاملة لنماذج fal
+المتاحة، بما في ذلك أي إدخالات أضيفت مؤخرًا.
+</Tip>
 
 ## ذو صلة
 
-- [Image Generation](/ar/tools/image-generation)
-- [Video Generation](/tools/video-generation)
-- [Configuration Reference](/ar/gateway/configuration-reference#agent-defaults)
+<CardGroup cols={2}>
+  <Card title="توليد الصور" href="/ar/tools/image-generation" icon="image">
+    معلمات أداة الصور المشتركة واختيار Provider.
+  </Card>
+  <Card title="توليد الفيديو" href="/ar/tools/video-generation" icon="video">
+    معلمات أداة الفيديو المشتركة واختيار Provider.
+  </Card>
+  <Card title="مرجع الإعدادات" href="/ar/gateway/configuration-reference#agent-defaults" icon="gear">
+    الإعدادات الافتراضية للوكيل، بما في ذلك اختيار نموذج الصور والفيديو.
+  </Card>
+</CardGroup>

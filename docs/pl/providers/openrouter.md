@@ -1,30 +1,45 @@
 ---
 read_when:
-    - Chcesz mieć jeden klucz API do wielu LLM-ów
+    - Chcesz używać jednego klucza API do wielu LLM-ów
     - Chcesz uruchamiać modele przez OpenRouter w OpenClaw
 summary: Używaj ujednoliconego API OpenRouter, aby uzyskać dostęp do wielu modeli w OpenClaw
 title: OpenRouter
 x-i18n:
-    generated_at: "2026-04-05T14:03:37Z"
+    generated_at: "2026-04-12T23:32:40Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 8dd354ba060bcb47724c89ae17c8e2af8caecac4bd996fcddb584716c1840b87
+    source_hash: 9083c30b9e9846a9d4ef071c350576d4c3083475f4108871eabbef0b9bb9a368
     source_path: providers/openrouter.md
     workflow: 15
 ---
 
 # OpenRouter
 
-OpenRouter zapewnia **ujednolicone API**, które kieruje żądania do wielu modeli za jednym
-endpointem i kluczem API. Jest zgodne z OpenAI, więc większość SDK OpenAI działa po zmianie base URL.
+OpenRouter udostępnia **ujednolicone API**, które kieruje żądania do wielu modeli za jednym
+endpointem i kluczem API. Jest zgodne z OpenAI, więc większość SDK OpenAI działa po zmianie bazowego URL.
 
-## Konfiguracja CLI
+## Pierwsze kroki
 
-```bash
-openclaw onboard --auth-choice openrouter-api-key
-```
+<Steps>
+  <Step title="Pobierz klucz API">
+    Utwórz klucz API na [openrouter.ai/keys](https://openrouter.ai/keys).
+  </Step>
+  <Step title="Uruchom onboarding">
+    ```bash
+    openclaw onboard --auth-choice openrouter-api-key
+    ```
+  </Step>
+  <Step title="(Opcjonalnie) Przełącz na konkretny model">
+    Onboarding domyślnie ustawia `openrouter/auto`. Później wybierz konkretny model:
 
-## Fragment konfiguracji
+    ```bash
+    openclaw models set openrouter/<provider>/<model>
+    ```
+
+  </Step>
+</Steps>
+
+## Przykład konfiguracji
 
 ```json5
 {
@@ -37,30 +52,71 @@ openclaw onboard --auth-choice openrouter-api-key
 }
 ```
 
-## Uwagi
+## Odwołania do modeli
 
-- Odwołania do modeli mają postać `openrouter/<provider>/<model>`.
-- Onboarding domyślnie ustawia `openrouter/auto`. Później przełącz się na konkretny model za pomocą
-  `openclaw models set openrouter/<provider>/<model>`.
-- Więcej opcji modeli/dostawców znajdziesz w [/concepts/model-providers](/pl/concepts/model-providers).
-- OpenRouter używa wewnętrznie tokenu Bearer z Twoim kluczem API.
-- Przy rzeczywistych żądaniach OpenRouter (`https://openrouter.ai/api/v1`) OpenClaw również
-  dodaje udokumentowane nagłówki atrybucji aplikacji OpenRouter:
-  `HTTP-Referer: https://openclaw.ai`, `X-OpenRouter-Title: OpenClaw` oraz
-  `X-OpenRouter-Categories: cli-agent`.
-- Na zweryfikowanych trasach OpenRouter odwołania do modeli Anthropic zachowują również
-  specyficzne dla OpenRouter znaczniki Anthropic `cache_control`, których OpenClaw używa
-  do lepszego ponownego wykorzystania pamięci podręcznej promptów w blokach promptów systemowych/developerskich.
-- Jeśli przekierujesz dostawcę OpenRouter na inne proxy/base URL, OpenClaw
-  nie wstrzykuje tych specyficznych dla OpenRouter nagłówków ani znaczników pamięci podręcznej Anthropic.
-- OpenRouter nadal działa przez ścieżkę proxy zgodną z OpenAI, więc
-  natywne formatowanie żądań wyłącznie dla OpenAI, takie jak `serviceTier`, `store` dla Responses,
-  payloady zgodności reasoning OpenAI i wskazówki pamięci podręcznej promptów, nie są przekazywane dalej.
-- Odwołania OpenRouter oparte na Gemini pozostają na ścieżce proxy-Gemini: OpenClaw zachowuje tam
-  sanityzację sygnatur myślenia Gemini, ale nie włącza natywnej walidacji replay Gemini
-  ani przepisów bootstrap.
-- Na obsługiwanych trasach innych niż `auto` OpenClaw mapuje wybrany poziom thinking na
-  payloady reasoning proxy OpenRouter. Nieobsługiwane wskazówki modelu oraz
-  `openrouter/auto` pomijają to wstrzykiwanie reasoning.
-- Jeśli przekazujesz routing dostawcy OpenRouter w parametrach modelu, OpenClaw przekazuje
-  go jako metadane routingu OpenRouter, zanim uruchomione zostaną współdzielone wrappery strumieni.
+<Note>
+Odwołania do modeli mają postać `openrouter/<provider>/<model>`. Pełną listę
+dostępnych dostawców i modeli znajdziesz w [/concepts/model-providers](/pl/concepts/model-providers).
+</Note>
+
+## Uwierzytelnianie i nagłówki
+
+OpenRouter używa wewnętrznie tokenu Bearer z Twoim kluczem API.
+
+Przy rzeczywistych żądaniach OpenRouter (`https://openrouter.ai/api/v1`) OpenClaw dodaje też
+udokumentowane przez OpenRouter nagłówki atrybucji aplikacji:
+
+| Nagłówek                 | Wartość               |
+| ------------------------ | --------------------- |
+| `HTTP-Referer`           | `https://openclaw.ai` |
+| `X-OpenRouter-Title`     | `OpenClaw`            |
+| `X-OpenRouter-Categories`| `cli-agent`           |
+
+<Warning>
+Jeśli przekierujesz dostawcę OpenRouter na inne proxy lub bazowy URL, OpenClaw
+**nie** wstrzykuje tych nagłówków specyficznych dla OpenRouter ani znaczników cache Anthropic.
+</Warning>
+
+## Uwagi zaawansowane
+
+<AccordionGroup>
+  <Accordion title="Znaczniki cache Anthropic">
+    Na zweryfikowanych trasach OpenRouter odwołania do modeli Anthropic zachowują
+    specyficzne dla OpenRouter znaczniki Anthropic `cache_control`, których OpenClaw używa do
+    lepszego ponownego użycia cache promptów w blokach promptów system/developer.
+  </Accordion>
+
+  <Accordion title="Wstrzykiwanie thinking / reasoning">
+    Na obsługiwanych trasach innych niż `auto` OpenClaw mapuje wybrany poziom thinking na
+    payloady reasoning proxy OpenRouter. Nieobsługiwane wskazówki modelu oraz
+    `openrouter/auto` pomijają to wstrzykiwanie reasoning.
+  </Accordion>
+
+  <Accordion title="Formatowanie żądań tylko dla OpenAI">
+    OpenRouter nadal działa przez kompatybilną z OpenAI ścieżkę w stylu proxy, więc
+    natywne formatowanie żądań tylko dla OpenAI, takie jak `serviceTier`, `store` dla Responses,
+    payloady zgodności reasoning OpenAI i wskazówki cache promptów, nie jest przekazywane dalej.
+  </Accordion>
+
+  <Accordion title="Trasy oparte na Gemini">
+    Odwołania OpenRouter oparte na Gemini pozostają na ścieżce proxy-Gemini: OpenClaw zachowuje tam
+    sanityzację podpisu myśli Gemini, ale nie włącza natywnej walidacji replay Gemini
+    ani przepisania bootstrapu.
+  </Accordion>
+
+  <Accordion title="Metadane routingu dostawcy">
+    Jeśli przekażesz routing dostawcy OpenRouter w parametrach modelu, OpenClaw przekaże
+    go jako metadane routingu OpenRouter, zanim uruchomią się współdzielone wrappery streamu.
+  </Accordion>
+</AccordionGroup>
+
+## Powiązane
+
+<CardGroup cols={2}>
+  <Card title="Wybór modelu" href="/pl/concepts/model-providers" icon="layers">
+    Wybór dostawców, odwołań do modeli i zachowania failover.
+  </Card>
+  <Card title="Referencja konfiguracji" href="/pl/gateway/configuration-reference" icon="gear">
+    Pełna referencja konfiguracji agentów, modeli i dostawców.
+  </Card>
+</CardGroup>

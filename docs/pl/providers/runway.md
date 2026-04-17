@@ -1,54 +1,63 @@
 ---
 read_when:
     - Chcesz używać generowania wideo Runway w OpenClaw
-    - Potrzebujesz konfiguracji klucza API / env dla Runway
+    - Potrzebujesz konfiguracji klucza API/env Runway
     - Chcesz ustawić Runway jako domyślnego dostawcę wideo
 summary: Konfiguracja generowania wideo Runway w OpenClaw
 title: Runway
 x-i18n:
-    generated_at: "2026-04-06T03:11:49Z"
+    generated_at: "2026-04-12T23:33:02Z"
     model: gpt-5.4
     provider: openai
-    source_hash: bc615d1a26f7a4b890d29461e756690c858ecb05024cf3c4d508218022da6e76
+    source_hash: fb9a2d26687920544222b0769f314743af245629fd45b7f456c0161a47476176
     source_path: providers/runway.md
     workflow: 15
 ---
 
 # Runway
 
-OpenClaw zawiera dołączonego dostawcę `runway` do hostowanego generowania wideo.
+OpenClaw zawiera bundlowanego dostawcę `runway` do hostowanej generacji wideo.
 
-- Identyfikator dostawcy: `runway`
-- Uwierzytelnianie: `RUNWAYML_API_SECRET` (kanoniczne) lub `RUNWAY_API_KEY`
-- API: generowanie wideo oparte na zadaniach Runway (odpytywanie `GET /v1/tasks/{id}`)
+| Właściwość   | Wartość                                                           |
+| ------------ | ----------------------------------------------------------------- |
+| Id dostawcy  | `runway`                                                          |
+| Uwierzytelnianie | `RUNWAYML_API_SECRET` (kanoniczne) lub `RUNWAY_API_KEY`      |
+| API          | Oparta na zadaniach generacja wideo Runway (odpytywanie `GET /v1/tasks/{id}`) |
 
-## Szybki start
+## Pierwsze kroki
 
-1. Ustaw klucz API:
-
-```bash
-openclaw onboard --auth-choice runway-api-key
-```
-
-2. Ustaw Runway jako domyślnego dostawcę wideo:
-
-```bash
-openclaw config set agents.defaults.videoGenerationModel.primary "runway/gen4.5"
-```
-
-3. Poproś agenta o wygenerowanie wideo. Runway zostanie użyty automatycznie.
+<Steps>
+  <Step title="Ustaw klucz API">
+    ```bash
+    openclaw onboard --auth-choice runway-api-key
+    ```
+  </Step>
+  <Step title="Ustaw Runway jako domyślnego dostawcę wideo">
+    ```bash
+    openclaw config set agents.defaults.videoGenerationModel.primary "runway/gen4.5"
+    ```
+  </Step>
+  <Step title="Wygeneruj wideo">
+    Poproś agenta o wygenerowanie wideo. Runway zostanie użyty automatycznie.
+  </Step>
+</Steps>
 
 ## Obsługiwane tryby
 
-| Tryb           | Model              | Wejście referencyjne        |
-| -------------- | ------------------ | --------------------------- |
-| Text-to-video  | `gen4.5` (domyślny) | Brak                       |
-| Image-to-video | `gen4.5`           | 1 obraz lokalny lub zdalny |
-| Video-to-video | `gen4_aleph`       | 1 wideo lokalne lub zdalne |
+| Tryb           | Model              | Wejście referencyjne      |
+| -------------- | ------------------ | ------------------------- |
+| Tekst na wideo | `gen4.5` (domyślny) | Brak                     |
+| Obraz na wideo | `gen4.5`           | 1 lokalny lub zdalny obraz |
+| Wideo na wideo | `gen4_aleph`       | 1 lokalne lub zdalne wideo |
 
-- Lokalne obrazy i wideo referencyjne są obsługiwane przez URI danych.
-- Video-to-video obecnie wymaga konkretnie `runway/gen4_aleph`.
-- Uruchomienia tylko tekstowe obecnie udostępniają proporcje `16:9` i `9:16`.
+<Note>
+Lokalne odwołania do obrazów i wideo są obsługiwane przez URI danych. Uruchomienia tylko tekstowe
+obecnie udostępniają proporcje `16:9` i `9:16`.
+</Note>
+
+<Warning>
+Wideo na wideo obecnie wymaga konkretnie `runway/gen4_aleph`.
+</Warning>
 
 ## Konfiguracja
 
@@ -64,7 +73,28 @@ openclaw config set agents.defaults.videoGenerationModel.primary "runway/gen4.5"
 }
 ```
 
+## Uwagi zaawansowane
+
+<AccordionGroup>
+  <Accordion title="Aliasy zmiennych środowiskowych">
+    OpenClaw rozpoznaje zarówno `RUNWAYML_API_SECRET` (kanoniczne), jak i `RUNWAY_API_KEY`.
+    Dowolna z tych zmiennych uwierzytelni dostawcę Runway.
+  </Accordion>
+
+  <Accordion title="Odpytywanie zadań">
+    Runway używa API opartego na zadaniach. Po wysłaniu żądania generowania OpenClaw
+    odpytuje `GET /v1/tasks/{id}`, aż wideo będzie gotowe. Żadna dodatkowa
+    konfiguracja zachowania odpytywania nie jest potrzebna.
+  </Accordion>
+</AccordionGroup>
+
 ## Powiązane
 
-- [Generowanie wideo](/tools/video-generation) -- współdzielone parametry narzędzia, wybór dostawcy i zachowanie asynchroniczne
-- [Dokumentacja konfiguracji](/pl/gateway/configuration-reference#agent-defaults)
+<CardGroup cols={2}>
+  <Card title="Generowanie wideo" href="/pl/tools/video-generation" icon="video">
+    Współdzielone parametry narzędzia, wybór dostawcy i zachowanie asynchroniczne.
+  </Card>
+  <Card title="Dokumentacja konfiguracji" href="/pl/gateway/configuration-reference#agent-defaults" icon="gear">
+    Ustawienia domyślne agenta, w tym model generowania wideo.
+  </Card>
+</CardGroup>

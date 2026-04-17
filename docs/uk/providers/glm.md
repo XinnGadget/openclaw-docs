@@ -1,43 +1,59 @@
 ---
 read_when:
-    - Ви хочете використовувати моделі GLM в OpenClaw
-    - Вам потрібні правила іменування моделей і налаштування
+    - Ви хочете моделі GLM в OpenClaw
+    - Вам потрібні угода про найменування моделей і налаштування
 summary: Огляд сімейства моделей GLM + як використовувати його в OpenClaw
-title: Моделі GLM
+title: GLM (Zhipu)
 x-i18n:
-    generated_at: "2026-04-08T03:40:13Z"
+    generated_at: "2026-04-12T10:42:59Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 79a55acfa139847b4b85dbc09f1068cbd2febb1e49f984a23ea9e3b43bc910eb
+    source_hash: b38f0896c900fae3cf3458ff99938d73fa46973a057d1dd373ae960cb7d2e9b5
     source_path: providers/glm.md
     workflow: 15
 ---
 
 # Моделі GLM
 
-GLM — це **сімейство моделей** (а не компанія), доступне через платформу Z.AI. В OpenClaw моделі
-GLM доступні через провайдера `zai` та ідентифікатори моделей на кшталт `zai/glm-5`.
+GLM — це **сімейство моделей** (а не компанія), доступне через платформу Z.AI. В OpenClaw моделі GLM
+доступні через провайдер `zai` та ідентифікатори моделей на кшталт `zai/glm-5`.
 
-## Налаштування CLI
+## Початок роботи
 
-```bash
-# Загальне налаштування API-ключа з автоматичним визначенням кінцевої точки
-openclaw onboard --auth-choice zai-api-key
+<Steps>
+  <Step title="Виберіть спосіб автентифікації та запустіть онбординг">
+    Виберіть варіант онбордингу, який відповідає вашому плану Z.AI та регіону:
 
-# Coding Plan Global, рекомендовано для користувачів Coding Plan
-openclaw onboard --auth-choice zai-coding-global
+    | Auth choice | Найкраще підходить для |
+    | ----------- | ---------------------- |
+    | `zai-api-key` | Загального налаштування API-ключа з автовизначенням endpoint |
+    | `zai-coding-global` | користувачів плану Coding Plan (глобально) |
+    | `zai-coding-cn` | користувачів плану Coding Plan (регіон Китай) |
+    | `zai-global` | загального API (глобально) |
+    | `zai-cn` | загального API (регіон Китай) |
 
-# Coding Plan CN (регіон Китай), рекомендовано для користувачів Coding Plan
-openclaw onboard --auth-choice zai-coding-cn
+    ```bash
+    # Приклад: загальне автовизначення
+    openclaw onboard --auth-choice zai-api-key
 
-# Загальний API
-openclaw onboard --auth-choice zai-global
+    # Приклад: Coding Plan global
+    openclaw onboard --auth-choice zai-coding-global
+    ```
 
-# Загальний API CN (регіон Китай)
-openclaw onboard --auth-choice zai-cn
-```
+  </Step>
+  <Step title="Установіть GLM як модель за замовчуванням">
+    ```bash
+    openclaw config set agents.defaults.model.primary "zai/glm-5.1"
+    ```
+  </Step>
+  <Step title="Перевірте, що моделі доступні">
+    ```bash
+    openclaw models list --provider zai
+    ```
+  </Step>
+</Steps>
 
-## Фрагмент конфігурації
+## Приклад конфігурації
 
 ```json5
 {
@@ -46,30 +62,56 @@ openclaw onboard --auth-choice zai-cn
 }
 ```
 
-`zai-api-key` дає OpenClaw змогу визначити відповідну кінцеву точку Z.AI за ключем і
-автоматично застосувати правильну базову URL-адресу. Використовуйте явні регіональні варіанти, якщо
-хочете примусово вибрати конкретний Coding Plan або загальний API-інтерфейс.
+<Tip>
+`zai-api-key` дає OpenClaw змогу визначити відповідний endpoint Z.AI за ключем і
+автоматично застосувати правильний base URL. Використовуйте явні регіональні варіанти, якщо
+хочете примусово вибрати конкретний план Coding Plan або загальний API surface.
+</Tip>
 
-## Поточні вбудовані моделі GLM
+## Вбудовані моделі GLM
 
-Наразі OpenClaw заповнює вбудованого провайдера `zai` такими посиланнями GLM:
+Наразі OpenClaw додає до вбудованого провайдера `zai` такі посилання GLM:
 
-- `glm-5.1`
-- `glm-5`
-- `glm-5-turbo`
-- `glm-5v-turbo`
-- `glm-4.7`
-- `glm-4.7-flash`
-- `glm-4.7-flashx`
-- `glm-4.6`
-- `glm-4.6v`
-- `glm-4.5`
-- `glm-4.5-air`
-- `glm-4.5-flash`
-- `glm-4.5v`
+| Модель          | Модель           |
+| --------------- | ---------------- |
+| `glm-5.1`       | `glm-4.7`        |
+| `glm-5`         | `glm-4.7-flash`  |
+| `glm-5-turbo`   | `glm-4.7-flashx` |
+| `glm-5v-turbo`  | `glm-4.6`        |
+| `glm-4.5`       | `glm-4.6v`       |
+| `glm-4.5-air`   |                  |
+| `glm-4.5-flash` |                  |
+| `glm-4.5v`      |                  |
 
-## Примітки
+<Note>
+Вбудоване посилання моделі за замовчуванням — `zai/glm-5.1`. Версії GLM і їхня доступність
+можуть змінюватися; перевіряйте документацію Z.AI, щоб дізнатися про найновіші дані.
+</Note>
 
-- Версії GLM і їх доступність можуть змінюватися; перевіряйте документацію Z.AI, щоб дізнатися про найновіші дані.
-- Типове вбудоване посилання на модель — `zai/glm-5.1`.
-- Докладніше про провайдера див. у [/providers/zai](/uk/providers/zai).
+## Розширені примітки
+
+<AccordionGroup>
+  <Accordion title="Автовизначення endpoint">
+    Коли ви використовуєте варіант автентифікації `zai-api-key`, OpenClaw аналізує формат ключа,
+    щоб визначити правильний base URL Z.AI. Явні регіональні варіанти
+    (`zai-coding-global`, `zai-coding-cn`, `zai-global`, `zai-cn`) перевизначають
+    автовизначення й напряму фіксують endpoint.
+  </Accordion>
+
+  <Accordion title="Відомості про провайдера">
+    Моделі GLM надаються runtime-провайдером `zai`. Повну інформацію про конфігурацію провайдера,
+    регіональні endpoint та додаткові можливості див. у
+    [документації провайдера Z.AI](/uk/providers/zai).
+  </Accordion>
+</AccordionGroup>
+
+## Пов’язане
+
+<CardGroup cols={2}>
+  <Card title="Провайдер Z.AI" href="/uk/providers/zai" icon="server">
+    Повна конфігурація провайдера Z.AI та регіональні endpoint.
+  </Card>
+  <Card title="Вибір моделі" href="/uk/concepts/model-providers" icon="layers">
+    Вибір провайдерів, посилань моделей і поведінки резервного перемикання.
+  </Card>
+</CardGroup>

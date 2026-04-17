@@ -1,29 +1,28 @@
 ---
 read_when:
-    - Você está escrevendo testes para um plugin
-    - Você precisa de utilitários de teste do SDK de plugin
-    - Você quer entender testes de contrato para plugins empacotados
+    - Você está escrevendo testes para um Plugin
+    - Você precisa de utilitários de teste do SDK de Plugin
+    - Você quer entender os testes de contrato para plugins empacotados
 sidebarTitle: Testing
 summary: Utilitários e padrões de teste para plugins do OpenClaw
-title: Testes de Plugin
+title: Teste de Plugin
 x-i18n:
-    generated_at: "2026-04-05T12:49:56Z"
+    generated_at: "2026-04-15T19:41:42Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 2e95ed58ed180feadad17bb5138bd09e3b45f1f3ecdff4e2fba4874bb80099fe
+    source_hash: 2f75bd3f3b5ba34b05786e0dd96d493c36db73a1d258998bf589e27e45c0bd09
     source_path: plugins/sdk-testing.md
     workflow: 15
 ---
 
-# Testes de Plugin
+# Teste de Plugin
 
-Referência para utilitários de teste, padrões e aplicação de lint para
-plugins do OpenClaw.
+Referência para utilitários de teste, padrões e aplicação de lint para plugins do OpenClaw.
 
 <Tip>
   **Procurando exemplos de teste?** Os guias práticos incluem exemplos de teste completos:
-  [Testes de plugin de canal](/plugins/sdk-channel-plugins#step-6-test) e
-  [Testes de plugin de provedor](/plugins/sdk-provider-plugins#step-6-test).
+  [Testes de Plugin de canal](/pt-BR/plugins/sdk-channel-plugins#step-6-test) e
+  [Testes de Plugin de provedor](/pt-BR/plugins/sdk-provider-plugins#step-6-test).
 </Tip>
 
 ## Utilitários de teste
@@ -42,11 +41,11 @@ import {
 
 ### Exportações disponíveis
 
-| Exportação                            | Finalidade                                             |
-| ------------------------------------- | ------------------------------------------------------ |
-| `installCommonResolveTargetErrorCases` | Casos de teste compartilhados para tratamento de erros de resolução de destino |
-| `shouldAckReaction`                    | Verifica se um canal deve adicionar uma reação de ack  |
-| `removeAckReactionAfterReply`          | Remove a reação de ack após a entrega da resposta      |
+| Export                                 | Propósito                                                |
+| -------------------------------------- | -------------------------------------------------------- |
+| `installCommonResolveTargetErrorCases` | Casos de teste compartilhados para tratamento de erros de resolução de alvo |
+| `shouldAckReaction`                    | Verifica se um canal deve adicionar uma reação de confirmação |
+| `removeAckReactionAfterReply`          | Remove a reação de confirmação após a entrega da resposta |
 
 ### Tipos
 
@@ -63,10 +62,9 @@ import type {
 } from "openclaw/plugin-sdk/testing";
 ```
 
-## Testando a resolução de destino
+## Testando a resolução de alvo
 
-Use `installCommonResolveTargetErrorCases` para adicionar casos de erro padrão para
-resolução de destino de canal:
+Use `installCommonResolveTargetErrorCases` para adicionar casos de erro padrão para resolução de alvo do canal:
 
 ```typescript
 import { describe } from "vitest";
@@ -90,7 +88,7 @@ describe("my-channel target resolution", () => {
 
 ## Padrões de teste
 
-### Testando unitariamente um plugin de canal
+### Teste unitário de um Plugin de canal
 
 ```typescript
 import { describe, it, expect, vi } from "vitest";
@@ -126,7 +124,7 @@ describe("my-channel plugin", () => {
 });
 ```
 
-### Testando unitariamente um plugin de provedor
+### Teste unitário de um Plugin de provedor
 
 ```typescript
 import { describe, it, expect } from "vitest";
@@ -154,15 +152,18 @@ describe("my-provider plugin", () => {
 });
 ```
 
-### Simulando o runtime do plugin
+### Mockando o runtime do Plugin
 
-Para código que usa `createPluginRuntimeStore`, simule o runtime nos testes:
+Para código que usa `createPluginRuntimeStore`, faça mock do runtime nos testes:
 
 ```typescript
 import { createPluginRuntimeStore } from "openclaw/plugin-sdk/runtime-store";
 import type { PluginRuntime } from "openclaw/plugin-sdk/runtime-store";
 
-const store = createPluginRuntimeStore<PluginRuntime>("test runtime not set");
+const store = createPluginRuntimeStore<PluginRuntime>({
+  pluginId: "test-plugin",
+  errorMessage: "test runtime not set",
+});
 
 // In test setup
 const mockRuntime = {
@@ -198,7 +199,7 @@ client.sendMessage = vi.fn().mockResolvedValue({ id: "msg-1" });
 
 ## Testes de contrato (plugins no repositório)
 
-Plugins empacotados têm testes de contrato que verificam a propriedade de registro:
+Plugins empacotados têm testes de contrato que verificam a propriedade do registro:
 
 ```bash
 pnpm test -- src/plugins/contracts/
@@ -213,13 +214,13 @@ Esses testes verificam:
 
 ### Executando testes com escopo
 
-Para um plugin específico:
+Para um Plugin específico:
 
 ```bash
 pnpm test -- <bundled-plugin-root>/my-channel/
 ```
 
-Apenas para testes de contrato:
+Somente para testes de contrato:
 
 ```bash
 pnpm test -- src/plugins/contracts/shape.contract.test.ts
@@ -235,12 +236,11 @@ Três regras são aplicadas por `pnpm check` para plugins no repositório:
 2. **Sem importações diretas de `src/`** -- plugins não podem importar `../../src/` diretamente
 3. **Sem autoimportações** -- plugins não podem importar seu próprio subcaminho `plugin-sdk/<name>`
 
-Plugins externos não estão sujeitos a essas regras de lint, mas seguir os mesmos
-padrões é recomendado.
+Plugins externos não estão sujeitos a essas regras de lint, mas seguir os mesmos padrões é recomendado.
 
 ## Configuração de teste
 
-O OpenClaw usa Vitest com limites de cobertura V8. Para testes de plugin:
+O OpenClaw usa Vitest com limites de cobertura do V8. Para testes de Plugin:
 
 ```bash
 # Run all tests
@@ -262,9 +262,9 @@ Se as execuções locais causarem pressão de memória:
 OPENCLAW_VITEST_MAX_WORKERS=1 pnpm test
 ```
 
-## Relacionado
+## Relacionados
 
-- [Visão geral do SDK](/plugins/sdk-overview) -- convenções de importação
-- [SDK Channel Plugins](/plugins/sdk-channel-plugins) -- interface de plugin de canal
-- [SDK Provider Plugins](/plugins/sdk-provider-plugins) -- hooks de plugin de provedor
-- [Criando Plugins](/plugins/building-plugins) -- guia de introdução
+- [Visão geral do SDK](/pt-BR/plugins/sdk-overview) -- convenções de importação
+- [SDK de Plugins de canal](/pt-BR/plugins/sdk-channel-plugins) -- interface de Plugin de canal
+- [SDK de Plugins de provedor](/pt-BR/plugins/sdk-provider-plugins) -- hooks de Plugin de provedor
+- [Criando Plugins](/pt-BR/plugins/building-plugins) -- guia de introdução

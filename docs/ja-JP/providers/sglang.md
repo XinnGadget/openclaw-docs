@@ -1,77 +1,86 @@
 ---
 read_when:
-    - ローカルのSGLang serverに対してOpenClawを実行したいとき
-    - 自分のmodelでOpenAI互換の `/v1` endpointを使いたいとき
-summary: SGLang（OpenAI互換のセルフホストserver）でOpenClawを実行する
+    - ローカルの SGLang サーバーに対して OpenClaw を実行したい
+    - 自分のモデルで OpenAI 互換の `/v1` エンドポイントを使いたい
+summary: OpenClaw を SGLang（OpenAI 互換のセルフホスト サーバー）で実行する
 title: SGLang
 x-i18n:
-    generated_at: "2026-04-05T12:54:25Z"
+    generated_at: "2026-04-12T23:33:30Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 9850277c6c5e318e60237688b4d8a5b1387d4e9586534ae2eb6ad953abba8948
+    source_hash: e0a2e50a499c3d25dcdc3af425fb023c6e3f19ed88f533ecf0eb8a2cb7ec8b0d
     source_path: providers/sglang.md
     workflow: 15
 ---
 
 # SGLang
 
-SGLangは、**OpenAI互換** HTTP API経由でオープンソースmodelを提供できます。
-OpenClawは `openai-completions` APIを使ってSGLangへ接続できます。
+SGLang は、**OpenAI 互換** HTTP API を通じてオープンソース モデルを提供できます。
+OpenClaw は `openai-completions` API を使って SGLang に接続できます。
 
-またOpenClawは、`SGLANG_API_KEY` でオプトインし、
-明示的な `models.providers.sglang` 項目を定義していない場合、
-SGLangから利用可能なmodelを**自動検出**できます（serverがauthを強制しないなら任意の値で動作します）。
+また、`SGLANG_API_KEY` でオプトインし、
+明示的な `models.providers.sglang` エントリを定義していない場合、OpenClaw は SGLang から利用可能なモデルを**自動検出**することもできます
+（サーバーで認証を強制していない場合は任意の値で構いません）。
 
-## クイックスタート
+## はじめに
 
-1. OpenAI互換server付きでSGLangを起動します。
+<Steps>
+  <Step title="SGLang を起動する">
+    OpenAI 互換サーバーで SGLang を起動します。base URL は
+    `/v1` エンドポイント（たとえば `/v1/models`、`/v1/chat/completions`）を公開している必要があります。SGLang は一般に次で動作します:
 
-base URLは `/v1` endpoint（たとえば `/v1/models`,
-`/v1/chat/completions`）を公開している必要があります。SGLangは一般に次で動作します:
+    - `http://127.0.0.1:30000/v1`
 
-- `http://127.0.0.1:30000/v1`
+  </Step>
+  <Step title="API キーを設定する">
+    サーバーで認証が設定されていない場合は、どんな値でも構いません:
 
-2. オプトインします（authが設定されていない場合は任意の値で動作）:
+    ```bash
+    export SGLANG_API_KEY="sglang-local"
+    ```
 
-```bash
-export SGLANG_API_KEY="sglang-local"
-```
+  </Step>
+  <Step title="オンボーディングを実行する、またはモデルを直接設定する">
+    ```bash
+    openclaw onboard
+    ```
 
-3. オンボーディングを実行して `SGLang` を選ぶか、直接modelを設定します:
+    または、モデルを手動で設定します:
 
-```bash
-openclaw onboard
-```
+    ```json5
+    {
+      agents: {
+        defaults: {
+          model: { primary: "sglang/your-model-id" },
+        },
+      },
+    }
+    ```
 
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "sglang/your-model-id" },
-    },
-  },
-}
-```
+  </Step>
+</Steps>
 
-## Model discovery（暗黙provider）
+## モデル検出（暗黙のプロバイダー）
 
-`SGLANG_API_KEY` が設定されている（またはauth profileが存在する）状態で、
-`models.providers.sglang` を**定義していない**場合、OpenClawは次を問い合わせます:
+`SGLANG_API_KEY` が設定されている（または認証プロファイルが存在する）状態で、
+`models.providers.sglang` を**定義していない**場合、OpenClaw は次を問い合わせます:
 
 - `GET http://127.0.0.1:30000/v1/models`
 
-そして返されたIDをmodel項目へ変換します。
+そして、返された ID を model エントリに変換します。
 
+<Note>
 `models.providers.sglang` を明示的に設定した場合、自動検出はスキップされ、
-modelを手動で定義する必要があります。
+モデルは手動で定義する必要があります。
+</Note>
 
-## 明示的設定（手動model）
+## 明示的な設定（手動モデル）
 
-次の場合は明示的configを使ってください:
+次の場合は明示的な設定を使用します:
 
-- SGLangが別のhost/portで動作している。
-- `contextWindow`/`maxTokens` の値を固定したい。
-- serverが実際のAPI keyを必要とする（またはheaderを制御したい）。
+- SGLang が別のホスト/ポートで動作している。
+- `contextWindow` / `maxTokens` の値を固定したい。
+- サーバーが実際の API キーを必要とする（またはヘッダーを制御したい）。
 
 ```json5
 {
@@ -84,7 +93,7 @@ modelを手動で定義する必要があります。
         models: [
           {
             id: "your-model-id",
-            name: "Local SGLang Model",
+            name: "ローカル SGLang モデル",
             reasoning: false,
             input: ["text"],
             cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
@@ -98,22 +107,50 @@ modelを手動で定義する必要があります。
 }
 ```
 
-## トラブルシューティング
+## 高度な設定
 
-- serverへ到達できるか確認します:
+<AccordionGroup>
+  <Accordion title="プロキシ スタイルの挙動">
+    SGLang は、ネイティブ OpenAI エンドポイントではなく、プロキシ スタイルの OpenAI 互換 `/v1` バックエンドとして扱われます。
 
-```bash
-curl http://127.0.0.1:30000/v1/models
-```
+    | Behavior | SGLang |
+    |----------|--------|
+    | OpenAI 専用のリクエスト整形 | 適用されない |
+    | `service_tier`、Responses の `store`、プロンプト キャッシュ ヒント | 送信されない |
+    | reasoning 互換ペイロード整形 | 適用されない |
+    | 隠し帰属ヘッダー（`originator`, `version`, `User-Agent`） | カスタム SGLang base URL には注入されない |
 
-- auth errorでリクエストが失敗する場合は、server設定に一致する実際の `SGLANG_API_KEY` を設定するか、
-  `models.providers.sglang` 配下でproviderを明示的に設定してください。
+  </Accordion>
 
-## Proxy-style動作
+  <Accordion title="トラブルシューティング">
+    **サーバーに到達できない**
 
-SGLangは、ネイティブなOpenAI endpointではなく、
-proxy-styleのOpenAI互換 `/v1` backendとして扱われます。
+    サーバーが起動して応答していることを確認してください:
 
-- OpenAIネイティブ専用のrequest shapingはここでは適用されません
-- `service_tier`、Responses `store`、prompt-cache hint、OpenAI reasoning互換payload shapingはありません
-- 非表示のOpenClaw attribution header（`originator`, `version`, `User-Agent`）はcustom SGLang base URLには注入されません
+    ```bash
+    curl http://127.0.0.1:30000/v1/models
+    ```
+
+    **認証エラー**
+
+    リクエストが認証エラーで失敗する場合は、サーバー設定に一致する実際の `SGLANG_API_KEY` を設定するか、
+    `models.providers.sglang` の下でプロバイダーを明示的に設定してください。
+
+    <Tip>
+    認証なしで SGLang を実行している場合、モデル検出にオプトインするには
+    `SGLANG_API_KEY` に空でない任意の値を設定すれば十分です。
+    </Tip>
+
+  </Accordion>
+</AccordionGroup>
+
+## 関連
+
+<CardGroup cols={2}>
+  <Card title="モデル選択" href="/ja-JP/concepts/model-providers" icon="layers">
+    プロバイダー、モデル ref、フェイルオーバー動作の選び方。
+  </Card>
+  <Card title="設定リファレンス" href="/ja-JP/gateway/configuration-reference" icon="gear">
+    プロバイダー エントリを含む完全な設定スキーマ。
+  </Card>
+</CardGroup>

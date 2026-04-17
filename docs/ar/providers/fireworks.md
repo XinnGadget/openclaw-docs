@@ -1,38 +1,53 @@
 ---
 read_when:
     - تريد استخدام Fireworks مع OpenClaw
-    - تحتاج إلى متغير env الخاص بـ Fireworks API key أو معرّف النموذج الافتراضي
-summary: إعداد Fireworks ‏(المصادقة + اختيار النموذج)
+    - تحتاج إلى متغير البيئة الخاص بمفتاح API لـ Fireworks أو معرّف النموذج الافتراضي
+summary: إعداد Fireworks (المصادقة + اختيار النموذج)
+title: Fireworks
 x-i18n:
-    generated_at: "2026-04-05T12:52:58Z"
+    generated_at: "2026-04-12T23:30:35Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 20083d5c248abd9a7223e6d188f0265ae27381940ee0067dff6d1d46d908c552
+    source_hash: 1a85d9507c19e275fdd846a303d844eda8045d008774d4dde1eae408e8716b6f
     source_path: providers/fireworks.md
     workflow: 15
 ---
 
 # Fireworks
 
-توفّر [Fireworks](https://fireworks.ai) نماذج مفتوحة الأوزان ونماذج موجّهة عبر API متوافقة مع OpenAI. يتضمن OpenClaw الآن مكوّن Fireworks إضافيًا مضمّنًا للمزوّد.
+توفّر [Fireworks](https://fireworks.ai) نماذج مفتوحة الأوزان ونماذج موجهة عبر API
+متوافق مع OpenAI. ويتضمن OpenClaw Plugin موفّر Fireworks مضمّنًا.
 
-- المزوّد: `fireworks`
-- المصادقة: `FIREWORKS_API_KEY`
-- API: chat/completions متوافقة مع OpenAI
-- Base URL: `https://api.fireworks.ai/inference/v1`
-- النموذج الافتراضي: `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo`
+| الخاصية         | القيمة                                                   |
+| --------------- | -------------------------------------------------------- |
+| الموفّر         | `fireworks`                                              |
+| المصادقة        | `FIREWORKS_API_KEY`                                      |
+| API             | chat/completions متوافق مع OpenAI                        |
+| Base URL        | `https://api.fireworks.ai/inference/v1`                  |
+| النموذج الافتراضي | `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` |
 
-## بدء سريع
+## البدء
 
-اضبط مصادقة Fireworks عبر الإعداد الأولي:
+<Steps>
+  <Step title="Set up Fireworks auth through onboarding">
+    ```bash
+    openclaw onboard --auth-choice fireworks-api-key
+    ```
 
-```bash
-openclaw onboard --auth-choice fireworks-api-key
-```
+    يخزّن هذا مفتاح Fireworks الخاص بك في إعدادات OpenClaw ويعيّن نموذج Fire Pass
+    الابتدائي كنموذج افتراضي.
 
-يخزن هذا مفتاح Fireworks الخاص بك في إعداد OpenClaw ويضبط نموذج Fire Pass المبدئي كنموذج افتراضي.
+  </Step>
+  <Step title="Verify the model is available">
+    ```bash
+    openclaw models list --provider fireworks
+    ```
+  </Step>
+</Steps>
 
 ## مثال غير تفاعلي
+
+لإعدادات السكربتات أو CI، مرّر جميع القيم في سطر الأوامر:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -43,23 +58,20 @@ openclaw onboard --non-interactive \
   --accept-risk
 ```
 
-## ملاحظة حول البيئة
-
-إذا كانت Gateway تعمل خارج shell التفاعلية الخاصة بك، فتأكد من أن `FIREWORKS_API_KEY`
-متاح لتلك العملية أيضًا. فالمفتاح الموجود فقط في `~/.profile` لن
-يفيد daemon تعمل عبر launchd/systemd ما لم تُستورد تلك البيئة هناك أيضًا.
-
 ## الفهرس المضمّن
 
-| مرجع النموذج                                            | الاسم                        | الإدخال     | السياق  | أقصى إخراج | ملاحظات                                       |
-| ------------------------------------------------------- | ---------------------------- | ----------- | ------- | ---------- | --------------------------------------------- |
-| `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` | Kimi K2.5 Turbo ‏(Fire Pass) | text,image  | 256,000 | 256,000    | النموذج الابتدائي المضمّن الافتراضي على Fireworks |
+| مرجع النموذج                                         | الاسم                        | الإدخال    | السياق   | الحد الأقصى للإخراج | ملاحظات                                   |
+| ---------------------------------------------------- | --------------------------- | ---------- | -------- | ------------------- | ----------------------------------------- |
+| `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` | Kimi K2.5 Turbo (Fire Pass) | نص، صورة   | 256,000  | 256,000             | النموذج الابتدائي المضمّن الافتراضي على Fireworks |
+
+<Tip>
+إذا نشرت Fireworks نموذجًا أحدث مثل إصدار جديد من Qwen أو Gemma، فيمكنك التبديل إليه مباشرةً باستخدام معرّف نموذج Fireworks الخاص به من دون انتظار تحديث الفهرس المضمّن.
+</Tip>
 
 ## معرّفات نماذج Fireworks المخصصة
 
-يقبل OpenClaw أيضًا معرّفات نماذج Fireworks الديناميكية. استخدم معرّف النموذج أو router المطابق تمامًا كما تعرضه Fireworks، وأضف قبله البادئة `fireworks/`.
-
-مثال:
+يقبل OpenClaw أيضًا معرّفات نماذج Fireworks الديناميكية. استخدم معرّف النموذج أو
+الموجّه الدقيق كما يظهر في Fireworks، وأضف البادئة `fireworks/` إليه.
 
 ```json5
 {
@@ -73,4 +85,39 @@ openclaw onboard --non-interactive \
 }
 ```
 
-إذا نشرت Fireworks نموذجًا أحدث مثل إصدار جديد من Qwen أو Gemma، فيمكنك التبديل إليه مباشرةً باستخدام معرّف نموذج Fireworks الخاص به من دون انتظار تحديث الفهرس المضمّن.
+<AccordionGroup>
+  <Accordion title="How model id prefixing works">
+    يبدأ كل مرجع نموذج Fireworks في OpenClaw بالبادئة `fireworks/` متبوعة
+    بالمعرّف الدقيق أو مسار الموجّه من منصة Fireworks. على سبيل المثال:
+
+    - نموذج موجّه: `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo`
+    - نموذج مباشر: `fireworks/accounts/fireworks/models/<model-name>`
+
+    يزيل OpenClaw البادئة `fireworks/` عند إنشاء طلب API ويرسل المسار المتبقي
+    إلى نقطة نهاية Fireworks.
+
+  </Accordion>
+
+  <Accordion title="Environment note">
+    إذا كان Gateway يعمل خارج بيئة shell التفاعلية لديك، فتأكد من أن
+    `FIREWORKS_API_KEY` متاح لتلك العملية أيضًا.
+
+    <Warning>
+    لن يفيد المفتاح الموجود فقط في `~/.profile` خدمة daemon تعمل عبر
+    launchd/systemd ما لم يتم استيراد تلك البيئة هناك أيضًا. عيّن المفتاح في
+    `~/.openclaw/.env` أو عبر `env.shellEnv` لضمان قدرة عملية Gateway على قراءته.
+    </Warning>
+
+  </Accordion>
+</AccordionGroup>
+
+## ذو صلة
+
+<CardGroup cols={2}>
+  <Card title="Model selection" href="/ar/concepts/model-providers" icon="layers">
+    اختيار الموفّرات، ومراجع النماذج، وسلوك التبديل الاحتياطي.
+  </Card>
+  <Card title="Troubleshooting" href="/ar/help/troubleshooting" icon="wrench">
+    استكشاف الأخطاء وإصلاحها والأسئلة الشائعة العامة.
+  </Card>
+</CardGroup>

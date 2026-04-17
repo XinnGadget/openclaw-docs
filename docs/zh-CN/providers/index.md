@@ -1,14 +1,14 @@
 ---
 read_when:
-    - 你想选择一个模型提供商
-    - 你需要快速了解受支持的 LLM 后端
+    - 你想要选择一个模型提供商
+    - 你需要快速了解受支持的 LLM 后端概览
 summary: OpenClaw 支持的模型提供商（LLM）
 title: 提供商目录
 x-i18n:
-    generated_at: "2026-04-07T14:57:15Z"
+    generated_at: "2026-04-13T07:24:18Z"
     model: gpt-5.4
     provider: openai
-    source_hash: e7bee5528b7fc9a982b3d0eaa4930cb77f7bded19a47aec00572b6fcbd823a70
+    source_hash: 3bc682d008119719826f71f74959ab32bedf14214459f5e6ac9cb70371d3c540
     source_path: providers/index.md
     workflow: 15
 ---
@@ -17,11 +17,11 @@ x-i18n:
 
 OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份验证，然后将默认模型设置为 `provider/model`。
 
-在找聊天渠道文档（WhatsApp/Telegram/Discord/Slack/Mattermost（插件）/ 等）？请参阅 [渠道](/zh-CN/channels)。
+在寻找聊天渠道文档（WhatsApp/Telegram/Discord/Slack/Mattermost（插件）/等）？请参阅 [Channels](/zh-CN/channels)。
 
 ## 快速开始
 
-1. 使用该提供商完成身份验证（通常通过 `openclaw onboard`）。
+1. 使用提供商完成身份验证（通常通过 `openclaw onboard`）。
 2. 设置默认模型：
 
 ```json5
@@ -32,7 +32,7 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 
 ## 提供商文档
 
-- [Alibaba Model Studio](/zh-CN/providers/alibaba)
+- [阿里巴巴 Model Studio](/zh-CN/providers/alibaba)
 - [Amazon Bedrock](/zh-CN/providers/bedrock)
 - [Anthropic（API + Claude CLI）](/zh-CN/providers/anthropic)
 - [Arcee AI（Trinity 模型）](/zh-CN/providers/arcee)
@@ -51,6 +51,7 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 - [inferrs（本地模型）](/zh-CN/providers/inferrs)
 - [Kilocode](/zh-CN/providers/kilocode)
 - [LiteLLM（统一 Gateway 网关）](/zh-CN/providers/litellm)
+- [LM Studio（本地模型）](/zh-CN/providers/lmstudio)
 - [MiniMax](/zh-CN/providers/minimax)
 - [Mistral](/zh-CN/providers/mistral)
 - [Moonshot AI（Kimi + Kimi Coding）](/zh-CN/providers/moonshot)
@@ -60,7 +61,7 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 - [OpenCode](/zh-CN/providers/opencode)
 - [OpenCode Go](/zh-CN/providers/opencode-go)
 - [OpenRouter](/zh-CN/providers/openrouter)
-- [Perplexity（Web 搜索）](/zh-CN/providers/perplexity-provider)
+- [Perplexity（网络搜索）](/zh-CN/providers/perplexity-provider)
 - [Qianfan](/zh-CN/providers/qianfan)
 - [Qwen Cloud](/zh-CN/providers/qwen)
 - [Runway](/zh-CN/providers/runway)
@@ -80,9 +81,9 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 ## 共享概览页面
 
 - [其他内置变体](/zh-CN/providers/models#additional-bundled-provider-variants) - Anthropic Vertex、Copilot Proxy 和 Gemini CLI OAuth
-- [图像生成](/zh-CN/tools/image-generation) - 共享的 `image_generate` 工具、提供商选择和故障转移
-- [音乐生成](/zh-CN/tools/music-generation) - 共享的 `music_generate` 工具、提供商选择和故障转移
-- [视频生成](/zh-CN/tools/video-generation) - 共享的 `video_generate` 工具、提供商选择和故障转移
+- [图像生成](/zh-CN/tools/image-generation) - 通用 `image_generate` 工具、提供商选择和故障切换
+- [音乐生成](/zh-CN/tools/music-generation) - 通用 `music_generate` 工具、提供商选择和故障切换
+- [视频生成](/zh-CN/tools/video-generation) - 通用 `video_generate` 工具、提供商选择和故障切换
 
 ## 转录提供商
 
@@ -90,6 +91,6 @@ OpenClaw 可以使用许多 LLM 提供商。选择一个提供商，完成身份
 
 ## 社区工具
 
-- [Claude Max API Proxy](/zh-CN/providers/claude-max-api-proxy) - 用于 Claude 订阅凭证的社区代理（使用前请确认 Anthropic 的政策/条款）
+- [Claude Max API Proxy](/zh-CN/providers/claude-max-api-proxy) - 面向 Claude 订阅凭证的社区代理（使用前请核实 Anthropic 的政策/条款）
 
-如需查看完整的提供商目录（xAI、Groq、Mistral 等）和高级配置，请参阅 [模型提供商](/zh-CN/concepts/model-providers)。
+有关完整的提供商目录（xAI、Groq、Mistral 等）和高级配置，请参阅 [模型提供商](/zh-CN/concepts/model-providers)。

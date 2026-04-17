@@ -53,6 +53,10 @@
   },
   "redirects": [
     {
+      "source": "/mcp",
+      "destination": "/cli/mcp"
+    },
+    {
       "source": "/providers/modelstudio",
       "destination": "/providers/qwen"
     },
@@ -980,6 +984,7 @@
                   "install/fly",
                   "install/gcp",
                   "install/hetzner",
+                  "install/hostinger",
                   "install/kubernetes",
                   "vps",
                   "install/macos-vm",
@@ -1067,7 +1072,8 @@
                   "concepts/agent-workspace",
                   "concepts/soul",
                   "concepts/oauth",
-                  "start/bootstrapping"
+                  "start/bootstrapping",
+                  "concepts/experimental-features"
                 ]
               },
               {
@@ -1084,6 +1090,7 @@
                       "concepts/memory-qmd",
                       "concepts/memory-honcho",
                       "concepts/memory-search",
+                      "concepts/active-memory",
                       "concepts/dreaming"
                     ]
                   },
@@ -1124,8 +1131,11 @@
                   "tools/plugin",
                   "plugins/community",
                   "plugins/bundles",
+                  "plugins/codex-harness",
                   "plugins/webhooks",
                   "plugins/voice-call",
+                  "plugins/memory-wiki",
+                  "plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -1141,6 +1151,7 @@
                       "plugins/sdk-overview",
                       "plugins/sdk-entrypoints",
                       "plugins/sdk-runtime",
+                      "plugins/sdk-agent-harness",
                       "plugins/sdk-setup",
                       "plugins/sdk-testing",
                       "plugins/manifest",
@@ -1197,6 +1208,7 @@
                       "tools/gemini-search",
                       "tools/grok-search",
                       "tools/kimi-search",
+                      "tools/minimax-search",
                       "tools/ollama-search",
                       "tools/perplexity-search",
                       "tools/searxng-search",
@@ -1253,24 +1265,27 @@
                 "group": "Providers",
                 "pages": [
                   "providers/alibaba",
-                  "providers/anthropic",
-                  "providers/arcee",
                   "providers/bedrock",
                   "providers/bedrock-mantle",
+                  "providers/anthropic",
+                  "providers/arcee",
                   "providers/chutes",
-                  "providers/comfy",
                   "providers/claude-max-api-proxy",
                   "providers/cloudflare-ai-gateway",
+                  "providers/comfy",
                   "providers/deepgram",
                   "providers/deepseek",
                   "providers/fal",
+                  "providers/fireworks",
                   "providers/github-copilot",
                   "providers/glm",
                   "providers/google",
                   "providers/groq",
                   "providers/huggingface",
+                  "providers/inferrs",
                   "providers/kilocode",
                   "providers/litellm",
+                  "providers/lmstudio",
                   "providers/minimax",
                   "providers/mistral",
                   "providers/moonshot",
@@ -1290,9 +1305,9 @@
                   "providers/together",
                   "providers/venice",
                   "providers/vercel-ai-gateway",
-                  "providers/vydra",
                   "providers/vllm",
                   "providers/volcengine",
+                  "providers/vydra",
                   "providers/xai",
                   "providers/xiaomi",
                   "providers/zai"
@@ -1485,6 +1500,7 @@
                       "cli/agent",
                       "cli/agents",
                       "cli/hooks",
+                      "cli/infer",
                       "cli/memory",
                       "cli/message",
                       "cli/models",
@@ -1545,7 +1561,8 @@
                       "cli/completion",
                       "cli/dns",
                       "cli/docs",
-                      "cli/mcp"
+                      "cli/mcp",
+                      "cli/wiki"
                     ]
                   }
                 ]
@@ -1582,6 +1599,7 @@
                   "reference/api-usage-costs",
                   "reference/transcript-hygiene",
                   "reference/memory-config",
+                  "reference/rich-output-protocol",
                   "date-time"
                 ]
               },
@@ -2348,6 +2366,7 @@
                   "ja-JP/install/fly",
                   "ja-JP/install/gcp",
                   "ja-JP/install/hetzner",
+                  "ja-JP/install/hostinger",
                   "ja-JP/install/kubernetes",
                   "ja-JP/vps",
                   "ja-JP/install/macos-vm",
@@ -2435,7 +2454,8 @@
                   "ja-JP/concepts/agent-workspace",
                   "ja-JP/concepts/soul",
                   "ja-JP/concepts/oauth",
-                  "ja-JP/start/bootstrapping"
+                  "ja-JP/start/bootstrapping",
+                  "ja-JP/concepts/experimental-features"
                 ]
               },
               {
@@ -2452,6 +2472,7 @@
                       "ja-JP/concepts/memory-qmd",
                       "ja-JP/concepts/memory-honcho",
                       "ja-JP/concepts/memory-search",
+                      "ja-JP/concepts/active-memory",
                       "ja-JP/concepts/dreaming"
                     ]
                   },
@@ -2492,8 +2513,11 @@
                   "ja-JP/tools/plugin",
                   "ja-JP/plugins/community",
                   "ja-JP/plugins/bundles",
+                  "ja-JP/plugins/codex-harness",
                   "ja-JP/plugins/webhooks",
                   "ja-JP/plugins/voice-call",
+                  "ja-JP/plugins/memory-wiki",
+                  "ja-JP/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -2509,6 +2533,7 @@
                       "ja-JP/plugins/sdk-overview",
                       "ja-JP/plugins/sdk-entrypoints",
                       "ja-JP/plugins/sdk-runtime",
+                      "ja-JP/plugins/sdk-agent-harness",
                       "ja-JP/plugins/sdk-setup",
                       "ja-JP/plugins/sdk-testing",
                       "ja-JP/plugins/manifest",
@@ -2565,6 +2590,7 @@
                       "ja-JP/tools/gemini-search",
                       "ja-JP/tools/grok-search",
                       "ja-JP/tools/kimi-search",
+                      "ja-JP/tools/minimax-search",
                       "ja-JP/tools/ollama-search",
                       "ja-JP/tools/perplexity-search",
                       "ja-JP/tools/searxng-search",
@@ -2621,24 +2647,27 @@
                 "group": "Providers",
                 "pages": [
                   "ja-JP/providers/alibaba",
-                  "ja-JP/providers/anthropic",
-                  "ja-JP/providers/arcee",
                   "ja-JP/providers/bedrock",
                   "ja-JP/providers/bedrock-mantle",
+                  "ja-JP/providers/anthropic",
+                  "ja-JP/providers/arcee",
                   "ja-JP/providers/chutes",
-                  "ja-JP/providers/comfy",
                   "ja-JP/providers/claude-max-api-proxy",
                   "ja-JP/providers/cloudflare-ai-gateway",
+                  "ja-JP/providers/comfy",
                   "ja-JP/providers/deepgram",
                   "ja-JP/providers/deepseek",
                   "ja-JP/providers/fal",
+                  "ja-JP/providers/fireworks",
                   "ja-JP/providers/github-copilot",
                   "ja-JP/providers/glm",
                   "ja-JP/providers/google",
                   "ja-JP/providers/groq",
                   "ja-JP/providers/huggingface",
+                  "ja-JP/providers/inferrs",
                   "ja-JP/providers/kilocode",
                   "ja-JP/providers/litellm",
+                  "ja-JP/providers/lmstudio",
                   "ja-JP/providers/minimax",
                   "ja-JP/providers/mistral",
                   "ja-JP/providers/moonshot",
@@ -2658,9 +2687,9 @@
                   "ja-JP/providers/together",
                   "ja-JP/providers/venice",
                   "ja-JP/providers/vercel-ai-gateway",
-                  "ja-JP/providers/vydra",
                   "ja-JP/providers/vllm",
                   "ja-JP/providers/volcengine",
+                  "ja-JP/providers/vydra",
                   "ja-JP/providers/xai",
                   "ja-JP/providers/xiaomi",
                   "ja-JP/providers/zai"
@@ -2853,6 +2882,7 @@
                       "ja-JP/cli/agent",
                       "ja-JP/cli/agents",
                       "ja-JP/cli/hooks",
+                      "ja-JP/cli/infer",
                       "ja-JP/cli/memory",
                       "ja-JP/cli/message",
                       "ja-JP/cli/models",
@@ -2913,7 +2943,8 @@
                       "ja-JP/cli/completion",
                       "ja-JP/cli/dns",
                       "ja-JP/cli/docs",
-                      "ja-JP/cli/mcp"
+                      "ja-JP/cli/mcp",
+                      "ja-JP/cli/wiki"
                     ]
                   }
                 ]
@@ -2950,6 +2981,7 @@
                   "ja-JP/reference/api-usage-costs",
                   "ja-JP/reference/transcript-hygiene",
                   "ja-JP/reference/memory-config",
+                  "ja-JP/reference/rich-output-protocol",
                   "ja-JP/date-time"
                 ]
               },
@@ -3101,6 +3133,7 @@
                   "es/install/fly",
                   "es/install/gcp",
                   "es/install/hetzner",
+                  "es/install/hostinger",
                   "es/install/kubernetes",
                   "es/vps",
                   "es/install/macos-vm",
@@ -3188,7 +3221,8 @@
                   "es/concepts/agent-workspace",
                   "es/concepts/soul",
                   "es/concepts/oauth",
-                  "es/start/bootstrapping"
+                  "es/start/bootstrapping",
+                  "es/concepts/experimental-features"
                 ]
               },
               {
@@ -3205,6 +3239,7 @@
                       "es/concepts/memory-qmd",
                       "es/concepts/memory-honcho",
                       "es/concepts/memory-search",
+                      "es/concepts/active-memory",
                       "es/concepts/dreaming"
                     ]
                   },
@@ -3245,8 +3280,11 @@
                   "es/tools/plugin",
                   "es/plugins/community",
                   "es/plugins/bundles",
+                  "es/plugins/codex-harness",
                   "es/plugins/webhooks",
                   "es/plugins/voice-call",
+                  "es/plugins/memory-wiki",
+                  "es/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -3262,6 +3300,7 @@
                       "es/plugins/sdk-overview",
                       "es/plugins/sdk-entrypoints",
                       "es/plugins/sdk-runtime",
+                      "es/plugins/sdk-agent-harness",
                       "es/plugins/sdk-setup",
                       "es/plugins/sdk-testing",
                       "es/plugins/manifest",
@@ -3318,6 +3357,7 @@
                       "es/tools/gemini-search",
                       "es/tools/grok-search",
                       "es/tools/kimi-search",
+                      "es/tools/minimax-search",
                       "es/tools/ollama-search",
                       "es/tools/perplexity-search",
                       "es/tools/searxng-search",
@@ -3374,24 +3414,27 @@
                 "group": "Providers",
                 "pages": [
                   "es/providers/alibaba",
-                  "es/providers/anthropic",
-                  "es/providers/arcee",
                   "es/providers/bedrock",
                   "es/providers/bedrock-mantle",
+                  "es/providers/anthropic",
+                  "es/providers/arcee",
                   "es/providers/chutes",
-                  "es/providers/comfy",
                   "es/providers/claude-max-api-proxy",
                   "es/providers/cloudflare-ai-gateway",
+                  "es/providers/comfy",
                   "es/providers/deepgram",
                   "es/providers/deepseek",
                   "es/providers/fal",
+                  "es/providers/fireworks",
                   "es/providers/github-copilot",
                   "es/providers/glm",
                   "es/providers/google",
                   "es/providers/groq",
                   "es/providers/huggingface",
+                  "es/providers/inferrs",
                   "es/providers/kilocode",
                   "es/providers/litellm",
+                  "es/providers/lmstudio",
                   "es/providers/minimax",
                   "es/providers/mistral",
                   "es/providers/moonshot",
@@ -3411,9 +3454,9 @@
                   "es/providers/together",
                   "es/providers/venice",
                   "es/providers/vercel-ai-gateway",
-                  "es/providers/vydra",
                   "es/providers/vllm",
                   "es/providers/volcengine",
+                  "es/providers/vydra",
                   "es/providers/xai",
                   "es/providers/xiaomi",
                   "es/providers/zai"
@@ -3606,6 +3649,7 @@
                       "es/cli/agent",
                       "es/cli/agents",
                       "es/cli/hooks",
+                      "es/cli/infer",
                       "es/cli/memory",
                       "es/cli/message",
                       "es/cli/models",
@@ -3666,7 +3710,8 @@
                       "es/cli/completion",
                       "es/cli/dns",
                       "es/cli/docs",
-                      "es/cli/mcp"
+                      "es/cli/mcp",
+                      "es/cli/wiki"
                     ]
                   }
                 ]
@@ -3703,6 +3748,7 @@
                   "es/reference/api-usage-costs",
                   "es/reference/transcript-hygiene",
                   "es/reference/memory-config",
+                  "es/reference/rich-output-protocol",
                   "es/date-time"
                 ]
               },
@@ -3854,6 +3900,7 @@
                   "pt-BR/install/fly",
                   "pt-BR/install/gcp",
                   "pt-BR/install/hetzner",
+                  "pt-BR/install/hostinger",
                   "pt-BR/install/kubernetes",
                   "pt-BR/vps",
                   "pt-BR/install/macos-vm",
@@ -3941,7 +3988,8 @@
                   "pt-BR/concepts/agent-workspace",
                   "pt-BR/concepts/soul",
                   "pt-BR/concepts/oauth",
-                  "pt-BR/start/bootstrapping"
+                  "pt-BR/start/bootstrapping",
+                  "pt-BR/concepts/experimental-features"
                 ]
               },
               {
@@ -3958,6 +4006,7 @@
                       "pt-BR/concepts/memory-qmd",
                       "pt-BR/concepts/memory-honcho",
                       "pt-BR/concepts/memory-search",
+                      "pt-BR/concepts/active-memory",
                       "pt-BR/concepts/dreaming"
                     ]
                   },
@@ -3998,8 +4047,11 @@
                   "pt-BR/tools/plugin",
                   "pt-BR/plugins/community",
                   "pt-BR/plugins/bundles",
+                  "pt-BR/plugins/codex-harness",
                   "pt-BR/plugins/webhooks",
                   "pt-BR/plugins/voice-call",
+                  "pt-BR/plugins/memory-wiki",
+                  "pt-BR/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -4015,6 +4067,7 @@
                       "pt-BR/plugins/sdk-overview",
                       "pt-BR/plugins/sdk-entrypoints",
                       "pt-BR/plugins/sdk-runtime",
+                      "pt-BR/plugins/sdk-agent-harness",
                       "pt-BR/plugins/sdk-setup",
                       "pt-BR/plugins/sdk-testing",
                       "pt-BR/plugins/manifest",
@@ -4071,6 +4124,7 @@
                       "pt-BR/tools/gemini-search",
                       "pt-BR/tools/grok-search",
                       "pt-BR/tools/kimi-search",
+                      "pt-BR/tools/minimax-search",
                       "pt-BR/tools/ollama-search",
                       "pt-BR/tools/perplexity-search",
                       "pt-BR/tools/searxng-search",
@@ -4127,24 +4181,27 @@
                 "group": "Providers",
                 "pages": [
                   "pt-BR/providers/alibaba",
-                  "pt-BR/providers/anthropic",
-                  "pt-BR/providers/arcee",
                   "pt-BR/providers/bedrock",
                   "pt-BR/providers/bedrock-mantle",
+                  "pt-BR/providers/anthropic",
+                  "pt-BR/providers/arcee",
                   "pt-BR/providers/chutes",
-                  "pt-BR/providers/comfy",
                   "pt-BR/providers/claude-max-api-proxy",
                   "pt-BR/providers/cloudflare-ai-gateway",
+                  "pt-BR/providers/comfy",
                   "pt-BR/providers/deepgram",
                   "pt-BR/providers/deepseek",
                   "pt-BR/providers/fal",
+                  "pt-BR/providers/fireworks",
                   "pt-BR/providers/github-copilot",
                   "pt-BR/providers/glm",
                   "pt-BR/providers/google",
                   "pt-BR/providers/groq",
                   "pt-BR/providers/huggingface",
+                  "pt-BR/providers/inferrs",
                   "pt-BR/providers/kilocode",
                   "pt-BR/providers/litellm",
+                  "pt-BR/providers/lmstudio",
                   "pt-BR/providers/minimax",
                   "pt-BR/providers/mistral",
                   "pt-BR/providers/moonshot",
@@ -4164,9 +4221,9 @@
                   "pt-BR/providers/together",
                   "pt-BR/providers/venice",
                   "pt-BR/providers/vercel-ai-gateway",
-                  "pt-BR/providers/vydra",
                   "pt-BR/providers/vllm",
                   "pt-BR/providers/volcengine",
+                  "pt-BR/providers/vydra",
                   "pt-BR/providers/xai",
                   "pt-BR/providers/xiaomi",
                   "pt-BR/providers/zai"
@@ -4359,6 +4416,7 @@
                       "pt-BR/cli/agent",
                       "pt-BR/cli/agents",
                       "pt-BR/cli/hooks",
+                      "pt-BR/cli/infer",
                       "pt-BR/cli/memory",
                       "pt-BR/cli/message",
                       "pt-BR/cli/models",
@@ -4419,7 +4477,8 @@
                       "pt-BR/cli/completion",
                       "pt-BR/cli/dns",
                       "pt-BR/cli/docs",
-                      "pt-BR/cli/mcp"
+                      "pt-BR/cli/mcp",
+                      "pt-BR/cli/wiki"
                     ]
                   }
                 ]
@@ -4456,6 +4515,7 @@
                   "pt-BR/reference/api-usage-costs",
                   "pt-BR/reference/transcript-hygiene",
                   "pt-BR/reference/memory-config",
+                  "pt-BR/reference/rich-output-protocol",
                   "pt-BR/date-time"
                 ]
               },
@@ -4607,6 +4667,7 @@
                   "ko/install/fly",
                   "ko/install/gcp",
                   "ko/install/hetzner",
+                  "ko/install/hostinger",
                   "ko/install/kubernetes",
                   "ko/vps",
                   "ko/install/macos-vm",
@@ -4694,7 +4755,8 @@
                   "ko/concepts/agent-workspace",
                   "ko/concepts/soul",
                   "ko/concepts/oauth",
-                  "ko/start/bootstrapping"
+                  "ko/start/bootstrapping",
+                  "ko/concepts/experimental-features"
                 ]
               },
               {
@@ -4711,6 +4773,7 @@
                       "ko/concepts/memory-qmd",
                       "ko/concepts/memory-honcho",
                       "ko/concepts/memory-search",
+                      "ko/concepts/active-memory",
                       "ko/concepts/dreaming"
                     ]
                   },
@@ -4751,8 +4814,11 @@
                   "ko/tools/plugin",
                   "ko/plugins/community",
                   "ko/plugins/bundles",
+                  "ko/plugins/codex-harness",
                   "ko/plugins/webhooks",
                   "ko/plugins/voice-call",
+                  "ko/plugins/memory-wiki",
+                  "ko/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -4768,6 +4834,7 @@
                       "ko/plugins/sdk-overview",
                       "ko/plugins/sdk-entrypoints",
                       "ko/plugins/sdk-runtime",
+                      "ko/plugins/sdk-agent-harness",
                       "ko/plugins/sdk-setup",
                       "ko/plugins/sdk-testing",
                       "ko/plugins/manifest",
@@ -4824,6 +4891,7 @@
                       "ko/tools/gemini-search",
                       "ko/tools/grok-search",
                       "ko/tools/kimi-search",
+                      "ko/tools/minimax-search",
                       "ko/tools/ollama-search",
                       "ko/tools/perplexity-search",
                       "ko/tools/searxng-search",
@@ -4880,24 +4948,27 @@
                 "group": "Providers",
                 "pages": [
                   "ko/providers/alibaba",
-                  "ko/providers/anthropic",
-                  "ko/providers/arcee",
                   "ko/providers/bedrock",
                   "ko/providers/bedrock-mantle",
+                  "ko/providers/anthropic",
+                  "ko/providers/arcee",
                   "ko/providers/chutes",
-                  "ko/providers/comfy",
                   "ko/providers/claude-max-api-proxy",
                   "ko/providers/cloudflare-ai-gateway",
+                  "ko/providers/comfy",
                   "ko/providers/deepgram",
                   "ko/providers/deepseek",
                   "ko/providers/fal",
+                  "ko/providers/fireworks",
                   "ko/providers/github-copilot",
                   "ko/providers/glm",
                   "ko/providers/google",
                   "ko/providers/groq",
                   "ko/providers/huggingface",
+                  "ko/providers/inferrs",
                   "ko/providers/kilocode",
                   "ko/providers/litellm",
+                  "ko/providers/lmstudio",
                   "ko/providers/minimax",
                   "ko/providers/mistral",
                   "ko/providers/moonshot",
@@ -4917,9 +4988,9 @@
                   "ko/providers/together",
                   "ko/providers/venice",
                   "ko/providers/vercel-ai-gateway",
-                  "ko/providers/vydra",
                   "ko/providers/vllm",
                   "ko/providers/volcengine",
+                  "ko/providers/vydra",
                   "ko/providers/xai",
                   "ko/providers/xiaomi",
                   "ko/providers/zai"
@@ -5112,6 +5183,7 @@
                       "ko/cli/agent",
                       "ko/cli/agents",
                       "ko/cli/hooks",
+                      "ko/cli/infer",
                       "ko/cli/memory",
                       "ko/cli/message",
                       "ko/cli/models",
@@ -5172,7 +5244,8 @@
                       "ko/cli/completion",
                       "ko/cli/dns",
                       "ko/cli/docs",
-                      "ko/cli/mcp"
+                      "ko/cli/mcp",
+                      "ko/cli/wiki"
                     ]
                   }
                 ]
@@ -5209,6 +5282,7 @@
                   "ko/reference/api-usage-costs",
                   "ko/reference/transcript-hygiene",
                   "ko/reference/memory-config",
+                  "ko/reference/rich-output-protocol",
                   "ko/date-time"
                 ]
               },
@@ -5360,6 +5434,7 @@
                   "de/install/fly",
                   "de/install/gcp",
                   "de/install/hetzner",
+                  "de/install/hostinger",
                   "de/install/kubernetes",
                   "de/vps",
                   "de/install/macos-vm",
@@ -5447,7 +5522,8 @@
                   "de/concepts/agent-workspace",
                   "de/concepts/soul",
                   "de/concepts/oauth",
-                  "de/start/bootstrapping"
+                  "de/start/bootstrapping",
+                  "de/concepts/experimental-features"
                 ]
               },
               {
@@ -5464,6 +5540,7 @@
                       "de/concepts/memory-qmd",
                       "de/concepts/memory-honcho",
                       "de/concepts/memory-search",
+                      "de/concepts/active-memory",
                       "de/concepts/dreaming"
                     ]
                   },
@@ -5504,8 +5581,11 @@
                   "de/tools/plugin",
                   "de/plugins/community",
                   "de/plugins/bundles",
+                  "de/plugins/codex-harness",
                   "de/plugins/webhooks",
                   "de/plugins/voice-call",
+                  "de/plugins/memory-wiki",
+                  "de/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -5521,6 +5601,7 @@
                       "de/plugins/sdk-overview",
                       "de/plugins/sdk-entrypoints",
                       "de/plugins/sdk-runtime",
+                      "de/plugins/sdk-agent-harness",
                       "de/plugins/sdk-setup",
                       "de/plugins/sdk-testing",
                       "de/plugins/manifest",
@@ -5577,6 +5658,7 @@
                       "de/tools/gemini-search",
                       "de/tools/grok-search",
                       "de/tools/kimi-search",
+                      "de/tools/minimax-search",
                       "de/tools/ollama-search",
                       "de/tools/perplexity-search",
                       "de/tools/searxng-search",
@@ -5633,24 +5715,27 @@
                 "group": "Providers",
                 "pages": [
                   "de/providers/alibaba",
-                  "de/providers/anthropic",
-                  "de/providers/arcee",
                   "de/providers/bedrock",
                   "de/providers/bedrock-mantle",
+                  "de/providers/anthropic",
+                  "de/providers/arcee",
                   "de/providers/chutes",
-                  "de/providers/comfy",
                   "de/providers/claude-max-api-proxy",
                   "de/providers/cloudflare-ai-gateway",
+                  "de/providers/comfy",
                   "de/providers/deepgram",
                   "de/providers/deepseek",
                   "de/providers/fal",
+                  "de/providers/fireworks",
                   "de/providers/github-copilot",
                   "de/providers/glm",
                   "de/providers/google",
                   "de/providers/groq",
                   "de/providers/huggingface",
+                  "de/providers/inferrs",
                   "de/providers/kilocode",
                   "de/providers/litellm",
+                  "de/providers/lmstudio",
                   "de/providers/minimax",
                   "de/providers/mistral",
                   "de/providers/moonshot",
@@ -5670,9 +5755,9 @@
                   "de/providers/together",
                   "de/providers/venice",
                   "de/providers/vercel-ai-gateway",
-                  "de/providers/vydra",
                   "de/providers/vllm",
                   "de/providers/volcengine",
+                  "de/providers/vydra",
                   "de/providers/xai",
                   "de/providers/xiaomi",
                   "de/providers/zai"
@@ -5865,6 +5950,7 @@
                       "de/cli/agent",
                       "de/cli/agents",
                       "de/cli/hooks",
+                      "de/cli/infer",
                       "de/cli/memory",
                       "de/cli/message",
                       "de/cli/models",
@@ -5925,7 +6011,8 @@
                       "de/cli/completion",
                       "de/cli/dns",
                       "de/cli/docs",
-                      "de/cli/mcp"
+                      "de/cli/mcp",
+                      "de/cli/wiki"
                     ]
                   }
                 ]
@@ -5962,6 +6049,7 @@
                   "de/reference/api-usage-costs",
                   "de/reference/transcript-hygiene",
                   "de/reference/memory-config",
+                  "de/reference/rich-output-protocol",
                   "de/date-time"
                 ]
               },
@@ -6113,6 +6201,7 @@
                   "fr/install/fly",
                   "fr/install/gcp",
                   "fr/install/hetzner",
+                  "fr/install/hostinger",
                   "fr/install/kubernetes",
                   "fr/vps",
                   "fr/install/macos-vm",
@@ -6200,7 +6289,8 @@
                   "fr/concepts/agent-workspace",
                   "fr/concepts/soul",
                   "fr/concepts/oauth",
-                  "fr/start/bootstrapping"
+                  "fr/start/bootstrapping",
+                  "fr/concepts/experimental-features"
                 ]
               },
               {
@@ -6217,6 +6307,7 @@
                       "fr/concepts/memory-qmd",
                       "fr/concepts/memory-honcho",
                       "fr/concepts/memory-search",
+                      "fr/concepts/active-memory",
                       "fr/concepts/dreaming"
                     ]
                   },
@@ -6257,8 +6348,11 @@
                   "fr/tools/plugin",
                   "fr/plugins/community",
                   "fr/plugins/bundles",
+                  "fr/plugins/codex-harness",
                   "fr/plugins/webhooks",
                   "fr/plugins/voice-call",
+                  "fr/plugins/memory-wiki",
+                  "fr/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -6274,6 +6368,7 @@
                       "fr/plugins/sdk-overview",
                       "fr/plugins/sdk-entrypoints",
                       "fr/plugins/sdk-runtime",
+                      "fr/plugins/sdk-agent-harness",
                       "fr/plugins/sdk-setup",
                       "fr/plugins/sdk-testing",
                       "fr/plugins/manifest",
@@ -6330,6 +6425,7 @@
                       "fr/tools/gemini-search",
                       "fr/tools/grok-search",
                       "fr/tools/kimi-search",
+                      "fr/tools/minimax-search",
                       "fr/tools/ollama-search",
                       "fr/tools/perplexity-search",
                       "fr/tools/searxng-search",
@@ -6386,24 +6482,27 @@
                 "group": "Providers",
                 "pages": [
                   "fr/providers/alibaba",
-                  "fr/providers/anthropic",
-                  "fr/providers/arcee",
                   "fr/providers/bedrock",
                   "fr/providers/bedrock-mantle",
+                  "fr/providers/anthropic",
+                  "fr/providers/arcee",
                   "fr/providers/chutes",
-                  "fr/providers/comfy",
                   "fr/providers/claude-max-api-proxy",
                   "fr/providers/cloudflare-ai-gateway",
+                  "fr/providers/comfy",
                   "fr/providers/deepgram",
                   "fr/providers/deepseek",
                   "fr/providers/fal",
+                  "fr/providers/fireworks",
                   "fr/providers/github-copilot",
                   "fr/providers/glm",
                   "fr/providers/google",
                   "fr/providers/groq",
                   "fr/providers/huggingface",
+                  "fr/providers/inferrs",
                   "fr/providers/kilocode",
                   "fr/providers/litellm",
+                  "fr/providers/lmstudio",
                   "fr/providers/minimax",
                   "fr/providers/mistral",
                   "fr/providers/moonshot",
@@ -6423,9 +6522,9 @@
                   "fr/providers/together",
                   "fr/providers/venice",
                   "fr/providers/vercel-ai-gateway",
-                  "fr/providers/vydra",
                   "fr/providers/vllm",
                   "fr/providers/volcengine",
+                  "fr/providers/vydra",
                   "fr/providers/xai",
                   "fr/providers/xiaomi",
                   "fr/providers/zai"
@@ -6618,6 +6717,7 @@
                       "fr/cli/agent",
                       "fr/cli/agents",
                       "fr/cli/hooks",
+                      "fr/cli/infer",
                       "fr/cli/memory",
                       "fr/cli/message",
                       "fr/cli/models",
@@ -6678,7 +6778,8 @@
                       "fr/cli/completion",
                       "fr/cli/dns",
                       "fr/cli/docs",
-                      "fr/cli/mcp"
+                      "fr/cli/mcp",
+                      "fr/cli/wiki"
                     ]
                   }
                 ]
@@ -6715,6 +6816,7 @@
                   "fr/reference/api-usage-costs",
                   "fr/reference/transcript-hygiene",
                   "fr/reference/memory-config",
+                  "fr/reference/rich-output-protocol",
                   "fr/date-time"
                 ]
               },
@@ -6866,6 +6968,7 @@
                   "ar/install/fly",
                   "ar/install/gcp",
                   "ar/install/hetzner",
+                  "ar/install/hostinger",
                   "ar/install/kubernetes",
                   "ar/vps",
                   "ar/install/macos-vm",
@@ -6953,7 +7056,8 @@
                   "ar/concepts/agent-workspace",
                   "ar/concepts/soul",
                   "ar/concepts/oauth",
-                  "ar/start/bootstrapping"
+                  "ar/start/bootstrapping",
+                  "ar/concepts/experimental-features"
                 ]
               },
               {
@@ -6970,6 +7074,7 @@
                       "ar/concepts/memory-qmd",
                       "ar/concepts/memory-honcho",
                       "ar/concepts/memory-search",
+                      "ar/concepts/active-memory",
                       "ar/concepts/dreaming"
                     ]
                   },
@@ -7010,8 +7115,11 @@
                   "ar/tools/plugin",
                   "ar/plugins/community",
                   "ar/plugins/bundles",
+                  "ar/plugins/codex-harness",
                   "ar/plugins/webhooks",
                   "ar/plugins/voice-call",
+                  "ar/plugins/memory-wiki",
+                  "ar/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -7027,6 +7135,7 @@
                       "ar/plugins/sdk-overview",
                       "ar/plugins/sdk-entrypoints",
                       "ar/plugins/sdk-runtime",
+                      "ar/plugins/sdk-agent-harness",
                       "ar/plugins/sdk-setup",
                       "ar/plugins/sdk-testing",
                       "ar/plugins/manifest",
@@ -7083,6 +7192,7 @@
                       "ar/tools/gemini-search",
                       "ar/tools/grok-search",
                       "ar/tools/kimi-search",
+                      "ar/tools/minimax-search",
                       "ar/tools/ollama-search",
                       "ar/tools/perplexity-search",
                       "ar/tools/searxng-search",
@@ -7139,24 +7249,27 @@
                 "group": "Providers",
                 "pages": [
                   "ar/providers/alibaba",
-                  "ar/providers/anthropic",
-                  "ar/providers/arcee",
                   "ar/providers/bedrock",
                   "ar/providers/bedrock-mantle",
+                  "ar/providers/anthropic",
+                  "ar/providers/arcee",
                   "ar/providers/chutes",
-                  "ar/providers/comfy",
                   "ar/providers/claude-max-api-proxy",
                   "ar/providers/cloudflare-ai-gateway",
+                  "ar/providers/comfy",
                   "ar/providers/deepgram",
                   "ar/providers/deepseek",
                   "ar/providers/fal",
+                  "ar/providers/fireworks",
                   "ar/providers/github-copilot",
                   "ar/providers/glm",
                   "ar/providers/google",
                   "ar/providers/groq",
                   "ar/providers/huggingface",
+                  "ar/providers/inferrs",
                   "ar/providers/kilocode",
                   "ar/providers/litellm",
+                  "ar/providers/lmstudio",
                   "ar/providers/minimax",
                   "ar/providers/mistral",
                   "ar/providers/moonshot",
@@ -7176,9 +7289,9 @@
                   "ar/providers/together",
                   "ar/providers/venice",
                   "ar/providers/vercel-ai-gateway",
-                  "ar/providers/vydra",
                   "ar/providers/vllm",
                   "ar/providers/volcengine",
+                  "ar/providers/vydra",
                   "ar/providers/xai",
                   "ar/providers/xiaomi",
                   "ar/providers/zai"
@@ -7371,6 +7484,7 @@
                       "ar/cli/agent",
                       "ar/cli/agents",
                       "ar/cli/hooks",
+                      "ar/cli/infer",
                       "ar/cli/memory",
                       "ar/cli/message",
                       "ar/cli/models",
@@ -7431,7 +7545,8 @@
                       "ar/cli/completion",
                       "ar/cli/dns",
                       "ar/cli/docs",
-                      "ar/cli/mcp"
+                      "ar/cli/mcp",
+                      "ar/cli/wiki"
                     ]
                   }
                 ]
@@ -7468,6 +7583,7 @@
                   "ar/reference/api-usage-costs",
                   "ar/reference/transcript-hygiene",
                   "ar/reference/memory-config",
+                  "ar/reference/rich-output-protocol",
                   "ar/date-time"
                 ]
               },
@@ -7619,6 +7735,7 @@
                   "it/install/fly",
                   "it/install/gcp",
                   "it/install/hetzner",
+                  "it/install/hostinger",
                   "it/install/kubernetes",
                   "it/vps",
                   "it/install/macos-vm",
@@ -7706,7 +7823,8 @@
                   "it/concepts/agent-workspace",
                   "it/concepts/soul",
                   "it/concepts/oauth",
-                  "it/start/bootstrapping"
+                  "it/start/bootstrapping",
+                  "it/concepts/experimental-features"
                 ]
               },
               {
@@ -7723,6 +7841,7 @@
                       "it/concepts/memory-qmd",
                       "it/concepts/memory-honcho",
                       "it/concepts/memory-search",
+                      "it/concepts/active-memory",
                       "it/concepts/dreaming"
                     ]
                   },
@@ -7763,8 +7882,11 @@
                   "it/tools/plugin",
                   "it/plugins/community",
                   "it/plugins/bundles",
+                  "it/plugins/codex-harness",
                   "it/plugins/webhooks",
                   "it/plugins/voice-call",
+                  "it/plugins/memory-wiki",
+                  "it/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -7780,6 +7902,7 @@
                       "it/plugins/sdk-overview",
                       "it/plugins/sdk-entrypoints",
                       "it/plugins/sdk-runtime",
+                      "it/plugins/sdk-agent-harness",
                       "it/plugins/sdk-setup",
                       "it/plugins/sdk-testing",
                       "it/plugins/manifest",
@@ -7836,6 +7959,7 @@
                       "it/tools/gemini-search",
                       "it/tools/grok-search",
                       "it/tools/kimi-search",
+                      "it/tools/minimax-search",
                       "it/tools/ollama-search",
                       "it/tools/perplexity-search",
                       "it/tools/searxng-search",
@@ -7892,24 +8016,27 @@
                 "group": "Providers",
                 "pages": [
                   "it/providers/alibaba",
-                  "it/providers/anthropic",
-                  "it/providers/arcee",
                   "it/providers/bedrock",
                   "it/providers/bedrock-mantle",
+                  "it/providers/anthropic",
+                  "it/providers/arcee",
                   "it/providers/chutes",
-                  "it/providers/comfy",
                   "it/providers/claude-max-api-proxy",
                   "it/providers/cloudflare-ai-gateway",
+                  "it/providers/comfy",
                   "it/providers/deepgram",
                   "it/providers/deepseek",
                   "it/providers/fal",
+                  "it/providers/fireworks",
                   "it/providers/github-copilot",
                   "it/providers/glm",
                   "it/providers/google",
                   "it/providers/groq",
                   "it/providers/huggingface",
+                  "it/providers/inferrs",
                   "it/providers/kilocode",
                   "it/providers/litellm",
+                  "it/providers/lmstudio",
                   "it/providers/minimax",
                   "it/providers/mistral",
                   "it/providers/moonshot",
@@ -7929,9 +8056,9 @@
                   "it/providers/together",
                   "it/providers/venice",
                   "it/providers/vercel-ai-gateway",
-                  "it/providers/vydra",
                   "it/providers/vllm",
                   "it/providers/volcengine",
+                  "it/providers/vydra",
                   "it/providers/xai",
                   "it/providers/xiaomi",
                   "it/providers/zai"
@@ -8124,6 +8251,7 @@
                       "it/cli/agent",
                       "it/cli/agents",
                       "it/cli/hooks",
+                      "it/cli/infer",
                       "it/cli/memory",
                       "it/cli/message",
                       "it/cli/models",
@@ -8184,7 +8312,8 @@
                       "it/cli/completion",
                       "it/cli/dns",
                       "it/cli/docs",
-                      "it/cli/mcp"
+                      "it/cli/mcp",
+                      "it/cli/wiki"
                     ]
                   }
                 ]
@@ -8221,6 +8350,7 @@
                   "it/reference/api-usage-costs",
                   "it/reference/transcript-hygiene",
                   "it/reference/memory-config",
+                  "it/reference/rich-output-protocol",
                   "it/date-time"
                 ]
               },
@@ -8372,6 +8502,7 @@
                   "tr/install/fly",
                   "tr/install/gcp",
                   "tr/install/hetzner",
+                  "tr/install/hostinger",
                   "tr/install/kubernetes",
                   "tr/vps",
                   "tr/install/macos-vm",
@@ -8459,7 +8590,8 @@
                   "tr/concepts/agent-workspace",
                   "tr/concepts/soul",
                   "tr/concepts/oauth",
-                  "tr/start/bootstrapping"
+                  "tr/start/bootstrapping",
+                  "tr/concepts/experimental-features"
                 ]
               },
               {
@@ -8476,6 +8608,7 @@
                       "tr/concepts/memory-qmd",
                       "tr/concepts/memory-honcho",
                       "tr/concepts/memory-search",
+                      "tr/concepts/active-memory",
                       "tr/concepts/dreaming"
                     ]
                   },
@@ -8516,8 +8649,11 @@
                   "tr/tools/plugin",
                   "tr/plugins/community",
                   "tr/plugins/bundles",
+                  "tr/plugins/codex-harness",
                   "tr/plugins/webhooks",
                   "tr/plugins/voice-call",
+                  "tr/plugins/memory-wiki",
+                  "tr/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -8533,6 +8669,7 @@
                       "tr/plugins/sdk-overview",
                       "tr/plugins/sdk-entrypoints",
                       "tr/plugins/sdk-runtime",
+                      "tr/plugins/sdk-agent-harness",
                       "tr/plugins/sdk-setup",
                       "tr/plugins/sdk-testing",
                       "tr/plugins/manifest",
@@ -8589,6 +8726,7 @@
                       "tr/tools/gemini-search",
                       "tr/tools/grok-search",
                       "tr/tools/kimi-search",
+                      "tr/tools/minimax-search",
                       "tr/tools/ollama-search",
                       "tr/tools/perplexity-search",
                       "tr/tools/searxng-search",
@@ -8645,24 +8783,27 @@
                 "group": "Providers",
                 "pages": [
                   "tr/providers/alibaba",
-                  "tr/providers/anthropic",
-                  "tr/providers/arcee",
                   "tr/providers/bedrock",
                   "tr/providers/bedrock-mantle",
+                  "tr/providers/anthropic",
+                  "tr/providers/arcee",
                   "tr/providers/chutes",
-                  "tr/providers/comfy",
                   "tr/providers/claude-max-api-proxy",
                   "tr/providers/cloudflare-ai-gateway",
+                  "tr/providers/comfy",
                   "tr/providers/deepgram",
                   "tr/providers/deepseek",
                   "tr/providers/fal",
+                  "tr/providers/fireworks",
                   "tr/providers/github-copilot",
                   "tr/providers/glm",
                   "tr/providers/google",
                   "tr/providers/groq",
                   "tr/providers/huggingface",
+                  "tr/providers/inferrs",
                   "tr/providers/kilocode",
                   "tr/providers/litellm",
+                  "tr/providers/lmstudio",
                   "tr/providers/minimax",
                   "tr/providers/mistral",
                   "tr/providers/moonshot",
@@ -8682,9 +8823,9 @@
                   "tr/providers/together",
                   "tr/providers/venice",
                   "tr/providers/vercel-ai-gateway",
-                  "tr/providers/vydra",
                   "tr/providers/vllm",
                   "tr/providers/volcengine",
+                  "tr/providers/vydra",
                   "tr/providers/xai",
                   "tr/providers/xiaomi",
                   "tr/providers/zai"
@@ -8877,6 +9018,7 @@
                       "tr/cli/agent",
                       "tr/cli/agents",
                       "tr/cli/hooks",
+                      "tr/cli/infer",
                       "tr/cli/memory",
                       "tr/cli/message",
                       "tr/cli/models",
@@ -8937,7 +9079,8 @@
                       "tr/cli/completion",
                       "tr/cli/dns",
                       "tr/cli/docs",
-                      "tr/cli/mcp"
+                      "tr/cli/mcp",
+                      "tr/cli/wiki"
                     ]
                   }
                 ]
@@ -8974,6 +9117,7 @@
                   "tr/reference/api-usage-costs",
                   "tr/reference/transcript-hygiene",
                   "tr/reference/memory-config",
+                  "tr/reference/rich-output-protocol",
                   "tr/date-time"
                 ]
               },
@@ -9125,6 +9269,7 @@
                   "uk/install/fly",
                   "uk/install/gcp",
                   "uk/install/hetzner",
+                  "uk/install/hostinger",
                   "uk/install/kubernetes",
                   "uk/vps",
                   "uk/install/macos-vm",
@@ -9212,7 +9357,8 @@
                   "uk/concepts/agent-workspace",
                   "uk/concepts/soul",
                   "uk/concepts/oauth",
-                  "uk/start/bootstrapping"
+                  "uk/start/bootstrapping",
+                  "uk/concepts/experimental-features"
                 ]
               },
               {
@@ -9229,6 +9375,7 @@
                       "uk/concepts/memory-qmd",
                       "uk/concepts/memory-honcho",
                       "uk/concepts/memory-search",
+                      "uk/concepts/active-memory",
                       "uk/concepts/dreaming"
                     ]
                   },
@@ -9269,8 +9416,11 @@
                   "uk/tools/plugin",
                   "uk/plugins/community",
                   "uk/plugins/bundles",
+                  "uk/plugins/codex-harness",
                   "uk/plugins/webhooks",
                   "uk/plugins/voice-call",
+                  "uk/plugins/memory-wiki",
+                  "uk/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -9286,6 +9436,7 @@
                       "uk/plugins/sdk-overview",
                       "uk/plugins/sdk-entrypoints",
                       "uk/plugins/sdk-runtime",
+                      "uk/plugins/sdk-agent-harness",
                       "uk/plugins/sdk-setup",
                       "uk/plugins/sdk-testing",
                       "uk/plugins/manifest",
@@ -9342,6 +9493,7 @@
                       "uk/tools/gemini-search",
                       "uk/tools/grok-search",
                       "uk/tools/kimi-search",
+                      "uk/tools/minimax-search",
                       "uk/tools/ollama-search",
                       "uk/tools/perplexity-search",
                       "uk/tools/searxng-search",
@@ -9398,24 +9550,27 @@
                 "group": "Providers",
                 "pages": [
                   "uk/providers/alibaba",
-                  "uk/providers/anthropic",
-                  "uk/providers/arcee",
                   "uk/providers/bedrock",
                   "uk/providers/bedrock-mantle",
+                  "uk/providers/anthropic",
+                  "uk/providers/arcee",
                   "uk/providers/chutes",
-                  "uk/providers/comfy",
                   "uk/providers/claude-max-api-proxy",
                   "uk/providers/cloudflare-ai-gateway",
+                  "uk/providers/comfy",
                   "uk/providers/deepgram",
                   "uk/providers/deepseek",
                   "uk/providers/fal",
+                  "uk/providers/fireworks",
                   "uk/providers/github-copilot",
                   "uk/providers/glm",
                   "uk/providers/google",
                   "uk/providers/groq",
                   "uk/providers/huggingface",
+                  "uk/providers/inferrs",
                   "uk/providers/kilocode",
                   "uk/providers/litellm",
+                  "uk/providers/lmstudio",
                   "uk/providers/minimax",
                   "uk/providers/mistral",
                   "uk/providers/moonshot",
@@ -9435,9 +9590,9 @@
                   "uk/providers/together",
                   "uk/providers/venice",
                   "uk/providers/vercel-ai-gateway",
-                  "uk/providers/vydra",
                   "uk/providers/vllm",
                   "uk/providers/volcengine",
+                  "uk/providers/vydra",
                   "uk/providers/xai",
                   "uk/providers/xiaomi",
                   "uk/providers/zai"
@@ -9630,6 +9785,7 @@
                       "uk/cli/agent",
                       "uk/cli/agents",
                       "uk/cli/hooks",
+                      "uk/cli/infer",
                       "uk/cli/memory",
                       "uk/cli/message",
                       "uk/cli/models",
@@ -9690,7 +9846,8 @@
                       "uk/cli/completion",
                       "uk/cli/dns",
                       "uk/cli/docs",
-                      "uk/cli/mcp"
+                      "uk/cli/mcp",
+                      "uk/cli/wiki"
                     ]
                   }
                 ]
@@ -9727,6 +9884,7 @@
                   "uk/reference/api-usage-costs",
                   "uk/reference/transcript-hygiene",
                   "uk/reference/memory-config",
+                  "uk/reference/rich-output-protocol",
                   "uk/date-time"
                 ]
               },
@@ -9878,6 +10036,7 @@
                   "id/install/fly",
                   "id/install/gcp",
                   "id/install/hetzner",
+                  "id/install/hostinger",
                   "id/install/kubernetes",
                   "id/vps",
                   "id/install/macos-vm",
@@ -9965,7 +10124,8 @@
                   "id/concepts/agent-workspace",
                   "id/concepts/soul",
                   "id/concepts/oauth",
-                  "id/start/bootstrapping"
+                  "id/start/bootstrapping",
+                  "id/concepts/experimental-features"
                 ]
               },
               {
@@ -9982,6 +10142,7 @@
                       "id/concepts/memory-qmd",
                       "id/concepts/memory-honcho",
                       "id/concepts/memory-search",
+                      "id/concepts/active-memory",
                       "id/concepts/dreaming"
                     ]
                   },
@@ -10022,8 +10183,11 @@
                   "id/tools/plugin",
                   "id/plugins/community",
                   "id/plugins/bundles",
+                  "id/plugins/codex-harness",
                   "id/plugins/webhooks",
                   "id/plugins/voice-call",
+                  "id/plugins/memory-wiki",
+                  "id/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -10039,6 +10203,7 @@
                       "id/plugins/sdk-overview",
                       "id/plugins/sdk-entrypoints",
                       "id/plugins/sdk-runtime",
+                      "id/plugins/sdk-agent-harness",
                       "id/plugins/sdk-setup",
                       "id/plugins/sdk-testing",
                       "id/plugins/manifest",
@@ -10095,6 +10260,7 @@
                       "id/tools/gemini-search",
                       "id/tools/grok-search",
                       "id/tools/kimi-search",
+                      "id/tools/minimax-search",
                       "id/tools/ollama-search",
                       "id/tools/perplexity-search",
                       "id/tools/searxng-search",
@@ -10151,24 +10317,27 @@
                 "group": "Providers",
                 "pages": [
                   "id/providers/alibaba",
-                  "id/providers/anthropic",
-                  "id/providers/arcee",
                   "id/providers/bedrock",
                   "id/providers/bedrock-mantle",
+                  "id/providers/anthropic",
+                  "id/providers/arcee",
                   "id/providers/chutes",
-                  "id/providers/comfy",
                   "id/providers/claude-max-api-proxy",
                   "id/providers/cloudflare-ai-gateway",
+                  "id/providers/comfy",
                   "id/providers/deepgram",
                   "id/providers/deepseek",
                   "id/providers/fal",
+                  "id/providers/fireworks",
                   "id/providers/github-copilot",
                   "id/providers/glm",
                   "id/providers/google",
                   "id/providers/groq",
                   "id/providers/huggingface",
+                  "id/providers/inferrs",
                   "id/providers/kilocode",
                   "id/providers/litellm",
+                  "id/providers/lmstudio",
                   "id/providers/minimax",
                   "id/providers/mistral",
                   "id/providers/moonshot",
@@ -10188,9 +10357,9 @@
                   "id/providers/together",
                   "id/providers/venice",
                   "id/providers/vercel-ai-gateway",
-                  "id/providers/vydra",
                   "id/providers/vllm",
                   "id/providers/volcengine",
+                  "id/providers/vydra",
                   "id/providers/xai",
                   "id/providers/xiaomi",
                   "id/providers/zai"
@@ -10383,6 +10552,7 @@
                       "id/cli/agent",
                       "id/cli/agents",
                       "id/cli/hooks",
+                      "id/cli/infer",
                       "id/cli/memory",
                       "id/cli/message",
                       "id/cli/models",
@@ -10443,7 +10613,8 @@
                       "id/cli/completion",
                       "id/cli/dns",
                       "id/cli/docs",
-                      "id/cli/mcp"
+                      "id/cli/mcp",
+                      "id/cli/wiki"
                     ]
                   }
                 ]
@@ -10480,6 +10651,7 @@
                   "id/reference/api-usage-costs",
                   "id/reference/transcript-hygiene",
                   "id/reference/memory-config",
+                  "id/reference/rich-output-protocol",
                   "id/date-time"
                 ]
               },
@@ -10631,6 +10803,7 @@
                   "pl/install/fly",
                   "pl/install/gcp",
                   "pl/install/hetzner",
+                  "pl/install/hostinger",
                   "pl/install/kubernetes",
                   "pl/vps",
                   "pl/install/macos-vm",
@@ -10718,7 +10891,8 @@
                   "pl/concepts/agent-workspace",
                   "pl/concepts/soul",
                   "pl/concepts/oauth",
-                  "pl/start/bootstrapping"
+                  "pl/start/bootstrapping",
+                  "pl/concepts/experimental-features"
                 ]
               },
               {
@@ -10735,6 +10909,7 @@
                       "pl/concepts/memory-qmd",
                       "pl/concepts/memory-honcho",
                       "pl/concepts/memory-search",
+                      "pl/concepts/active-memory",
                       "pl/concepts/dreaming"
                     ]
                   },
@@ -10775,8 +10950,11 @@
                   "pl/tools/plugin",
                   "pl/plugins/community",
                   "pl/plugins/bundles",
+                  "pl/plugins/codex-harness",
                   "pl/plugins/webhooks",
                   "pl/plugins/voice-call",
+                  "pl/plugins/memory-wiki",
+                  "pl/plugins/zalouser",
                   {
                     "group": "Building Plugins",
                     "pages": [
@@ -10792,6 +10970,7 @@
                       "pl/plugins/sdk-overview",
                       "pl/plugins/sdk-entrypoints",
                       "pl/plugins/sdk-runtime",
+                      "pl/plugins/sdk-agent-harness",
                       "pl/plugins/sdk-setup",
                       "pl/plugins/sdk-testing",
                       "pl/plugins/manifest",
@@ -10848,6 +11027,7 @@
                       "pl/tools/gemini-search",
                       "pl/tools/grok-search",
                       "pl/tools/kimi-search",
+                      "pl/tools/minimax-search",
                       "pl/tools/ollama-search",
                       "pl/tools/perplexity-search",
                       "pl/tools/searxng-search",
@@ -10904,24 +11084,27 @@
                 "group": "Providers",
                 "pages": [
                   "pl/providers/alibaba",
-                  "pl/providers/anthropic",
-                  "pl/providers/arcee",
                   "pl/providers/bedrock",
                   "pl/providers/bedrock-mantle",
+                  "pl/providers/anthropic",
+                  "pl/providers/arcee",
                   "pl/providers/chutes",
-                  "pl/providers/comfy",
                   "pl/providers/claude-max-api-proxy",
                   "pl/providers/cloudflare-ai-gateway",
+                  "pl/providers/comfy",
                   "pl/providers/deepgram",
                   "pl/providers/deepseek",
                   "pl/providers/fal",
+                  "pl/providers/fireworks",
                   "pl/providers/github-copilot",
                   "pl/providers/glm",
                   "pl/providers/google",
                   "pl/providers/groq",
                   "pl/providers/huggingface",
+                  "pl/providers/inferrs",
                   "pl/providers/kilocode",
                   "pl/providers/litellm",
+                  "pl/providers/lmstudio",
                   "pl/providers/minimax",
                   "pl/providers/mistral",
                   "pl/providers/moonshot",
@@ -10941,9 +11124,9 @@
                   "pl/providers/together",
                   "pl/providers/venice",
                   "pl/providers/vercel-ai-gateway",
-                  "pl/providers/vydra",
                   "pl/providers/vllm",
                   "pl/providers/volcengine",
+                  "pl/providers/vydra",
                   "pl/providers/xai",
                   "pl/providers/xiaomi",
                   "pl/providers/zai"
@@ -11136,6 +11319,7 @@
                       "pl/cli/agent",
                       "pl/cli/agents",
                       "pl/cli/hooks",
+                      "pl/cli/infer",
                       "pl/cli/memory",
                       "pl/cli/message",
                       "pl/cli/models",
@@ -11196,7 +11380,8 @@
                       "pl/cli/completion",
                       "pl/cli/dns",
                       "pl/cli/docs",
-                      "pl/cli/mcp"
+                      "pl/cli/mcp",
+                      "pl/cli/wiki"
                     ]
                   }
                 ]
@@ -11233,6 +11418,7 @@
                   "pl/reference/api-usage-costs",
                   "pl/reference/transcript-hygiene",
                   "pl/reference/memory-config",
+                  "pl/reference/rich-output-protocol",
                   "pl/date-time"
                 ]
               },

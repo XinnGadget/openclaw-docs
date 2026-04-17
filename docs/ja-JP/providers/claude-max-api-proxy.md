@@ -1,153 +1,161 @@
 ---
 read_when:
-    - Claude Max subscriptionをOpenAI互換toolで使いたいとき
-    - Claude Code CLIをラップするローカルAPI serverが欲しいとき
-    - subscriptionベースとAPI keyベースのAnthropic accessを評価したいとき
-summary: Claude subscription認証情報をOpenAI互換endpointとして公開するcommunity proxy
-title: Claude Max API Proxy
+    - Claude Max サブスクリプションを OpenAI 互換ツールで使いたい場合
+    - Claude Code CLI をラップするローカル API サーバーが欲しい場合
+    - サブスクリプションベースの Anthropic アクセスと API キーベースのアクセスを比較検討したい場合
+summary: Claude サブスクリプション認証情報を OpenAI 互換エンドポイントとして公開するコミュニティプロキシ
+title: Claude Max API プロキシ
 x-i18n:
-    generated_at: "2026-04-05T12:53:33Z"
+    generated_at: "2026-04-12T23:30:35Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 2e125a6a46e48371544adf1331137a1db51e93e905b8c44da482cf2fba180a09
+    source_hash: 534bc3d189e68529fb090258eb0d6db6d367eb7e027ad04b1f0be55f6aa7d889
     source_path: providers/claude-max-api-proxy.md
     workflow: 15
 ---
 
-# Claude Max API Proxy
+# Claude Max API プロキシ
 
-**claude-max-api-proxy** は、Claude Max/Pro subscriptionをOpenAI互換API endpointとして公開するcommunity toolです。これにより、OpenAI API形式をサポートする任意のtoolでsubscriptionを使えるようになります。
+**claude-max-api-proxy** は、Claude Max/Pro サブスクリプションを OpenAI 互換 API エンドポイントとして公開するコミュニティツールです。これにより、OpenAI API 形式をサポートする任意のツールでサブスクリプションを使用できます。
 
 <Warning>
-この経路は技術的互換性のためだけのものです。Anthropicは過去に、Claude Code以外での
-一部のsubscription利用をブロックしたことがあります。これを使うかどうかは自分で判断し、
-依存する前にAnthropicの現行規約を確認する必要があります。
+この経路は技術的な互換性のためのものにすぎません。Anthropic は過去に Claude Code 以外での一部のサブスクリプション利用をブロックしたことがあります。これを使用するかどうかは自身で判断し、依存する前に Anthropic の最新の利用規約を確認してください。
 </Warning>
 
-## これを使う理由
+## なぜこれを使うのか
 
-| アプローチ              | コスト                                              | 最適な用途                                 |
+| アプローチ | コスト | 最適な用途 |
 | ----------------------- | --------------------------------------------------- | ------------------------------------------ |
-| Anthropic API           | トークン課金（Opusで入力約 $15/M、出力 $75/M）      | 本番アプリ、高ボリューム                   |
-| Claude Max subscription | 月額固定 $200                                       | 個人利用、開発、無制限利用                 |
+| Anthropic API | 従量課金（Opus では入力約 $15/M、出力約 $75/M） | 本番アプリ、高ボリューム |
+| Claude Max サブスクリプション | 月額定額 $200 | 個人利用、開発、無制限利用 |
 
-Claude Max subscriptionを持っていて、それをOpenAI互換toolで使いたい場合、このproxyは一部のworkflowでコストを下げられる可能性があります。本番利用では、API keysのほうがポリシー上より明確な経路のままです。
+Claude Max サブスクリプションを持っていて、それを OpenAI 互換ツールで使いたい場合、このプロキシは一部のワークフローでコストを下げられる可能性があります。本番利用では、API キーのほうがポリシー上より明確な経路です。
 
 ## 仕組み
 
 ```
 Your App → claude-max-api-proxy → Claude Code CLI → Anthropic (via subscription)
-     (OpenAI format)              (形式を変換)            (ログインを使用)
+     (OpenAI format)              (converts format)      (uses your login)
 ```
 
-このproxyは次を行います。
+このプロキシは以下を行います。
 
-1. `http://localhost:3456/v1/chat/completions` でOpenAI形式のリクエストを受け付ける
-2. それらをClaude Code CLIコマンドへ変換する
-3. OpenAI形式でレスポンスを返す（streaming対応）
+1. `http://localhost:3456/v1/chat/completions` で OpenAI 形式のリクエストを受け付けます
+2. それらを Claude Code CLI コマンドに変換します
+3. OpenAI 形式でレスポンスを返します（ストリーミング対応）
 
-## インストール
+## はじめに
 
-```bash
-# Node.js 20+ と Claude Code CLI が必要
-npm install -g claude-max-api-proxy
+<Steps>
+  <Step title="プロキシをインストールする">
+    Node.js 20+ と Claude Code CLI が必要です。
 
-# Claude CLI が認証済みであることを確認
-claude --version
-```
+    ```bash
+    npm install -g claude-max-api-proxy
 
-## 使い方
+    # Claude CLI が認証済みであることを確認
+    claude --version
+    ```
 
-### サーバーを起動する
+  </Step>
+  <Step title="サーバーを起動する">
+    ```bash
+    claude-max-api
+    # サーバーは http://localhost:3456 で実行されます
+    ```
+  </Step>
+  <Step title="プロキシをテストする">
+    ```bash
+    # ヘルスチェック
+    curl http://localhost:3456/health
 
-```bash
-claude-max-api
-# サーバーは http://localhost:3456 で動作
-```
+    # モデル一覧
+    curl http://localhost:3456/v1/models
 
-### テストする
+    # チャット補完
+    curl http://localhost:3456/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "claude-opus-4",
+        "messages": [{"role": "user", "content": "Hello!"}]
+      }'
+    ```
 
-```bash
-# ヘルスチェック
-curl http://localhost:3456/health
+  </Step>
+  <Step title="OpenClaw を設定する">
+    カスタムの OpenAI 互換エンドポイントとして、このプロキシを OpenClaw から参照するよう設定します。
 
-# モデル一覧
-curl http://localhost:3456/v1/models
+    ```json5
+    {
+      env: {
+        OPENAI_API_KEY: "not-needed",
+        OPENAI_BASE_URL: "http://localhost:3456/v1",
+      },
+      agents: {
+        defaults: {
+          model: { primary: "openai/claude-opus-4" },
+        },
+      },
+    }
+    ```
 
-# Chat completion
-curl http://localhost:3456/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "claude-opus-4",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
-```
-
-### OpenClawで使う
-
-このproxyをcustomなOpenAI互換endpointとしてOpenClawに向けられます。
-
-```json5
-{
-  env: {
-    OPENAI_API_KEY: "not-needed",
-    OPENAI_BASE_URL: "http://localhost:3456/v1",
-  },
-  agents: {
-    defaults: {
-      model: { primary: "openai/claude-opus-4" },
-    },
-  },
-}
-```
-
-この経路は、他のcustom
-`/v1` backendと同じproxyスタイルのOpenAI互換routeを使います。
-
-- OpenAIネイティブ専用のrequest shapingは適用されません
-- `service_tier`、Responses `store`、prompt-cache hint、OpenAI reasoning互換payload shapingはありません
-- 非表示のOpenClaw attribution header（`originator`, `version`, `User-Agent`）はproxy URLへ注入されません
+  </Step>
+</Steps>
 
 ## 利用可能なモデル
 
-| Model ID          | 対応先           |
-| ----------------- | ---------------- |
-| `claude-opus-4`   | Claude Opus 4    |
-| `claude-sonnet-4` | Claude Sonnet 4  |
-| `claude-haiku-4`  | Claude Haiku 4   |
+| モデル ID | 対応先 |
+| ----------------- | --------------- |
+| `claude-opus-4` | Claude Opus 4 |
+| `claude-sonnet-4` | Claude Sonnet 4 |
+| `claude-haiku-4` | Claude Haiku 4 |
 
-## macOSでの自動起動
+## 高度な内容
 
-proxyを自動的に実行するLaunchAgentを作成します。
+<AccordionGroup>
+  <Accordion title="プロキシ形式の OpenAI 互換に関する注意">
+    この経路は、他のカスタム `/v1` バックエンドと同じプロキシ形式の OpenAI 互換ルートを使用します。
 
-```bash
-cat > ~/Library/LaunchAgents/com.claude-max-api.plist << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>com.claude-max-api</string>
-  <key>RunAtLoad</key>
-  <true/>
-  <key>KeepAlive</key>
-  <true/>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/usr/local/bin/node</string>
-    <string>/usr/local/lib/node_modules/claude-max-api-proxy/dist/server/standalone.js</string>
-  </array>
-  <key>EnvironmentVariables</key>
-  <dict>
-    <key>PATH</key>
-    <string>/usr/local/bin:/opt/homebrew/bin:~/.local/bin:/usr/bin:/bin</string>
-  </dict>
-</dict>
-</plist>
-EOF
+    - ネイティブな OpenAI 専用リクエスト整形は適用されません
+    - `service_tier`、Responses の `store`、プロンプトキャッシュヒント、OpenAI 推論互換ペイロード整形はありません
+    - 非表示の OpenClaw attribution ヘッダー（`originator`、`version`、`User-Agent`）はプロキシ URL に注入されません
 
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.claude-max-api.plist
-```
+  </Accordion>
+
+  <Accordion title="LaunchAgent で macOS 上で自動起動する">
+    プロキシを自動実行する LaunchAgent を作成します。
+
+    ```bash
+    cat > ~/Library/LaunchAgents/com.claude-max-api.plist << 'EOF'
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+      <key>Label</key>
+      <string>com.claude-max-api</string>
+      <key>RunAtLoad</key>
+      <true/>
+      <key>KeepAlive</key>
+      <true/>
+      <key>ProgramArguments</key>
+      <array>
+        <string>/usr/local/bin/node</string>
+        <string>/usr/local/lib/node_modules/claude-max-api-proxy/dist/server/standalone.js</string>
+      </array>
+      <key>EnvironmentVariables</key>
+      <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/opt/homebrew/bin:~/.local/bin:/usr/bin:/bin</string>
+      </dict>
+    </dict>
+    </plist>
+    EOF
+
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.claude-max-api.plist
+    ```
+
+  </Accordion>
+</AccordionGroup>
 
 ## リンク
 
@@ -155,14 +163,30 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.claude-max-api.plist
 - **GitHub:** [https://github.com/atalovesyou/claude-max-api-proxy](https://github.com/atalovesyou/claude-max-api-proxy)
 - **Issues:** [https://github.com/atalovesyou/claude-max-api-proxy/issues](https://github.com/atalovesyou/claude-max-api-proxy/issues)
 
-## 注
+## 注意
 
-- これは **community tool** であり、AnthropicやOpenClawに公式サポートされていません
-- 認証済みのClaude Code CLIを伴う、有効なClaude Max/Pro subscriptionが必要です
-- proxyはローカルで動作し、サードパーティserverへデータを送信しません
-- Streaming responseは完全にサポートされています
+- これは **コミュニティツール** であり、Anthropic または OpenClaw が公式にサポートするものではありません
+- Claude Code CLI で認証済みの、有効な Claude Max/Pro サブスクリプションが必要です
+- このプロキシはローカルで実行され、データをサードパーティのサーバーには送信しません
+- ストリーミングレスポンスは完全にサポートされています
 
-## 関連項目
+<Note>
+Claude CLI または API キーを使うネイティブな Anthropic 統合については、[Anthropic provider](/ja-JP/providers/anthropic) を参照してください。OpenAI/Codex サブスクリプションについては、[OpenAI provider](/ja-JP/providers/openai) を参照してください。
+</Note>
 
-- [Anthropic provider](/providers/anthropic) - Claude CLIまたはAPI keysを使うOpenClawネイティブ統合
-- [OpenAI provider](/providers/openai) - OpenAI/Codex subscription向け
+## 関連
+
+<CardGroup cols={2}>
+  <Card title="Anthropic provider" href="/ja-JP/providers/anthropic" icon="bolt">
+    Claude CLI または API キーを使うネイティブな OpenClaw 統合。
+  </Card>
+  <Card title="OpenAI provider" href="/ja-JP/providers/openai" icon="robot">
+    OpenAI/Codex サブスクリプション向け。
+  </Card>
+  <Card title="Model providers" href="/ja-JP/concepts/model-providers" icon="layers">
+    すべての provider、モデル参照、フェイルオーバー動作の概要。
+  </Card>
+  <Card title="Configuration" href="/ja-JP/gateway/configuration" icon="gear">
+    完全な設定リファレンス。
+  </Card>
+</CardGroup>

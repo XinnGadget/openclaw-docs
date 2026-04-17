@@ -2,89 +2,107 @@
 read_when:
     - تريد استخدام Chutes مع OpenClaw
     - تحتاج إلى مسار إعداد OAuth أو مفتاح API
-    - تريد معرفة النموذج الافتراضي، أو الأسماء المستعارة، أو سلوك الاكتشاف
-summary: إعداد Chutes ‏(OAuth أو مفتاح API، واكتشاف النماذج، والأسماء المستعارة)
+    - تريد النموذج الافتراضي أو الأسماء المستعارة أو سلوك الاكتشاف
+summary: إعداد Chutes (OAuth أو مفتاح API، واكتشاف النماذج، والأسماء المستعارة)
 title: Chutes
 x-i18n:
-    generated_at: "2026-04-05T12:52:41Z"
+    generated_at: "2026-04-12T23:29:39Z"
     model: gpt-5.4
     provider: openai
-    source_hash: e275f32e7a19fa5b4c64ffabfb4bf116dd5c9ab95bfa25bd3b1a15d15e237674
+    source_hash: 07c52b1d1d2792412e6daabc92df5310434b3520116d9e0fd2ad26bfa5297e1c
     source_path: providers/chutes.md
     workflow: 15
 ---
 
 # Chutes
 
-توفّر [Chutes](https://chutes.ai) فهارس النماذج مفتوحة المصدر عبر
-واجهة API متوافقة مع OpenAI. ويدعم OpenClaw كلاً من OAuth عبر المتصفح
-ومصادقة مفتاح API المباشرة للموفّر المدمج `chutes`.
+توفّر [Chutes](https://chutes.ai) كتالوجات نماذج مفتوحة المصدر عبر
+OpenAI-compatible API. يدعم OpenClaw كلًا من OAuth عبر المتصفح ومصادقة
+مفتاح API المباشرة للمزوّد المضمّن `chutes`.
 
-- الموفّر: `chutes`
-- API: متوافقة مع OpenAI
-- Base URL: ‏`https://llm.chutes.ai/v1`
-- المصادقة:
-  - OAuth عبر `openclaw onboard --auth-choice chutes`
-  - مفتاح API عبر `openclaw onboard --auth-choice chutes-api-key`
-  - متغيرات env وقت التشغيل: `CHUTES_API_KEY`، `CHUTES_OAUTH_TOKEN`
+| الخاصية | القيمة                        |
+| -------- | ---------------------------- |
+| المزوّد | `chutes`                     |
+| API      | متوافق مع OpenAI            |
+| عنوان URL الأساسي | `https://llm.chutes.ai/v1`   |
+| المصادقة     | OAuth أو مفتاح API (انظر أدناه) |
 
-## بدء سريع
+## البدء
 
-### OAuth
+<Tabs>
+  <Tab title="OAuth">
+    <Steps>
+      <Step title="شغّل تدفق إعداد OAuth">
+        ```bash
+        openclaw onboard --auth-choice chutes
+        ```
+        يطلق OpenClaw تدفق المتصفح محليًا، أو يعرض تدفق عنوان URL + لصق إعادة التوجيه
+        على المضيفات البعيدة أو عديمة الواجهة. يتم تحديث رموز OAuth تلقائيًا عبر ملفات
+        المصادقة الشخصية في OpenClaw.
+      </Step>
+      <Step title="تحقق من النموذج الافتراضي">
+        بعد الإعداد، يتم تعيين النموذج الافتراضي إلى
+        `chutes/zai-org/GLM-4.7-TEE` ويتم تسجيل كتالوج Chutes
+        المضمّن.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="مفتاح API">
+    <Steps>
+      <Step title="احصل على مفتاح API">
+        أنشئ مفتاحًا في
+        [chutes.ai/settings/api-keys](https://chutes.ai/settings/api-keys).
+      </Step>
+      <Step title="شغّل تدفق إعداد مفتاح API">
+        ```bash
+        openclaw onboard --auth-choice chutes-api-key
+        ```
+      </Step>
+      <Step title="تحقق من النموذج الافتراضي">
+        بعد الإعداد، يتم تعيين النموذج الافتراضي إلى
+        `chutes/zai-org/GLM-4.7-TEE` ويتم تسجيل كتالوج Chutes
+        المضمّن.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
-```bash
-openclaw onboard --auth-choice chutes
-```
-
-يشغّل OpenClaw تدفق المتصفح محليًا، أو يعرض عنوان URL + تدفق
-لصق إعادة التوجيه على المضيفين البعيدين/من دون واجهة. ويتم تحديث رموز OAuth تلقائيًا
-عبر ملفات تعريف المصادقة في OpenClaw.
-
-تجاوزات OAuth الاختيارية:
-
-- `CHUTES_CLIENT_ID`
-- `CHUTES_CLIENT_SECRET`
-- `CHUTES_OAUTH_REDIRECT_URI`
-- `CHUTES_OAUTH_SCOPES`
-
-### مفتاح API
-
-```bash
-openclaw onboard --auth-choice chutes-api-key
-```
-
-احصل على مفتاحك من
-[chutes.ai/settings/api-keys](https://chutes.ai/settings/api-keys).
-
-يسجل كلا مساري المصادقة فهرس Chutes المدمج ويضبطان النموذج الافتراضي
-على `chutes/zai-org/GLM-4.7-TEE`.
+<Note>
+يسجّل كلا مساري المصادقة كتالوج Chutes المضمّن ويضبطان النموذج الافتراضي على
+`chutes/zai-org/GLM-4.7-TEE`. متغيرات البيئة في وقت التشغيل: `CHUTES_API_KEY`،
+`CHUTES_OAUTH_TOKEN`.
+</Note>
 
 ## سلوك الاكتشاف
 
-عندما تكون مصادقة Chutes متاحة، يستعلم OpenClaw فهرس Chutes باستخدام
+عندما تتوفر مصادقة Chutes، يستعلم OpenClaw عن كتالوج Chutes باستخدام
 بيانات الاعتماد تلك ويستخدم النماذج المكتشفة. وإذا فشل الاكتشاف، يعود OpenClaw
-إلى فهرس ثابت مدمج حتى تستمر onboarding وبدء التشغيل في العمل.
+إلى كتالوج ثابت مضمّن حتى يظل الإعداد والتشغيل عند البدء يعملان.
 
 ## الأسماء المستعارة الافتراضية
 
-يسجل OpenClaw أيضًا ثلاثة أسماء مستعارة مريحة لفهرس Chutes المدمج:
+يسجّل OpenClaw ثلاثة أسماء مستعارة مريحة لكتالوج Chutes المضمّن:
 
-- `chutes-fast` ← `chutes/zai-org/GLM-4.7-FP8`
-- `chutes-pro` ← `chutes/deepseek-ai/DeepSeek-V3.2-TEE`
-- `chutes-vision` ← `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506`
+| الاسم المستعار | النموذج الهدف                                          |
+| --------------- | ----------------------------------------------------- |
+| `chutes-fast`   | `chutes/zai-org/GLM-4.7-FP8`                          |
+| `chutes-pro`    | `chutes/deepseek-ai/DeepSeek-V3.2-TEE`                |
+| `chutes-vision` | `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506` |
 
-## فهرس البدء المدمج
+## كتالوج البداية المضمّن
 
-يتضمن فهرس التراجع الاحتياطي المدمج مراجع Chutes الحالية مثل:
+يتضمن كتالوج الرجوع الاحتياطي المضمّن مراجع Chutes الحالية:
 
-- `chutes/zai-org/GLM-4.7-TEE`
-- `chutes/zai-org/GLM-5-TEE`
-- `chutes/deepseek-ai/DeepSeek-V3.2-TEE`
-- `chutes/deepseek-ai/DeepSeek-R1-0528-TEE`
-- `chutes/moonshotai/Kimi-K2.5-TEE`
-- `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506`
-- `chutes/Qwen/Qwen3-Coder-Next-TEE`
-- `chutes/openai/gpt-oss-120b-TEE`
+| مرجع النموذج                                             |
+| ----------------------------------------------------- |
+| `chutes/zai-org/GLM-4.7-TEE`                          |
+| `chutes/zai-org/GLM-5-TEE`                            |
+| `chutes/deepseek-ai/DeepSeek-V3.2-TEE`                |
+| `chutes/deepseek-ai/DeepSeek-R1-0528-TEE`             |
+| `chutes/moonshotai/Kimi-K2.5-TEE`                     |
+| `chutes/chutesai/Mistral-Small-3.2-24B-Instruct-2506` |
+| `chutes/Qwen/Qwen3-Coder-Next-TEE`                    |
+| `chutes/openai/gpt-oss-120b-TEE`                      |
 
 ## مثال على الإعداد
 
@@ -102,8 +120,42 @@ openclaw onboard --auth-choice chutes-api-key
 }
 ```
 
-## ملاحظات
+<AccordionGroup>
+  <Accordion title="تجاوزات OAuth">
+    يمكنك تخصيص تدفق OAuth باستخدام متغيرات بيئة اختيارية:
 
-- مساعدة OAuth ومتطلبات تطبيق إعادة التوجيه: [وثائق Chutes OAuth](https://chutes.ai/docs/sign-in-with-chutes/overview)
-- يستخدم اكتشاف مفتاح API وOAuth كليهما معرّف الموفّر نفسه `chutes`.
-- تُسجل نماذج Chutes بالشكل `chutes/<model-id>`.
+    | المتغير | الغرض |
+    | -------- | ------- |
+    | `CHUTES_CLIENT_ID` | معرّف عميل OAuth مخصص |
+    | `CHUTES_CLIENT_SECRET` | سر عميل OAuth مخصص |
+    | `CHUTES_OAUTH_REDIRECT_URI` | URI مخصص لإعادة التوجيه |
+    | `CHUTES_OAUTH_SCOPES` | نطاقات OAuth مخصصة |
+
+    راجع [مستندات Chutes OAuth](https://chutes.ai/docs/sign-in-with-chutes/overview)
+    لمعرفة متطلبات تطبيق إعادة التوجيه والمساعدة.
+
+  </Accordion>
+
+  <Accordion title="ملاحظات">
+    - يستخدم كل من اكتشاف مفتاح API وOAuth معرّف المزوّد نفسه `chutes`.
+    - يتم تسجيل نماذج Chutes بصيغة `chutes/<model-id>`.
+    - إذا فشل الاكتشاف عند بدء التشغيل، يتم استخدام الكتالوج الثابت المضمّن تلقائيًا.
+  </Accordion>
+</AccordionGroup>
+
+## ذو صلة
+
+<CardGroup cols={2}>
+  <Card title="مزوّدو النماذج" href="/ar/concepts/model-providers" icon="layers">
+    قواعد المزوّدين ومراجع النماذج وسلوك التبديل الاحتياطي.
+  </Card>
+  <Card title="مرجع الإعدادات" href="/ar/gateway/configuration-reference" icon="gear">
+    مخطط الإعداد الكامل بما في ذلك إعدادات المزوّد.
+  </Card>
+  <Card title="Chutes" href="https://chutes.ai" icon="arrow-up-right-from-square">
+    لوحة معلومات Chutes ووثائق API.
+  </Card>
+  <Card title="مفاتيح API لـ Chutes" href="https://chutes.ai/settings/api-keys" icon="key">
+    أنشئ مفاتيح API لـ Chutes وأدرها.
+  </Card>
+</CardGroup>

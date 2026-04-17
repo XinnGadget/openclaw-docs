@@ -1,24 +1,23 @@
 ---
 read_when:
     - Vous voulez choisir un fournisseur de modèles
-    - Vous avez besoin d'un aperçu rapide des backends LLM pris en charge
+    - Vous avez besoin d’un aperçu rapide des backends LLM pris en charge
 summary: Fournisseurs de modèles (LLM) pris en charge par OpenClaw
 title: Répertoire des fournisseurs
 x-i18n:
-    generated_at: "2026-04-08T02:17:30Z"
+    generated_at: "2026-04-13T08:50:39Z"
     model: gpt-5.4
     provider: openai
-    source_hash: e7bee5528b7fc9a982b3d0eaa4930cb77f7bded19a47aec00572b6fcbd823a70
+    source_hash: 3bc682d008119719826f71f74959ab32bedf14214459f5e6ac9cb70371d3c540
     source_path: providers/index.md
     workflow: 15
 ---
 
 # Fournisseurs de modèles
 
-OpenClaw peut utiliser de nombreux fournisseurs de LLM. Choisissez un fournisseur, authentifiez-vous, puis définissez le
-modèle par défaut sous la forme `provider/model`.
+OpenClaw peut utiliser de nombreux fournisseurs de LLM. Choisissez un fournisseur, authentifiez-vous, puis définissez le modèle par défaut sous la forme `provider/model`.
 
-Vous cherchez la documentation des canaux de discussion (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/etc.) ? Consultez [Channels](/fr/channels).
+Vous cherchez la documentation des canaux de chat (WhatsApp/Telegram/Discord/Slack/Mattermost (Plugin)/etc.) ? Consultez [Channels](/fr/channels).
 
 ## Démarrage rapide
 
@@ -45,13 +44,14 @@ Vous cherchez la documentation des canaux de discussion (WhatsApp/Telegram/Disco
 - [fal](/fr/providers/fal)
 - [Fireworks](/fr/providers/fireworks)
 - [GitHub Copilot](/fr/providers/github-copilot)
-- [Modèles GLM](/fr/providers/glm)
+- [modèles GLM](/fr/providers/glm)
 - [Google (Gemini)](/fr/providers/google)
 - [Groq (inférence LPU)](/fr/providers/groq)
-- [Hugging Face (inférence)](/fr/providers/huggingface)
+- [Hugging Face (Inference)](/fr/providers/huggingface)
 - [inferrs (modèles locaux)](/fr/providers/inferrs)
 - [Kilocode](/fr/providers/kilocode)
-- [LiteLLM (passerelle unifiée)](/fr/providers/litellm)
+- [LiteLLM (Gateway unifié)](/fr/providers/litellm)
+- [LM Studio (modèles locaux)](/fr/providers/lmstudio)
 - [MiniMax](/fr/providers/minimax)
 - [Mistral](/fr/providers/mistral)
 - [Moonshot AI (Kimi + Kimi Coding)](/fr/providers/moonshot)
@@ -78,12 +78,12 @@ Vous cherchez la documentation des canaux de discussion (WhatsApp/Telegram/Disco
 - [Xiaomi](/fr/providers/xiaomi)
 - [Z.AI](/fr/providers/zai)
 
-## Pages d'ensemble partagées
+## Pages d’ensemble partagées
 
-- [Variantes intégrées supplémentaires](/fr/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy et Gemini CLI OAuth
-- [Génération d'images](/fr/tools/image-generation) - outil partagé `image_generate`, sélection du fournisseur et basculement
-- [Génération musicale](/fr/tools/music-generation) - outil partagé `music_generate`, sélection du fournisseur et basculement
-- [Génération vidéo](/fr/tools/video-generation) - outil partagé `video_generate`, sélection du fournisseur et basculement
+- [Variantes groupées supplémentaires](/fr/providers/models#additional-bundled-provider-variants) - Anthropic Vertex, Copilot Proxy et Gemini CLI OAuth
+- [Génération d’images](/fr/tools/image-generation) - Outil `image_generate` partagé, sélection du fournisseur et basculement
+- [Génération de musique](/fr/tools/music-generation) - Outil `music_generate` partagé, sélection du fournisseur et basculement
+- [Génération de vidéo](/fr/tools/video-generation) - Outil `video_generate` partagé, sélection du fournisseur et basculement
 
 ## Fournisseurs de transcription
 
@@ -91,7 +91,7 @@ Vous cherchez la documentation des canaux de discussion (WhatsApp/Telegram/Disco
 
 ## Outils communautaires
 
-- [Claude Max API Proxy](/fr/providers/claude-max-api-proxy) - Proxy communautaire pour les identifiants d'abonnement Claude (vérifiez la politique/les conditions d'Anthropic avant utilisation)
+- [Claude Max API Proxy](/fr/providers/claude-max-api-proxy) - Proxy communautaire pour les identifiants d’abonnement Claude (vérifiez la politique/les conditions d’Anthropic avant utilisation)
 
 Pour le catalogue complet des fournisseurs (xAI, Groq, Mistral, etc.) et la configuration avancée,
 consultez [Fournisseurs de modèles](/fr/concepts/model-providers).

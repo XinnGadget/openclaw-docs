@@ -1,129 +1,254 @@
 ---
 read_when:
     - تريد استخدام نماذج Grok في OpenClaw
-    - أنت تهيئ مصادقة xAI أو معرّفات النماذج
-summary: استخدام نماذج xAI Grok في OpenClaw
+    - أنت تقوم بإعداد مصادقة xAI أو معرّفات النماذج
+summary: استخدم نماذج xAI Grok في OpenClaw
 title: xAI
 x-i18n:
-    generated_at: "2026-04-06T03:12:10Z"
+    generated_at: "2026-04-12T23:33:22Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 64bc899655427cc10bdc759171c7d1ec25ad9f1e4f9d803f1553d3d586c6d71d
+    source_hash: 820fef290c67d9815e41a96909d567216f67ca0f01df1d325008fd04666ad255
     source_path: providers/xai.md
     workflow: 15
 ---
 
 # xAI
 
-يشحن OpenClaw plugin موفّر `xai` مضمّنًا لنماذج Grok.
+يشحن OpenClaw Plugin مزوّد `xai` مضمّنًا لنماذج Grok.
 
-## الإعداد
+## البدء
 
-1. أنشئ مفتاح API في وحدة تحكم xAI.
-2. عيّن `XAI_API_KEY`، أو شغّل:
+<Steps>
+  <Step title="أنشئ مفتاح API">
+    أنشئ مفتاح API في [وحدة تحكم xAI](https://console.x.ai/).
+  </Step>
+  <Step title="اضبط مفتاح API الخاص بك">
+    اضبط `XAI_API_KEY`، أو شغّل:
 
-```bash
-openclaw onboard --auth-choice xai-api-key
-```
+    ```bash
+    openclaw onboard --auth-choice xai-api-key
+    ```
 
-3. اختر نموذجًا مثل:
+  </Step>
+  <Step title="اختر نموذجًا">
+    ```json5
+    {
+      agents: { defaults: { model: { primary: "xai/grok-4" } } },
+    }
+    ```
+  </Step>
+</Steps>
 
-```json5
-{
-  agents: { defaults: { model: { primary: "xai/grok-4" } } },
-}
-```
+<Note>
+يستخدم OpenClaw واجهة xAI Responses API كوسيلة النقل المضمّنة لـ xAI. ويمكن أن
+يُستخدم `XAI_API_KEY` نفسه أيضًا لتشغيل `web_search` المعتمد على Grok، و`x_search`
+من الدرجة الأولى، و`code_execution` البعيد.
+إذا خزّنت مفتاح xAI ضمن `plugins.entries.xai.config.webSearch.apiKey`،
+فإن مزوّد نماذج xAI المضمّن يعيد استخدام ذلك المفتاح كخيار احتياطي أيضًا.
+وتوجد إعدادات ضبط `code_execution` تحت `plugins.entries.xai.config.codeExecution`.
+</Note>
 
-يستخدم OpenClaw الآن xAI Responses API كناقل xAI المضمّن. ويمكن للمفتاح نفسه
-`XAI_API_KEY` أيضًا تشغيل `web_search` المدعوم بـ Grok، و`x_search` الأصلي،
-و`code_execution` البعيد.
-إذا خزّنت مفتاح xAI تحت `plugins.entries.xai.config.webSearch.apiKey`،
-فإن موفّر نموذج xAI المضمّن يعيد استخدام ذلك المفتاح الآن كبديل احتياطي أيضًا.
-توجد إعدادات ضبط `code_execution` تحت `plugins.entries.xai.config.codeExecution`.
+## فهرس النماذج المضمّن
 
-## فهرس النماذج المضمن الحالي
+يتضمن OpenClaw عائلات نماذج xAI التالية بشكل افتراضي:
 
-يتضمن OpenClaw الآن عائلات نماذج xAI التالية بشكل مضمّن:
+| العائلة        | معرّفات النماذج                                                           |
+| -------------- | ------------------------------------------------------------------------- |
+| Grok 3         | `grok-3`, `grok-3-fast`, `grok-3-mini`, `grok-3-mini-fast`               |
+| Grok 4         | `grok-4`, `grok-4-0709`                                                   |
+| Grok 4 Fast    | `grok-4-fast`, `grok-4-fast-non-reasoning`                                |
+| Grok 4.1 Fast  | `grok-4-1-fast`, `grok-4-1-fast-non-reasoning`                            |
+| Grok 4.20 Beta | `grok-4.20-beta-latest-reasoning`, `grok-4.20-beta-latest-non-reasoning` |
+| Grok Code      | `grok-code-fast-1`                                                        |
 
-- `grok-3`, `grok-3-fast`, `grok-3-mini`, `grok-3-mini-fast`
-- `grok-4`, `grok-4-0709`
-- `grok-4-fast`, `grok-4-fast-non-reasoning`
-- `grok-4-1-fast`, `grok-4-1-fast-non-reasoning`
-- `grok-4.20-beta-latest-reasoning`, `grok-4.20-beta-latest-non-reasoning`
-- `grok-code-fast-1`
-
-كما يحل plugin استباقيًا أيضًا معرّفات `grok-4*` و`grok-code-fast*` الأحدث عندما
+ويقوم Plugin أيضًا بحلّ معرّفات `grok-4*` و`grok-code-fast*` الأحدث بشكل تمريري عندما
 تتبع شكل API نفسه.
 
-ملاحظات النماذج السريعة:
+<Tip>
+تُعد `grok-4-fast` و`grok-4-1-fast` ومتغيرات `grok-4.20-beta-*`
+مراجع Grok الحالية القادرة على معالجة الصور في الفهرس المضمّن.
+</Tip>
 
-- تمثل `grok-4-fast` و`grok-4-1-fast` ومتغيرات `grok-4.20-beta-*`
-  مراجع Grok الحالية القادرة على الصور في الفهرس المضمّن.
-- يعيد `/fast on` أو `agents.defaults.models["xai/<model>"].params.fastMode: true`
-  كتابة طلبات xAI الأصلية على النحو التالي:
-  - `grok-3` -> `grok-3-fast`
-  - `grok-3-mini` -> `grok-3-mini-fast`
-  - `grok-4` -> `grok-4-fast`
-  - `grok-4-0709` -> `grok-4-fast`
+### تعيينات الوضع السريع
 
-لا تزال الأسماء المستعارة القديمة للتوافق تُطبّع إلى المعرّفات المضمنة القياسية. على
-سبيل المثال:
+يعيد `/fast on` أو `agents.defaults.models["xai/<model>"].params.fastMode: true`
+كتابة طلبات xAI الأصلية كما يلي:
 
-- `grok-4-fast-reasoning` -> `grok-4-fast`
-- `grok-4-1-fast-reasoning` -> `grok-4-1-fast`
-- `grok-4.20-reasoning` -> `grok-4.20-beta-latest-reasoning`
-- `grok-4.20-non-reasoning` -> `grok-4.20-beta-latest-non-reasoning`
+| النموذج المصدر | هدف الوضع السريع   |
+| ------------- | ------------------ |
+| `grok-3`      | `grok-3-fast`      |
+| `grok-3-mini` | `grok-3-mini-fast` |
+| `grok-4`      | `grok-4-fast`      |
+| `grok-4-0709` | `grok-4-fast`      |
 
-## البحث على الويب
+### الأسماء المستعارة القديمة للتوافق
 
-يستخدم موفّر البحث على الويب `grok` المضمّن أيضًا `XAI_API_KEY`:
+لا تزال الأسماء المستعارة القديمة تُطبّع إلى المعرّفات القياسية المضمّنة:
 
-```bash
-openclaw config set tools.web.search.provider grok
-```
+| الاسم المستعار القديم      | المعرّف القياسي                        |
+| ------------------------- | ------------------------------------- |
+| `grok-4-fast-reasoning`   | `grok-4-fast`                         |
+| `grok-4-1-fast-reasoning` | `grok-4-1-fast`                       |
+| `grok-4.20-reasoning`     | `grok-4.20-beta-latest-reasoning`     |
+| `grok-4.20-non-reasoning` | `grok-4.20-beta-latest-non-reasoning` |
 
-## إنشاء الفيديو
+## الميزات
 
-يسجل plugin المضمن `xai` أيضًا إنشاء الفيديو عبر الأداة المشتركة
-`video_generate`.
+<AccordionGroup>
+  <Accordion title="البحث على الويب">
+    يستخدم مزوّد البحث على الويب المضمّن `grok` أيضًا المفتاح `XAI_API_KEY`:
 
-- نموذج الفيديو الافتراضي: `xai/grok-imagine-video`
-- الأوضاع: نص إلى فيديو، وصورة إلى فيديو، وتدفقات تحرير/تمديد الفيديو البعيدة
-- يدعم `aspectRatio` و`resolution`
-- القيد الحالي: لا تُقبل مخازن الفيديو المحلية؛ استخدم عناوين URL بعيدة من نوع `http(s)`
-  لمدخلات مرجع/تحرير الفيديو
+    ```bash
+    openclaw config set tools.web.search.provider grok
+    ```
 
-لاستخدام xAI بوصفه موفّر الفيديو الافتراضي:
+  </Accordion>
 
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "xai/grok-imagine-video",
+  <Accordion title="إنشاء الفيديو">
+    يسجّل Plugin `xai` المضمّن إنشاء الفيديو عبر
+    الأداة المشتركة `video_generate`.
+
+    - نموذج الفيديو الافتراضي: `xai/grok-imagine-video`
+    - الأوضاع: تحويل النص إلى فيديو، وتحويل الصورة إلى فيديو، وتدفقات تعديل/تمديد الفيديو البعيدة
+    - يدعم `aspectRatio` و`resolution`
+
+    <Warning>
+    لا تُقبل الذاكرات المؤقتة المحلية للفيديو. استخدم عناوين URL بعيدة من نوع `http(s)` لمدخلات
+    مرجع الفيديو والتعديل.
+    </Warning>
+
+    لاستخدام xAI كمزوّد الفيديو الافتراضي:
+
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "xai/grok-imagine-video",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
 
-راجع [إنشاء الفيديو](/tools/video-generation) للاطلاع على معلمات
-الأداة المشتركة، واختيار الموفّر، وسلوك التحويل الاحتياطي.
+    <Note>
+    راجع [إنشاء الفيديو](/ar/tools/video-generation) للاطلاع على معلمات الأداة المشتركة،
+    واختيار المزوّد، وسلوك التبديل الاحتياطي.
+    </Note>
 
-## القيود المعروفة
+  </Accordion>
 
-- المصادقة بمفتاح API فقط حاليًا. لا يوجد حتى الآن تدفق xAI OAuth/device-code في OpenClaw.
-- لا يتم دعم `grok-4.20-multi-agent-experimental-beta-0304` على مسار موفّر xAI العادي لأنه يتطلب سطح API مختلفًا في upstream عن ناقل OpenClaw xAI القياسي.
+  <Accordion title="إعداد x_search">
+    يعرّض Plugin xAI المضمّن `x_search` كأداة OpenClaw للبحث في
+    محتوى X (المعروف سابقًا باسم Twitter) عبر Grok.
 
-## ملاحظات
+    مسار الإعداد: `plugins.entries.xai.config.xSearch`
 
-- يطبق OpenClaw تلقائيًا إصلاحات توافق خاصة بـ xAI لمخطط الأدوات واستدعاء الأدوات على مسار المشغّل المشترك.
-- تُفعَّل طلبات xAI الأصلية افتراضيًا مع `tool_stream: true`. عيّن
-  `agents.defaults.models["xai/<model>"].params.tool_stream` إلى `false` من أجل
-  تعطيله.
-- يزيل الغلاف المضمن لـ xAI علامات strict tool-schema غير المدعومة ومفاتيح
-  حمولة reasoning قبل إرسال طلبات xAI الأصلية.
-- تُعرض `web_search` و`x_search` و`code_execution` كأدوات OpenClaw. ويمكّن OpenClaw المكوّن الأصلي المحدد في xAI الذي يحتاجه داخل كل طلب أداة بدلًا من إرفاق جميع الأدوات الأصلية بكل دور دردشة.
-- `x_search` و`code_execution` مملوكان للـ plugin المضمن xAI بدلًا من ترميزهما بشكل ثابت داخل runtime النماذج الأساسي.
-- `code_execution` هو تنفيذ صندوق حماية xAI بعيد، وليس [`exec`](/ar/tools/exec) محليًا.
-- للحصول على نظرة عامة أشمل على الموفّرين، راجع [موفرو النماذج](/ar/providers/index).
+    | المفتاح            | النوع   | الافتراضي         | الوصف                             |
+    | ------------------ | ------- | ----------------- | --------------------------------- |
+    | `enabled`          | boolean | —                 | تفعيل أو تعطيل x_search           |
+    | `model`            | string  | `grok-4-1-fast`   | النموذج المستخدم لطلبات x_search  |
+    | `inlineCitations`  | boolean | —                 | تضمين استشهادات مضمنة في النتائج  |
+    | `maxTurns`         | number  | —                 | الحد الأقصى لأدوار المحادثة       |
+    | `timeoutSeconds`   | number  | —                 | مهلة الطلب بالثواني               |
+    | `cacheTtlMinutes`  | number  | —                 | مدة صلاحية التخزين المؤقت بالدقائق |
+
+    ```json5
+    {
+      plugins: {
+        entries: {
+          xai: {
+            config: {
+              xSearch: {
+                enabled: true,
+                model: "grok-4-1-fast",
+                inlineCitations: true,
+              },
+            },
+          },
+        },
+      },
+    }
+    ```
+
+  </Accordion>
+
+  <Accordion title="إعداد code_execution">
+    يعرّض Plugin xAI المضمّن `code_execution` كأداة OpenClaw من أجل
+    تنفيذ التعليمات البرمجية عن بُعد في بيئة sandbox الخاصة بـ xAI.
+
+    مسار الإعداد: `plugins.entries.xai.config.codeExecution`
+
+    | المفتاح           | النوع   | الافتراضي                 | الوصف                                  |
+    | ----------------- | ------- | ------------------------- | -------------------------------------- |
+    | `enabled`         | boolean | `true` (إذا كان المفتاح متاحًا) | تفعيل أو تعطيل تنفيذ التعليمات البرمجية |
+    | `model`           | string  | `grok-4-1-fast`           | النموذج المستخدم لطلبات تنفيذ التعليمات البرمجية |
+    | `maxTurns`        | number  | —                         | الحد الأقصى لأدوار المحادثة            |
+    | `timeoutSeconds`  | number  | —                         | مهلة الطلب بالثواني                    |
+
+    <Note>
+    هذا تنفيذ بعيد داخل sandbox الخاص بـ xAI، وليس [`exec`](/ar/tools/exec) محليًا.
+    </Note>
+
+    ```json5
+    {
+      plugins: {
+        entries: {
+          xai: {
+            config: {
+              codeExecution: {
+                enabled: true,
+                model: "grok-4-1-fast",
+              },
+            },
+          },
+        },
+      },
+    }
+    ```
+
+  </Accordion>
+
+  <Accordion title="القيود المعروفة">
+    - المصادقة اليوم تعتمد فقط على مفتاح API. ولا يوجد حتى الآن تدفق xAI OAuth أو device-code في
+      OpenClaw.
+    - لا يتم دعم `grok-4.20-multi-agent-experimental-beta-0304` على
+      المسار العادي لمزوّد xAI لأنه يتطلب سطح API مختلفًا في المنبع
+      عن وسيلة النقل القياسية لـ xAI في OpenClaw.
+  </Accordion>
+
+  <Accordion title="ملاحظات متقدمة">
+    - يطبّق OpenClaw إصلاحات توافق خاصة بـ xAI لمخطط الأدوات واستدعاءات الأدوات
+      تلقائيًا على مسار المشغّل المشترك.
+    - تستخدم طلبات xAI الأصلية القيمة الافتراضية `tool_stream: true`. اضبط
+      `agents.defaults.models["xai/<model>"].params.tool_stream` إلى `false` من أجل
+      تعطيله.
+    - يزيل الغلاف المضمّن لـ xAI علامات مخطط الأدوات الصارمة غير المدعومة ومفاتيح
+      حمولة الاستدلال قبل إرسال طلبات xAI الأصلية.
+    - يتم عرض `web_search` و`x_search` و`code_execution` كأدوات
+      OpenClaw. ويفعّل OpenClaw العنصر المضمّن المحدد من xAI الذي يحتاجه داخل كل طلب
+      أداة بدلًا من إرفاق جميع الأدوات الأصلية بكل دور دردشة.
+    - يملك Plugin xAI المضمّن كلًا من `x_search` و`code_execution` بدلًا
+      من ترميزهما مباشرة داخل وقت تشغيل النموذج الأساسي.
+    - `code_execution` هو تنفيذ بعيد داخل sandbox الخاص بـ xAI، وليس
+      [`exec`](/ar/tools/exec) محليًا.
+  </Accordion>
+</AccordionGroup>
+
+## ذو صلة
+
+<CardGroup cols={2}>
+  <Card title="اختيار النموذج" href="/ar/concepts/model-providers" icon="layers">
+    اختيار المزوّدين، ومراجع النماذج، وسلوك التبديل الاحتياطي.
+  </Card>
+  <Card title="إنشاء الفيديو" href="/ar/tools/video-generation" icon="video">
+    معلمات أداة الفيديو المشتركة واختيار المزوّد.
+  </Card>
+  <Card title="جميع المزوّدين" href="/ar/providers/index" icon="grid-2">
+    النظرة العامة الأوسع على المزوّدين.
+  </Card>
+  <Card title="استكشاف الأخطاء وإصلاحها" href="/ar/help/troubleshooting" icon="wrench">
+    المشكلات الشائعة والحلول.
+  </Card>
+</CardGroup>

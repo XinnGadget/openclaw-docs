@@ -1,109 +1,121 @@
 ---
 read_when:
-    - Dostosowujesz parsowanie dyrektyw thinking, fast-mode lub verbose albo ich wartości domyślne
-summary: Składnia dyrektyw dla /think, /fast, /verbose i widoczności rozumowania
-title: Poziomy thinking
+    - Dostosowywanie parsowania lub ustawień domyślnych dyrektyw myślenia, trybu szybkiego lub szczegółowości
+summary: Składnia dyrektyw dla /think, /fast, /verbose, /trace oraz widoczności rozumowania
+title: Poziomy myślenia
 x-i18n:
-    generated_at: "2026-04-05T14:09:45Z"
+    generated_at: "2026-04-17T09:49:34Z"
     model: gpt-5.4
     provider: openai
-    source_hash: f60aeb6ab4c7ce858f725f589f54184b29d8c91994d18c8deafa75179b9a62cb
+    source_hash: 1cb44a7bf75546e5a8c3204e12f3297221449b881161d173dea4983da3921649
     source_path: tools/thinking.md
     workflow: 15
 ---
 
-# Poziomy thinking (/think directives)
+# Poziomy myślenia (dyrektywy /think)
 
 ## Co to robi
 
-- Dyrektywa inline w dowolnym body wejściowym: `/t <level>`, `/think:<level>` albo `/thinking <level>`.
+- Dyrektywa w treści dowolnej wiadomości przychodzącej: `/t <level>`, `/think:<level>` lub `/thinking <level>`.
 - Poziomy (aliasy): `off | minimal | low | medium | high | xhigh | adaptive`
   - minimal → „think”
   - low → „think hard”
   - medium → „think harder”
   - high → „ultrathink” (maksymalny budżet)
-  - xhigh → „ultrathink+” (tylko modele GPT-5.2 + Codex)
-  - adaptive → zarządzany przez dostawcę adaptacyjny budżet rozumowania (obsługiwany dla rodziny modeli Anthropic Claude 4.6)
-  - `x-high`, `x_high`, `extra-high`, `extra high` i `extra_high` mapują na `xhigh`.
-  - `highest`, `max` mapują na `high`.
+  - xhigh → „ultrathink+” (GPT-5.2 + modele Codex oraz wysiłek Anthropic Claude Opus 4.7)
+  - adaptive → adaptacyjne myślenie zarządzane przez dostawcę (obsługiwane dla Anthropic Claude 4.6 i Opus 4.7)
+  - `x-high`, `x_high`, `extra-high`, `extra high` i `extra_high` są mapowane na `xhigh`.
+  - `highest`, `max` są mapowane na `high`.
 - Uwagi dotyczące dostawców:
-  - Modele Anthropic Claude 4.6 domyślnie używają `adaptive`, gdy nie ustawiono jawnego poziomu thinking.
-  - MiniMax (`minimax/*`) na ścieżce streamingu zgodnej z Anthropic domyślnie używa `thinking: { type: "disabled" }`, chyba że jawnie ustawisz thinking w params modelu albo params żądania. Zapobiega to wyciekom delt `reasoning_content` z nienatywnego formatu streamu Anthropic w MiniMax.
-  - Z.AI (`zai/*`) obsługuje tylko binarne thinking (`on`/`off`). Każdy poziom inny niż `off` jest traktowany jako `on` (mapowany do `low`).
-  - Moonshot (`moonshot/*`) mapuje `/think off` do `thinking: { type: "disabled" }`, a każdy poziom inny niż `off` do `thinking: { type: "enabled" }`. Gdy thinking jest włączone, Moonshot akceptuje tylko `tool_choice` `auto|none`; OpenClaw normalizuje niezgodne wartości do `auto`.
+  - Modele Anthropic Claude 4.6 domyślnie używają `adaptive`, gdy nie ustawiono jawnie poziomu myślenia.
+  - Anthropic Claude Opus 4.7 nie używa domyślnie adaptacyjnego myślenia. Domyślny wysiłek API pozostaje zarządzany przez dostawcę, chyba że jawnie ustawisz poziom myślenia.
+  - Anthropic Claude Opus 4.7 mapuje `/think xhigh` na adaptacyjne myślenie oraz `output_config.effort: "xhigh"`, ponieważ `/think` jest dyrektywą myślenia, a `xhigh` jest ustawieniem wysiłku dla Opus 4.7.
+  - MiniMax (`minimax/*`) na ścieżce strumieniowania zgodnej z Anthropic domyślnie używa `thinking: { type: "disabled" }`, chyba że jawnie ustawisz myślenie w parametrach modelu lub parametrach żądania. Zapobiega to wyciekom delt `reasoning_content` z nienatywnego formatu strumienia Anthropic używanego przez MiniMax.
+  - Z.AI (`zai/*`) obsługuje tylko binarne myślenie (`on`/`off`). Każdy poziom inny niż `off` jest traktowany jako `on` (mapowany na `low`).
+  - Moonshot (`moonshot/*`) mapuje `/think off` na `thinking: { type: "disabled" }`, a każdy poziom inny niż `off` na `thinking: { type: "enabled" }`. Gdy myślenie jest włączone, Moonshot akceptuje tylko `tool_choice` `auto|none`; OpenClaw normalizuje niezgodne wartości do `auto`.
 
-## Kolejność rozwiązywania
+## Kolejność rozstrzygania
 
-1. Dyrektywa inline w wiadomości (dotyczy tylko tej wiadomości).
+1. Dyrektywa w treści wiadomości (dotyczy tylko tej wiadomości).
 2. Nadpisanie sesji (ustawiane przez wysłanie wiadomości zawierającej wyłącznie dyrektywę).
-3. Wartość domyślna per agent (`agents.list[].thinkingDefault` w konfiguracji).
-4. Globalna wartość domyślna (`agents.defaults.thinkingDefault` w konfiguracji).
-5. Fallback: `adaptive` dla modeli Anthropic Claude 4.6, `low` dla innych modeli obsługujących rozumowanie, w przeciwnym razie `off`.
+3. Domyślne ustawienie per agent (`agents.list[].thinkingDefault` w konfiguracji).
+4. Domyślne ustawienie globalne (`agents.defaults.thinkingDefault` w konfiguracji).
+5. Wartość zapasowa: `adaptive` dla modeli Anthropic Claude 4.6, `off` dla Anthropic Claude Opus 4.7, jeśli nie skonfigurowano inaczej, `low` dla innych modeli obsługujących rozumowanie, w przeciwnym razie `off`.
 
-## Ustawianie domyślnej wartości sesji
+## Ustawianie domyślnej wartości dla sesji
 
-- Wyślij wiadomość będącą **wyłącznie** dyrektywą (dozwolone białe znaki), np. `/think:medium` albo `/t high`.
-- To ustawienie zostaje dla bieżącej sesji (domyślnie per nadawca); jest czyszczone przez `/think:off` albo reset bezczynności sesji.
+- Wyślij wiadomość, która zawiera **tylko** dyrektywę (dozwolone są białe znaki), np. `/think:medium` lub `/t high`.
+- To ustawienie pozostaje dla bieżącej sesji (domyślnie per nadawca); jest czyszczone przez `/think:off` lub reset bezczynności sesji.
 - Wysyłana jest odpowiedź potwierdzająca (`Thinking level set to high.` / `Thinking disabled.`). Jeśli poziom jest nieprawidłowy (np. `/thinking big`), polecenie zostaje odrzucone z podpowiedzią, a stan sesji pozostaje bez zmian.
-- Wyślij `/think` (albo `/think:`) bez argumentu, aby zobaczyć bieżący poziom thinking.
+- Wyślij `/think` (lub `/think:`) bez argumentu, aby zobaczyć bieżący poziom myślenia.
 
 ## Zastosowanie przez agenta
 
-- **Embedded Pi**: ustalony poziom jest przekazywany do runtime osadzonego agenta Pi działającego w procesie.
+- **Embedded Pi**: rozstrzygnięty poziom jest przekazywany do działającego w procesie środowiska uruchomieniowego agenta Pi.
 
-## Fast mode (/fast)
+## Tryb szybki (/fast)
 
 - Poziomy: `on|off`.
-- Wiadomość zawierająca wyłącznie dyrektywę przełącza nadpisanie fast-mode sesji i odpowiada `Fast mode enabled.` / `Fast mode disabled.`.
-- Wyślij `/fast` (albo `/fast status`) bez trybu, aby zobaczyć bieżący efektywny stan fast-mode.
-- OpenClaw rozwiązuje fast mode w tej kolejności:
-  1. Dyrektywa inline / zawierająca wyłącznie dyrektywę `/fast on|off`
+- Wiadomość zawierająca wyłącznie dyrektywę przełącza nadpisanie trybu szybkiego dla sesji i zwraca odpowiedź `Fast mode enabled.` / `Fast mode disabled.`.
+- Wyślij `/fast` (lub `/fast status`) bez trybu, aby zobaczyć bieżący efektywny stan trybu szybkiego.
+- OpenClaw rozstrzyga tryb szybki w następującej kolejności:
+  1. Dyrektywa w treści/wiadomość zawierająca wyłącznie dyrektywę `/fast on|off`
   2. Nadpisanie sesji
-  3. Wartość domyślna per agent (`agents.list[].fastModeDefault`)
+  3. Domyślne ustawienie per agent (`agents.list[].fastModeDefault`)
   4. Konfiguracja per model: `agents.defaults.models["<provider>/<model>"].params.fastMode`
-  5. Fallback: `off`
-- Dla `openai/*` fast mode mapuje się na przetwarzanie priorytetowe OpenAI przez wysyłanie `service_tier=priority` w obsługiwanych żądaniach Responses.
-- Dla `openai-codex/*` fast mode wysyła tę samą flagę `service_tier=priority` w Codex Responses. OpenClaw utrzymuje jeden współdzielony przełącznik `/fast` dla obu ścieżek auth.
-- Dla bezpośrednich publicznych żądań `anthropic/*`, w tym ruchu uwierzytelnianego OAuth wysyłanego do `api.anthropic.com`, fast mode mapuje się na poziomy usługi Anthropic: `/fast on` ustawia `service_tier=auto`, `/fast off` ustawia `service_tier=standard_only`.
-- Dla `minimax/*` na ścieżce zgodnej z Anthropic, `/fast on` (albo `params.fastMode: true`) przepisuje `MiniMax-M2.7` na `MiniMax-M2.7-highspeed`.
-- Jawne params modelu Anthropic `serviceTier` / `service_tier` mają pierwszeństwo nad domyślnym fast mode, gdy ustawiono oba. OpenClaw nadal pomija wstrzykiwanie poziomu usługi Anthropic dla nie-Anthropic proxy `baseUrl`.
+  5. Wartość zapasowa: `off`
+- Dla `openai/*` tryb szybki mapuje się na przetwarzanie priorytetowe OpenAI przez wysłanie `service_tier=priority` w obsługiwanych żądaniach Responses.
+- Dla `openai-codex/*` tryb szybki wysyła tę samą flagę `service_tier=priority` w Codex Responses. OpenClaw utrzymuje jeden wspólny przełącznik `/fast` dla obu ścieżek uwierzytelniania.
+- Dla bezpośrednich publicznych żądań `anthropic/*`, w tym ruchu uwierzytelnionego przez OAuth wysyłanego do `api.anthropic.com`, tryb szybki mapuje się na poziomy usług Anthropic: `/fast on` ustawia `service_tier=auto`, a `/fast off` ustawia `service_tier=standard_only`.
+- Dla `minimax/*` na ścieżce zgodnej z Anthropic `/fast on` (lub `params.fastMode: true`) przepisuje `MiniMax-M2.7` na `MiniMax-M2.7-highspeed`.
+- Jawne parametry modelu Anthropic `serviceTier` / `service_tier` nadpisują domyślne ustawienie trybu szybkiego, gdy ustawione są oba. OpenClaw nadal pomija wstrzykiwanie poziomu usług Anthropic dla bazowych URL proxy innych niż Anthropic.
 
-## Dyrektywy verbose (/verbose lub /v)
+## Dyrektywy szczegółowości (/verbose lub /v)
 
-- Poziomy: `on` (minimalne) | `full` | `off` (domyślnie).
-- Wiadomość zawierająca wyłącznie dyrektywę przełącza verbose sesji i odpowiada `Verbose logging enabled.` / `Verbose logging disabled.`; nieprawidłowe poziomy zwracają podpowiedź bez zmiany stanu.
-- `/verbose off` zapisuje jawne nadpisanie sesji; wyczyść je przez Sessions UI, wybierając `inherit`.
-- Dyrektywa inline wpływa tylko na tę wiadomość; w przeciwnym razie stosowane są wartości domyślne sesji / globalne.
-- Wyślij `/verbose` (albo `/verbose:`) bez argumentu, aby zobaczyć bieżący poziom verbose.
-- Gdy verbose jest włączone, agenci emitujący uporządkowane wyniki narzędzi (Pi, inni agenci JSON) wysyłają każde wywołanie narzędzia z powrotem jako osobną wiadomość zawierającą tylko metadane, z prefiksem `<emoji> <tool-name>: <arg>`, jeśli jest dostępny (ścieżka / polecenie). Te podsumowania narzędzi są wysyłane od razu po starcie każdego narzędzia (osobne dymki), a nie jako delty streamingu.
-- Podsumowania błędów narzędzi pozostają widoczne w trybie normalnym, ale surowe sufiksy szczegółów błędu są ukryte, chyba że verbose ma wartość `on` albo `full`.
-- Gdy verbose ma wartość `full`, wyjścia narzędzi są również przekazywane po zakończeniu (osobny dymek, przycięty do bezpiecznej długości). Jeśli przełączysz `/verbose on|full|off` podczas trwania uruchomienia, kolejne dymki narzędzi będą respektować nowe ustawienie.
+- Poziomy: `on` (minimalny) | `full` | `off` (domyślnie).
+- Wiadomość zawierająca wyłącznie dyrektywę przełącza szczegółowość sesji i zwraca odpowiedź `Verbose logging enabled.` / `Verbose logging disabled.`; nieprawidłowe poziomy zwracają podpowiedź bez zmiany stanu.
+- `/verbose off` zapisuje jawne nadpisanie sesji; wyczyść je w interfejsie sesji, wybierając `inherit`.
+- Dyrektywa w treści wpływa tylko na tę wiadomość; w pozostałych przypadkach stosowane są domyślne ustawienia sesji/globalne.
+- Wyślij `/verbose` (lub `/verbose:`) bez argumentu, aby zobaczyć bieżący poziom szczegółowości.
+- Gdy szczegółowość jest włączona, agenci emitujący ustrukturyzowane wyniki narzędzi (Pi, inni agenci JSON) wysyłają każde wywołanie narzędzia z powrotem jako osobną wiadomość zawierającą tylko metadane, poprzedzoną `<emoji> <tool-name>: <arg>`, gdy to możliwe (ścieżka/polecenie). Te podsumowania narzędzi są wysyłane natychmiast po uruchomieniu każdego narzędzia (osobne dymki), a nie jako strumieniowe delty.
+- Podsumowania błędów narzędzi pozostają widoczne w trybie normalnym, ale surowe przyrostki ze szczegółami błędów są ukryte, chyba że `verbose` ma wartość `on` lub `full`.
+- Gdy `verbose` ma wartość `full`, po zakończeniu przekazywane są także wyniki narzędzi (osobny dymek, obcięty do bezpiecznej długości). Jeśli przełączysz `/verbose on|full|off` podczas trwającego uruchomienia, kolejne dymki narzędzi będą respektować nowe ustawienie.
+
+## Dyrektywy śledzenia Pluginów (/trace)
+
+- Poziomy: `on` | `off` (domyślnie).
+- Wiadomość zawierająca wyłącznie dyrektywę przełącza wyjście śledzenia Pluginów dla sesji i zwraca odpowiedź `Plugin trace enabled.` / `Plugin trace disabled.`.
+- Dyrektywa w treści wpływa tylko na tę wiadomość; w pozostałych przypadkach stosowane są domyślne ustawienia sesji/globalne.
+- Wyślij `/trace` (lub `/trace:`) bez argumentu, aby zobaczyć bieżący poziom śledzenia.
+- `/trace` jest węższe niż `/verbose`: ujawnia tylko linie śledzenia/debug należące do Pluginów, takie jak podsumowania debugowania Active Memory.
+- Linie śledzenia mogą pojawiać się w `/status` oraz jako dodatkowa wiadomość diagnostyczna po zwykłej odpowiedzi asystenta.
 
 ## Widoczność rozumowania (/reasoning)
 
 - Poziomy: `on|off|stream`.
-- Wiadomość zawierająca wyłącznie dyrektywę przełącza to, czy bloki thinking są pokazywane w odpowiedziach.
-- Gdy włączone, rozumowanie jest wysyłane jako **osobna wiadomość** z prefiksem `Reasoning:`.
-- `stream` (tylko Telegram): streamuje rozumowanie do dymka szkicu Telegram podczas generowania odpowiedzi, a następnie wysyła finalną odpowiedź bez rozumowania.
+- Wiadomość zawierająca wyłącznie dyrektywę przełącza, czy bloki myślenia są pokazywane w odpowiedziach.
+- Gdy jest włączona, rozumowanie jest wysyłane jako **osobna wiadomość** poprzedzona `Reasoning:`.
+- `stream` (tylko Telegram): strumieniuje rozumowanie do roboczego dymka Telegram podczas generowania odpowiedzi, a następnie wysyła końcową odpowiedź bez rozumowania.
 - Alias: `/reason`.
-- Wyślij `/reasoning` (albo `/reasoning:`) bez argumentu, aby zobaczyć bieżący poziom rozumowania.
-- Kolejność rozwiązywania: dyrektywa inline, potem nadpisanie sesji, potem wartość domyślna per agent (`agents.list[].reasoningDefault`), a na końcu fallback (`off`).
+- Wyślij `/reasoning` (lub `/reasoning:`) bez argumentu, aby zobaczyć bieżący poziom rozumowania.
+- Kolejność rozstrzygania: dyrektywa w treści, następnie nadpisanie sesji, następnie domyślne ustawienie per agent (`agents.list[].reasoningDefault`), a potem wartość zapasowa (`off`).
 
 ## Powiązane
 
-- Dokumentacja trybu elevated znajduje się w [Trybie elevated](/tools/elevated).
+- Dokumentacja trybu podwyższonego znajduje się w [Elevated mode](/pl/tools/elevated).
 
-## Heartbeaty
+## Heartbeat
 
-- Body sondy heartbeat to skonfigurowany prompt heartbeat (domyślnie: `Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`). Dyrektywy inline w wiadomości heartbeat działają normalnie (ale unikaj zmieniania domyślnych ustawień sesji przez heartbeaty).
-- Dostarczanie heartbeat domyślnie wysyła tylko końcowy payload. Aby wysłać również osobną wiadomość `Reasoning:` (gdy jest dostępna), ustaw `agents.defaults.heartbeat.includeReasoning: true` albo per agent `agents.list[].heartbeat.includeReasoning: true`.
+- Treścią sondy Heartbeat jest skonfigurowany prompt Heartbeat (domyślnie: `Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`). Dyrektywy w treści wiadomości Heartbeat działają jak zwykle (ale unikaj zmieniania domyślnych ustawień sesji przez Heartbeat).
+- Dostarczanie Heartbeat domyślnie obejmuje tylko końcowy ładunek. Aby wysyłać także osobną wiadomość `Reasoning:` (gdy jest dostępna), ustaw `agents.defaults.heartbeat.includeReasoning: true` lub per agent `agents.list[].heartbeat.includeReasoning: true`.
 
-## Interfejs web chat
+## Interfejs czatu WWW
 
-- Selektor thinking w web chat odzwierciedla zapisany poziom sesji z magazynu / konfiguracji sesji wejściowych przy ładowaniu strony.
-- Wybranie innego poziomu zapisuje nadpisanie sesji natychmiast przez `sessions.patch`; nie czeka na następne wysłanie i nie jest jednorazowym nadpisaniem `thinkingOnce`.
-- Pierwsza opcja to zawsze `Default (<resolved level>)`, gdzie ustalona wartość domyślna pochodzi z aktywnego modelu sesji: `adaptive` dla Claude 4.6 na Anthropic/Bedrock, `low` dla innych modeli obsługujących rozumowanie, a w przeciwnym razie `off`.
-- Picker pozostaje świadomy dostawcy:
+- Selektor myślenia w interfejsie czatu WWW odzwierciedla zapisany poziom sesji z magazynu sesji/konfiguracji wejściowej podczas ładowania strony.
+- Wybranie innego poziomu natychmiast zapisuje nadpisanie sesji przez `sessions.patch`; nie czeka na kolejne wysłanie i nie jest jednorazowym nadpisaniem `thinkingOnce`.
+- Pierwsza opcja to zawsze `Default (<resolved level>)`, gdzie rozstrzygnięta wartość domyślna pochodzi z aktywnego modelu sesji: `adaptive` dla Claude 4.6 w Anthropic, `off` dla Anthropic Claude Opus 4.7, jeśli nie skonfigurowano inaczej, `low` dla innych modeli obsługujących rozumowanie, w przeciwnym razie `off`.
+- Selektor pozostaje świadomy dostawcy:
   - większość dostawców pokazuje `off | minimal | low | medium | high | adaptive`
+  - Anthropic Claude Opus 4.7 pokazuje `off | minimal | low | medium | high | xhigh | adaptive`
   - Z.AI pokazuje binarne `off | on`
-- `/think:<level>` nadal działa i aktualizuje ten sam zapisany poziom sesji, więc dyrektywy czatu i picker pozostają zsynchronizowane.
+- `/think:<level>` nadal działa i aktualizuje ten sam zapisany poziom sesji, dzięki czemu dyrektywy czatu i selektor pozostają zsynchronizowane.

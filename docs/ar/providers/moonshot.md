@@ -1,158 +1,235 @@
 ---
 read_when:
-    - تريد إعداد Moonshot K2 (منصة Moonshot Open Platform) مقابل Kimi Coding
-    - تحتاج إلى فهم نقاط النهاية والمفاتيح ومراجع النماذج المنفصلة
-    - تريد تكوينًا جاهزًا للنسخ واللصق لأي من المزوّدين
-summary: تكوين Moonshot K2 مقابل Kimi Coding (مزودون ومفاتيح منفصلة)
+    - تريد إعداد Moonshot K2 ‏(Moonshot Open Platform) مقابل Kimi Coding
+    - تحتاج إلى فهم نقاط النهاية المنفصلة، والمفاتيح المنفصلة، ومراجع النماذج المنفصلة
+    - تريد إعدادات جاهزة للنسخ/اللصق لأيٍّ من المزودين
+summary: إعداد Moonshot K2 مقابل Kimi Coding ‏(مزودات منفصلة + مفاتيح منفصلة)
 title: Moonshot AI
 x-i18n:
-    generated_at: "2026-04-05T12:53:34Z"
+    generated_at: "2026-04-12T23:31:37Z"
     model: gpt-5.4
     provider: openai
-    source_hash: a80c71ef432b778e296bd60b7d9ec7c72d025d13fd9bdae474b3d58436d15695
+    source_hash: 3f261f83a9b37e4fffb0cd0803e0c64f27eae8bae91b91d8a781a030663076f8
     source_path: providers/moonshot.md
     workflow: 15
 ---
 
 # Moonshot AI (Kimi)
 
-توفّر Moonshot واجهة Kimi API بنقاط نهاية متوافقة مع OpenAI. قم بتكوين
-المزوّد واضبط النموذج الافتراضي على `moonshot/kimi-k2.5`، أو استخدم
+توفّر Moonshot واجهة Kimi API مع نقاط نهاية متوافقة مع OpenAI. قم بإعداد
+المزود واضبط النموذج الافتراضي على `moonshot/kimi-k2.5`، أو استخدم
 Kimi Coding مع `kimi/kimi-code`.
 
-معرّفات نماذج Kimi K2 الحالية:
+<Warning>
+إن Moonshot وKimi Coding **مزودان منفصلان**. المفاتيح غير قابلة للتبادل، ونقاط النهاية مختلفة، ومراجع النماذج مختلفة (`moonshot/...` مقابل `kimi/...`).
+</Warning>
+
+## فهرس النماذج المدمج
 
 [//]: # "moonshot-kimi-k2-ids:start"
 
-- `kimi-k2.5`
-- `kimi-k2-thinking`
-- `kimi-k2-thinking-turbo`
-- `kimi-k2-turbo`
+| مرجع النموذج                    | الاسم                  | التفكير | الإدخال      | السياق  | الحد الأقصى للإخراج |
+| ------------------------------ | ---------------------- | ------- | ------------ | ------- | ------------------- |
+| `moonshot/kimi-k2.5`           | Kimi K2.5              | لا      | text, image  | 262,144 | 262,144             |
+| `moonshot/kimi-k2-thinking`    | Kimi K2 Thinking       | نعم     | text         | 262,144 | 262,144             |
+| `moonshot/kimi-k2-thinking-turbo` | Kimi K2 Thinking Turbo | نعم   | text         | 262,144 | 262,144             |
+| `moonshot/kimi-k2-turbo`       | Kimi K2 Turbo          | لا      | text         | 256,000 | 16,384              |
 
 [//]: # "moonshot-kimi-k2-ids:end"
 
-```bash
-openclaw onboard --auth-choice moonshot-api-key
-# or
-openclaw onboard --auth-choice moonshot-api-key-cn
-```
+## البدء
 
-Kimi Coding:
+اختر المزود واتبع خطوات الإعداد.
 
-```bash
-openclaw onboard --auth-choice kimi-code-api-key
-```
+<Tabs>
+  <Tab title="Moonshot API">
+    **الأفضل لـ:** نماذج Kimi K2 عبر Moonshot Open Platform.
 
-ملاحظة: Moonshot وKimi Coding مزوّدان منفصلان. المفاتيح غير قابلة للتبادل، ونقاط النهاية مختلفة، ومراجع النماذج مختلفة (تستخدم Moonshot الصيغة `moonshot/...`، بينما تستخدم Kimi Coding الصيغة `kimi/...`).
+    <Steps>
+      <Step title="اختر منطقة نقطة النهاية">
+        | خيار المصادقة         | نقطة النهاية                  | المنطقة         |
+        | --------------------- | ----------------------------- | ---------------- |
+        | `moonshot-api-key`    | `https://api.moonshot.ai/v1`  | دولي             |
+        | `moonshot-api-key-cn` | `https://api.moonshot.cn/v1`  | الصين            |
+      </Step>
+      <Step title="شغّل الإعداد الأولي">
+        ```bash
+        openclaw onboard --auth-choice moonshot-api-key
+        ```
 
-يستخدم بحث الويب في Kimi أيضًا plugin ‏Moonshot:
+        أو لنقطة نهاية الصين:
 
-```bash
-openclaw configure --section web
-```
+        ```bash
+        openclaw onboard --auth-choice moonshot-api-key-cn
+        ```
+      </Step>
+      <Step title="اضبط نموذجًا افتراضيًا">
+        ```json5
+        {
+          agents: {
+            defaults: {
+              model: { primary: "moonshot/kimi-k2.5" },
+            },
+          },
+        }
+        ```
+      </Step>
+      <Step title="تحقق من توفر النماذج">
+        ```bash
+        openclaw models list --provider moonshot
+        ```
+      </Step>
+    </Steps>
 
-اختر **Kimi** في قسم بحث الويب لتخزين
-`plugins.entries.moonshot.config.webSearch.*`.
+    ### مثال على الإعداد
 
-## مقتطف التكوين (Moonshot API)
-
-```json5
-{
-  env: { MOONSHOT_API_KEY: "sk-..." },
-  agents: {
-    defaults: {
-      model: { primary: "moonshot/kimi-k2.5" },
+    ```json5
+    {
+      env: { MOONSHOT_API_KEY: "sk-..." },
+      agents: {
+        defaults: {
+          model: { primary: "moonshot/kimi-k2.5" },
+          models: {
+            // moonshot-kimi-k2-aliases:start
+            "moonshot/kimi-k2.5": { alias: "Kimi K2.5" },
+            "moonshot/kimi-k2-thinking": { alias: "Kimi K2 Thinking" },
+            "moonshot/kimi-k2-thinking-turbo": { alias: "Kimi K2 Thinking Turbo" },
+            "moonshot/kimi-k2-turbo": { alias: "Kimi K2 Turbo" },
+            // moonshot-kimi-k2-aliases:end
+          },
+        },
+      },
       models: {
-        // moonshot-kimi-k2-aliases:start
-        "moonshot/kimi-k2.5": { alias: "Kimi K2.5" },
-        "moonshot/kimi-k2-thinking": { alias: "Kimi K2 Thinking" },
-        "moonshot/kimi-k2-thinking-turbo": { alias: "Kimi K2 Thinking Turbo" },
-        "moonshot/kimi-k2-turbo": { alias: "Kimi K2 Turbo" },
-        // moonshot-kimi-k2-aliases:end
+        mode: "merge",
+        providers: {
+          moonshot: {
+            baseUrl: "https://api.moonshot.ai/v1",
+            apiKey: "${MOONSHOT_API_KEY}",
+            api: "openai-completions",
+            models: [
+              // moonshot-kimi-k2-models:start
+              {
+                id: "kimi-k2.5",
+                name: "Kimi K2.5",
+                reasoning: false,
+                input: ["text", "image"],
+                cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+                contextWindow: 262144,
+                maxTokens: 262144,
+              },
+              {
+                id: "kimi-k2-thinking",
+                name: "Kimi K2 Thinking",
+                reasoning: true,
+                input: ["text"],
+                cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+                contextWindow: 262144,
+                maxTokens: 262144,
+              },
+              {
+                id: "kimi-k2-thinking-turbo",
+                name: "Kimi K2 Thinking Turbo",
+                reasoning: true,
+                input: ["text"],
+                cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+                contextWindow: 262144,
+                maxTokens: 262144,
+              },
+              {
+                id: "kimi-k2-turbo",
+                name: "Kimi K2 Turbo",
+                reasoning: false,
+                input: ["text"],
+                cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+                contextWindow: 256000,
+                maxTokens: 16384,
+              },
+              // moonshot-kimi-k2-models:end
+            ],
+          },
+        },
       },
-    },
-  },
-  models: {
-    mode: "merge",
-    providers: {
-      moonshot: {
-        baseUrl: "https://api.moonshot.ai/v1",
-        apiKey: "${MOONSHOT_API_KEY}",
-        api: "openai-completions",
-        models: [
-          // moonshot-kimi-k2-models:start
-          {
-            id: "kimi-k2.5",
-            name: "Kimi K2.5",
-            reasoning: false,
-            input: ["text", "image"],
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-            contextWindow: 262144,
-            maxTokens: 262144,
-          },
-          {
-            id: "kimi-k2-thinking",
-            name: "Kimi K2 Thinking",
-            reasoning: true,
-            input: ["text"],
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-            contextWindow: 262144,
-            maxTokens: 262144,
-          },
-          {
-            id: "kimi-k2-thinking-turbo",
-            name: "Kimi K2 Thinking Turbo",
-            reasoning: true,
-            input: ["text"],
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-            contextWindow: 262144,
-            maxTokens: 262144,
-          },
-          {
-            id: "kimi-k2-turbo",
-            name: "Kimi K2 Turbo",
-            reasoning: false,
-            input: ["text"],
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-            contextWindow: 256000,
-            maxTokens: 16384,
-          },
-          // moonshot-kimi-k2-models:end
-        ],
-      },
-    },
-  },
-}
-```
+    }
+    ```
 
-## Kimi Coding
+  </Tab>
 
-```json5
-{
-  env: { KIMI_API_KEY: "sk-..." },
-  agents: {
-    defaults: {
-      model: { primary: "kimi/kimi-code" },
-      models: {
-        "kimi/kimi-code": { alias: "Kimi" },
+  <Tab title="Kimi Coding">
+    **الأفضل لـ:** المهام البرمجية المركزة عبر نقطة نهاية Kimi Coding.
+
+    <Note>
+    يستخدم Kimi Coding مفتاح API مختلفًا وبادئة مزود مختلفة (`kimi/...`) عن Moonshot (`moonshot/...`). يظل مرجع النموذج القديم `kimi/k2p5` مقبولًا كمعرّف توافق.
+    </Note>
+
+    <Steps>
+      <Step title="شغّل الإعداد الأولي">
+        ```bash
+        openclaw onboard --auth-choice kimi-code-api-key
+        ```
+      </Step>
+      <Step title="اضبط نموذجًا افتراضيًا">
+        ```json5
+        {
+          agents: {
+            defaults: {
+              model: { primary: "kimi/kimi-code" },
+            },
+          },
+        }
+        ```
+      </Step>
+      <Step title="تحقق من توفر النموذج">
+        ```bash
+        openclaw models list --provider kimi
+        ```
+      </Step>
+    </Steps>
+
+    ### مثال على الإعداد
+
+    ```json5
+    {
+      env: { KIMI_API_KEY: "sk-..." },
+      agents: {
+        defaults: {
+          model: { primary: "kimi/kimi-code" },
+          models: {
+            "kimi/kimi-code": { alias: "Kimi" },
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+
+  </Tab>
+</Tabs>
 
 ## بحث الويب في Kimi
 
-يشحن OpenClaw أيضًا **Kimi** كمزوّد `web_search`، ومدعومًا ببحث الويب من Moonshot.
+يشحن OpenClaw أيضًا **Kimi** كمزود `web_search`، ومدعومًا ببحث الويب من Moonshot.
 
-يمكن أن يطلب الإعداد التفاعلي ما يلي:
+<Steps>
+  <Step title="شغّل إعداد بحث الويب التفاعلي">
+    ```bash
+    openclaw configure --section web
+    ```
 
-- منطقة Moonshot API:
-  - `https://api.moonshot.ai/v1`
-  - `https://api.moonshot.cn/v1`
-- نموذج بحث الويب الافتراضي لـ Kimi (الافتراضي `kimi-k2.5`)
+    اختر **Kimi** في قسم بحث الويب لتخزين
+    `plugins.entries.moonshot.config.webSearch.*`.
 
-يعيش التكوين تحت `plugins.entries.moonshot.config.webSearch`:
+  </Step>
+  <Step title="إعداد منطقة بحث الويب والنموذج">
+    يطلب الإعداد التفاعلي ما يلي:
+
+    | الإعداد            | الخيارات                                                              |
+    | ------------------ | -------------------------------------------------------------------- |
+    | منطقة API          | `https://api.moonshot.ai/v1` (دولي) أو `https://api.moonshot.cn/v1` (الصين) |
+    | نموذج بحث الويب    | الافتراضي هو `kimi-k2.5`                                             |
+
+  </Step>
+</Steps>
+
+توجد الإعدادات ضمن `plugins.entries.moonshot.config.webSearch`:
 
 ```json5
 {
@@ -179,52 +256,80 @@ openclaw configure --section web
 }
 ```
 
-## ملاحظات
+## متقدم
 
-- تستخدم مراجع نماذج Moonshot الصيغة `moonshot/<modelId>`. وتستخدم مراجع نماذج Kimi Coding الصيغة `kimi/<modelId>`.
-- مرجع نموذج Kimi Coding الافتراضي الحالي هو `kimi/kimi-code`. وما زال المرجع القديم `kimi/k2p5` مقبولًا كمعرّف نموذج للتوافق.
-- يستخدم بحث الويب في Kimi المفتاح `KIMI_API_KEY` أو `MOONSHOT_API_KEY`، ويستخدم افتراضيًا `https://api.moonshot.ai/v1` مع النموذج `kimi-k2.5`.
-- تعلن نقاط النهاية الأصلية لـ Moonshot (`https://api.moonshot.ai/v1` و
-  `https://api.moonshot.cn/v1`) عن توافق استخدام البث على
-  وسيلة النقل المشتركة `openai-completions`. ويعتمد OpenClaw الآن على قدرات نقطة النهاية،
-  لذا ترث معرّفات المزوّدات المخصصة المتوافقة التي تستهدف مضيفات Moonshot الأصلية نفسها
-  سلوك استخدام البث نفسه.
-- تجاوز بيانات التسعير والسياق الوصفية في `models.providers` عند الحاجة.
-- إذا نشرت Moonshot حدود سياق مختلفة لنموذج ما، فعدّل
-  `contextWindow` وفقًا لذلك.
-- استخدم `https://api.moonshot.ai/v1` لنقطة النهاية الدولية، و`https://api.moonshot.cn/v1` لنقطة نهاية الصين.
-- خيارات onboarding:
-  - `moonshot-api-key` من أجل `https://api.moonshot.ai/v1`
-  - `moonshot-api-key-cn` من أجل `https://api.moonshot.cn/v1`
+<AccordionGroup>
+  <Accordion title="وضع التفكير الأصلي">
+    تدعم Moonshot Kimi وضع تفكير أصلي ثنائي:
 
-## وضع التفكير الأصلي (Moonshot)
+    - `thinking: { type: "enabled" }`
+    - `thinking: { type: "disabled" }`
 
-تدعم Moonshot Kimi التفكير الأصلي الثنائي:
+    قم بإعداده لكل نموذج عبر `agents.defaults.models.<provider/model>.params`:
 
-- `thinking: { type: "enabled" }`
-- `thinking: { type: "disabled" }`
-
-قم بتكوينه لكل نموذج عبر `agents.defaults.models.<provider/model>.params`:
-
-```json5
-{
-  agents: {
-    defaults: {
-      models: {
-        "moonshot/kimi-k2.5": {
-          params: {
-            thinking: { type: "disabled" },
+    ```json5
+    {
+      agents: {
+        defaults: {
+          models: {
+            "moonshot/kimi-k2.5": {
+              params: {
+                thinking: { type: "disabled" },
+              },
+            },
           },
         },
       },
-    },
-  },
-}
-```
+    }
+    ```
 
-كما يعيّن OpenClaw مستويات `/think` في وقت التشغيل لـ Moonshot:
+    يقوم OpenClaw أيضًا بربط مستويات `/think` أثناء التشغيل لـ Moonshot:
 
-- `/think off` -> `thinking.type=disabled`
-- أي مستوى تفكير غير off -> `thinking.type=enabled`
+    | مستوى `/think`      | سلوك Moonshot              |
+    | ------------------- | -------------------------- |
+    | `/think off`        | `thinking.type=disabled`   |
+    | أي مستوى غير off    | `thinking.type=enabled`    |
 
-عند تمكين التفكير في Moonshot، يجب أن تكون `tool_choice` هي `auto` أو `none`. ويقوم OpenClaw بتوحيد قيم `tool_choice` غير المتوافقة إلى `auto` من أجل التوافق.
+    <Warning>
+    عند تمكين التفكير في Moonshot، يجب أن تكون `tool_choice` هي `auto` أو `none`. يقوم OpenClaw بتطبيع قيم `tool_choice` غير المتوافقة إلى `auto` من أجل التوافق.
+    </Warning>
+
+  </Accordion>
+
+  <Accordion title="توافق استخدام البث">
+    تعلن نقاط نهاية Moonshot الأصلية (`https://api.moonshot.ai/v1` و
+    `https://api.moonshot.cn/v1`) عن توافق استخدام البث على
+    ناقل `openai-completions` المشترك. يعتمد OpenClaw على ذلك من خلال قدرات نقطة النهاية، لذلك ترث معرّفات المزودات المخصصة المتوافقة التي تستهدف مضيفي Moonshot الأصليين أنفسهم سلوك استخدام البث ذاته.
+  </Accordion>
+
+  <Accordion title="مرجع نقطة النهاية ومرجع النموذج">
+    | المزود        | بادئة مرجع النموذج | نقطة النهاية                   | متغير بيئة المصادقة |
+    | ------------- | ------------------ | ------------------------------ | ------------------- |
+    | Moonshot      | `moonshot/`        | `https://api.moonshot.ai/v1`   | `MOONSHOT_API_KEY`  |
+    | Moonshot CN   | `moonshot/`        | `https://api.moonshot.cn/v1`   | `MOONSHOT_API_KEY`  |
+    | Kimi Coding   | `kimi/`            | نقطة نهاية Kimi Coding         | `KIMI_API_KEY`      |
+    | بحث الويب     | غير متاح           | نفس منطقة Moonshot API         | `KIMI_API_KEY` أو `MOONSHOT_API_KEY` |
+
+    - يستخدم بحث الويب في Kimi `KIMI_API_KEY` أو `MOONSHOT_API_KEY`، ويكون افتراضيًا على `https://api.moonshot.ai/v1` مع النموذج `kimi-k2.5`.
+    - قم بتجاوز بيانات التسعير وبيانات السياق الوصفية في `models.providers` إذا لزم الأمر.
+    - إذا نشرت Moonshot حدود سياق مختلفة لأحد النماذج، فقم بتعديل `contextWindow` وفقًا لذلك.
+
+  </Accordion>
+</AccordionGroup>
+
+## ذو صلة
+
+<CardGroup cols={2}>
+  <Card title="اختيار النموذج" href="/ar/concepts/model-providers" icon="layers">
+    اختيار المزودات، ومراجع النماذج، وسلوك التحويل الاحتياطي.
+  </Card>
+  <Card title="بحث الويب" href="/tools/web-search" icon="magnifying-glass">
+    إعداد مزودات بحث الويب بما في ذلك Kimi.
+  </Card>
+  <Card title="مرجع الإعدادات" href="/ar/gateway/configuration-reference" icon="gear">
+    المخطط الكامل لإعدادات المزودات والنماذج وPlugin.
+  </Card>
+  <Card title="Moonshot Open Platform" href="https://platform.moonshot.ai" icon="globe">
+    إدارة مفاتيح Moonshot API والوثائق.
+  </Card>
+</CardGroup>

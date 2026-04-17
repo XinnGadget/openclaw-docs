@@ -1,39 +1,78 @@
 ---
 read_when:
-    - Anda menginginkan katalog OpenCode Go
-    - Anda memerlukan ref model runtime untuk model yang di-host oleh Go
-summary: Gunakan katalog OpenCode Go dengan penyiapan OpenCode bersama
+    - Anda menginginkan katalog Go OpenCode
+    - Anda memerlukan ref model runtime untuk model yang dihosting Go
+summary: Gunakan katalog Go OpenCode dengan penyiapan OpenCode bersama
 title: OpenCode Go
 x-i18n:
-    generated_at: "2026-04-05T14:03:46Z"
+    generated_at: "2026-04-12T23:32:05Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 8650af7c64220c14bab8c22472fff8bebd7abde253e972b6a11784ad833d321c
+    source_hash: d1f0f182de81729616ccc19125d93ba0445de2349daf7067b52e8c15b9d3539c
     source_path: providers/opencode-go.md
     workflow: 15
 ---
 
 # OpenCode Go
 
-OpenCode Go adalah katalog Go di dalam [OpenCode](/providers/opencode).
-Ini menggunakan `OPENCODE_API_KEY` yang sama dengan katalog Zen, tetapi mempertahankan
-id provider runtime `opencode-go` agar routing per model di upstream tetap benar.
+OpenCode Go adalah katalog Go di dalam [OpenCode](/id/providers/opencode).
+Ini menggunakan `OPENCODE_API_KEY` yang sama seperti katalog Zen, tetapi mempertahankan
+id provider runtime `opencode-go` agar routing per model di hulu tetap benar.
+
+| Property         | Value                           |
+| ---------------- | ------------------------------- |
+| Provider runtime | `opencode-go`                   |
+| Autentikasi      | `OPENCODE_API_KEY`              |
+| Penyiapan induk  | [OpenCode](/id/providers/opencode) |
 
 ## Model yang didukung
 
-- `opencode-go/kimi-k2.5`
-- `opencode-go/glm-5`
-- `opencode-go/minimax-m2.5`
+| Ref model                  | Nama         |
+| -------------------------- | ------------ |
+| `opencode-go/kimi-k2.5`    | Kimi K2.5    |
+| `opencode-go/glm-5`        | GLM 5        |
+| `opencode-go/minimax-m2.5` | MiniMax M2.5 |
 
-## Penyiapan CLI
+## Memulai
 
-```bash
-openclaw onboard --auth-choice opencode-go
-# atau non-interaktif
-openclaw onboard --opencode-go-api-key "$OPENCODE_API_KEY"
-```
+<Tabs>
+  <Tab title="Interaktif">
+    <Steps>
+      <Step title="Jalankan onboarding">
+        ```bash
+        openclaw onboard --auth-choice opencode-go
+        ```
+      </Step>
+      <Step title="Tetapkan model Go sebagai default">
+        ```bash
+        openclaw config set agents.defaults.model.primary "opencode-go/kimi-k2.5"
+        ```
+      </Step>
+      <Step title="Verifikasi bahwa model tersedia">
+        ```bash
+        openclaw models list --provider opencode-go
+        ```
+      </Step>
+    </Steps>
+  </Tab>
 
-## Cuplikan config
+  <Tab title="Non-interaktif">
+    <Steps>
+      <Step title="Berikan key secara langsung">
+        ```bash
+        openclaw onboard --opencode-go-api-key "$OPENCODE_API_KEY"
+        ```
+      </Step>
+      <Step title="Verifikasi bahwa model tersedia">
+        ```bash
+        openclaw models list --provider opencode-go
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Contoh config
 
 ```json5
 {
@@ -42,11 +81,36 @@ openclaw onboard --opencode-go-api-key "$OPENCODE_API_KEY"
 }
 ```
 
-## Perilaku routing
+## Catatan lanjutan
 
-OpenClaw menangani routing per model secara otomatis saat ref model menggunakan `opencode-go/...`.
+<AccordionGroup>
+  <Accordion title="Perilaku routing">
+    OpenClaw menangani routing per model secara otomatis saat ref model menggunakan
+    `opencode-go/...`. Tidak diperlukan config provider tambahan.
+  </Accordion>
 
-## Catatan
+  <Accordion title="Konvensi ref runtime">
+    Ref runtime tetap eksplisit: `opencode/...` untuk Zen, `opencode-go/...` untuk Go.
+    Ini menjaga routing per model di hulu tetap benar di kedua katalog.
+  </Accordion>
 
-- Gunakan [OpenCode](/providers/opencode) untuk onboarding bersama dan ringkasan katalog.
-- Ref runtime tetap eksplisit: `opencode/...` untuk Zen, `opencode-go/...` untuk Go.
+  <Accordion title="Kredensial bersama">
+    `OPENCODE_API_KEY` yang sama digunakan oleh katalog Zen dan Go. Memasukkan
+    key saat penyiapan menyimpan kredensial untuk kedua provider runtime.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Lihat [OpenCode](/id/providers/opencode) untuk ikhtisar onboarding bersama dan referensi katalog Zen + Go lengkap.
+</Tip>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="OpenCode (induk)" href="/id/providers/opencode" icon="server">
+    Onboarding bersama, ikhtisar katalog, dan catatan lanjutan.
+  </Card>
+  <Card title="Pemilihan model" href="/id/concepts/model-providers" icon="layers">
+    Memilih provider, ref model, dan perilaku failover.
+  </Card>
+</CardGroup>

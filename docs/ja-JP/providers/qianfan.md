@@ -1,43 +1,63 @@
 ---
 read_when:
-    - 多くのLLMに対して単一のAPIキーを使いたい場合
-    - Baidu Qianfanのセットアップガイダンスが必要な場合
-summary: OpenClawでQianfanの統合APIを使って多数のモデルにアクセスする
+    - 多くの LLM に対して 1 つの API キーを使いたい
+    - Baidu Qianfan のセットアップ ガイダンスが必要です
+summary: Qianfan の統合 API を使って OpenClaw で多くのモデルにアクセスする
 title: Qianfan
 x-i18n:
-    generated_at: "2026-04-05T12:54:17Z"
+    generated_at: "2026-04-12T23:33:09Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 965d83dd968563447ce3571a73bd71c6876275caff8664311a852b2f9827e55b
+    source_hash: 1d0eeee9ec24b335c2fb8ac5e985a9edc35cfc5b2641c545cb295dd2de619f50
     source_path: providers/qianfan.md
     workflow: 15
 ---
 
-# Qianfanプロバイダーガイド
+# Qianfan
 
-QianfanはBaiduのMaaSプラットフォームであり、単一の
-エンドポイントとAPIキーの背後で多くのモデルにリクエストをルーティングする**統合API**を提供します。これはOpenAI互換なので、ほとんどのOpenAI SDKはbase URLを切り替えるだけで動作します。
+Qianfan は Baidu の MaaS プラットフォームで、単一の
+エンドポイントと API キーの背後で、多数のモデルにリクエストをルーティングする**統合 API**を提供します。OpenAI 互換なので、ほとんどの OpenAI SDK は base URL を切り替えるだけで動作します。
 
-## 前提条件
+| Property | Value |
+| -------- | ----- |
+| プロバイダー | `qianfan` |
+| 認証 | `QIANFAN_API_KEY` |
+| API | OpenAI 互換 |
+| ベース URL | `https://qianfan.baidubce.com/v2` |
 
-1. Qianfan APIアクセスを持つBaidu Cloudアカウント
-2. QianfanコンソールのAPIキー
-3. システムにインストールされたOpenClaw
+## はじめに
 
-## APIキーの取得
+<Steps>
+  <Step title="Baidu Cloud アカウントを作成する">
+    [Qianfan Console](https://console.bce.baidu.com/qianfan/ais/console/apiKey) で登録またはログインし、Qianfan API アクセスが有効になっていることを確認してください。
+  </Step>
+  <Step title="API キーを生成する">
+    新しいアプリケーションを作成するか既存のものを選択し、API キーを生成します。キー形式は `bce-v3/ALTAK-...` です。
+  </Step>
+  <Step title="オンボーディングを実行する">
+    ```bash
+    openclaw onboard --auth-choice qianfan-api-key
+    ```
+  </Step>
+  <Step title="モデルが利用可能であることを確認する">
+    ```bash
+    openclaw models list --provider qianfan
+    ```
+  </Step>
+</Steps>
 
-1. [Qianfan Console](https://console.bce.baidu.com/qianfan/ais/console/apiKey) にアクセスします
-2. 新しいアプリケーションを作成するか、既存のものを選択します
-3. APIキー（形式: `bce-v3/ALTAK-...`）を生成します
-4. OpenClawで使用するためにAPIキーをコピーします
+## 利用可能なモデル
 
-## CLIセットアップ
+| Model ref | Input | Context | Max output | Reasoning | Notes |
+| ------------------------------------ | ----------- | ------- | ---------- | --------- | ------------- |
+| `qianfan/deepseek-v3.2` | text | 98,304 | 32,768 | Yes | デフォルト モデル |
+| `qianfan/ernie-5.0-thinking-preview` | text, image | 119,000 | 64,000 | Yes | マルチモーダル |
 
-```bash
-openclaw onboard --auth-choice qianfan-api-key
-```
+<Tip>
+デフォルトのバンドル済み model ref は `qianfan/deepseek-v3.2` です。カスタム base URL またはモデル メタデータが必要な場合にのみ `models.providers.qianfan` を上書きする必要があります。
+</Tip>
 
-## 設定スニペット
+## 設定例
 
 ```json5
 {
@@ -81,17 +101,40 @@ openclaw onboard --auth-choice qianfan-api-key
 }
 ```
 
-## 注記
+<AccordionGroup>
+  <Accordion title="トランスポートと互換性">
+    Qianfan は、ネイティブ OpenAI のリクエスト整形ではなく、OpenAI 互換のトランスポート パスを通ります。これは標準の OpenAI SDK 機能は動作する一方で、プロバイダー固有のパラメーターは転送されない可能性があることを意味します。
+  </Accordion>
 
-- デフォルトの同梱モデル参照: `qianfan/deepseek-v3.2`
-- デフォルトbase URL: `https://qianfan.baidubce.com/v2`
-- 現在の同梱catalogには `deepseek-v3.2` と `ernie-5.0-thinking-preview` が含まれます
-- カスタムbase URLまたはモデルメタデータが必要な場合にのみ `models.providers.qianfan` を追加または上書きしてください
-- Qianfanは、ネイティブOpenAIリクエスト整形ではなく、OpenAI互換トランスポート経路で動作します
+  <Accordion title="カタログとオーバーライド">
+    現在、バンドルされたカタログには `deepseek-v3.2` と `ernie-5.0-thinking-preview` が含まれています。カスタム base URL またはモデル メタデータが必要な場合にのみ `models.providers.qianfan` を追加または上書きしてください。
 
-## 関連ドキュメント
+    <Note>
+    Model ref では `qianfan/` プレフィックスを使用します（例: `qianfan/deepseek-v3.2`）。
+    </Note>
 
-- [OpenClaw Configuration](/gateway/configuration)
-- [Model Providers](/concepts/model-providers)
-- [Agent Setup](/concepts/agent)
-- [Qianfan API Documentation](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)
+  </Accordion>
+
+  <Accordion title="トラブルシューティング">
+    - API キーが `bce-v3/ALTAK-` で始まり、Baidu Cloud コンソールで Qianfan API アクセスが有効になっていることを確認してください。
+    - モデルが一覧表示されない場合は、アカウントで Qianfan サービスが有効化されていることを確認してください。
+    - デフォルトの base URL は `https://qianfan.baidubce.com/v2` です。カスタム エンドポイントまたはプロキシを使う場合にのみ変更してください。
+  </Accordion>
+</AccordionGroup>
+
+## 関連
+
+<CardGroup cols={2}>
+  <Card title="モデル選択" href="/ja-JP/concepts/model-providers" icon="layers">
+    プロバイダー、モデル ref、フェイルオーバー動作の選び方。
+  </Card>
+  <Card title="設定リファレンス" href="/ja-JP/gateway/configuration" icon="gear">
+    OpenClaw の完全な設定リファレンス。
+  </Card>
+  <Card title="エージェント設定" href="/ja-JP/concepts/agent" icon="robot">
+    エージェントのデフォルトとモデル割り当ての設定。
+  </Card>
+  <Card title="Qianfan API ドキュメント" href="https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb" icon="arrow-up-right-from-square">
+    公式の Qianfan API ドキュメント。
+  </Card>
+</CardGroup>

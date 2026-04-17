@@ -1,77 +1,86 @@
 ---
 read_when:
-    - تريد تشغيل OpenClaw مقابل خادم SGLang محلي
+    - تريد تشغيل OpenClaw على خادم SGLang محلي
     - تريد نقاط نهاية `/v1` متوافقة مع OpenAI مع نماذجك الخاصة
-summary: شغّل OpenClaw مع SGLang ‏(خادم مستضاف ذاتيًا ومتوافق مع OpenAI)
+summary: شغّل OpenClaw مع SGLang (خادم مستضاف ذاتيًا ومتوافق مع OpenAI)
 title: SGLang
 x-i18n:
-    generated_at: "2026-04-05T12:53:53Z"
+    generated_at: "2026-04-12T23:32:47Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 9850277c6c5e318e60237688b4d8a5b1387d4e9586534ae2eb6ad953abba8948
+    source_hash: e0a2e50a499c3d25dcdc3af425fb023c6e3f19ed88f533ecf0eb8a2cb7ec8b0d
     source_path: providers/sglang.md
     workflow: 15
 ---
 
 # SGLang
 
-يمكن لـ SGLang خدمة النماذج مفتوحة المصدر عبر HTTP API **متوافقة مع OpenAI**.
+يمكن لـ SGLang تقديم نماذج مفتوحة المصدر عبر HTTP API **متوافق مع OpenAI**.
 ويمكن لـ OpenClaw الاتصال بـ SGLang باستخدام API ‏`openai-completions`.
 
-كما يمكن لـ OpenClaw أيضًا **اكتشاف** النماذج المتاحة من SGLang تلقائيًا عندما
-تشترك باستخدام `SGLANG_API_KEY` ‏(أي قيمة تعمل إذا كان خادمك لا يفرض المصادقة)
+كما يمكن لـ OpenClaw أيضًا **اكتشاف** النماذج المتاحة تلقائيًا من SGLang عندما
+تفعّل ذلك عبر `SGLANG_API_KEY` (أي قيمة تعمل إذا كان خادمك لا يفرض المصادقة)
 ولا تعرّف إدخالًا صريحًا `models.providers.sglang`.
 
-## بدء سريع
+## البدء
 
-1. ابدأ SGLang باستخدام خادم متوافق مع OpenAI.
+<Steps>
+  <Step title="Start SGLang">
+    شغّل SGLang بخادم متوافق مع OpenAI. يجب أن يعرّض Base URL لديك نقاط نهاية
+    `/v1` (مثل `/v1/models` و`/v1/chat/completions`). يعمل SGLang غالبًا على:
 
-يجب أن يعرض base URL لديك نقاط النهاية `/v1` ‏(مثل `/v1/models`,
-و`/v1/chat/completions`). وغالبًا ما يعمل SGLang على:
+    - `http://127.0.0.1:30000/v1`
 
-- `http://127.0.0.1:30000/v1`
+  </Step>
+  <Step title="Set an API key">
+    تعمل أي قيمة إذا لم تُضبط مصادقة على خادمك:
 
-2. اشترك (أي قيمة تعمل إذا لم تُضبط مصادقة):
+    ```bash
+    export SGLANG_API_KEY="sglang-local"
+    ```
 
-```bash
-export SGLANG_API_KEY="sglang-local"
-```
+  </Step>
+  <Step title="Run onboarding or set a model directly">
+    ```bash
+    openclaw onboard
+    ```
 
-3. شغّل الإعداد الأولي واختر `SGLang`، أو اضبط نموذجًا مباشرة:
+    أو اضبط النموذج يدويًا:
 
-```bash
-openclaw onboard
-```
+    ```json5
+    {
+      agents: {
+        defaults: {
+          model: { primary: "sglang/your-model-id" },
+        },
+      },
+    }
+    ```
 
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "sglang/your-model-id" },
-    },
-  },
-}
-```
+  </Step>
+</Steps>
 
-## اكتشاف النماذج (مزوّد ضمني)
+## اكتشاف النموذج (الموفّر الضمني)
 
-عندما يكون `SGLANG_API_KEY` مضبوطًا (أو توجد auth profile) وأنت **لا**
-تعرّف `models.providers.sglang`، سيستعلم OpenClaw عن:
+عند تعيين `SGLANG_API_KEY` (أو وجود ملف مصادقة) و**عدم** تعريف
+`models.providers.sglang`، سيستعلم OpenClaw عن:
 
 - `GET http://127.0.0.1:30000/v1/models`
 
-وسيحوّل المعرّفات المُعادة إلى إدخالات نماذج.
+ثم يحوّل المعرّفات المُعادة إلى إدخالات نماذج.
 
-إذا ضبطت `models.providers.sglang` صراحةً، فسيُتخطى الاكتشاف التلقائي
+<Note>
+إذا عيّنت `models.providers.sglang` بشكل صريح، فسيتم تخطي الاكتشاف التلقائي
 ويجب عليك تعريف النماذج يدويًا.
+</Note>
 
-## إعداد صريح (نماذج يدوية)
+## الإعداد الصريح (النماذج اليدوية)
 
 استخدم الإعداد الصريح عندما:
 
-- تعمل SGLang على مضيف/منفذ مختلفين.
+- يعمل SGLang على مضيف/منفذ مختلف.
 - تريد تثبيت قيم `contextWindow`/`maxTokens`.
-- يتطلب خادمك API key حقيقية (أو تريد التحكم في الترويسات).
+- يتطلب خادمك مفتاح API حقيقيًا (أو تريد التحكم في الترويسات).
 
 ```json5
 {
@@ -84,7 +93,7 @@ openclaw onboard
         models: [
           {
             id: "your-model-id",
-            name: "Local SGLang Model",
+            name: "نموذج SGLang محلي",
             reasoning: false,
             input: ["text"],
             cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
@@ -98,25 +107,51 @@ openclaw onboard
 }
 ```
 
-## استكشاف الأخطاء وإصلاحها
+## إعداد متقدم
 
-- تحقق من أن الخادم قابل للوصول:
+<AccordionGroup>
+  <Accordion title="Proxy-style behavior">
+    يُعامل SGLang على أنه واجهة خلفية `/v1` متوافقة مع OpenAI بأسلوب الوكيل،
+    وليس نقطة نهاية OpenAI أصلية.
 
-```bash
-curl http://127.0.0.1:30000/v1/models
-```
+    | السلوك | SGLang |
+    |--------|--------|
+    | تشكيل الطلبات الخاص بـ OpenAI فقط | لا يُطبّق |
+    | `service_tier` و`store` الخاص بـ Responses وتلميحات ذاكرة التخزين المؤقت للمطالبات | لا تُرسل |
+    | تشكيل الحمولة المتوافق مع الاستدلال | لا يُطبّق |
+    | ترويسات الإسناد المخفية (`originator` و`version` و`User-Agent`) | لا تُحقن على عناوين Base URL المخصصة لـ SGLang |
 
-- إذا فشلت الطلبات بأخطاء مصادقة، فاضبط `SGLANG_API_KEY` حقيقية تطابق
-  إعداد خادمك، أو هيّئ المزوّد صراحةً تحت
-  `models.providers.sglang`.
+  </Accordion>
 
-## سلوك بنمط الوكيل
+  <Accordion title="Troubleshooting">
+    **الخادم غير قابل للوصول**
 
-تُعامَل SGLang على أنها واجهة `/v1` متوافقة مع OpenAI بنمط الوكيل، وليست
-نقطة نهاية OpenAI أصلية.
+    تحقّق من أن الخادم قيد التشغيل ويستجيب:
 
-- لا يُطبَّق هنا تشكيل الطلبات الأصلية الخاصة بـ OpenAI فقط
-- لا يوجد `service_tier`، ولا Responses `store`، ولا تلميحات تخزين مؤقت للموجّه، ولا
-  تشكيل لحمولة توافق الاستدلال الخاصة بـ OpenAI
-- لا تُحقن ترويسات الإسناد المخفية الخاصة بـ OpenClaw (`originator`, `version`, `User-Agent`)
-  على base URLs المخصصة الخاصة بـ SGLang
+    ```bash
+    curl http://127.0.0.1:30000/v1/models
+    ```
+
+    **أخطاء المصادقة**
+
+    إذا فشلت الطلبات بسبب أخطاء مصادقة، فعيّن `SGLANG_API_KEY` حقيقيًا يطابق
+    إعداد خادمك، أو اضبط الموفّر صراحةً تحت `models.providers.sglang`.
+
+    <Tip>
+    إذا كنت تشغّل SGLang من دون مصادقة، فتكفي أي قيمة غير فارغة لـ
+    `SGLANG_API_KEY` لتفعيل اكتشاف النماذج.
+    </Tip>
+
+  </Accordion>
+</AccordionGroup>
+
+## ذو صلة
+
+<CardGroup cols={2}>
+  <Card title="Model selection" href="/ar/concepts/model-providers" icon="layers">
+    اختيار الموفّرات، ومراجع النماذج، وسلوك التبديل الاحتياطي.
+  </Card>
+  <Card title="Configuration reference" href="/ar/gateway/configuration-reference" icon="gear">
+    مخطط الإعداد الكامل، بما في ذلك إدخالات الموفّرين.
+  </Card>
+</CardGroup>

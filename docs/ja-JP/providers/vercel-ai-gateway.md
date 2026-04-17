@@ -1,49 +1,70 @@
 ---
 read_when:
-    - OpenClaw で Vercel AI Gateway を使いたい
-    - API key の env var または CLI auth choice が必要
-summary: Vercel AI Gateway のセットアップ（auth + model 選択）
+    - OpenClaw で Vercel AI Gateway を使いたい場合
+    - API キーの環境変数または CLI の認証選択肢が必要な場合
+summary: Vercel AI Gateway のセットアップ（認証 + モデル選択）
 title: Vercel AI Gateway
 x-i18n:
-    generated_at: "2026-04-05T12:54:34Z"
+    generated_at: "2026-04-12T23:33:52Z"
     model: gpt-5.4
     provider: openai
-    source_hash: f30768dc3db49708b25042d317906f7ad9a2c72b0fa03263bc04f5eefbf7a507
+    source_hash: 48c206a645d7a62e201a35ae94232323c8570fdae63129231c38d363ea78a60b
     source_path: providers/vercel-ai-gateway.md
     workflow: 15
 ---
 
 # Vercel AI Gateway
 
-[Vercel AI Gateway](https://vercel.com/ai-gateway) は、単一の endpoint を通じて数百のモデルにアクセスするための統一 API を提供します。
+[Vercel AI Gateway](https://vercel.com/ai-gateway) は、単一のエンドポイントを通じて数百のモデルにアクセスするための統一 API を提供します。
 
-- Provider: `vercel-ai-gateway`
-- Auth: `AI_GATEWAY_API_KEY`
-- API: Anthropic Messages 互換
-- OpenClaw は Gateway の `/v1/models` カタログを自動検出するため、`/models vercel-ai-gateway`
-  には `vercel-ai-gateway/openai/gpt-5.4` のような現在の model ref が含まれます。
+| 項目 | 値 |
+| ------------- | -------------------------------- |
+| Provider | `vercel-ai-gateway` |
+| Auth | `AI_GATEWAY_API_KEY` |
+| API | Anthropic Messages 互換 |
+| モデルカタログ | `/v1/models` 経由で自動検出 |
 
-## クイックスタート
+<Tip>
+OpenClaw は Gateway の `/v1/models` カタログを自動検出するため、
+`/models vercel-ai-gateway` には
+`vercel-ai-gateway/openai/gpt-5.4` のような現在のモデル参照が含まれます。
+</Tip>
 
-1. API key を設定します（推奨: Gateway 用に保存する）:
+## はじめに
 
-```bash
-openclaw onboard --auth-choice ai-gateway-api-key
-```
+<Steps>
+  <Step title="API キーを設定する">
+    オンボーディングを実行し、AI Gateway の認証オプションを選択します。
 
-2. デフォルトモデルを設定します:
+    ```bash
+    openclaw onboard --auth-choice ai-gateway-api-key
+    ```
 
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "vercel-ai-gateway/anthropic/claude-opus-4.6" },
-    },
-  },
-}
-```
+  </Step>
+  <Step title="デフォルトモデルを設定する">
+    モデルを OpenClaw 設定に追加します。
+
+    ```json5
+    {
+      agents: {
+        defaults: {
+          model: { primary: "vercel-ai-gateway/anthropic/claude-opus-4.6" },
+        },
+      },
+    }
+    ```
+
+  </Step>
+  <Step title="モデルが利用可能であることを確認する">
+    ```bash
+    openclaw models list --provider vercel-ai-gateway
+    ```
+  </Step>
+</Steps>
 
 ## 非対話の例
+
+スクリプト化されたセットアップや CI セットアップでは、すべての値をコマンドラインで渡します。
 
 ```bash
 openclaw onboard --non-interactive \
@@ -52,15 +73,49 @@ openclaw onboard --non-interactive \
   --ai-gateway-api-key "$AI_GATEWAY_API_KEY"
 ```
 
-## 環境に関する注意
+## モデル ID の短縮形
 
-Gateway が daemon（launchd / systemd）として実行される場合は、`AI_GATEWAY_API_KEY`
-がそのプロセスから利用可能であることを確認してください（たとえば `~/.openclaw/.env` または
-`env.shellEnv` 経由）。
+OpenClaw は Vercel Claude の短縮モデル参照を受け付け、ランタイム時に正規化します。
 
-## Model ID の短縮記法
+| 短縮入力 | 正規化されたモデル参照 |
+| ----------------------------------- | --------------------------------------------- |
+| `vercel-ai-gateway/claude-opus-4.6` | `vercel-ai-gateway/anthropic/claude-opus-4.6` |
+| `vercel-ai-gateway/opus-4.6` | `vercel-ai-gateway/anthropic/claude-opus-4-6` |
 
-OpenClaw は Vercel Claude の短縮 model ref を受け付け、ランタイム時に正規化します。
+<Tip>
+設定では短縮形でも完全修飾のモデル参照でも使用できます。OpenClaw が自動的に正式な形式へ解決します。
+</Tip>
 
-- `vercel-ai-gateway/claude-opus-4.6` -> `vercel-ai-gateway/anthropic/claude-opus-4.6`
-- `vercel-ai-gateway/opus-4.6` -> `vercel-ai-gateway/anthropic/claude-opus-4-6`
+## 高度な注意事項
+
+<AccordionGroup>
+  <Accordion title="デーモンプロセス用の環境変数">
+    OpenClaw Gateway がデーモン（launchd/systemd）として実行される場合は、
+    `AI_GATEWAY_API_KEY` がそのプロセスで利用可能であることを確認してください。
+
+    <Warning>
+    `~/.profile` にのみ設定されたキーは、その環境を明示的に取り込まない限り、
+    launchd/systemd デーモンからは見えません。gateway プロセスが
+    読み取れるように、キーは `~/.openclaw/.env` または `env.shellEnv` で設定してください。
+    </Warning>
+
+  </Accordion>
+
+  <Accordion title="provider ルーティング">
+    Vercel AI Gateway は、モデル参照プレフィックスに基づいてリクエストを上流 provider へルーティングします。たとえば、`vercel-ai-gateway/anthropic/claude-opus-4.6` は
+    Anthropic 経由でルーティングされ、`vercel-ai-gateway/openai/gpt-5.4` は
+    OpenAI 経由でルーティングされます。単一の `AI_GATEWAY_API_KEY` で、すべての
+    上流 provider に対する認証を処理します。
+  </Accordion>
+</AccordionGroup>
+
+## 関連
+
+<CardGroup cols={2}>
+  <Card title="Model selection" href="/ja-JP/concepts/model-providers" icon="layers">
+    provider、モデル参照、フェイルオーバー動作の選び方。
+  </Card>
+  <Card title="Troubleshooting" href="/ja-JP/help/troubleshooting" icon="wrench">
+    一般的なトラブルシューティングと FAQ。
+  </Card>
+</CardGroup>

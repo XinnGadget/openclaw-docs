@@ -2,14 +2,14 @@
 read_when:
     - Memverifikasi cakupan kredensial SecretRef
     - Mengaudit apakah sebuah kredensial memenuhi syarat untuk `secrets configure` atau `secrets apply`
-    - Memverifikasi alasan sebuah kredensial berada di luar permukaan yang didukung
-summary: Permukaan kredensial SecretRef kanonis yang didukung vs yang tidak didukung
+    - Memverifikasi mengapa sebuah kredensial berada di luar permukaan yang didukung
+summary: Permukaan kredensial SecretRef kanonis yang didukung vs tidak didukung
 title: Permukaan Kredensial SecretRef
 x-i18n:
-    generated_at: "2026-04-07T09:19:19Z"
+    generated_at: "2026-04-15T09:15:26Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 211f4b504c5808f7790683066fc2c8b700c705c598f220a264daf971b81cc593
+    source_hash: dd0b9c379236b17a72f552d6360b8b5a2269009e019c138c6bb50f4f7328ddaf
     source_path: reference/secretref-credential-surface.md
     workflow: 15
 ---
@@ -18,10 +18,10 @@ x-i18n:
 
 Halaman ini mendefinisikan permukaan kredensial SecretRef kanonis.
 
-Tujuan cakupan:
+Cakupan yang dimaksud:
 
-- Dalam cakupan: kredensial yang benar-benar dipasok pengguna dan tidak dibuat atau diputar oleh OpenClaw.
-- Di luar cakupan: kredensial yang dibuat saat runtime atau berputar, materi refresh OAuth, dan artefak mirip sesi.
+- Dalam cakupan: secara ketat kredensial yang disuplai pengguna dan tidak dibuat atau dirotasi oleh OpenClaw.
+- Di luar cakupan: kredensial yang dibuat saat runtime atau berotasi, materi refresh OAuth, dan artefak mirip sesi.
 
 ## Kredensial yang didukung
 
@@ -49,6 +49,7 @@ Tujuan cakupan:
 - `messages.tts.providers.*.apiKey`
 - `tools.web.fetch.firecrawl.apiKey`
 - `plugins.entries.brave.config.webSearch.apiKey`
+- `plugins.entries.exa.config.webSearch.apiKey`
 - `plugins.entries.google.config.webSearch.apiKey`
 - `plugins.entries.xai.config.webSearch.apiKey`
 - `plugins.entries.moonshot.config.webSearch.apiKey`
@@ -107,33 +108,33 @@ Tujuan cakupan:
 - `channels.zalo.webhookSecret`
 - `channels.zalo.accounts.*.botToken`
 - `channels.zalo.accounts.*.webhookSecret`
-- `channels.googlechat.serviceAccount` melalui sibling `serviceAccountRef` (pengecualian kompatibilitas)
-- `channels.googlechat.accounts.*.serviceAccount` melalui sibling `serviceAccountRef` (pengecualian kompatibilitas)
+- `channels.googlechat.serviceAccount` melalui `serviceAccountRef` saudara (pengecualian kompatibilitas)
+- `channels.googlechat.accounts.*.serviceAccount` melalui `serviceAccountRef` saudara (pengecualian kompatibilitas)
 
 ### Target `auth-profiles.json` (`secrets configure` + `secrets apply` + `secrets audit`)
 
-- `profiles.*.keyRef` (`type: "api_key"`; tidak didukung saat `auth.profiles.<id>.mode = "oauth"`)
-- `profiles.*.tokenRef` (`type: "token"`; tidak didukung saat `auth.profiles.<id>.mode = "oauth"`)
+- `profiles.*.keyRef` (`type: "api_key"`; tidak didukung ketika `auth.profiles.<id>.mode = "oauth"`)
+- `profiles.*.tokenRef` (`type: "token"`; tidak didukung ketika `auth.profiles.<id>.mode = "oauth"`)
 
 [//]: # "secretref-supported-list-end"
 
 Catatan:
 
 - Target rencana auth-profile memerlukan `agentId`.
-- Entri rencana menargetkan `profiles.*.key` / `profiles.*.token` dan menulis ref sibling (`keyRef` / `tokenRef`).
+- Entri rencana menargetkan `profiles.*.key` / `profiles.*.token` dan menulis ref saudara (`keyRef` / `tokenRef`).
 - Ref auth-profile disertakan dalam resolusi runtime dan cakupan audit.
-- Pembatas kebijakan OAuth: `auth.profiles.<id>.mode = "oauth"` tidak dapat digabungkan dengan input SecretRef untuk profil tersebut. Startup/reload dan resolusi auth-profile gagal cepat saat kebijakan ini dilanggar.
-- Untuk provider model yang dikelola SecretRef, entri `agents/*/agent/models.json` yang dihasilkan mempertahankan marker non-secret (bukan nilai secret yang sudah di-resolve) untuk permukaan `apiKey`/header.
-- Persistensi marker bersifat source-authoritative: OpenClaw menulis marker dari snapshot konfigurasi sumber aktif (pra-resolusi), bukan dari nilai secret runtime yang sudah di-resolve.
+- Guard kebijakan OAuth: `auth.profiles.<id>.mode = "oauth"` tidak dapat digabungkan dengan input SecretRef untuk profil tersebut. Startup/reload dan resolusi auth-profile gagal cepat ketika kebijakan ini dilanggar.
+- Untuk provider model yang dikelola SecretRef, entri `agents/*/agent/models.json` yang dihasilkan mempertahankan penanda non-rahasia (bukan nilai rahasia yang telah diresolusikan) untuk permukaan `apiKey`/header.
+- Persistensi penanda bersifat otoritatif terhadap sumber: OpenClaw menulis penanda dari snapshot konfigurasi sumber aktif (pra-resolusi), bukan dari nilai rahasia runtime yang telah diresolusikan.
 - Untuk pencarian web:
-  - Dalam mode provider eksplisit (`tools.web.search.provider` ditetapkan), hanya kunci provider yang dipilih yang aktif.
-  - Dalam mode otomatis (`tools.web.search.provider` tidak ditetapkan), hanya kunci provider pertama yang berhasil di-resolve berdasarkan prioritas yang aktif.
+  - Dalam mode provider eksplisit (`tools.web.search.provider` disetel), hanya kunci provider yang dipilih yang aktif.
+  - Dalam mode otomatis (`tools.web.search.provider` tidak disetel), hanya kunci provider pertama yang teresolusikan berdasarkan prioritas yang aktif.
   - Dalam mode otomatis, ref provider yang tidak dipilih diperlakukan sebagai tidak aktif sampai dipilih.
-  - Path provider lama `tools.web.search.*` masih di-resolve selama jendela kompatibilitas, tetapi permukaan SecretRef kanonis adalah `plugins.entries.<plugin>.config.webSearch.*`.
+  - Path provider `tools.web.search.*` lama masih diresolusikan selama jendela kompatibilitas, tetapi permukaan SecretRef kanonis adalah `plugins.entries.<plugin>.config.webSearch.*`.
 
 ## Kredensial yang tidak didukung
 
-Kredensial di luar cakupan meliputi:
+Kredensial di luar cakupan mencakup:
 
 [//]: # "secretref-unsupported-list-start"
 
@@ -151,4 +152,4 @@ Kredensial di luar cakupan meliputi:
 
 Alasan:
 
-- Kredensial ini merupakan kelas yang dibuat, diputar, membawa sesi, atau tahan lama untuk OAuth yang tidak cocok dengan resolusi SecretRef eksternal read-only.
+- Kredensial ini merupakan kelas yang dibuat, dirotasi, membawa sesi, atau tahan lama OAuth yang tidak sesuai dengan resolusi SecretRef eksternal yang hanya-baca.

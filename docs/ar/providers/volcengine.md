@@ -1,49 +1,64 @@
 ---
 read_when:
     - تريد استخدام Volcano Engine أو نماذج Doubao مع OpenClaw
-    - تحتاج إلى إعداد Volcengine API key
-summary: إعداد Volcengine ‏(نماذج Doubao، ونقاط النهاية العامة + الخاصة بالبرمجة)
-title: Volcengine ‏(Doubao)
+    - تحتاج إلى إعداد مفتاح API لـ Volcengine
+summary: إعداد Volcano Engine ‏(نماذج Doubao، ونقاط النهاية العامة ونقاط نهاية البرمجة)
+title: Volcengine (Doubao)
 x-i18n:
-    generated_at: "2026-04-05T12:54:16Z"
+    generated_at: "2026-04-12T23:33:17Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 85d9e737e906cd705fb31479d6b78d92b68c9218795ea9667516c1571dcaaf3a
+    source_hash: a21f390da719f79c88c6d55a7d952d35c2ce5ff26d910c9f10020132cd7d2f4c
     source_path: providers/volcengine.md
     workflow: 15
 ---
 
-# Volcengine ‏(Doubao)
+# Volcengine (Doubao)
 
-يمنح مزود Volcengine الوصول إلى نماذج Doubao والنماذج التابعة لجهات خارجية
-المستضافة على Volcano Engine، مع نقاط نهاية منفصلة لأحمال العمل
-العامة وأحمال البرمجة.
+يوفّر مزوّد Volcengine الوصول إلى نماذج Doubao والنماذج الخارجية
+المستضافة على Volcano Engine، مع نقاط نهاية منفصلة للأحمال العامة وأحمال
+البرمجة.
 
-- المزوّدون: `volcengine` ‏(عام) + `volcengine-plan` ‏(للبرمجة)
-- المصادقة: `VOLCANO_ENGINE_API_KEY`
-- API: متوافقة مع OpenAI
+| التفاصيل    | القيمة                                               |
+| --------- | --------------------------------------------------- |
+| المزوّدون | `volcengine` (عام) + `volcengine-plan` (برمجة) |
+| المصادقة      | `VOLCANO_ENGINE_API_KEY`                            |
+| API       | متوافق مع OpenAI                                   |
 
-## بدء سريع
+## البدء
 
-1. اضبط API key:
+<Steps>
+  <Step title="عيّن مفتاح API">
+    شغّل الإعداد التفاعلي:
 
-```bash
-openclaw onboard --auth-choice volcengine-api-key
-```
+    ```bash
+    openclaw onboard --auth-choice volcengine-api-key
+    ```
 
-2. اضبط نموذجًا افتراضيًا:
+    يؤدي هذا إلى تسجيل كل من المزوّد العام (`volcengine`) ومزوّد البرمجة (`volcengine-plan`) باستخدام مفتاح API واحد.
 
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "volcengine-plan/ark-code-latest" },
-    },
-  },
-}
-```
+  </Step>
+  <Step title="عيّن نموذجًا افتراضيًا">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          model: { primary: "volcengine-plan/ark-code-latest" },
+        },
+      },
+    }
+    ```
+  </Step>
+  <Step title="تحقق من أن النموذج متاح">
+    ```bash
+    openclaw models list --provider volcengine
+    openclaw models list --provider volcengine-plan
+    ```
+  </Step>
+</Steps>
 
-## مثال غير تفاعلي
+<Tip>
+للإعداد غير التفاعلي (CI، والسكريبتات)، مرّر المفتاح مباشرة:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -52,50 +67,84 @@ openclaw onboard --non-interactive \
   --volcengine-api-key "$VOLCANO_ENGINE_API_KEY"
 ```
 
+</Tip>
+
 ## المزوّدون ونقاط النهاية
 
-| المزوّد            | نقطة النهاية                              | حالة الاستخدام   |
-| ------------------ | ----------------------------------------- | ---------------- |
-| `volcengine`       | `ark.cn-beijing.volces.com/api/v3`        | النماذج العامة   |
-| `volcengine-plan`  | `ark.cn-beijing.volces.com/api/coding/v3` | نماذج البرمجة    |
+| المزوّد          | نقطة النهاية                                  | حالة الاستخدام       |
+| ----------------- | ----------------------------------------- | -------------- |
+| `volcengine`      | `ark.cn-beijing.volces.com/api/v3`        | نماذج عامة |
+| `volcengine-plan` | `ark.cn-beijing.volces.com/api/coding/v3` | نماذج البرمجة  |
 
-يُضبط كلا المزوّدين باستخدام API key واحدة. ويقوم الإعداد بتسجيلهما
-تلقائيًا.
+<Note>
+يتم إعداد كلا المزوّدين من مفتاح API واحد. ويسجّل الإعداد كليهما تلقائيًا.
+</Note>
 
 ## النماذج المتاحة
 
-المزوّد العام (`volcengine`):
+<Tabs>
+  <Tab title="عام (volcengine)">
+    | مرجع النموذج                                    | الاسم                            | الإدخال       | السياق |
+    | -------------------------------------------- | ------------------------------- | ----------- | ------- |
+    | `volcengine/doubao-seed-1-8-251228`          | Doubao Seed 1.8                 | نص، صورة | 256,000 |
+    | `volcengine/doubao-seed-code-preview-251028` | doubao-seed-code-preview-251028 | نص، صورة | 256,000 |
+    | `volcengine/kimi-k2-5-260127`                | Kimi K2.5                       | نص، صورة | 256,000 |
+    | `volcengine/glm-4-7-251222`                  | GLM 4.7                         | نص، صورة | 200,000 |
+    | `volcengine/deepseek-v3-2-251201`            | DeepSeek V3.2                   | نص، صورة | 128,000 |
+  </Tab>
+  <Tab title="برمجة (volcengine-plan)">
+    | مرجع النموذج                                         | الاسم                     | الإدخال | السياق |
+    | ------------------------------------------------- | ------------------------ | ----- | ------- |
+    | `volcengine-plan/ark-code-latest`                 | Ark Coding Plan          | نص  | 256,000 |
+    | `volcengine-plan/doubao-seed-code`                | Doubao Seed Code         | نص  | 256,000 |
+    | `volcengine-plan/glm-4.7`                         | GLM 4.7 Coding           | نص  | 200,000 |
+    | `volcengine-plan/kimi-k2-thinking`                | Kimi K2 Thinking         | نص  | 256,000 |
+    | `volcengine-plan/kimi-k2.5`                       | Kimi K2.5 Coding         | نص  | 256,000 |
+    | `volcengine-plan/doubao-seed-code-preview-251028` | Doubao Seed Code Preview | نص  | 256,000 |
+  </Tab>
+</Tabs>
 
-| مرجع النموذج                               | الاسم                           | الإدخال      | السياق  |
-| ----------------------------------------- | ------------------------------- | ------------ | ------- |
-| `volcengine/doubao-seed-1-8-251228`       | Doubao Seed 1.8                 | text, image  | 256,000 |
-| `volcengine/doubao-seed-code-preview-251028` | doubao-seed-code-preview-251028 | text, image  | 256,000 |
-| `volcengine/kimi-k2-5-260127`             | Kimi K2.5                       | text, image  | 256,000 |
-| `volcengine/glm-4-7-251222`               | GLM 4.7                         | text, image  | 200,000 |
-| `volcengine/deepseek-v3-2-251201`         | DeepSeek V3.2                   | text, image  | 128,000 |
+## ملاحظات متقدمة
 
-مزوّد البرمجة (`volcengine-plan`):
+<AccordionGroup>
+  <Accordion title="النموذج الافتراضي بعد الإعداد">
+    يضبط `openclaw onboard --auth-choice volcengine-api-key` حاليًا
+    `volcengine-plan/ark-code-latest` كنموذج افتراضي، مع تسجيل
+    كتالوج `volcengine` العام أيضًا.
+  </Accordion>
 
-| مرجع النموذج                                    | الاسم                    | الإدخال | السياق  |
-| ------------------------------------------------ | ------------------------ | ------- | ------- |
-| `volcengine-plan/ark-code-latest`                | Ark Coding Plan          | text    | 256,000 |
-| `volcengine-plan/doubao-seed-code`               | Doubao Seed Code         | text    | 256,000 |
-| `volcengine-plan/glm-4.7`                        | GLM 4.7 Coding           | text    | 200,000 |
-| `volcengine-plan/kimi-k2-thinking`               | Kimi K2 Thinking         | text    | 256,000 |
-| `volcengine-plan/kimi-k2.5`                      | Kimi K2.5 Coding         | text    | 256,000 |
-| `volcengine-plan/doubao-seed-code-preview-251028`| Doubao Seed Code Preview | text    | 256,000 |
+  <Accordion title="سلوك الرجوع الاحتياطي في منتقي النماذج">
+    أثناء الإعداد/ضبط اختيار النموذج، يفضّل خيار مصادقة Volcengine
+    الصفوف `volcengine/*` و`volcengine-plan/*` معًا. وإذا لم تكن تلك النماذج
+    قد تم تحميلها بعد، يعود OpenClaw إلى الكتالوج غير المفلتر بدلًا من عرض
+    منتقٍ فارغ للنماذج على مستوى المزوّد.
+  </Accordion>
 
-يضبط `openclaw onboard --auth-choice volcengine-api-key` حاليًا
-`volcengine-plan/ark-code-latest` كنموذج افتراضي، مع تسجيل
-فهرس `volcengine` العام أيضًا.
+  <Accordion title="متغيرات البيئة لعمليات daemon">
+    إذا كان Gateway يعمل كخدمة daemon (`launchd`/`systemd`)، فتأكد من أن
+    `VOLCANO_ENGINE_API_KEY` متاح لتلك العملية (على سبيل المثال، في
+    `~/.openclaw/.env` أو عبر `env.shellEnv`).
+  </Accordion>
+</AccordionGroup>
 
-أثناء اختيار النموذج في الإعداد الأولي/configure، يفضّل خيار مصادقة Volcengine
-كلًا من الصفوف `volcengine/*` و`volcengine-plan/*`. وإذا لم تكن هذه النماذج
-محملة بعد، يعود OpenClaw إلى الفهرس غير المصفّى بدل عرض
-منتقٍ فارغ محدد بالمزوّد.
+<Warning>
+عند تشغيل OpenClaw كخدمة في الخلفية، لا تُورَّث متغيرات البيئة المضبوطة في
+الـ shell التفاعلي تلقائيًا. راجع ملاحظة daemon أعلاه.
+</Warning>
 
-## ملاحظة حول البيئة
+## ذو صلة
 
-إذا كانت Gateway تعمل كـ daemon ‏(launchd/systemd)، فتأكد من أن
-`VOLCANO_ENGINE_API_KEY` متاحة لتلك العملية (على سبيل المثال، في
-`~/.openclaw/.env` أو عبر `env.shellEnv`).
+<CardGroup cols={2}>
+  <Card title="اختيار النموذج" href="/ar/concepts/model-providers" icon="layers">
+    اختيار المزوّدين، ومراجع النماذج، وسلوك التبديل الاحتياطي.
+  </Card>
+  <Card title="الإعداد" href="/ar/gateway/configuration" icon="gear">
+    مرجع الإعداد الكامل للوكلاء والنماذج والمزوّدين.
+  </Card>
+  <Card title="استكشاف الأخطاء وإصلاحها" href="/ar/help/troubleshooting" icon="wrench">
+    المشكلات الشائعة وخطوات تصحيح الأخطاء.
+  </Card>
+  <Card title="الأسئلة الشائعة" href="/ar/help/faq" icon="circle-question">
+    الأسئلة الشائعة حول إعداد OpenClaw.
+  </Card>
+</CardGroup>

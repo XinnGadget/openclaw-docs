@@ -1,54 +1,63 @@
 ---
 read_when:
-    - OpenClawでRunwayの動画生成を使いたいとき
-    - Runway APIキー/env の設定が必要なとき
-    - Runwayをデフォルトの動画providerにしたいとき
-summary: OpenClawでのRunway動画生成セットアップ
+    - OpenClaw で Runway 動画生成を使いたい場合
+    - Runway API key/env のセットアップが必要です
+    - Runway をデフォルトの動画 provider にしたい場合
+summary: OpenClaw での Runway 動画生成のセットアップ
 title: Runway
 x-i18n:
-    generated_at: "2026-04-06T03:11:57Z"
+    generated_at: "2026-04-12T23:33:28Z"
     model: gpt-5.4
     provider: openai
-    source_hash: bc615d1a26f7a4b890d29461e756690c858ecb05024cf3c4d508218022da6e76
+    source_hash: fb9a2d26687920544222b0769f314743af245629fd45b7f456c0161a47476176
     source_path: providers/runway.md
     workflow: 15
 ---
 
 # Runway
 
-OpenClawには、ホスト型動画生成向けのバンドル済み `runway` provider が含まれています。
+OpenClaw には、ホスト型動画生成用のバンドル済み `runway` provider が含まれています。
 
-- Provider id: `runway`
-- Auth: `RUNWAYML_API_SECRET`（正式）または `RUNWAY_API_KEY`
-- API: Runwayのタスクベース動画生成（`GET /v1/tasks/{id}` ポーリング）
+| Property    | Value                                                             |
+| ----------- | ----------------------------------------------------------------- |
+| Provider id | `runway`                                                          |
+| Auth        | `RUNWAYML_API_SECRET`（正規）または `RUNWAY_API_KEY`             |
+| API         | Runway のタスクベース動画生成（`GET /v1/tasks/{id}` ポーリング） |
 
-## クイックスタート
+## はじめに
 
-1. APIキーを設定します。
-
-```bash
-openclaw onboard --auth-choice runway-api-key
-```
-
-2. Runwayをデフォルトの動画providerに設定します。
-
-```bash
-openclaw config set agents.defaults.videoGenerationModel.primary "runway/gen4.5"
-```
-
-3. エージェントに動画生成を依頼します。Runwayが自動的に使用されます。
+<Steps>
+  <Step title="API key を設定">
+    ```bash
+    openclaw onboard --auth-choice runway-api-key
+    ```
+  </Step>
+  <Step title="Runway をデフォルトの動画 provider に設定">
+    ```bash
+    openclaw config set agents.defaults.videoGenerationModel.primary "runway/gen4.5"
+    ```
+  </Step>
+  <Step title="動画を生成">
+    エージェントに動画生成を依頼してください。Runway が自動的に使用されます。
+  </Step>
+</Steps>
 
 ## サポートされるモード
 
-| Mode | Model | 参照入力 |
-| -------------- | ------------------ | ----------------------- |
-| テキストから動画 | `gen4.5`（デフォルト） | なし |
-| 画像から動画 | `gen4.5` | ローカルまたはリモート画像1枚 |
-| 動画から動画 | `gen4_aleph` | ローカルまたはリモート動画1本 |
+| モード           | Model              | 参照入力                  |
+| -------------- | ------------------ | ------------------------- |
+| Text-to-video  | `gen4.5`（デフォルト） | なし                      |
+| Image-to-video | `gen4.5`           | ローカルまたはリモート画像 1 枚 |
+| Video-to-video | `gen4_aleph`       | ローカルまたはリモート動画 1 本 |
 
-- ローカル画像および動画参照は、data URI 経由でサポートされます。
-- 動画から動画は現在、特に `runway/gen4_aleph` が必要です。
-- テキストのみの実行では、現在 `16:9` と `9:16` のアスペクト比を利用できます。
+<Note>
+ローカル画像および動画の参照は data URI 経由でサポートされます。テキストのみの実行では、
+現在 `16:9` および `9:16` のアスペクト比が公開されています。
+</Note>
+
+<Warning>
+Video-to-video は現在、特に `runway/gen4_aleph` を必要とします。
+</Warning>
 
 ## 設定
 
@@ -64,7 +73,28 @@ openclaw config set agents.defaults.videoGenerationModel.primary "runway/gen4.5"
 }
 ```
 
+## 高度な注記
+
+<AccordionGroup>
+  <Accordion title="環境変数エイリアス">
+    OpenClaw は `RUNWAYML_API_SECRET`（正規）と `RUNWAY_API_KEY` の両方を認識します。
+    どちらの変数でも Runway provider を認証できます。
+  </Accordion>
+
+  <Accordion title="タスクポーリング">
+    Runway はタスクベース API を使用します。生成リクエストを送信した後、OpenClaw は
+    動画の準備ができるまで `GET /v1/tasks/{id}` をポーリングします。ポーリング動作に
+    追加設定は不要です。
+  </Accordion>
+</AccordionGroup>
+
 ## 関連
 
-- [Video Generation](/tools/video-generation) -- 共通toolパラメーター、provider選択、非同期動作
-- [Configuration Reference](/ja-JP/gateway/configuration-reference#agent-defaults)
+<CardGroup cols={2}>
+  <Card title="動画生成" href="/ja-JP/tools/video-generation" icon="video">
+    共有ツールパラメータ、provider 選択、および非同期挙動。
+  </Card>
+  <Card title="設定リファレンス" href="/ja-JP/gateway/configuration-reference#agent-defaults" icon="gear">
+    動画生成 model を含むエージェントのデフォルト設定。
+  </Card>
+</CardGroup>

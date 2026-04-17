@@ -1,42 +1,63 @@
 ---
 read_when:
-    - Ви хочете один API-ключ для багатьох LLM
+    - Вам потрібен один API-ключ для багатьох LLM-ів
     - Вам потрібні вказівки з налаштування Baidu Qianfan
-summary: Використання уніфікованого API Qianfan для доступу до багатьох моделей в OpenClaw
+summary: Використовуйте уніфікований API Qianfan для доступу до багатьох моделей в OpenClaw
 title: Qianfan
 x-i18n:
-    generated_at: "2026-04-05T18:14:46Z"
+    generated_at: "2026-04-12T10:30:01Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 965d83dd968563447ce3571a73bd71c6876275caff8664311a852b2f9827e55b
+    source_hash: 1d0eeee9ec24b335c2fb8ac5e985a9edc35cfc5b2641c545cb295dd2de619f50
     source_path: providers/qianfan.md
     workflow: 15
 ---
 
-# Посібник з провайдера Qianfan
+# Qianfan
 
-Qianfan — це платформа MaaS від Baidu, яка надає **уніфікований API**, що маршрутизує запити до багатьох моделей через єдиний endpoint і API-ключ. Вона сумісна з OpenAI, тому більшість SDK OpenAI працюють після зміни base URL.
+Qianfan — це платформа MaaS від Baidu, яка надає **уніфікований API**, що маршрутизує запити до багатьох моделей через єдину
+кінцеву точку та API-ключ. Вона сумісна з OpenAI, тому більшість OpenAI SDK працюють, якщо змінити base URL.
 
-## Передумови
+| Властивість | Значення                          |
+| ----------- | --------------------------------- |
+| Провайдер   | `qianfan`                         |
+| Автентифікація | `QIANFAN_API_KEY`              |
+| API         | Сумісний з OpenAI                |
+| Base URL    | `https://qianfan.baidubce.com/v2` |
 
-1. Обліковий запис Baidu Cloud з доступом до API Qianfan
-2. API-ключ із консолі Qianfan
-3. OpenClaw, установлений у вашій системі
+## Початок роботи
 
-## Отримання API-ключа
+<Steps>
+  <Step title="Створіть обліковий запис Baidu Cloud">
+    Зареєструйтеся або увійдіть у [Qianfan Console](https://console.bce.baidu.com/qianfan/ais/console/apiKey) і переконайтеся, що для вас увімкнено доступ до API Qianfan.
+  </Step>
+  <Step title="Згенеруйте API-ключ">
+    Створіть новий застосунок або виберіть наявний, а потім згенеруйте API-ключ. Формат ключа: `bce-v3/ALTAK-...`.
+  </Step>
+  <Step title="Запустіть онбординг">
+    ```bash
+    openclaw onboard --auth-choice qianfan-api-key
+    ```
+  </Step>
+  <Step title="Перевірте, що модель доступна">
+    ```bash
+    openclaw models list --provider qianfan
+    ```
+  </Step>
+</Steps>
 
-1. Перейдіть до [Qianfan Console](https://console.bce.baidu.com/qianfan/ais/console/apiKey)
-2. Створіть новий застосунок або виберіть наявний
-3. Згенеруйте API-ключ (формат: `bce-v3/ALTAK-...`)
-4. Скопіюйте API-ключ для використання з OpenClaw
+## Доступні моделі
 
-## Налаштування CLI
+| Посилання на модель                  | Вхідні дані | Контекст | Макс. вивід | Міркування | Примітки      |
+| ------------------------------------ | ----------- | -------- | ----------- | ---------- | ------------- |
+| `qianfan/deepseek-v3.2`              | текст       | 98,304   | 32,768      | Так        | Модель за замовчуванням |
+| `qianfan/ernie-5.0-thinking-preview` | текст, зображення | 119,000 | 64,000 | Так        | Мультимодальна |
 
-```bash
-openclaw onboard --auth-choice qianfan-api-key
-```
+<Tip>
+Базове посилання на вбудовану модель — `qianfan/deepseek-v3.2`. Вам потрібно перевизначати `models.providers.qianfan` лише тоді, коли потрібен власний base URL або метадані моделі.
+</Tip>
 
-## Фрагмент конфігурації
+## Приклад конфігурації
 
 ```json5
 {
@@ -80,17 +101,40 @@ openclaw onboard --auth-choice qianfan-api-key
 }
 ```
 
-## Примітки
+<AccordionGroup>
+  <Accordion title="Транспорт і сумісність">
+    Qianfan працює через транспортний шлях, сумісний з OpenAI, а не через нативне формування запитів OpenAI. Це означає, що стандартні можливості OpenAI SDK працюють, але специфічні для провайдера параметри можуть не передаватися.
+  </Accordion>
 
-- Типове посилання на вбудовану модель: `qianfan/deepseek-v3.2`
-- Типова base URL: `https://qianfan.baidubce.com/v2`
-- Вбудований каталог наразі містить `deepseek-v3.2` і `ernie-5.0-thinking-preview`
-- Додавайте або перевизначайте `models.providers.qianfan` лише тоді, коли вам потрібні власна base URL або метадані моделі
-- Qianfan працює через сумісний з OpenAI транспортний шлях, а не через нативне формування запитів OpenAI
+  <Accordion title="Каталог і перевизначення">
+    Вбудований каталог наразі містить `deepseek-v3.2` і `ernie-5.0-thinking-preview`. Додавайте або перевизначайте `models.providers.qianfan` лише тоді, коли вам потрібен власний base URL або метадані моделі.
 
-## Пов’язана документація
+    <Note>
+    Посилання на моделі використовують префікс `qianfan/` (наприклад, `qianfan/deepseek-v3.2`).
+    </Note>
 
-- [Конфігурація OpenClaw](/uk/gateway/configuration)
-- [Провайдери моделей](/uk/concepts/model-providers)
-- [Налаштування агента](/uk/concepts/agent)
-- [Документація API Qianfan](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)
+  </Accordion>
+
+  <Accordion title="Усунення проблем">
+    - Переконайтеся, що ваш API-ключ починається з `bce-v3/ALTAK-` і що в консолі Baidu Cloud для нього увімкнено доступ до API Qianfan.
+    - Якщо моделі не відображаються у списку, підтвердьте, що для вашого облікового запису активовано сервіс Qianfan.
+    - Base URL за замовчуванням: `https://qianfan.baidubce.com/v2`. Змінюйте його лише у випадку використання власної кінцевої точки або проксі.
+  </Accordion>
+</AccordionGroup>
+
+## Пов’язане
+
+<CardGroup cols={2}>
+  <Card title="Вибір моделі" href="/uk/concepts/model-providers" icon="layers">
+    Вибір провайдерів, посилань на моделі та поведінки перемикання при відмові.
+  </Card>
+  <Card title="Довідник із конфігурації" href="/uk/gateway/configuration" icon="gear">
+    Повний довідник з конфігурації OpenClaw.
+  </Card>
+  <Card title="Налаштування агента" href="/uk/concepts/agent" icon="robot">
+    Налаштування типових параметрів агента та призначення моделей.
+  </Card>
+  <Card title="Документація API Qianfan" href="https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb" icon="arrow-up-right-from-square">
+    Офіційна документація API Qianfan.
+  </Card>
+</CardGroup>

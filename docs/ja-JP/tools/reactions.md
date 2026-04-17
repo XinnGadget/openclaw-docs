@@ -1,22 +1,22 @@
 ---
 read_when:
-    - 任意のチャンネルでリアクションに取り組んでいる
-    - 絵文字リアクションがプラットフォームごとにどう異なるかを理解したい
-summary: サポートされているすべてのチャンネルにおけるリアクションツールのセマンティクス
+    - 任意の channel でリアクション機能を扱うこと
+    - 絵文字リアクションがプラットフォームごとにどう異なるかを理解すること
+summary: サポートされているすべての channels における reaction tool のセマンティクス
 title: リアクション
 x-i18n:
-    generated_at: "2026-04-05T13:00:20Z"
+    generated_at: "2026-04-11T02:48:35Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 9af2951eee32e73adb982dbdf39b32e4065993454e9cce2ad23b27565cab4f84
+    source_hash: cfac31b7f0effc89cc696e3cf34cd89503ccdbb28996723945025e4b6e159986
     source_path: tools/reactions.md
     workflow: 15
 ---
 
 # リアクション
 
-エージェントは、`message`
-ツールの `react` アクションを使って、メッセージに絵文字リアクションを追加および削除できます。リアクションの動作はチャンネルごとに異なります。
+agent は `message`
+tool の `react` アクションを使って、メッセージに絵文字リアクションを追加および削除できます。リアクションの動作は channel によって異なります。
 
 ## 仕組み
 
@@ -29,30 +29,30 @@ x-i18n:
 ```
 
 - リアクションを追加する場合、`emoji` は必須です。
-- ボットのリアクションを削除するには、`emoji` を空文字列（`""`）に設定します。
-- 特定の絵文字を削除するには `remove: true` を設定します（空でない `emoji` が必要です）。
+- bot のリアクションを削除するには、`emoji` を空文字列（`""`）に設定します。
+- 特定の絵文字を削除するには、`remove: true` を設定します（空でない `emoji` が必要です）。
 
-## チャンネルごとの動作
+## Channel ごとの動作
 
 <AccordionGroup>
-  <Accordion title="Discord and Slack">
-    - 空の `emoji` は、そのメッセージ上のボットのすべてのリアクションを削除します。
-    - `remove: true` は、指定した絵文字だけを削除します。
+  <Accordion title="Discord と Slack">
+    - 空の `emoji` は、そのメッセージ上の bot のリアクションをすべて削除します。
+    - `remove: true` は、指定された絵文字だけを削除します。
   </Accordion>
 
   <Accordion title="Google Chat">
-    - 空の `emoji` は、そのメッセージ上のアプリのリアクションを削除します。
-    - `remove: true` は、指定した絵文字だけを削除します。
+    - 空の `emoji` は、そのメッセージ上の app のリアクションを削除します。
+    - `remove: true` は、指定された絵文字だけを削除します。
   </Accordion>
 
   <Accordion title="Telegram">
-    - 空の `emoji` は、ボットのリアクションを削除します。
-    - `remove: true` もリアクションを削除しますが、ツールのバリデーション上は引き続き空でない `emoji` が必要です。
+    - 空の `emoji` は、bot のリアクションを削除します。
+    - `remove: true` でもリアクションは削除されますが、tool の検証上は引き続き空でない `emoji` が必要です。
   </Accordion>
 
   <Accordion title="WhatsApp">
-    - 空の `emoji` は、ボットのリアクションを削除します。
-    - `remove: true` は内部的に空の絵文字にマップされます（それでもツール呼び出しでは `emoji` が必要です）。
+    - 空の `emoji` は、bot のリアクションを削除します。
+    - `remove: true` は内部的に空の絵文字へマップされます（それでも tool 呼び出しでは `emoji` が必要です）。
   </Accordion>
 
   <Accordion title="Zalo Personal (zalouser)">
@@ -61,25 +61,25 @@ x-i18n:
   </Accordion>
 
   <Accordion title="Feishu/Lark">
-    - `add`、`remove`、`list` アクションを持つ `feishu_reaction` ツールを使います。
-    - 追加/削除には `emoji_type` が必要で、削除にはさらに `reaction_id` も必要です。
+    - `add`、`remove`、`list` アクションを持つ `feishu_reaction` tool を使用します。
+    - 追加/削除には `emoji_type` が必要で、削除では `reaction_id` も必要です。
   </Accordion>
 
   <Accordion title="Signal">
-    - 受信リアクション通知は `channels.signal.reactionNotifications` で制御されます: `"off"` で無効、`"own"`（デフォルト）でユーザーがボットメッセージにリアクションしたときにイベントを発行、`"all"` ですべてのリアクションに対してイベントを発行します。
+    - 受信リアクション通知は `channels.signal.reactionNotifications` によって制御されます。`"off"` は無効化、`"own"`（デフォルト）はユーザーが bot メッセージにリアクションしたときにイベントを発行し、`"all"` はすべてのリアクションに対してイベントを発行します。
   </Accordion>
 </AccordionGroup>
 
 ## リアクションレベル
 
-チャンネルごとの `reactionLevel` 設定は、エージェントがどの程度広くリアクションを使うかを制御します。値は通常 `off`、`ack`、`minimal`、または `extensive` です。
+channel ごとの `reactionLevel` 設定は、agent がどの程度広くリアクションを使うかを制御します。値は通常 `off`、`ack`、`minimal`、または `extensive` です。
 
 - [Telegram reactionLevel](/ja-JP/channels/telegram#reaction-notifications) — `channels.telegram.reactionLevel`
-- [WhatsApp reactionLevel](/ja-JP/channels/whatsapp#reactions) — `channels.whatsapp.reactionLevel`
+- [WhatsApp reactionLevel](/ja-JP/channels/whatsapp#reaction-level) — `channels.whatsapp.reactionLevel`
 
-各チャンネルで `reactionLevel` を設定して、各プラットフォームでエージェントがどの程度積極的にメッセージへリアクションするかを調整してください。
+個別の channel に `reactionLevel` を設定して、各プラットフォームで agent がどの程度積極的にメッセージへリアクションするかを調整してください。
 
 ## 関連
 
-- [エージェント送信](/tools/agent-send) — `react` を含む `message` ツール
-- [チャンネル](/ja-JP/channels) — チャンネル固有の設定
+- [Agent Send](/ja-JP/tools/agent-send) — `react` を含む `message` tool
+- [Channels](/ja-JP/channels) — channel 固有の設定

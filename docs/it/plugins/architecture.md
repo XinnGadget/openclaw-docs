@@ -1,30 +1,30 @@
 ---
 read_when:
-    - Stai creando o eseguendo il debug di plugin OpenClaw nativi
-    - Vuoi comprendere il modello di capacità dei plugin o i confini di ownership
-    - Stai lavorando sulla pipeline di caricamento dei plugin o sul registry
-    - Stai implementando hook di runtime dei provider o plugin di canale
+    - Creazione o debug dei plugin OpenClaw nativi
+    - Comprendere il modello di capacità del plugin o i confini di proprietà
+    - Lavorare sulla pipeline di caricamento o sul registro del plugin
+    - Implementazione degli hook di runtime del provider o dei plugin di canale
 sidebarTitle: Internals
-summary: 'Componenti interni dei plugin: modello di capacità, ownership, contratti, pipeline di caricamento e helper di runtime'
-title: Componenti interni dei plugin
+summary: 'Interni del Plugin: modello di capacità, proprietà, contratti, pipeline di caricamento e helper di runtime'
+title: Interni del Plugin
 x-i18n:
-    generated_at: "2026-04-09T01:32:31Z"
+    generated_at: "2026-04-15T08:18:08Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 2575791f835990589219bb06d8ca92e16a8c38b317f0bfe50b421682f253ef18
+    source_hash: f86798b5d2b0ad82d2397a52a6c21ed37fe6eee1dd3d124a9e4150c4f630b841
     source_path: plugins/architecture.md
     workflow: 15
 ---
 
-# Componenti interni dei plugin
+# Interni del Plugin
 
 <Info>
-  Questo è il **riferimento di architettura approfondito**. Per guide pratiche, vedi:
-  - [Installare e usare i plugin](/it/tools/plugin) — guida utente
-  - [Introduzione](/it/plugins/building-plugins) — primo tutorial sui plugin
+  Questa è la **referenza architetturale approfondita**. Per guide pratiche, vedi:
+  - [Installare e usare i plugin](/it/tools/plugin) — guida per l'utente
+  - [Per iniziare](/it/plugins/building-plugins) — primo tutorial sui plugin
   - [Plugin di canale](/it/plugins/sdk-channel-plugins) — crea un canale di messaggistica
   - [Plugin provider](/it/plugins/sdk-provider-plugins) — crea un provider di modelli
-  - [Panoramica SDK](/it/plugins/sdk-overview) — mappa degli import e API di registrazione
+  - [Panoramica dell'SDK](/it/plugins/sdk-overview) — mappa degli import e API di registrazione
 </Info>
 
 Questa pagina copre l'architettura interna del sistema di plugin di OpenClaw.
@@ -34,69 +34,70 @@ Questa pagina copre l'architettura interna del sistema di plugin di OpenClaw.
 Le capacità sono il modello pubblico dei **plugin nativi** all'interno di OpenClaw. Ogni
 plugin OpenClaw nativo si registra rispetto a uno o più tipi di capacità:
 
-| Capacità              | Metodo di registrazione                         | Plugin di esempio                     |
-| --------------------- | ----------------------------------------------- | ------------------------------------- |
-| Inferenza testuale    | `api.registerProvider(...)`                     | `openai`, `anthropic`                 |
-| Backend di inferenza CLI | `api.registerCliBackend(...)`                | `openai`, `anthropic`                 |
-| Voce                  | `api.registerSpeechProvider(...)`               | `elevenlabs`, `microsoft`             |
-| Trascrizione realtime | `api.registerRealtimeTranscriptionProvider(...)` | `openai`                            |
-| Voce realtime         | `api.registerRealtimeVoiceProvider(...)`        | `openai`                              |
-| Comprensione dei media | `api.registerMediaUnderstandingProvider(...)`  | `openai`, `google`                    |
-| Generazione di immagini | `api.registerImageGenerationProvider(...)`    | `openai`, `google`, `fal`, `minimax`  |
-| Generazione musicale  | `api.registerMusicGenerationProvider(...)`      | `google`, `minimax`                   |
-| Generazione video     | `api.registerVideoGenerationProvider(...)`      | `qwen`                                |
-| Recupero web          | `api.registerWebFetchProvider(...)`             | `firecrawl`                           |
-| Ricerca web           | `api.registerWebSearchProvider(...)`            | `google`                              |
-| Canale / messaggistica | `api.registerChannel(...)`                     | `msteams`, `matrix`                   |
+| Capacità              | Metodo di registrazione                         | Plugin di esempio                    |
+| --------------------- | ----------------------------------------------- | ------------------------------------ |
+| Inferenza testuale    | `api.registerProvider(...)`                     | `openai`, `anthropic`                |
+| Backend di inferenza CLI | `api.registerCliBackend(...)`                | `openai`, `anthropic`                |
+| Voce                  | `api.registerSpeechProvider(...)`               | `elevenlabs`, `microsoft`            |
+| Trascrizione in tempo reale | `api.registerRealtimeTranscriptionProvider(...)` | `openai`                       |
+| Voce in tempo reale   | `api.registerRealtimeVoiceProvider(...)`        | `openai`                             |
+| Comprensione dei media | `api.registerMediaUnderstandingProvider(...)`  | `openai`, `google`                   |
+| Generazione di immagini | `api.registerImageGenerationProvider(...)`    | `openai`, `google`, `fal`, `minimax` |
+| Generazione musicale  | `api.registerMusicGenerationProvider(...)`      | `google`, `minimax`                  |
+| Generazione video     | `api.registerVideoGenerationProvider(...)`      | `qwen`                               |
+| Recupero web          | `api.registerWebFetchProvider(...)`             | `firecrawl`                          |
+| Ricerca web           | `api.registerWebSearchProvider(...)`            | `google`                             |
+| Canale / messaggistica | `api.registerChannel(...)`                     | `msteams`, `matrix`                  |
 
 Un plugin che registra zero capacità ma fornisce hook, strumenti o
-servizi è un plugin **legacy solo-hook**. Questo schema è ancora pienamente supportato.
+servizi è un plugin **legacy solo hook**. Questo pattern è ancora pienamente supportato.
 
-### Posizione sulla compatibilità esterna
+### Orientamento sulla compatibilità esterna
 
-Il modello delle capacità è stato integrato nel core e viene usato oggi dai plugin
-bundled/nativi, ma la compatibilità dei plugin esterni richiede ancora una soglia
-più rigorosa di "è esportato, quindi è congelato".
+Il modello delle capacità è stato integrato nel core ed è usato oggi dai plugin
+nativi/in bundle, ma la compatibilità dei plugin esterni richiede ancora un livello
+di rigore più alto di "è esportato, quindi è congelato".
 
 Indicazioni attuali:
 
-- **plugin esterni esistenti:** mantieni funzionanti le integrazioni basate su hook; considera
-  questo come la base di compatibilità
-- **nuovi plugin bundled/nativi:** preferisci una registrazione esplicita delle capacità rispetto a
-  integrazioni specifiche del fornitore o a nuovi design solo-hook
-- **plugin esterni che adottano la registrazione delle capacità:** consentito, ma tratta
-  le superfici helper specifiche per capacità come in evoluzione a meno che la documentazione non contrassegni esplicitamente un contratto come stabile
+- **plugin esterni esistenti:** mantenere funzionanti le integrazioni basate su hook; trattare
+  questo come base di compatibilità
+- **nuovi plugin nativi/in bundle:** preferire la registrazione esplicita delle capacità rispetto a
+  accessi specifici del vendor o a nuovi design solo hook
+- **plugin esterni che adottano la registrazione delle capacità:** consentito, ma trattare le
+  superfici helper specifiche delle capacità come in evoluzione, a meno che la documentazione non contrassegni
+  esplicitamente un contratto come stabile
 
 Regola pratica:
 
 - le API di registrazione delle capacità sono la direzione prevista
 - gli hook legacy restano il percorso più sicuro per evitare rotture per i plugin esterni durante
   la transizione
-- i sottopercorsi helper esportati non sono tutti uguali; preferisci il contratto
-  ristretto documentato, non esportazioni helper incidentali
+- non tutti i sottopercorsi helper esportati sono equivalenti; preferire il contratto
+  documentato e ristretto, non esportazioni helper incidentali
 
 ### Forme dei plugin
 
-OpenClaw classifica ogni plugin caricato in una forma in base al suo comportamento
-effettivo di registrazione (non solo ai metadati statici):
+OpenClaw classifica ogni plugin caricato in una forma in base al suo effettivo
+comportamento di registrazione (non solo ai metadati statici):
 
 - **plain-capability** -- registra esattamente un tipo di capacità (per esempio un
   plugin solo provider come `mistral`)
 - **hybrid-capability** -- registra più tipi di capacità (per esempio
-  `openai` possiede inferenza testuale, voce, comprensione dei media e generazione
-  di immagini)
-- **hook-only** -- registra solo hook (tipizzati o personalizzati), nessuna capacità,
-  strumento, comando o servizio
+  `openai` possiede inferenza testuale, voce, comprensione dei media e
+  generazione di immagini)
+- **hook-only** -- registra solo hook (tipizzati o personalizzati), senza capacità,
+  strumenti, comandi o servizi
 - **non-capability** -- registra strumenti, comandi, servizi o route ma nessuna
   capacità
 
-Usa `openclaw plugins inspect <id>` per vedere la forma di un plugin e la suddivisione
+Usa `openclaw plugins inspect <id>` per vedere la forma di un plugin e il dettaglio
 delle capacità. Vedi [riferimento CLI](/cli/plugins#inspect) per i dettagli.
 
 ### Hook legacy
 
 L'hook `before_agent_start` resta supportato come percorso di compatibilità per
-i plugin solo-hook. Plugin legacy usati realmente dipendono ancora da esso.
+i plugin solo hook. I plugin legacy reali dipendono ancora da esso.
 
 Direzione:
 
@@ -104,7 +105,7 @@ Direzione:
 - documentarlo come legacy
 - preferire `before_model_resolve` per il lavoro di override di modello/provider
 - preferire `before_prompt_build` per il lavoro di mutazione del prompt
-- rimuoverlo solo dopo che l'uso reale sarà diminuito e la copertura delle fixture dimostrerà la sicurezza della migrazione
+- rimuoverlo solo dopo che l'uso reale sarà calato e la copertura delle fixture avrà dimostrato la sicurezza della migrazione
 
 ### Segnali di compatibilità
 
@@ -114,72 +115,81 @@ una di queste etichette:
 | Segnale                   | Significato                                                  |
 | ------------------------- | ------------------------------------------------------------ |
 | **config valid**          | La configurazione viene analizzata correttamente e i plugin vengono risolti |
-| **compatibility advisory** | Il plugin usa uno schema supportato ma più vecchio (es. `hook-only`) |
+| **compatibility advisory** | Il plugin usa un pattern supportato ma più vecchio (ad es. `hook-only`) |
 | **legacy warning**        | Il plugin usa `before_agent_start`, che è deprecato          |
 | **hard error**            | La configurazione non è valida o il plugin non è riuscito a caricarsi |
 
-Né `hook-only` né `before_agent_start` interromperanno oggi il tuo plugin --
-`hook-only` è solo informativo, e `before_agent_start` attiva solo un avviso. Questi
+Né `hook-only` né `before_agent_start` romperanno il tuo plugin oggi --
+`hook-only` è informativo e `before_agent_start` genera solo un avviso. Questi
 segnali compaiono anche in `openclaw status --all` e `openclaw plugins doctor`.
 
 ## Panoramica dell'architettura
 
 Il sistema di plugin di OpenClaw ha quattro livelli:
 
-1. **Manifest + discovery**
-   OpenClaw trova i plugin candidati da percorsi configurati, radici di workspace,
-   radici globali delle estensioni ed estensioni bundled. Il discovery legge prima i
-   manifest nativi `openclaw.plugin.json` insieme ai manifest bundle supportati.
+1. **Manifest + rilevamento**
+   OpenClaw trova i plugin candidati dai percorsi configurati, dalle radici del workspace,
+   dalle radici globali delle estensioni e dalle estensioni incluse. Il rilevamento legge prima i
+   manifest nativi `openclaw.plugin.json` insieme ai manifest dei bundle supportati.
 2. **Abilitazione + validazione**
-   Il core decide se un plugin scoperto è abilitato, disabilitato, bloccato oppure
+   Il core decide se un plugin rilevato è abilitato, disabilitato, bloccato o
    selezionato per uno slot esclusivo come la memoria.
 3. **Caricamento a runtime**
    I plugin OpenClaw nativi vengono caricati in-process tramite jiti e registrano
-   capacità in un registry centrale. I bundle compatibili vengono normalizzati in
-   record del registry senza importare codice di runtime.
-4. **Consumo delle superfici**
-   Il resto di OpenClaw legge il registry per esporre strumenti, canali, configurazione
+   capacità in un registro centrale. I bundle compatibili vengono normalizzati in
+   record del registro senza importare codice di runtime.
+4. **Consumo della superficie**
+   Il resto di OpenClaw legge il registro per esporre strumenti, canali, configurazione
    dei provider, hook, route HTTP, comandi CLI e servizi.
 
-Per quanto riguarda nello specifico la CLI dei plugin, il discovery dei comandi root è suddiviso in due fasi:
+Per la CLI dei plugin in particolare, il rilevamento dei comandi root è diviso in due fasi:
 
-- i metadati al momento del parsing provengono da `registerCli(..., { descriptors: [...] })`
+- i metadati in fase di parsing provengono da `registerCli(..., { descriptors: [...] })`
 - il vero modulo CLI del plugin può restare lazy e registrarsi alla prima invocazione
 
-Questo permette di mantenere il codice CLI di proprietà del plugin all'interno del plugin stesso, lasciando comunque a OpenClaw
-la possibilità di riservare i nomi dei comandi root prima del parsing.
+Questo mantiene il codice CLI posseduto dal plugin all'interno del plugin, permettendo comunque a OpenClaw
+di riservare i nomi dei comandi root prima del parsing.
 
 Il confine progettuale importante:
 
-- il discovery + la validazione della configurazione devono funzionare a partire dai **metadati di manifest/schema**
-  senza eseguire il codice del plugin
-- il comportamento di runtime nativo deriva dal percorso `register(api)` del modulo plugin
+- il rilevamento e la validazione della configurazione dovrebbero funzionare da metadati di **manifest/schema**
+  senza eseguire codice del plugin
+- il comportamento nativo a runtime deriva dal percorso `register(api)` del modulo plugin
 
 Questa separazione consente a OpenClaw di validare la configurazione, spiegare i plugin mancanti/disabilitati e
-costruire suggerimenti UI/schema prima che il runtime completo sia attivo.
+costruire suggerimenti per UI/schema prima che il runtime completo sia attivo.
 
-### Plugin di canale e strumento condiviso `message`
+### Plugin di canale e strumento di messaggio condiviso
 
 I plugin di canale non devono registrare uno strumento separato per inviare/modificare/reagire per
-le normali azioni di chat. OpenClaw mantiene un unico strumento `message` condiviso nel core, e
-i plugin di canale possiedono il discovery e l'esecuzione specifici del canale dietro di esso.
+le normali azioni di chat. OpenClaw mantiene nel core un unico strumento `message`, e
+i plugin di canale gestiscono dietro di esso il rilevamento e l'esecuzione specifici del canale.
 
 Il confine attuale è:
 
-- il core possiede l'host dello strumento `message` condiviso, il wiring del prompt, la gestione di sessione/thread
-  e il dispatch di esecuzione
-- i plugin di canale possiedono il discovery delle azioni con scope, il discovery delle capacità e ogni
-  frammento di schema specifico del canale
-- i plugin di canale possiedono la grammatica di conversazione di sessione specifica del provider, ad esempio
-  come gli id di conversazione codificano gli id dei thread o ereditano dalle conversazioni padre
-- i plugin di canale eseguono l'azione finale tramite il loro action adapter
+- il core possiede l'host condiviso dello strumento `message`, l'instradamento del prompt, la
+  gestione di sessioni/thread e il dispatch di esecuzione
+- i plugin di canale possiedono il rilevamento delle azioni con ambito, il rilevamento delle capacità e gli eventuali
+  frammenti di schema specifici del canale
+- i plugin di canale possiedono la grammatica della conversazione di sessione specifica del provider, come
+  il modo in cui gli id conversazione codificano gli id thread o ereditano dalle conversazioni padre
+- i plugin di canale eseguono l'azione finale tramite il loro adapter di azione
 
 Per i plugin di canale, la superficie SDK è
-`ChannelMessageActionAdapter.describeMessageTool(...)`. Questa chiamata unificata di discovery
-consente a un plugin di restituire insieme le sue azioni visibili, capacità e contributi di schema
-così che questi elementi non divergano.
+`ChannelMessageActionAdapter.describeMessageTool(...)`. Questa chiamata di rilevamento unificata
+consente a un plugin di restituire insieme azioni visibili, capacità e contributi
+allo schema, così questi elementi non divergono.
 
-Il core passa l'ambito di runtime a questo passaggio di discovery. I campi importanti includono:
+Quando un parametro dello strumento di messaggio specifico del canale trasporta una sorgente media, come un
+percorso locale o un URL di media remoto, il plugin dovrebbe anche restituire
+`mediaSourceParams` da `describeMessageTool(...)`. Il core usa questo elenco esplicito
+per applicare la normalizzazione dei percorsi del sandbox e i suggerimenti di accesso ai media in uscita
+senza hardcodare nomi di parametri posseduti dal plugin.
+Preferisci qui mappe con ambito per azione, non un unico elenco piatto per l'intero canale, così un
+parametro media solo profilo non viene normalizzato su azioni non correlate come
+`send`.
+
+Il core passa l'ambito di runtime a questo passaggio di rilevamento. I campi importanti includono:
 
 - `accountId`
 - `currentChannelId`
@@ -188,124 +198,126 @@ Il core passa l'ambito di runtime a questo passaggio di discovery. I campi impor
 - `sessionKey`
 - `sessionId`
 - `agentId`
-- `requesterSenderId` inbound fidato
+- `requesterSenderId` inbound affidabile
 
 Questo è importante per i plugin sensibili al contesto. Un canale può nascondere o esporre
 azioni di messaggio in base all'account attivo, alla stanza/thread/messaggio corrente o
-all'identità fidata del richiedente, senza hardcodare rami specifici del canale nello strumento
-core `message`.
+all'identità affidabile del richiedente, senza hardcodare rami specifici del canale
+nello strumento `message` del core.
 
-Per questo motivo le modifiche di routing dell'embedded runner restano lavoro dei plugin: il runner è
-responsabile dell'inoltro dell'identità corrente di chat/sessione al confine di discovery del plugin
-in modo che lo strumento `message` condiviso esponga la superficie corretta posseduta dal canale
-per il turno corrente.
+Per questo motivo le modifiche di instradamento dell'embedded-runner restano lavoro del plugin: il runner è
+responsabile dell'inoltro dell'identità corrente di chat/sessione al confine di rilevamento del plugin, così lo
+strumento condiviso `message` espone la giusta superficie posseduta dal canale per il turno corrente.
 
-Per gli helper di esecuzione posseduti dal canale, i plugin bundled dovrebbero mantenere il runtime di esecuzione
-all'interno dei propri moduli di estensione. Il core non possiede più i runtime delle azioni messaggio
-di Discord, Slack, Telegram o WhatsApp sotto `src/agents/tools`.
-Non pubblichiamo sottopercorsi separati `plugin-sdk/*-action-runtime`, e i plugin bundled
-dovrebbero importare direttamente il proprio codice di runtime locale dai
-moduli di loro proprietà.
+Per gli helper di esecuzione posseduti dal canale, i plugin inclusi dovrebbero mantenere il runtime di esecuzione
+all'interno dei propri moduli di estensione. Il core non possiede più i runtime delle azioni di messaggio di Discord,
+Slack, Telegram o WhatsApp sotto `src/agents/tools`.
+Non pubblichiamo sottopercorsi separati `plugin-sdk/*-action-runtime`, e i plugin inclusi
+dovrebbero importare direttamente il proprio codice di runtime locale dai loro
+moduli posseduti dall'estensione.
 
-Lo stesso confine si applica in generale ai seam SDK con nome del provider: il core non dovrebbe
-importare barrel di convenienza specifici del canale per Slack, Discord, Signal,
-WhatsApp o estensioni simili. Se il core ha bisogno di un comportamento, deve o consumare il
-barrel `api.ts` / `runtime-api.ts` del plugin bundled stesso oppure promuovere il bisogno
-a una capacità generica ristretta nello SDK condiviso.
+Lo stesso confine si applica in generale alle seam dell'SDK con nome del provider: il core non dovrebbe
+importare barrel di convenienza specifici del canale per estensioni come Slack, Discord, Signal,
+WhatsApp o simili. Se il core ha bisogno di un comportamento, deve o consumare il
+barrel `api.ts` / `runtime-api.ts` del plugin incluso stesso oppure promuovere l'esigenza
+in una capacità generica e ristretta nell'SDK condiviso.
 
-Per i poll in particolare, esistono due percorsi di esecuzione:
+Per i sondaggi in particolare, ci sono due percorsi di esecuzione:
 
-- `outbound.sendPoll` è la base condivisa per i canali compatibili con il modello comune
-  dei poll
-- `actions.handleAction("poll")` è il percorso preferito per semantiche di poll specifiche del canale
-  o parametri aggiuntivi dei poll
+- `outbound.sendPoll` è la base condivisa per i canali che rientrano nel modello comune di
+  sondaggio
+- `actions.handleAction("poll")` è il percorso preferito per la semantica dei sondaggi specifica del canale
+  o per parametri aggiuntivi del sondaggio
 
-Il core ora rinvia il parsing condiviso dei poll fino a dopo che il dispatch dei poll del plugin ha rifiutato
-l'azione, in modo che i gestori di poll posseduti dal plugin possano accettare campi di poll specifici
-del canale senza essere bloccati prima dal parser generico dei poll.
+Il core ora rimanda il parsing condiviso dei sondaggi fino a dopo che il dispatch del sondaggio del plugin ha rifiutato
+l'azione, così i gestori di sondaggi posseduti dal plugin possono accettare campi di sondaggio specifici
+del canale senza essere prima bloccati dal parser generico dei sondaggi.
 
 Vedi [Pipeline di caricamento](#load-pipeline) per la sequenza completa di avvio.
 
-## Modello di ownership delle capacità
+## Modello di proprietà delle capacità
 
-OpenClaw tratta un plugin nativo come il confine di ownership per una **azienda** o una
-**funzionalità**, non come un contenitore di integrazioni non correlate.
+OpenClaw tratta un plugin nativo come il confine di proprietà per una **azienda** o una
+**funzionalità**, non come un contenitore disordinato di integrazioni non correlate.
 
 Questo significa:
 
-- un plugin aziendale dovrebbe di norma possedere tutte le superfici di OpenClaw rivolte a quell'azienda
-- un plugin di funzionalità dovrebbe di norma possedere l'intera superficie della funzionalità che introduce
-- i canali dovrebbero consumare capacità condivise del core invece di reimplementare
-  il comportamento del provider in modo ad hoc
+- un plugin aziendale dovrebbe di solito possedere tutte le superfici OpenClaw rivolte a quell'azienda
+- un plugin di funzionalità dovrebbe di solito possedere l'intera superficie della funzionalità che introduce
+- i canali dovrebbero consumare capacità core condivise invece di reimplementare in modo ad hoc il comportamento
+  del provider
 
 Esempi:
 
-- il plugin bundled `openai` possiede il comportamento del model provider OpenAI e il comportamento OpenAI
-  per voce + voce realtime + comprensione dei media + generazione di immagini
-- il plugin bundled `elevenlabs` possiede il comportamento vocale ElevenLabs
-- il plugin bundled `microsoft` possiede il comportamento vocale Microsoft
-- il plugin bundled `google` possiede il comportamento del model provider Google insieme al comportamento Google
-  per comprensione dei media + generazione di immagini + ricerca web
-- il plugin bundled `firecrawl` possiede il comportamento web-fetch Firecrawl
-- i plugin bundled `minimax`, `mistral`, `moonshot` e `zai` possiedono i loro
+- il plugin `openai` incluso possiede il comportamento del provider di modelli OpenAI e il comportamento OpenAI per
+  voce + voce in tempo reale + comprensione dei media + generazione di immagini
+- il plugin `elevenlabs` incluso possiede il comportamento vocale di ElevenLabs
+- il plugin `microsoft` incluso possiede il comportamento vocale di Microsoft
+- il plugin `google` incluso possiede il comportamento del provider di modelli Google più il comportamento Google per
+  comprensione dei media + generazione di immagini + ricerca web
+- il plugin `firecrawl` incluso possiede il comportamento di recupero web di Firecrawl
+- i plugin `minimax`, `mistral`, `moonshot` e `zai` inclusi possiedono i loro
   backend di comprensione dei media
-- il plugin `voice-call` è un plugin di funzionalità: possiede trasporto delle chiamate, strumenti,
-  CLI, route e bridging dei media stream Twilio, ma consuma capacità condivise di voce
-  più trascrizione realtime e voce realtime invece di importare direttamente plugin dei vendor
+- il plugin `qwen` incluso possiede il comportamento del provider testuale Qwen più
+  il comportamento di comprensione dei media e generazione video
+- il plugin `voice-call` è un plugin di funzionalità: possiede il trasporto delle chiamate, gli strumenti,
+  la CLI, le route e il bridging dei media-stream di Twilio, ma consuma capacità condivise di voce
+  più trascrizione in tempo reale e voce in tempo reale invece di
+  importare direttamente i plugin dei vendor
 
 Lo stato finale previsto è:
 
 - OpenAI vive in un unico plugin anche se copre modelli testuali, voce, immagini e
   video futuri
 - un altro vendor può fare lo stesso per la propria area di superficie
-- i canali non si preoccupano di quale plugin vendor possieda il provider; consumano il
+- i canali non si preoccupano di quale plugin del vendor possieda il provider; consumano il
   contratto di capacità condiviso esposto dal core
 
 Questa è la distinzione chiave:
 
-- **plugin** = confine di ownership
-- **capacità** = contratto del core che più plugin possono implementare o consumare
+- **plugin** = confine di proprietà
+- **capability** = contratto core che più plugin possono implementare o consumare
 
-Quindi se OpenClaw aggiunge un nuovo dominio come il video, la prima domanda non è
-"quale provider dovrebbe hardcodare la gestione video?" La prima domanda è "qual è
-il contratto core della capacità video?" Una volta che quel contratto esiste, i plugin vendor
+Quindi, se OpenClaw aggiunge un nuovo dominio come il video, la prima domanda non è
+"quale provider dovrebbe hardcodare la gestione del video?" La prima domanda è "qual è
+il contratto core della capacità video?" Una volta che questo contratto esiste, i plugin dei vendor
 possono registrarsi su di esso e i plugin di canale/funzionalità possono consumarlo.
 
-Se la capacità non esiste ancora, la mossa corretta di solito è:
+Se la capacità non esiste ancora, la mossa giusta di solito è:
 
 1. definire la capacità mancante nel core
 2. esporla tramite l'API/runtime dei plugin in modo tipizzato
 3. collegare canali/funzionalità a quella capacità
-4. lasciare che i plugin vendor registrino le implementazioni
+4. lasciare che i plugin dei vendor registrino le implementazioni
 
-Questo mantiene esplicita l'ownership evitando al contempo un comportamento del core che dipende da un
-singolo vendor o da un percorso di codice specifico di un singolo plugin.
+Questo mantiene esplicita la proprietà evitando al tempo stesso comportamenti del core che dipendono da un
+singolo vendor o da un percorso di codice specifico di un plugin isolato.
 
 ### Stratificazione delle capacità
 
-Usa questo modello mentale per decidere dove deve stare il codice:
+Usa questo modello mentale quando decidi dove deve stare il codice:
 
-- **livello delle capacità del core**: orchestrazione condivisa, policy, fallback, regole di merge
-  della configurazione, semantica di consegna e contratti tipizzati
-- **livello del plugin vendor**: API specifiche del vendor, autenticazione, cataloghi di modelli, sintesi vocale,
-  generazione di immagini, backend video futuri, endpoint di utilizzo
+- **livello delle capacità del core**: orchestrazione condivisa, policy, fallback, regole di
+  merge della configurazione, semantica di consegna e contratti tipizzati
+- **livello del plugin del vendor**: API specifiche del vendor, autenticazione, cataloghi di modelli, sintesi
+  vocale, generazione di immagini, backend video futuri, endpoint di utilizzo
 - **livello del plugin di canale/funzionalità**: integrazione Slack/Discord/voice-call/ecc.
-  che consuma capacità del core e le presenta su una superficie
+  che consuma capacità core e le presenta su una superficie
 
 Per esempio, il TTS segue questa forma:
 
-- il core possiede policy TTS al momento della risposta, ordine di fallback, preferenze e consegna sul canale
+- il core possiede la policy TTS al momento della risposta, l'ordine di fallback, le preferenze e la consegna al canale
 - `openai`, `elevenlabs` e `microsoft` possiedono le implementazioni di sintesi
-- `voice-call` consuma l'helper di runtime TTS per telefonia
+- `voice-call` consuma l'helper di runtime TTS della telefonia
 
-Lo stesso schema dovrebbe essere preferito per le capacità future.
+Lo stesso pattern dovrebbe essere preferito per le capacità future.
 
 ### Esempio di plugin aziendale multi-capacità
 
-Un plugin aziendale dovrebbe risultare coerente dall'esterno. Se OpenClaw ha contratti condivisi
-per modelli, voce, trascrizione realtime, voce realtime, comprensione dei media,
+Un plugin aziendale dovrebbe risultare coeso dall'esterno. Se OpenClaw ha contratti condivisi
+per modelli, voce, trascrizione in tempo reale, voce in tempo reale, comprensione dei media,
 generazione di immagini, generazione video, recupero web e ricerca web,
-un vendor può possedere tutte le sue superfici in un unico posto:
+un vendor può possedere tutte le proprie superfici in un unico posto:
 
 ```ts
 import type { OpenClawPluginDefinition } from "openclaw/plugin-sdk/plugin-entry";
@@ -363,211 +375,230 @@ Ciò che conta non sono i nomi esatti degli helper. Conta la forma:
 
 - un plugin possiede la superficie del vendor
 - il core continua a possedere i contratti delle capacità
-- i plugin di canale e di funzionalità consumano helper `api.runtime.*`, non codice del vendor
+- i canali e i plugin di funzionalità consumano gli helper `api.runtime.*`, non il codice del vendor
 - i test di contratto possono verificare che il plugin abbia registrato le capacità che
   dichiara di possedere
 
 ### Esempio di capacità: comprensione video
 
-OpenClaw tratta già la comprensione di immagini/audio/video come una singola
-capacità condivisa. Lo stesso modello di ownership si applica qui:
+OpenClaw tratta già la comprensione di immagini/audio/video come un'unica
+capacità condivisa. Lo stesso modello di proprietà si applica anche qui:
 
-1. il core definisce il contratto di media-understanding
-2. i plugin vendor registrano `describeImage`, `transcribeAudio` e
-   `describeVideo` a seconda dei casi
-3. i plugin di canale e di funzionalità consumano il comportamento condiviso del core invece di
+1. il core definisce il contratto di comprensione dei media
+2. i plugin dei vendor registrano `describeImage`, `transcribeAudio` e
+   `describeVideo` secondo i casi
+3. i canali e i plugin di funzionalità consumano il comportamento condiviso del core invece di
    collegarsi direttamente al codice del vendor
 
 Questo evita di incorporare nel core le assunzioni video di un singolo provider. Il plugin possiede
 la superficie del vendor; il core possiede il contratto della capacità e il comportamento di fallback.
 
-La generazione video segue già la stessa sequenza: il core possiede il contratto tipizzato
-della capacità e l'helper di runtime, e i plugin vendor registrano
-implementazioni `api.registerVideoGenerationProvider(...)` rispetto ad essa.
+La generazione video usa già questa stessa sequenza: il core possiede il contratto tipizzato della
+capacità e l'helper di runtime, e i plugin dei vendor registrano
+implementazioni `api.registerVideoGenerationProvider(...)` su di esso.
 
-Ti serve una checklist concreta per il rollout? Vedi
+Ti serve una checklist concreta di rollout? Vedi
 [Capability Cookbook](/it/plugins/architecture).
 
 ## Contratti e applicazione
 
-La superficie API dei plugin è intenzionalmente tipizzata e centralizzata in
+La superficie dell'API dei plugin è intenzionalmente tipizzata e centralizzata in
 `OpenClawPluginApi`. Questo contratto definisce i punti di registrazione supportati e
 gli helper di runtime su cui un plugin può fare affidamento.
 
 Perché è importante:
 
-- gli autori di plugin hanno un unico standard interno stabile
-- il core può rifiutare ownership duplicate come due plugin che registrano lo stesso
-  provider id
-- l'avvio può esporre diagnostica utile per registrazioni malformate
-- i test di contratto possono imporre l'ownership dei plugin bundled e prevenire derive silenziose
+- gli autori di plugin ottengono un unico standard interno stabile
+- il core può rifiutare proprietà duplicate, come due plugin che registrano lo stesso
+  id provider
+- l'avvio può mostrare diagnostica utile per registrazioni malformate
+- i test di contratto possono applicare la proprietà dei plugin inclusi e prevenire derive silenziose
 
-Esistono due livelli di applicazione:
+Ci sono due livelli di applicazione:
 
 1. **applicazione della registrazione a runtime**
-   Il registry dei plugin valida le registrazioni mentre i plugin vengono caricati. Esempi:
+   Il registro dei plugin convalida le registrazioni mentre i plugin vengono caricati. Esempi:
    id provider duplicati, id provider vocali duplicati e registrazioni
-   malformate producono diagnostica del plugin invece di comportamento indefinito.
+   malformate producono diagnostica dei plugin invece di comportamento indefinito.
 2. **test di contratto**
-   I plugin bundled vengono acquisiti in registry di contratto durante l'esecuzione dei test, così
-   OpenClaw può verificare esplicitamente l'ownership. Oggi questo viene usato per model
-   provider, speech provider, web search provider e ownership delle registrazioni bundled.
+   I plugin inclusi vengono acquisiti nei registri di contratto durante l'esecuzione dei test così
+   OpenClaw può verificare esplicitamente la proprietà. Oggi questo è usato per provider
+   di modelli, provider vocali, provider di ricerca web e proprietà di registrazione dei plugin inclusi.
 
-L'effetto pratico è che OpenClaw sa in anticipo quale plugin possiede quale
-superficie. Questo consente a core e canali di comporsi senza attriti perché l'ownership è
-dichiarata, tipizzata e testabile anziché implicita.
+L'effetto pratico è che OpenClaw sa, in anticipo, quale plugin possiede quale
+superficie. Questo consente al core e ai canali di comporsi senza attriti perché la proprietà è
+dichiarata, tipizzata e verificabile invece che implicita.
 
 ### Cosa appartiene a un contratto
 
-I buoni contratti dei plugin sono:
+I buoni contratti di plugin sono:
 
 - tipizzati
 - piccoli
-- specifici per capacità
+- specifici della capacità
 - posseduti dal core
 - riutilizzabili da più plugin
 - consumabili da canali/funzionalità senza conoscenza del vendor
 
-I cattivi contratti dei plugin sono:
+I cattivi contratti di plugin sono:
 
 - policy specifiche del vendor nascoste nel core
-- vie di fuga ad hoc di un singolo plugin che aggirano il registry
-- codice del canale che entra direttamente in un'implementazione del vendor
-- oggetti di runtime ad hoc che non fanno parte di `OpenClawPluginApi` o
+- vie di fuga specifiche di un plugin isolato che aggirano il registro
+- codice del canale che accede direttamente a un'implementazione del vendor
+- oggetti runtime ad hoc che non fanno parte di `OpenClawPluginApi` o
   `api.runtime`
 
 In caso di dubbio, alza il livello di astrazione: definisci prima la capacità, poi
-lascia che i plugin vi si colleghino.
+lascia che i plugin si colleghino ad essa.
 
 ## Modello di esecuzione
 
 I plugin OpenClaw nativi vengono eseguiti **in-process** con il Gateway. Non sono
-sandboxed. Un plugin nativo caricato ha lo stesso confine di fiducia a livello di processo del
+sandboxati. Un plugin nativo caricato ha lo stesso confine di fiducia a livello di processo del
 codice core.
 
 Implicazioni:
 
-- un plugin nativo può registrare strumenti, handler di rete, hook e servizi
-- un bug in un plugin nativo può far crashare o destabilizzare il gateway
+- un plugin nativo può registrare strumenti, gestori di rete, hook e servizi
+- un bug in un plugin nativo può mandare in crash o destabilizzare il gateway
 - un plugin nativo malevolo equivale a esecuzione di codice arbitrario all'interno
   del processo OpenClaw
 
 I bundle compatibili sono più sicuri per impostazione predefinita perché OpenClaw attualmente li tratta
-come pacchetti di metadati/contenuti. Nelle versioni attuali, questo significa soprattutto
-Skills bundled.
+come pacchetti di metadati/contenuti. Nelle release attuali, questo significa per lo più
+Skills inclusi.
 
-Usa allowlist e percorsi espliciti di installazione/caricamento per plugin non bundled. Tratta
-i plugin di workspace come codice di sviluppo, non come impostazioni predefinite di produzione.
+Usa allowlist e percorsi espliciti di installazione/caricamento per i plugin non inclusi. Tratta
+i plugin del workspace come codice di sviluppo, non come impostazioni predefinite di produzione.
 
-Per i nomi dei pacchetti workspace bundled, mantieni l'id del plugin ancorato nel nome npm:
-`@openclaw/<id>` per impostazione predefinita, oppure un suffisso tipizzato approvato come
+Per i nomi dei pacchetti workspace inclusi, mantieni l'id del plugin ancorato nel nome
+npm: `@openclaw/<id>` per impostazione predefinita, oppure un suffisso tipizzato approvato come
 `-provider`, `-plugin`, `-speech`, `-sandbox` o `-media-understanding` quando
-il pacchetto espone intenzionalmente un ruolo plugin più ristretto.
+il pacchetto espone intenzionalmente un ruolo di plugin più ristretto.
 
 Nota importante sulla fiducia:
 
-- `plugins.allow` considera affidabili gli **id dei plugin**, non la provenienza della sorgente.
-- Un plugin di workspace con lo stesso id di un plugin bundled oscura intenzionalmente
-  la copia bundled quando quel plugin di workspace è abilitato/in allowlist.
-- Questo è normale e utile per sviluppo locale, test di patch e hotfix.
+- `plugins.allow` considera attendibili gli **id dei plugin**, non la provenienza della sorgente.
+- Un plugin del workspace con lo stesso id di un plugin incluso intenzionalmente oscura
+  la copia inclusa quando quel plugin del workspace è abilitato/in allowlist.
+- Questo è normale e utile per lo sviluppo locale, i test di patch e le hotfix.
 
 ## Confine di esportazione
 
-OpenClaw esporta capacità, non praticità di implementazione.
+OpenClaw esporta capacità, non comodità di implementazione.
 
 Mantieni pubblica la registrazione delle capacità. Riduci le esportazioni helper non contrattuali:
 
-- sottopercorsi helper specifici dei plugin bundled
-- sottopercorsi di plumbing runtime non pensati come API pubblica
+- sottopercorsi helper specifici dei plugin inclusi
+- sottopercorsi di plumbing runtime non destinati a essere API pubbliche
 - helper di convenienza specifici del vendor
 - helper di setup/onboarding che sono dettagli di implementazione
 
-Alcuni sottopercorsi helper di plugin bundled restano ancora nella mappa di esportazione SDK generata
-per compatibilità e manutenzione dei plugin bundled. Esempi attuali includono
+Alcuni sottopercorsi helper dei plugin inclusi restano ancora nella mappa di esportazione generata dell'SDK
+per compatibilità e manutenzione dei plugin inclusi. Esempi attuali includono
 `plugin-sdk/feishu`, `plugin-sdk/feishu-setup`, `plugin-sdk/zalo`,
-`plugin-sdk/zalo-setup` e vari seam `plugin-sdk/matrix*`. Trattali come
-esportazioni riservate di dettaglio implementativo, non come schema SDK consigliato per
+`plugin-sdk/zalo-setup` e diverse seam `plugin-sdk/matrix*`. Trattali come
+esportazioni riservate di dettaglio implementativo, non come pattern SDK consigliato per
 nuovi plugin di terze parti.
 
 ## Pipeline di caricamento
 
 All'avvio, OpenClaw fa approssimativamente questo:
 
-1. scopre le radici dei plugin candidati
-2. legge manifest nativi o di bundle compatibili e metadati del pacchetto
+1. rileva le radici candidate dei plugin
+2. legge i manifest nativi o dei bundle compatibili e i metadati dei pacchetti
 3. rifiuta i candidati non sicuri
 4. normalizza la configurazione dei plugin (`plugins.enabled`, `allow`, `deny`, `entries`,
    `slots`, `load.paths`)
 5. decide l'abilitazione per ogni candidato
 6. carica i moduli nativi abilitati tramite jiti
-7. chiama gli hook nativi `register(api)` (o `activate(api)` — alias legacy) e raccoglie le registrazioni nel registry dei plugin
-8. espone il registry alle superfici dei comandi/runtime
+7. chiama gli hook nativi `register(api)` (o `activate(api)` — un alias legacy) e raccoglie le registrazioni nel registro dei plugin
+8. espone il registro alle superfici dei comandi/runtime
 
 <Note>
-`activate` è un alias legacy di `register` — il loader risolve quale dei due è presente (`def.register ?? def.activate`) e lo chiama nello stesso punto. Tutti i plugin bundled usano `register`; per i nuovi plugin, preferisci `register`.
+`activate` è un alias legacy di `register` — il loader risolve qualunque dei due sia presente (`def.register ?? def.activate`) e lo chiama nello stesso punto. Tutti i plugin inclusi usano `register`; per i nuovi plugin preferisci `register`.
 </Note>
 
-I gate di sicurezza avvengono **prima** dell'esecuzione runtime. I candidati vengono bloccati
-quando l'entry esce dalla radice del plugin, il percorso è scrivibile da tutti o
-l'ownership del percorso appare sospetta per i plugin non bundled.
+I controlli di sicurezza avvengono **prima** dell'esecuzione a runtime. I candidati vengono bloccati
+quando l'entry esce dalla root del plugin, il percorso è scrivibile da chiunque o la proprietà del percorso
+sembra sospetta per i plugin non inclusi.
 
 ### Comportamento manifest-first
 
 Il manifest è la fonte di verità del control plane. OpenClaw lo usa per:
 
 - identificare il plugin
-- scoprire canali/Skills/schema di configurazione dichiarati o capacità del bundle
-- validare `plugins.entries.<id>.config`
+- rilevare canali/Skills/schema di configurazione dichiarati o capacità del bundle
+- convalidare `plugins.entries.<id>.config`
 - arricchire etichette/segnaposto della Control UI
 - mostrare metadati di installazione/catalogo
+- preservare descrittori economici di attivazione e setup senza caricare il runtime del plugin
 
-Per i plugin nativi, il modulo runtime è la parte data-plane. Registra
-il comportamento effettivo come hook, strumenti, comandi o flussi provider.
+Per i plugin nativi, il modulo runtime è la parte del data plane. Registra
+il comportamento effettivo, come hook, strumenti, comandi o flussi dei provider.
+
+I blocchi facoltativi `activation` e `setup` del manifest restano sul control plane.
+Sono descrittori solo metadati per la pianificazione dell'attivazione e il rilevamento del setup;
+non sostituiscono la registrazione a runtime, `register(...)` o `setupEntry`.
+I primi consumer di attivazione live ora usano suggerimenti del manifest per comandi, canali e provider
+per restringere il caricamento dei plugin prima di una più ampia materializzazione del registro:
+
+- il caricamento CLI si restringe ai plugin che possiedono il comando primario richiesto
+- la risoluzione del setup/plugin del canale si restringe ai plugin che possiedono l'id
+  del canale richiesto
+- la risoluzione esplicita di setup/runtime del provider si restringe ai plugin che possiedono l'
+  id provider richiesto
+
+Il rilevamento del setup ora preferisce id posseduti dai descrittori come `setup.providers` e
+`setup.cliBackends` per restringere i plugin candidati prima di ripiegare su
+`setup-api` per i plugin che hanno ancora bisogno di hook di runtime in fase di setup. Se più di
+un plugin rilevato rivendica lo stesso id normalizzato di provider di setup o backend CLI,
+la ricerca del setup rifiuta il proprietario ambiguo invece di affidarsi all'ordine di rilevamento.
 
 ### Cosa memorizza in cache il loader
 
 OpenClaw mantiene brevi cache in-process per:
 
-- risultati del discovery
-- dati del registry dei manifest
-- registry dei plugin caricati
+- risultati del rilevamento
+- dati del registro dei manifest
+- registri dei plugin caricati
 
-Queste cache riducono i picchi all'avvio e il sovraccarico dei comandi ripetuti. È corretto
-considerarle come cache prestazionali di breve durata, non persistenza.
+Queste cache riducono gli avvii intensi e l'overhead dei comandi ripetuti. È sicuro
+considerarle cache prestazionali di breve durata, non persistenza.
 
 Nota sulle prestazioni:
 
 - Imposta `OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE=1` oppure
   `OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE=1` per disabilitare queste cache.
-- Regola le finestre delle cache con `OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS` e
+- Regola le finestre di cache con `OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS` e
   `OPENCLAW_PLUGIN_MANIFEST_CACHE_MS`.
 
-## Modello del registry
+## Modello del registro
 
-I plugin caricati non mutano direttamente variabili globali casuali del core. Si registrano in un
-registry centrale dei plugin.
+I plugin caricati non mutano direttamente in modo casuale le variabili globali del core. Si registrano in un
+registro centrale dei plugin.
 
-Il registry tiene traccia di:
+Il registro tiene traccia di:
 
 - record dei plugin (identità, sorgente, origine, stato, diagnostica)
 - strumenti
 - hook legacy e hook tipizzati
 - canali
 - provider
-- handler Gateway RPC
+- gestori RPC del Gateway
 - route HTTP
 - registrar CLI
 - servizi in background
-- comandi di proprietà del plugin
+- comandi posseduti dal plugin
 
-Le funzionalità del core leggono quindi da quel registry invece di parlare direttamente con i moduli
-plugin. Questo mantiene il caricamento unidirezionale:
+Le funzionalità core leggono poi da questo registro invece di parlare direttamente con i moduli plugin.
+Questo mantiene il caricamento unidirezionale:
 
-- modulo plugin -> registrazione nel registry
-- runtime core -> consumo del registry
+- modulo plugin -> registrazione nel registro
+- runtime core -> consumo del registro
 
-Questa separazione è importante per la manutenibilità. Significa che la maggior parte delle superfici del core ha bisogno di
-un solo punto di integrazione: "leggere il registry", non "gestire casi speciali per ogni modulo plugin".
+Questa separazione è importante per la manutenibilità. Significa che la maggior parte delle superfici core
+ha bisogno di un solo punto di integrazione: "leggi il registro", non "gestisci come caso speciale ogni modulo plugin".
 
 ## Callback di binding della conversazione
 
@@ -595,25 +626,25 @@ export default {
 
 Campi del payload della callback:
 
-- `status`: `"approved"` o `"denied"`
-- `decision`: `"allow-once"`, `"allow-always"` o `"deny"`
+- `status`: `"approved"` oppure `"denied"`
+- `decision`: `"allow-once"`, `"allow-always"` oppure `"deny"`
 - `binding`: il binding risolto per le richieste approvate
-- `request`: il riepilogo della richiesta originale, suggerimento di detach, sender id e
+- `request`: il riepilogo della richiesta originale, suggerimento di detach, id del mittente e
   metadati della conversazione
 
-Questa callback è solo di notifica. Non cambia chi è autorizzato ad associare una
-conversazione e viene eseguita dopo il completamento della gestione dell'approvazione da parte del core.
+Questa callback è solo di notifica. Non modifica chi è autorizzato ad associare una
+conversazione, e viene eseguita dopo che la gestione dell'approvazione da parte del core è terminata.
 
 ## Hook di runtime del provider
 
 I plugin provider ora hanno due livelli:
 
-- metadati del manifest: `providerAuthEnvVars` per un lookup economico dell'autenticazione provider via env
-  prima del caricamento del runtime, `providerAuthAliases` per varianti provider che condividono
-  l'autenticazione, `channelEnvVars` per un lookup economico env/setup del canale prima del caricamento del runtime,
-  più `providerAuthChoices` per etichette economiche di onboarding/scelta autenticazione e
+- metadati del manifest: `providerAuthEnvVars` per una ricerca economica dell'autenticazione del provider tramite env
+  prima del caricamento del runtime, `providerAuthAliases` per le varianti di provider che condividono
+  l'autenticazione, `channelEnvVars` per una ricerca economica dell'env/setup del canale prima del caricamento del runtime,
+  più `providerAuthChoices` per etichette economiche di onboarding/scelta di autenticazione e
   metadati dei flag CLI prima del caricamento del runtime
-- hook di tempo-configurazione: `catalog` / legacy `discovery` più `applyConfigDefaults`
+- hook in fase di configurazione: `catalog` / `discovery` legacy più `applyConfigDefaults`
 - hook di runtime: `normalizeModelId`, `normalizeTransport`,
   `normalizeConfig`,
   `applyNativeStreamingUsageCompat`, `resolveConfigApiKey`,
@@ -634,87 +665,86 @@ I plugin provider ora hanno due livelli:
   `buildReplayPolicy`,
   `sanitizeReplayHistory`, `validateReplayTurns`, `onModelSelected`
 
-OpenClaw continua a possedere il loop generico dell'agente, il failover, la gestione delle trascrizioni e
+OpenClaw continua a possedere il loop generico dell'agente, il failover, la gestione della trascrizione e
 la policy degli strumenti. Questi hook sono la superficie di estensione per il comportamento specifico del provider senza
 richiedere un intero trasporto di inferenza personalizzato.
 
-Usa il manifest `providerAuthEnvVars` quando il provider dispone di credenziali basate su env
-che i percorsi generici di autenticazione/stato/selettore modelli devono vedere senza caricare il runtime del plugin.
-Usa il manifest `providerAuthAliases` quando un provider id deve riutilizzare
-env var, profili di autenticazione, autenticazione supportata da configurazione e scelta di onboarding con API key di un altro provider id.
-Usa il manifest `providerAuthChoices` quando le superfici CLI di onboarding/scelta autenticazione
-devono conoscere choice id del provider, etichette di gruppo e semplice
-wiring di autenticazione a un solo flag senza caricare il runtime del provider. Mantieni nel runtime provider
-`envVars` per suggerimenti rivolti all'operatore come etichette di onboarding o variabili di setup
+Usa il manifest `providerAuthEnvVars` quando il provider ha credenziali basate su env
+che i percorsi generici di autenticazione/stato/selettore modello dovrebbero vedere senza caricare il runtime del plugin.
+Usa il manifest `providerAuthAliases` quando un id provider deve riutilizzare
+le variabili env, i profili di autenticazione, l'autenticazione supportata da config e la scelta di onboarding della chiave API
+di un altro id provider. Usa il manifest `providerAuthChoices` quando le superfici CLI di onboarding/scelta di autenticazione
+devono conoscere l'id di scelta del provider, le etichette di gruppo e il semplice
+collegamento di autenticazione a un solo flag senza caricare il runtime del provider. Mantieni `envVars` del runtime del provider
+per suggerimenti rivolti all'operatore, come etichette di onboarding o variabili di setup di
 client-id/client-secret OAuth.
 
 Usa il manifest `channelEnvVars` quando un canale ha autenticazione o setup guidati da env che
-fallback generico shell-env, controlli config/status o prompt di setup devono vedere
+il fallback generico dell'env della shell, i controlli di config/stato o i prompt di setup dovrebbero vedere
 senza caricare il runtime del canale.
 
 ### Ordine e utilizzo degli hook
 
-Per i plugin modello/provider, OpenClaw chiama gli hook in questo ordine approssimativo.
-La colonna "Quando usarlo" è la guida rapida alla decisione.
+Per i plugin di modello/provider, OpenClaw chiama gli hook approssimativamente in questo ordine.
+La colonna "Quando usarlo" è la guida decisionale rapida.
 
-| #   | Hook                              | Cosa fa                                                                                                         | Quando usarlo                                                                                                                              |
-| --- | --------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | `catalog`                         | Pubblica la configurazione del provider in `models.providers` durante la generazione di `models.json`          | Il provider possiede un catalogo o valori predefiniti di base URL                                                                          |
-| 2   | `applyConfigDefaults`             | Applica valori predefiniti globali di configurazione del provider durante la materializzazione della configurazione | I valori predefiniti dipendono da modalità auth, env o semantica della famiglia di modelli del provider                                   |
-| --  | _(ricerca del modello integrata)_ | OpenClaw prova prima il normale percorso registry/catalog                                                       | _(non è un hook di plugin)_                                                                                                                |
-| 3   | `normalizeModelId`                | Normalizza alias legacy o di anteprima degli id dei modelli prima del lookup                                   | Il provider possiede la pulizia degli alias prima della risoluzione del modello canonico                                                   |
-| 4   | `normalizeTransport`              | Normalizza `api` / `baseUrl` della famiglia di provider prima dell'assemblaggio generico del modello           | Il provider possiede la pulizia del trasporto per provider id personalizzati nella stessa famiglia di trasporto                           |
-| 5   | `normalizeConfig`                 | Normalizza `models.providers.<id>` prima della risoluzione runtime/provider                                    | Il provider ha bisogno di pulizia della configurazione che dovrebbe vivere con il plugin; gli helper bundled della famiglia Google coprono anche le entry di configurazione Google supportate |
-| 6   | `applyNativeStreamingUsageCompat` | Applica riscritture di compatibilità native streaming-usage ai provider di configurazione                      | Il provider ha bisogno di correzioni dei metadati di utilizzo streaming native guidate dall'endpoint                                      |
-| 7   | `resolveConfigApiKey`             | Risolve auth con marcatore env per i provider di configurazione prima del caricamento auth di runtime         | Il provider possiede una risoluzione di API key con marcatore env; anche `amazon-bedrock` dispone qui di un resolver integrato per marcatori env AWS |
-| 8   | `resolveSyntheticAuth`            | Espone auth locale/self-hosted o supportata da configurazione senza persistere testo in chiaro                | Il provider può operare con un marcatore di credenziale sintetica/locale                                                                   |
-| 9   | `resolveExternalAuthProfiles`     | Sovrappone profili di autenticazione esterni di proprietà del provider; `persistence` predefinita è `runtime-only` per credenziali di proprietà CLI/app | Il provider riutilizza credenziali di autenticazione esterne senza persistere refresh token copiati                                       |
-| 10  | `shouldDeferSyntheticProfileAuth` | Declassa i placeholder di profilo sintetici memorizzati dietro auth supportata da env/config                  | Il provider memorizza profili placeholder sintetici che non dovrebbero avere precedenza                                                    |
-| 11  | `resolveDynamicModel`             | Fallback sincrono per model id di proprietà del provider non ancora presenti nel registry locale              | Il provider accetta id di modelli upstream arbitrari                                                                                       |
-| 12  | `prepareDynamicModel`             | Warm-up asincrono, poi `resolveDynamicModel` viene eseguito di nuovo                                           | Il provider ha bisogno di metadati di rete prima di risolvere id sconosciuti                                                              |
-| 13  | `normalizeResolvedModel`          | Riscrittura finale prima che l'embedded runner usi il modello risolto                                          | Il provider necessita di riscritture del trasporto ma usa comunque un trasporto core                                                      |
-| 14  | `contributeResolvedModelCompat`   | Contribuisce flag di compatibilità per modelli vendor dietro un altro trasporto compatibile                   | Il provider riconosce i propri modelli su trasporti proxy senza prendere il controllo del provider                                        |
-| 15  | `capabilities`                    | Metadati posseduti dal provider su trascrizioni/strumenti usati dalla logica core condivisa                   | Il provider necessita di particolarità della famiglia provider/trascrizione                                                                |
-| 16  | `normalizeToolSchemas`            | Normalizza gli schema degli strumenti prima che l'embedded runner li veda                                      | Il provider ha bisogno di pulizia degli schema per famiglia di trasporto                                                                   |
-| 17  | `inspectToolSchemas`              | Espone diagnostica di schema di proprietà del provider dopo la normalizzazione                                 | Il provider vuole avvisi sulle keyword senza insegnare al core regole specifiche del provider                                              |
-| 18  | `resolveReasoningOutputMode`      | Seleziona il contratto di output del reasoning nativo o con tag                                               | Il provider ha bisogno di output tagged reasoning/finale invece di campi nativi                                                            |
-| 19  | `prepareExtraParams`              | Normalizzazione dei parametri di richiesta prima dei wrapper generici delle opzioni di stream                  | Il provider ha bisogno di parametri predefiniti di richiesta o pulizia per-provider dei parametri                                         |
-| 20  | `createStreamFn`                  | Sostituisce completamente il normale percorso di stream con un trasporto personalizzato                        | Il provider necessita di un protocollo wire personalizzato, non solo di un wrapper                                                         |
-| 21  | `wrapStreamFn`                    | Wrapper dello stream dopo l'applicazione dei wrapper generici                                                  | Il provider necessita di wrapper di compatibilità per header/body/modello della richiesta senza un trasporto personalizzato               |
-| 22  | `resolveTransportTurnState`       | Allega header o metadati nativi per-turn del trasporto                                                         | Il provider vuole che i trasporti generici inviino identità native del turno del provider                                                  |
-| 23  | `resolveWebSocketSessionPolicy`   | Allega header WebSocket nativi o policy di raffreddamento della sessione                                       | Il provider vuole che i trasporti WS generici regolino header di sessione o policy di fallback                                            |
-| 24  | `formatApiKey`                    | Formatter del profilo auth: il profilo memorizzato diventa la stringa `apiKey` di runtime                     | Il provider memorizza metadati auth aggiuntivi e necessita di una forma personalizzata del token di runtime                               |
-| 25  | `refreshOAuth`                    | Override del refresh OAuth per endpoint di refresh personalizzati o policy sui fallimenti di refresh           | Il provider non si adatta ai refresher condivisi `pi-ai`                                                                                   |
-| 26  | `buildAuthDoctorHint`             | Suggerimento di riparazione aggiunto quando il refresh OAuth fallisce                                          | Il provider necessita di guida di riparazione auth di sua proprietà dopo un fallimento di refresh                                         |
-| 27  | `matchesContextOverflowError`     | Matcher posseduto dal provider per overflow della finestra di contesto                                         | Il provider ha errori raw di overflow che le euristiche generiche non rileverebbero                                                       |
-| 28  | `classifyFailoverReason`          | Classificazione della ragione di failover posseduta dal provider                                               | Il provider può mappare errori raw API/trasporto a rate-limit/sovraccarico/ecc.                                                           |
-| 29  | `isCacheTtlEligible`              | Policy di prompt-cache per provider proxy/backhaul                                                             | Il provider ha bisogno di gating TTL della cache specifico del proxy                                                                       |
-| 30  | `buildMissingAuthMessage`         | Sostituzione del messaggio generico di recupero in caso di auth mancante                                       | Il provider ha bisogno di un suggerimento di recupero per auth mancante specifico del provider                                             |
-| 31  | `suppressBuiltInModel`            | Soppressione di modelli upstream obsoleti più eventuale suggerimento di errore rivolto all'utente            | Il provider ha bisogno di nascondere righe upstream obsolete o sostituirle con un suggerimento del vendor                                 |
-| 32  | `augmentModelCatalog`             | Righe di catalogo sintetiche/finali aggiunte dopo il discovery                                                 | Il provider ha bisogno di righe sintetiche forward-compat in `models list` e nei picker                                                    |
-| 33  | `isBinaryThinking`                | Toggle reasoning on/off per provider a thinking binario                                                        | Il provider espone solo thinking binario on/off                                                                                            |
-| 34  | `supportsXHighThinking`           | Supporto al reasoning `xhigh` per modelli selezionati                                                          | Il provider vuole `xhigh` solo su un sottoinsieme di modelli                                                                               |
-| 35  | `resolveDefaultThinkingLevel`     | Livello `/think` predefinito per una specifica famiglia di modelli                                             | Il provider possiede la policy `/think` predefinita per una famiglia di modelli                                                            |
-| 36  | `isModernModelRef`                | Matcher di modello moderno per filtri di profilo live e selezione smoke                                        | Il provider possiede il matching del modello preferito live/smoke                                                                          |
-| 37  | `prepareRuntimeAuth`              | Scambia una credenziale configurata con il vero token/chiave di runtime subito prima dell'inferenza          | Il provider necessita di uno scambio token o di una credenziale di richiesta di breve durata                                               |
-| 38  | `resolveUsageAuth`                | Risolve le credenziali di utilizzo/fatturazione per `/usage` e relative superfici di stato                    | Il provider necessita di parsing personalizzato del token di utilizzo/quota o di una credenziale di utilizzo diversa                      |
-| 39  | `fetchUsageSnapshot`              | Recupera e normalizza snapshot di utilizzo/quota specifici del provider dopo la risoluzione dell'auth        | Il provider necessita di un endpoint di utilizzo o parser payload specifico del provider                                                   |
-| 40  | `createEmbeddingProvider`         | Costruisce un adapter embedding di proprietà del provider per memoria/ricerca                                  | Il comportamento di memory embedding appartiene al plugin provider                                                                         |
-| 41  | `buildReplayPolicy`               | Restituisce una policy di replay che controlla la gestione delle trascrizioni per il provider                 | Il provider necessita di una policy personalizzata per le trascrizioni (ad esempio, rimozione dei thinking block)                         |
-| 42  | `sanitizeReplayHistory`           | Riscrive la cronologia replay dopo la pulizia generica delle trascrizioni                                      | Il provider necessita di riscritture specifiche del replay oltre agli helper condivisi di compattazione                                   |
-| 43  | `validateReplayTurns`             | Validazione o rimodellazione finale dei turni replay prima dell'embedded runner                                | Il trasporto provider necessita di una validazione più severa dei turni dopo la sanificazione generica                                    |
-| 44  | `onModelSelected`                 | Esegue effetti collaterali post-selezione posseduti dal provider                                               | Il provider necessita di telemetria o stato posseduto dal provider quando un modello diventa attivo                                       |
+| #   | Hook                              | Cosa fa                                                                                                        | Quando usarlo                                                                                                                               |
+| --- | --------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `catalog`                         | Pubblica la configurazione del provider in `models.providers` durante la generazione di `models.json`         | Il provider possiede un catalogo o valori predefiniti di base URL                                                                           |
+| 2   | `applyConfigDefaults`             | Applica valori predefiniti globali della configurazione posseduti dal provider durante la materializzazione della configurazione | I valori predefiniti dipendono dalla modalità di autenticazione, dall'env o dalla semantica della famiglia di modelli del provider         |
+| --  | _(built-in model lookup)_         | OpenClaw prova prima il normale percorso di registro/catalogo                                                  | _(non è un hook del plugin)_                                                                                                                |
+| 3   | `normalizeModelId`                | Normalizza alias legacy o di anteprima degli id modello prima della ricerca                                    | Il provider possiede la pulizia degli alias prima della risoluzione del modello canonico                                                    |
+| 4   | `normalizeTransport`              | Normalizza `api` / `baseUrl` della famiglia del provider prima dell'assemblaggio generico del modello         | Il provider possiede la pulizia del trasporto per id provider personalizzati nella stessa famiglia di trasporto                            |
+| 5   | `normalizeConfig`                 | Normalizza `models.providers.<id>` prima della risoluzione di runtime/provider                                 | Il provider ha bisogno di pulizia della configurazione che dovrebbe vivere con il plugin; gli helper inclusi della famiglia Google fanno anche da backstop per le voci di configurazione Google supportate |
+| 6   | `applyNativeStreamingUsageCompat` | Applica riscritture di compatibilità dell'uso dello streaming nativo ai provider di configurazione            | Il provider ha bisogno di correzioni dei metadati di uso dello streaming nativo guidate dall'endpoint                                      |
+| 7   | `resolveConfigApiKey`             | Risolve l'autenticazione con marker env per i provider di configurazione prima del caricamento dell'autenticazione di runtime | Il provider possiede la risoluzione della chiave API con marker env; anche `amazon-bedrock` ha qui un resolver integrato per marker env AWS |
+| 8   | `resolveSyntheticAuth`            | Espone autenticazione locale/self-hosted o supportata da configurazione senza persistere testo in chiaro      | Il provider può operare con un marker di credenziale sintetica/locale                                                                       |
+| 9   | `resolveExternalAuthProfiles`     | Sovrappone profili di autenticazione esterni posseduti dal provider; `persistence` predefinito è `runtime-only` per credenziali possedute da CLI/app | Il provider riutilizza credenziali di autenticazione esterne senza persistere token di refresh copiati                                     |
+| 10  | `shouldDeferSyntheticProfileAuth` | Abbassa la priorità dei placeholder sintetici dei profili memorizzati rispetto all'autenticazione supportata da env/config | Il provider memorizza profili placeholder sintetici che non dovrebbero avere la precedenza                                                 |
+| 11  | `resolveDynamicModel`             | Fallback sincrono per id modello posseduti dal provider non ancora presenti nel registro locale               | Il provider accetta id modello upstream arbitrari                                                                                           |
+| 12  | `prepareDynamicModel`             | Warm-up asincrono, poi `resolveDynamicModel` viene eseguito di nuovo                                           | Il provider ha bisogno di metadati di rete prima di risolvere id sconosciuti                                                               |
+| 13  | `normalizeResolvedModel`          | Riscrittura finale prima che l'embedded runner usi il modello risolto                                          | Il provider ha bisogno di riscritture del trasporto ma usa comunque un trasporto core                                                      |
+| 14  | `contributeResolvedModelCompat`   | Contribuisce con flag di compatibilità per modelli vendor dietro un altro trasporto compatibile               | Il provider riconosce i propri modelli su trasporti proxy senza assumere il controllo del provider                                         |
+| 15  | `capabilities`                    | Metadati di trascrizione/tooling posseduti dal provider usati dalla logica core condivisa                     | Il provider ha bisogno di particolarità della trascrizione/famiglia del provider                                                            |
+| 16  | `normalizeToolSchemas`            | Normalizza gli schemi degli strumenti prima che l'embedded runner li veda                                      | Il provider ha bisogno di pulizia degli schemi della famiglia di trasporto                                                                  |
+| 17  | `inspectToolSchemas`              | Espone diagnostica degli schemi posseduta dal provider dopo la normalizzazione                                 | Il provider vuole avvisi sulle keyword senza insegnare al core regole specifiche del provider                                               |
+| 18  | `resolveReasoningOutputMode`      | Seleziona il contratto di output del ragionamento nativo o con tag                                             | Il provider ha bisogno di output finale/ragionamento con tag invece dei campi nativi                                                       |
+| 19  | `prepareExtraParams`              | Normalizzazione dei parametri della richiesta prima dei wrapper generici delle opzioni di stream              | Il provider ha bisogno di parametri di richiesta predefiniti o di pulizia dei parametri per provider                                       |
+| 20  | `createStreamFn`                  | Sostituisce completamente il normale percorso di stream con un trasporto personalizzato                        | Il provider ha bisogno di un protocollo wire personalizzato, non solo di un wrapper                                                        |
+| 21  | `wrapStreamFn`                    | Wrapper dello stream dopo che i wrapper generici sono stati applicati                                          | Il provider ha bisogno di wrapper di compatibilità per header/body/modello della richiesta senza un trasporto personalizzato               |
+| 22  | `resolveTransportTurnState`       | Allega header o metadati nativi per turno al trasporto                                                         | Il provider vuole che i trasporti generici inviino l'identità del turno nativa del provider                                                |
+| 23  | `resolveWebSocketSessionPolicy`   | Allega header WebSocket nativi o policy di cool-down della sessione                                            | Il provider vuole che i trasporti WS generici regolino gli header di sessione o la policy di fallback                                      |
+| 24  | `formatApiKey`                    | Formatter del profilo di autenticazione: il profilo memorizzato diventa la stringa `apiKey` del runtime       | Il provider memorizza metadati di autenticazione aggiuntivi e ha bisogno di una forma personalizzata del token di runtime                 |
+| 25  | `refreshOAuth`                    | Override del refresh OAuth per endpoint di refresh personalizzati o policy di errore nel refresh               | Il provider non rientra nei refresher condivisi `pi-ai`                                                                                     |
+| 26  | `buildAuthDoctorHint`             | Suggerimento di riparazione aggiunto quando il refresh OAuth fallisce                                          | Il provider ha bisogno di una guida di riparazione dell'autenticazione posseduta dal provider dopo un errore di refresh                   |
+| 27  | `matchesContextOverflowError`     | Matcher posseduto dal provider per overflow della finestra di contesto                                         | Il provider ha errori raw di overflow che le euristiche generiche non rileverebbero                                                        |
+| 28  | `classifyFailoverReason`          | Classificazione della ragione di failover posseduta dal provider                                               | Il provider può mappare errori raw di API/trasporto a rate-limit/sovraccarico/ecc.                                                         |
+| 29  | `isCacheTtlEligible`              | Policy della cache del prompt per provider proxy/backhaul                                                      | Il provider ha bisogno di gating TTL della cache specifico per proxy                                                                        |
+| 30  | `buildMissingAuthMessage`         | Sostituzione del messaggio generico di recupero per autenticazione mancante                                    | Il provider ha bisogno di un suggerimento di recupero per autenticazione mancante specifico del provider                                   |
+| 31  | `suppressBuiltInModel`            | Soppressione di modelli upstream obsoleti più suggerimento opzionale di errore rivolto all'utente             | Il provider ha bisogno di nascondere righe upstream obsolete o sostituirle con un suggerimento del vendor                                  |
+| 32  | `augmentModelCatalog`             | Righe di catalogo sintetiche/finali aggiunte dopo il rilevamento                                               | Il provider ha bisogno di righe sintetiche di forward-compat in `models list` e nei selettori                                              |
+| 33  | `isBinaryThinking`                | Toggle di ragionamento acceso/spento per provider con thinking binario                                         | Il provider espone solo thinking binario acceso/spento                                                                                      |
+| 34  | `supportsXHighThinking`           | Supporto al ragionamento `xhigh` per modelli selezionati                                                       | Il provider vuole `xhigh` solo su un sottoinsieme di modelli                                                                                |
+| 35  | `resolveDefaultThinkingLevel`     | Livello `/think` predefinito per una specifica famiglia di modelli                                             | Il provider possiede la policy predefinita di `/think` per una famiglia di modelli                                                         |
+| 36  | `isModernModelRef`                | Matcher di modelli moderni per filtri di profilo live e selezione smoke                                        | Il provider possiede il matching del modello preferito per live/smoke                                                                       |
+| 37  | `prepareRuntimeAuth`              | Scambia una credenziale configurata con il token/chiave effettivo di runtime subito prima dell'inferenza      | Il provider ha bisogno di uno scambio di token o di una credenziale di richiesta a vita breve                                              |
+| 38  | `resolveUsageAuth`                | Risolve le credenziali di utilizzo/fatturazione per `/usage` e le relative superfici di stato                 | Il provider ha bisogno di parsing personalizzato del token di utilizzo/quota o di una credenziale di utilizzo diversa                      |
+| 39  | `fetchUsageSnapshot`              | Recupera e normalizza snapshot di utilizzo/quota specifici del provider dopo che l'autenticazione è stata risolta | Il provider ha bisogno di un endpoint di utilizzo specifico del provider o di un parser del payload                                        |
+| 40  | `createEmbeddingProvider`         | Costruisce un adapter di embedding posseduto dal provider per memoria/ricerca                                  | Il comportamento degli embedding per la memoria appartiene al plugin del provider                                                           |
+| 41  | `buildReplayPolicy`               | Restituisce una policy di replay che controlla la gestione della trascrizione per il provider                 | Il provider ha bisogno di una policy di trascrizione personalizzata (per esempio, rimozione dei blocchi di thinking)                       |
+| 42  | `sanitizeReplayHistory`           | Riscrive la cronologia di replay dopo la pulizia generica della trascrizione                                  | Il provider ha bisogno di riscritture del replay specifiche del provider oltre agli helper condivisi di Compaction                        |
+| 43  | `validateReplayTurns`             | Validazione finale o rimodellazione dei turni di replay prima dell'embedded runner                            | Il trasporto del provider ha bisogno di una validazione dei turni più rigorosa dopo la sanitizzazione generica                             |
+| 44  | `onModelSelected`                 | Esegue effetti collaterali post-selezione posseduti dal provider                                              | Il provider ha bisogno di telemetria o stato posseduti dal provider quando un modello diventa attivo                                       |
 
 `normalizeModelId`, `normalizeTransport` e `normalizeConfig` controllano prima il
 plugin provider corrispondente, poi passano agli altri plugin provider con capacità di hook
-finché uno non cambia davvero model id o transport/config. Questo mantiene funzionanti
-shim alias/compat dei provider senza richiedere al chiamante di sapere quale plugin
-bundled possieda la riscrittura. Se nessun hook provider riscrive una entry di configurazione supportata
-della famiglia Google, il normalizzatore di configurazione Google bundled continua comunque ad applicare
-quella pulizia di compatibilità.
+finché uno non modifica effettivamente l'id modello o il trasporto/configurazione. Questo mantiene
+funzionanti gli shim di alias/compatibilità dei provider senza richiedere al chiamante di sapere quale
+plugin incluso possiede la riscrittura. Se nessun hook provider riscrive una voce di configurazione supportata
+della famiglia Google, il normalizzatore di configurazione Google incluso applica comunque quella pulizia di compatibilità.
 
 Se il provider ha bisogno di un protocollo wire completamente personalizzato o di un esecutore di richieste personalizzato,
-quella è una classe diversa di estensione. Questi hook sono per il comportamento del provider
+si tratta di una classe diversa di estensione. Questi hook servono per il comportamento del provider
 che continua a funzionare sul normale loop di inferenza di OpenClaw.
 
 ### Esempio di provider
@@ -775,109 +805,115 @@ api.registerProvider({
 
 - Anthropic usa `resolveDynamicModel`, `capabilities`, `buildAuthDoctorHint`,
   `resolveUsageAuth`, `fetchUsageSnapshot`, `isCacheTtlEligible`,
-  `resolveDefaultThinkingLevel`, `applyConfigDefaults`, `isModernModelRef`
-  e `wrapStreamFn` perché possiede forward-compat di Claude 4.6,
-  suggerimenti della famiglia provider, guida alla riparazione auth, integrazione
-  dell'endpoint di utilizzo, idoneità della prompt-cache, valori predefiniti di configurazione consapevoli dell'auth,
-  policy di thinking predefinito/adattivo di Claude, e modellazione
-  dello stream specifica di Anthropic per header beta, `/fast` / `serviceTier` e `context1m`.
-- Gli helper di stream specifici di Claude per Anthropic restano per ora nel seam pubblico
-  `api.ts` / `contract-api.ts` del plugin bundled. Questa superficie del pacchetto
+  `resolveDefaultThinkingLevel`, `applyConfigDefaults`, `isModernModelRef`,
+  e `wrapStreamFn` perché possiede la forward-compat di Claude 4.6,
+  i suggerimenti della famiglia di provider, la guida alla riparazione dell'autenticazione, l'integrazione
+  dell'endpoint di utilizzo, l'idoneità della cache del prompt, i valori predefiniti di configurazione basati sull'autenticazione, la policy predefinita/adattiva di thinking di Claude
+  e la modellazione specifica di Anthropic dello stream per
+  header beta, `/fast` / `serviceTier` e `context1m`.
+- Gli helper di stream specifici di Claude di Anthropic restano per ora nella seam pubblica
+  `api.ts` / `contract-api.ts` del plugin incluso stesso. Quella superficie del pacchetto
   esporta `wrapAnthropicProviderStream`, `resolveAnthropicBetas`,
   `resolveAnthropicFastMode`, `resolveAnthropicServiceTier` e i builder wrapper
-  Anthropic di livello più basso invece di ampliare lo SDK generico attorno alle regole degli header beta di un solo provider.
+  Anthropic di livello più basso invece di ampliare l'SDK generico attorno alle regole degli header beta di
+  un singolo provider.
 - OpenAI usa `resolveDynamicModel`, `normalizeResolvedModel` e
   `capabilities` più `buildMissingAuthMessage`, `suppressBuiltInModel`,
   `augmentModelCatalog`, `supportsXHighThinking` e `isModernModelRef`
-  perché possiede forward-compat di GPT-5.4, la normalizzazione diretta OpenAI
-  `openai-completions` -> `openai-responses`, suggerimenti auth consapevoli di Codex,
-  soppressione di Spark, righe sintetiche della lista OpenAI, e policy di thinking /
+  perché possiede la forward-compat di GPT-5.4, la normalizzazione diretta OpenAI
+  `openai-completions` -> `openai-responses`, i suggerimenti di autenticazione consapevoli di Codex,
+  la soppressione di Spark, le righe sintetiche della lista OpenAI e la policy di thinking /
   modello live di GPT-5; la famiglia di stream `openai-responses-defaults` possiede i
-  wrapper condivisi nativi OpenAI Responses per header di attribuzione,
-  `/fast`/`serviceTier`, verbosità del testo, ricerca web nativa Codex,
-  modellazione del payload reasoning-compat e gestione del contesto Responses.
+  wrapper nativi condivisi di OpenAI Responses per header di attribuzione,
+  `/fast`/`serviceTier`, verbosità del testo, ricerca web nativa di Codex,
+  modellazione del payload reasoning-compat e gestione del contesto di Responses.
 - OpenRouter usa `catalog` più `resolveDynamicModel` e
   `prepareDynamicModel` perché il provider è pass-through e può esporre nuovi
-  model id prima dell'aggiornamento del catalogo statico di OpenClaw; usa anche
-  `capabilities`, `wrapStreamFn` e `isCacheTtlEligible` per mantenere fuori dal core
-  header di richiesta specifici del provider, metadati di routing, patch di reasoning e
-  policy di prompt-cache. La sua policy di replay proviene dalla famiglia
+  id modello prima degli aggiornamenti del catalogo statico di OpenClaw; usa anche
+  `capabilities`, `wrapStreamFn` e `isCacheTtlEligible` per mantenere
+  fuori dal core header di richiesta specifici del provider, metadati di instradamento, patch di reasoning e
+  policy di cache del prompt. La sua policy di replay proviene dalla famiglia
   `passthrough-gemini`, mentre la famiglia di stream `openrouter-thinking`
-  possiede l'iniezione del reasoning del proxy e gli skip per modelli non supportati / `auto`.
+  possiede l'iniezione del reasoning del proxy e i salti dei modelli non supportati / `auto`.
 - GitHub Copilot usa `catalog`, `auth`, `resolveDynamicModel` e
-  `capabilities` più `prepareRuntimeAuth` e `fetchUsageSnapshot` perché ha
-  bisogno di login device di proprietà del provider, comportamento di fallback del modello,
-  particolarità delle trascrizioni Claude, uno scambio GitHub token -> Copilot token,
-  e un endpoint di utilizzo posseduto dal provider.
+  `capabilities` più `prepareRuntimeAuth` e `fetchUsageSnapshot` perché
+  ha bisogno di login del dispositivo posseduto dal provider, comportamento di fallback del modello, particolarità della trascrizione di Claude,
+  uno scambio di token GitHub -> token Copilot e un endpoint di utilizzo posseduto dal provider.
 - OpenAI Codex usa `catalog`, `resolveDynamicModel`,
   `normalizeResolvedModel`, `refreshOAuth` e `augmentModelCatalog` più
   `prepareExtraParams`, `resolveUsageAuth` e `fetchUsageSnapshot` perché
-  funziona ancora sui trasporti OpenAI del core ma possiede la propria normalizzazione di
-  trasporto/base URL, la policy di fallback del refresh OAuth, la scelta predefinita del trasporto,
-  righe sintetiche del catalogo Codex e integrazione dell'endpoint di utilizzo ChatGPT; condivide la stessa famiglia di stream `openai-responses-defaults` di OpenAI diretto.
+  continua a funzionare sui trasporti core OpenAI ma possiede la normalizzazione del suo trasporto/base URL,
+  la policy di fallback del refresh OAuth, la scelta predefinita del trasporto,
+  le righe sintetiche del catalogo Codex e l'integrazione dell'endpoint di utilizzo di ChatGPT; condivide
+  la stessa famiglia di stream `openai-responses-defaults` di OpenAI diretto.
 - Google AI Studio e Gemini CLI OAuth usano `resolveDynamicModel`,
   `buildReplayPolicy`, `sanitizeReplayHistory`,
-  `resolveReasoningOutputMode`, `wrapStreamFn` e `isModernModelRef` perché la famiglia replay `google-gemini`
-  possiede fallback forward-compat di Gemini 3.1,
-  validazione replay nativa Gemini, sanificazione del replay bootstrap, modalità
-  di output del reasoning con tag e matching dei modelli moderni, mentre la
-  famiglia di stream `google-thinking` possiede la normalizzazione del payload di thinking di Gemini;
+  `resolveReasoningOutputMode`, `wrapStreamFn` e `isModernModelRef` perché la
+  famiglia di replay `google-gemini` possiede il fallback forward-compat di Gemini 3.1,
+  la validazione nativa del replay di Gemini, la sanitizzazione del replay di bootstrap, la modalità di
+  output del reasoning con tag e il matching dei modelli moderni, mentre la
+  famiglia di stream `google-thinking` possiede la normalizzazione del payload thinking di Gemini;
   Gemini CLI OAuth usa anche `formatApiKey`, `resolveUsageAuth` e
-  `fetchUsageSnapshot` per formattazione del token, parsing del token e
-  wiring dell'endpoint quota.
-- Anthropic Vertex usa `buildReplayPolicy` tramite la famiglia replay
-  `anthropic-by-model` così la pulizia replay specifica di Claude resta limitata
-  agli id Claude invece che a ogni trasporto `anthropic-messages`.
+  `fetchUsageSnapshot` per formattazione del token, parsing del token e collegamento
+  dell'endpoint di quota.
+- Anthropic Vertex usa `buildReplayPolicy` tramite la
+  famiglia di replay `anthropic-by-model` così la pulizia del replay specifica di Claude resta
+  limitata agli id Claude invece che a ogni trasporto `anthropic-messages`.
 - Amazon Bedrock usa `buildReplayPolicy`, `matchesContextOverflowError`,
-  `classifyFailoverReason` e `resolveDefaultThinkingLevel` perché possiede la classificazione specifica Bedrock
-  degli errori di throttle/not-ready/context-overflow per traffico Anthropic-on-Bedrock;
-  la sua policy di replay condivide comunque la stessa protezione solo-Claude `anthropic-by-model`.
+  `classifyFailoverReason` e `resolveDefaultThinkingLevel` perché possiede
+  la classificazione specifica di Bedrock degli errori di throttle/non pronto/overflow del contesto
+  per il traffico Anthropic-on-Bedrock; la sua policy di replay condivide comunque la stessa
+  protezione `anthropic-by-model` solo Claude.
 - OpenRouter, Kilocode, Opencode e Opencode Go usano `buildReplayPolicy`
-  tramite la famiglia replay `passthrough-gemini` perché fanno proxy dei modelli Gemini
-  attraverso trasporti compatibili OpenAI e necessitano della sanificazione delle
-  thought-signature Gemini senza validazione replay nativa Gemini o riscritture bootstrap.
-- MiniMax usa `buildReplayPolicy` tramite la famiglia replay
-  `hybrid-anthropic-openai` perché un singolo provider possiede semantiche sia
-  Anthropic-message sia OpenAI-compatible; mantiene la rimozione dei thinking-block solo-Claude
-  sul lato Anthropic sovrascrivendo però la modalità di output del reasoning di nuovo su nativa, e la famiglia di stream `minimax-fast-mode` possiede le riscritture dei modelli fast-mode sul percorso di stream condiviso.
-- Moonshot usa `catalog` più `wrapStreamFn` perché usa ancora il trasporto
-  OpenAI condiviso ma necessita di normalizzazione del payload di thinking di proprietà del provider; la
-  famiglia di stream `moonshot-thinking` mappa config più stato `/think` sul proprio payload nativo di thinking binario.
+  tramite la famiglia di replay `passthrough-gemini` perché fanno da proxy ai modelli Gemini
+  tramite trasporti compatibili con OpenAI e hanno bisogno della
+  sanitizzazione thought-signature di Gemini senza validazione nativa del replay di Gemini né
+  riscritture di bootstrap.
+- MiniMax usa `buildReplayPolicy` tramite la
+  famiglia di replay `hybrid-anthropic-openai` perché un provider possiede sia
+  semantica di messaggi Anthropic sia semantica compatibile OpenAI; mantiene l'eliminazione
+  dei blocchi di thinking solo Claude sul lato Anthropic mentre sovrascrive la modalità di
+  output del reasoning tornando a quella nativa, e la famiglia di stream `minimax-fast-mode` possiede
+  le riscritture dei modelli fast-mode sul percorso di stream condiviso.
+- Moonshot usa `catalog` più `wrapStreamFn` perché continua a usare il trasporto
+  OpenAI condiviso ma ha bisogno di una normalizzazione del payload thinking posseduta dal provider; la
+  famiglia di stream `moonshot-thinking` mappa config più stato `/think` sul suo
+  payload nativo di thinking binario.
 - Kilocode usa `catalog`, `capabilities`, `wrapStreamFn` e
-  `isCacheTtlEligible` perché necessita di header di richiesta di proprietà del provider,
-  normalizzazione del payload di reasoning, suggerimenti sulle trascrizioni Gemini e gating
-  Anthropic cache-TTL; la famiglia di stream `kilocode-thinking` mantiene l'iniezione del thinking Kilo
-  sul percorso stream proxy condiviso saltando `kilo/auto` e altri model id proxy
-  che non supportano payload di reasoning espliciti.
+  `isCacheTtlEligible` perché ha bisogno di header di richiesta posseduti dal provider,
+  normalizzazione del payload di reasoning, suggerimenti di trascrizione Gemini e
+  gating del cache-TTL di Anthropic; la famiglia di stream `kilocode-thinking` mantiene l'iniezione del thinking Kilo
+  sul percorso di stream proxy condiviso saltando però `kilo/auto` e
+  altri id di modello proxy che non supportano payload di reasoning espliciti.
 - Z.AI usa `resolveDynamicModel`, `prepareExtraParams`, `wrapStreamFn`,
   `isCacheTtlEligible`, `isBinaryThinking`, `isModernModelRef`,
-  `resolveUsageAuth` e `fetchUsageSnapshot` perché possiede fallback GLM-5,
-  valori predefiniti `tool_stream`, UX a thinking binario, matching di modelli moderni, e sia
-  l'auth di utilizzo sia il recupero della quota; la famiglia di stream `tool-stream-default-on` mantiene
-  il wrapper `tool_stream` attivo per impostazione predefinita fuori dal glue scritto a mano per provider.
+  `resolveUsageAuth` e `fetchUsageSnapshot` perché possiede il fallback GLM-5,
+  i valori predefiniti di `tool_stream`, UX di thinking binario, matching dei modelli moderni e sia
+  l'autenticazione d'uso sia il recupero della quota; la famiglia di stream `tool-stream-default-on` mantiene
+  il wrapper `tool_stream` predefinito attivo fuori dal codice manuale per-provider.
 - xAI usa `normalizeResolvedModel`, `normalizeTransport`,
   `contributeResolvedModelCompat`, `prepareExtraParams`, `wrapStreamFn`,
   `resolveSyntheticAuth`, `resolveDynamicModel` e `isModernModelRef`
-  perché possiede la normalizzazione nativa del trasporto xAI Responses, riscritture degli alias
-  Grok fast-mode, `tool_stream` predefinito, pulizia di strict-tool / reasoning-payload,
-  riuso dell'auth di fallback per strumenti posseduti dal plugin, risoluzione
-  forward-compat dei modelli Grok, e patch di compatibilità di proprietà del provider come
-  profilo schema strumento xAI, keyword di schema non supportate, `web_search`
-  nativo e decodifica degli argomenti delle tool-call con entità HTML.
-- Mistral, OpenCode Zen e OpenCode Go usano solo `capabilities` per mantenere
-  fuori dal core le particolarità di trascrizioni/strumenti.
-- I provider bundled solo-catalogo come `byteplus`, `cloudflare-ai-gateway`,
+  perché possiede la normalizzazione del trasporto nativo xAI Responses, le riscritture
+  degli alias fast-mode di Grok, il `tool_stream` predefinito, la pulizia di strict-tool / payload di reasoning,
+  il riuso dell'autenticazione di fallback per strumenti posseduti dal plugin, la risoluzione forward-compat dei modelli Grok
+  e patch di compatibilità possedute dal provider come il profilo degli schemi degli strumenti xAI,
+  keyword di schema non supportate, `web_search` nativo e decodifica degli argomenti
+  delle chiamate agli strumenti con entità HTML.
+- Mistral, OpenCode Zen e OpenCode Go usano solo `capabilities` per tenere
+  fuori dal core le particolarità di trascrizione/tooling.
+- I provider inclusi solo catalogo come `byteplus`, `cloudflare-ai-gateway`,
   `huggingface`, `kimi-coding`, `nvidia`, `qianfan`,
   `synthetic`, `together`, `venice`, `vercel-ai-gateway` e `volcengine` usano
   solo `catalog`.
-- Qwen usa `catalog` per il proprio provider testuale più registrazioni condivise di
-  media-understanding e video-generation per le sue superfici multimodali.
+- Qwen usa `catalog` per il proprio provider testuale più registrazioni condivise di comprensione dei media e
+  generazione video per le proprie superfici multimodali.
 - MiniMax e Xiaomi usano `catalog` più hook di utilizzo perché il loro comportamento `/usage`
-  è di proprietà del plugin anche se l'inferenza continua a passare attraverso i trasporti condivisi.
+  è posseduto dal plugin anche se l'inferenza continua a passare attraverso i trasporti condivisi.
 
 ## Helper di runtime
 
-I plugin possono accedere a helper selezionati del core tramite `api.runtime`. Per il TTS:
+I plugin possono accedere a helper core selezionati tramite `api.runtime`. Per il TTS:
 
 ```ts
 const clip = await api.runtime.tts.textToSpeech({
@@ -900,9 +936,9 @@ Note:
 
 - `textToSpeech` restituisce il normale payload di output TTS del core per superfici file/nota vocale.
 - Usa la configurazione core `messages.tts` e la selezione del provider.
-- Restituisce buffer audio PCM + sample rate. I plugin devono ricampionare/codificare per i provider.
-- `listVoices` è facoltativo per provider. Usalo per picker vocali o flussi di setup posseduti dal vendor.
-- Gli elenchi vocali possono includere metadati più ricchi come locale, genere e tag di personalità per picker consapevoli del provider.
+- Restituisce buffer audio PCM + frequenza di campionamento. I plugin devono ricampionare/codificare per i provider.
+- `listVoices` è facoltativo per provider. Usalo per selettori vocali posseduti dal vendor o flussi di setup.
+- Gli elenchi di voci possono includere metadati più ricchi, come impostazioni locali, genere e tag di personalità per selettori consapevoli del provider.
 - OpenAI ed ElevenLabs supportano oggi la telefonia. Microsoft no.
 
 I plugin possono anche registrare provider vocali tramite `api.registerSpeechProvider(...)`.
@@ -925,15 +961,15 @@ api.registerSpeechProvider({
 
 Note:
 
-- Mantieni nel core policy TTS, fallback e consegna della risposta.
-- Usa i provider vocali per il comportamento di sintesi di proprietà del vendor.
+- Mantieni nel core la policy TTS, il fallback e la consegna della risposta.
+- Usa i provider vocali per il comportamento di sintesi posseduto dal vendor.
 - L'input legacy Microsoft `edge` viene normalizzato all'id provider `microsoft`.
-- Il modello di ownership preferito è orientato all'azienda: un singolo plugin vendor può possedere
-  provider testuali, vocali, di immagini e di media futuri man mano che OpenClaw aggiunge quei
+- Il modello di proprietà preferito è orientato all'azienda: un plugin vendor può possedere
+  provider testuali, vocali, di immagini e futuri provider multimediali man mano che OpenClaw aggiunge questi
   contratti di capacità.
 
-Per la comprensione di immagini/audio/video, i plugin registrano un singolo
-provider tipizzato di media-understanding invece di un generico contenitore chiave/valore:
+Per la comprensione di immagini/audio/video, i plugin registrano un provider tipizzato di
+comprensione dei media invece di un generico contenitore chiave/valore:
 
 ```ts
 api.registerMediaUnderstandingProvider({
@@ -947,15 +983,16 @@ api.registerMediaUnderstandingProvider({
 
 Note:
 
-- Mantieni nel core orchestrazione, fallback, configurazione e wiring dei canali.
-- Mantieni nel plugin provider il comportamento del vendor.
-- L'espansione additiva deve restare tipizzata: nuovi metodi facoltativi, nuovi campi facoltativi del risultato, nuove capacità facoltative.
-- La generazione video segue già lo stesso schema:
+- Mantieni orchestrazione, fallback, configurazione e collegamento dei canali nel core.
+- Mantieni il comportamento del vendor nel plugin provider.
+- L'espansione additiva deve restare tipizzata: nuovi metodi facoltativi, nuovi campi
+  risultato facoltativi, nuove capacità facoltative.
+- La generazione video segue già lo stesso pattern:
   - il core possiede il contratto della capacità e l'helper di runtime
-  - i plugin vendor registrano `api.registerVideoGenerationProvider(...)`
+  - i plugin dei vendor registrano `api.registerVideoGenerationProvider(...)`
   - i plugin di funzionalità/canale consumano `api.runtime.videoGeneration.*`
 
-Per gli helper di runtime di media-understanding, i plugin possono chiamare:
+Per gli helper di runtime di comprensione dei media, i plugin possono chiamare:
 
 ```ts
 const image = await api.runtime.mediaUnderstanding.describeImageFile({
@@ -970,8 +1007,8 @@ const video = await api.runtime.mediaUnderstanding.describeVideoFile({
 });
 ```
 
-Per la trascrizione audio, i plugin possono usare il runtime media-understanding
-oppure il vecchio alias STT:
+Per la trascrizione audio, i plugin possono usare sia il runtime di comprensione dei media
+sia il vecchio alias STT:
 
 ```ts
 const { text } = await api.runtime.mediaUnderstanding.transcribeAudioFile({
@@ -985,10 +1022,10 @@ const { text } = await api.runtime.mediaUnderstanding.transcribeAudioFile({
 Note:
 
 - `api.runtime.mediaUnderstanding.*` è la superficie condivisa preferita per
-  comprensione di immagini/audio/video.
-- Usa la configurazione core audio di media-understanding (`tools.media.audio`) e l'ordine di fallback dei provider.
-- Restituisce `{ text: undefined }` quando non viene prodotto output di trascrizione (ad esempio input saltato/non supportato).
-- `api.runtime.stt.transcribeAudioFile(...)` rimane come alias di compatibilità.
+  la comprensione di immagini/audio/video.
+- Usa la configurazione audio core di comprensione dei media (`tools.media.audio`) e l'ordine di fallback del provider.
+- Restituisce `{ text: undefined }` quando non viene prodotto alcun output di trascrizione (per esempio input saltato/non supportato).
+- `api.runtime.stt.transcribeAudioFile(...)` resta come alias di compatibilità.
 
 I plugin possono anche avviare esecuzioni di subagent in background tramite `api.runtime.subagent`:
 
@@ -1005,13 +1042,13 @@ const result = await api.runtime.subagent.run({
 Note:
 
 - `provider` e `model` sono override facoltativi per esecuzione, non modifiche persistenti della sessione.
-- OpenClaw onora quei campi di override solo per chiamanti fidati.
-- Per esecuzioni di fallback possedute dal plugin, gli operatori devono aderire esplicitamente con `plugins.entries.<id>.subagent.allowModelOverride: true`.
-- Usa `plugins.entries.<id>.subagent.allowedModels` per limitare i plugin fidati a target canonici specifici `provider/model`, oppure `"*"` per consentire esplicitamente qualsiasi target.
-- Le esecuzioni subagent di plugin non fidati continuano a funzionare, ma le richieste di override vengono rifiutate invece di ricadere silenziosamente su un fallback.
+- OpenClaw rispetta questi campi di override solo per i chiamanti attendibili.
+- Per le esecuzioni di fallback possedute dal plugin, gli operatori devono acconsentire con `plugins.entries.<id>.subagent.allowModelOverride: true`.
+- Usa `plugins.entries.<id>.subagent.allowedModels` per limitare i plugin attendibili a target canonici specifici `provider/model`, oppure `"*"` per consentire esplicitamente qualsiasi target.
+- Le esecuzioni di subagent di plugin non attendibili continuano a funzionare, ma le richieste di override vengono rifiutate invece di ripiegare silenziosamente su un fallback.
 
 Per la ricerca web, i plugin possono consumare l'helper di runtime condiviso invece di
-entrare nel wiring degli strumenti dell'agente:
+accedere al collegamento dello strumento dell'agente:
 
 ```ts
 const providers = api.runtime.webSearch.listProviders({
@@ -1034,7 +1071,7 @@ Note:
 
 - Mantieni nel core la selezione del provider, la risoluzione delle credenziali e la semantica condivisa delle richieste.
 - Usa i provider di ricerca web per trasporti di ricerca specifici del vendor.
-- `api.runtime.webSearch.*` è la superficie condivisa preferita per plugin di funzionalità/canale che hanno bisogno del comportamento di ricerca senza dipendere dal wrapper degli strumenti dell'agente.
+- `api.runtime.webSearch.*` è la superficie condivisa preferita per i plugin di funzionalità/canale che hanno bisogno di comportamento di ricerca senza dipendere dal wrapper dello strumento dell'agente.
 
 ### `api.runtime.imageGeneration`
 
@@ -1049,7 +1086,7 @@ const providers = api.runtime.imageGeneration.listProviders({
 });
 ```
 
-- `generate(...)`: genera un'immagine usando la catena di provider di generazione immagini configurata.
+- `generate(...)`: genera un'immagine usando la catena configurata del provider di generazione immagini.
 - `listProviders(...)`: elenca i provider di generazione immagini disponibili e le loro capacità.
 
 ## Route HTTP del Gateway
@@ -1072,7 +1109,7 @@ api.registerHttpRoute({
 Campi della route:
 
 - `path`: percorso della route sotto il server HTTP del gateway.
-- `auth`: obbligatorio. Usa `"gateway"` per richiedere la normale autenticazione del gateway, oppure `"plugin"` per autenticazione/verifica webhook gestite dal plugin.
+- `auth`: obbligatorio. Usa `"gateway"` per richiedere la normale autenticazione del gateway, oppure `"plugin"` per autenticazione/verifica Webhook gestita dal plugin.
 - `match`: facoltativo. `"exact"` (predefinito) oppure `"prefix"`.
 - `replaceExisting`: facoltativo. Consente allo stesso plugin di sostituire la propria registrazione di route esistente.
 - `handler`: restituisce `true` quando la route ha gestito la richiesta.
@@ -1080,26 +1117,26 @@ Campi della route:
 Note:
 
 - `api.registerHttpHandler(...)` è stato rimosso e causerà un errore di caricamento del plugin. Usa invece `api.registerHttpRoute(...)`.
-- Le route dei plugin devono dichiarare esplicitamente `auth`.
-- I conflitti esatti `path + match` vengono rifiutati a meno che `replaceExisting: true`, e un plugin non può sostituire la route di un altro plugin.
-- Le route sovrapposte con diversi livelli `auth` vengono rifiutate. Mantieni catene di fallthrough `exact`/`prefix` solo allo stesso livello auth.
-- Le route `auth: "plugin"` **non** ricevono automaticamente ambiti di runtime dell'operatore. Sono pensate per webhook/verifica firme gestiti dal plugin, non per chiamate helper Gateway privilegiate.
-- Le route `auth: "gateway"` vengono eseguite all'interno di un ambito di runtime di richiesta Gateway, ma tale ambito è intenzionalmente conservativo:
-  - l'autenticazione bearer con segreto condiviso (`gateway.auth.mode = "token"` / `"password"`) mantiene gli ambiti di runtime delle route plugin fissati a `operator.write`, anche se il chiamante invia `x-openclaw-scopes`
-  - le modalità HTTP fidate con identità (ad esempio `trusted-proxy` o `gateway.auth.mode = "none"` su ingress privato) onorano `x-openclaw-scopes` solo quando l'header è esplicitamente presente
-  - se `x-openclaw-scopes` è assente su quelle richieste di route plugin con identità, l'ambito di runtime ricade su `operator.write`
-- Regola pratica: non dare per scontato che una route plugin con auth gateway sia implicitamente una superficie admin. Se la tua route ha bisogno di comportamento solo-admin, richiedi una modalità auth con identità e documenta il contratto esplicito dell'header `x-openclaw-scopes`.
+- Le route dei plugin devono dichiarare `auth` in modo esplicito.
+- I conflitti esatti di `path + match` vengono rifiutati salvo `replaceExisting: true`, e un plugin non può sostituire la route di un altro plugin.
+- Le route sovrapposte con livelli `auth` diversi vengono rifiutate. Mantieni le catene di fallthrough `exact`/`prefix` solo allo stesso livello di autenticazione.
+- Le route `auth: "plugin"` **non** ricevono automaticamente gli scope di runtime dell'operatore. Sono per webhook/verifica firma gestiti dal plugin, non per chiamate helper privilegiate del Gateway.
+- Le route `auth: "gateway"` vengono eseguite all'interno di uno scope di runtime di richiesta del Gateway, ma tale scope è intenzionalmente conservativo:
+  - l'autenticazione bearer con secret condiviso (`gateway.auth.mode = "token"` / `"password"`) mantiene gli scope di runtime della route del plugin fissati a `operator.write`, anche se il chiamante invia `x-openclaw-scopes`
+  - le modalità HTTP attendibili con identità esplicita (per esempio `trusted-proxy` o `gateway.auth.mode = "none"` su un ingresso privato) rispettano `x-openclaw-scopes` solo quando l'header è esplicitamente presente
+  - se `x-openclaw-scopes` è assente su quelle richieste di route del plugin con identità esplicita, lo scope di runtime torna a `operator.write`
+- Regola pratica: non dare per scontato che una route di plugin con autenticazione gateway sia implicitamente una superficie amministrativa. Se la tua route ha bisogno di comportamento riservato agli admin, richiedi una modalità di autenticazione con identità esplicita e documenta il contratto esplicito dell'header `x-openclaw-scopes`.
 
-## Percorsi di import del Plugin SDK
+## Percorsi di import dell'SDK del plugin
 
-Usa i sottopercorsi dell'SDK invece dell'import monolitico `openclaw/plugin-sdk` quando
-sviluppi plugin:
+Usa i sottopercorsi dell'SDK invece dell'import monolitico `openclaw/plugin-sdk` durante
+la creazione dei plugin:
 
 - `openclaw/plugin-sdk/plugin-entry` per primitive di registrazione dei plugin.
-- `openclaw/plugin-sdk/core` per il contratto condiviso generico rivolto ai plugin.
-- `openclaw/plugin-sdk/config-schema` per l'esportazione dello schema Zod radice `openclaw.json`
+- `openclaw/plugin-sdk/core` per il contratto generico condiviso rivolto ai plugin.
+- `openclaw/plugin-sdk/config-schema` per l'esportazione dello schema Zod root di `openclaw.json`
   (`OpenClawSchema`).
-- Primitive di canale stabili come `openclaw/plugin-sdk/channel-setup`,
+- Primitive stabili di canale come `openclaw/plugin-sdk/channel-setup`,
   `openclaw/plugin-sdk/setup-runtime`,
   `openclaw/plugin-sdk/setup-adapter-runtime`,
   `openclaw/plugin-sdk/setup-tools`,
@@ -1111,14 +1148,15 @@ sviluppi plugin:
   `openclaw/plugin-sdk/channel-reply-pipeline`,
   `openclaw/plugin-sdk/command-auth`,
   `openclaw/plugin-sdk/secret-input` e
-  `openclaw/plugin-sdk/webhook-ingress` per wiring condiviso di setup/auth/reply/webhook.
+  `openclaw/plugin-sdk/webhook-ingress` per il collegamento condiviso di setup/autenticazione/risposta/webhook.
   `channel-inbound` è la sede condivisa per debounce, matching delle mention,
-  helper di mention-policy inbound, formattazione dell'envelope e helper di contesto dell'envelope inbound.
-  `channel-setup` è il seam ristretto di setup con installazione facoltativa.
+  helper di policy delle mention in ingresso, formattazione degli envelope e helper di contesto
+  degli envelope in ingresso.
+  `channel-setup` è la seam ristretta di setup con installazione facoltativa.
   `setup-runtime` è la superficie di setup sicura per il runtime usata da `setupEntry` /
-  avvio differito, compresi gli adapter di patch di setup sicuri per l'import.
-  `setup-adapter-runtime` è il seam adapter di setup account consapevole dell'env.
-  `setup-tools` è il piccolo seam helper CLI/archivio/documentazione (`formatCliCommand`,
+  avvio differito, inclusi gli adapter di patch di setup sicuri per l'import.
+  `setup-adapter-runtime` è la seam dell'adapter di setup dell'account consapevole dell'env.
+  `setup-tools` è la piccola seam di helper CLI/archivio/documentazione (`formatCliCommand`,
   `detectBinary`, `extractArchive`, `resolveBrewExecutable`, `formatDocsLink`,
   `CONFIG_DIR`).
 - Sottopercorsi di dominio come `openclaw/plugin-sdk/channel-config-helpers`,
@@ -1140,85 +1178,106 @@ sviluppi plugin:
   `openclaw/plugin-sdk/text-runtime`,
   `openclaw/plugin-sdk/runtime-store` e
   `openclaw/plugin-sdk/directory-runtime` per helper condivisi di runtime/configurazione.
-  `telegram-command-config` è il seam pubblico ristretto per normalizzazione/validazione dei comandi personalizzati Telegram e resta disponibile anche se la superficie contrattuale bundled di Telegram è temporaneamente indisponibile.
-  `text-runtime` è il seam condiviso per testo/markdown/logging, compresa
-  la rimozione del testo visibile all'assistente, helper di rendering/chunking markdown, helper di redazione, helper di directive-tag e utilità di testo sicuro.
-- I seam di canale specifici per l'approvazione dovrebbero preferire un unico contratto `approvalCapability` sul plugin. Il core legge quindi autenticazione, consegna, rendering, native-routing e comportamento lazy del native-handler per l'approvazione tramite questa unica capacità invece di mescolare il comportamento di approvazione in campi non correlati del plugin.
-- `openclaw/plugin-sdk/channel-runtime` è deprecato e rimane solo come shim di compatibilità per plugin più vecchi. Il nuovo codice dovrebbe importare invece le primitive generiche più ristrette, e il codice del repo non dovrebbe aggiungere nuovi import dello shim.
-- Gli interni delle estensioni bundled restano privati. I plugin esterni dovrebbero usare solo i sottopercorsi `openclaw/plugin-sdk/*`. Il codice core/test di OpenClaw può usare gli entry point pubblici del repo sotto la radice di un pacchetto plugin come `index.js`, `api.js`, `runtime-api.js`, `setup-entry.js` e file a scope ristretto come `login-qr-api.js`. Non importare mai `src/*` di un pacchetto plugin dal core o da un'altra estensione.
-- Suddivisione degli entry point del repo:
-  `<plugin-package-root>/api.js` è il barrel helper/tipi,
-  `<plugin-package-root>/runtime-api.js` è il barrel solo-runtime,
-  `<plugin-package-root>/index.js` è l'entry del plugin bundled,
-  e `<plugin-package-root>/setup-entry.js` è l'entry del plugin di setup.
-- Esempi attuali di provider bundled:
+  `telegram-command-config` è la seam pubblica ristretta per normalizzazione/convalida dei comandi personalizzati di Telegram e resta disponibile anche se la
+  superficie contrattuale del bundle Telegram è temporaneamente indisponibile.
+  `text-runtime` è la seam condivisa di testo/markdown/logging, inclusi
+  rimozione del testo visibile all'assistente, helper di render/chunking markdown, helper
+  di redazione, helper per i tag di direttiva e utility di testo sicuro.
+- Le seam di canale specifiche per l'approvazione dovrebbero preferire un unico contratto `approvalCapability`
+  sul plugin. Il core legge quindi autenticazione, consegna, rendering,
+  instradamento nativo e comportamento del gestore nativo lazy per l'approvazione tramite quella sola capacità
+  invece di mescolare il comportamento di approvazione in campi non correlati del plugin.
+- `openclaw/plugin-sdk/channel-runtime` è deprecato e resta solo come shim di
+  compatibilità per i plugin più vecchi. Il nuovo codice dovrebbe importare invece le primitive
+  generiche più ristrette, e il codice del repo non dovrebbe aggiungere nuovi import dello
+  shim.
+- Gli interni delle estensioni incluse restano privati. I plugin esterni dovrebbero usare solo
+  i sottopercorsi `openclaw/plugin-sdk/*`. Il codice core/test di OpenClaw può usare i
+  punti di ingresso pubblici del repo sotto la root del pacchetto di un plugin, come `index.js`, `api.js`,
+  `runtime-api.js`, `setup-entry.js` e file a ambito ristretto come
+  `login-qr-api.js`. Non importare mai `src/*` di un pacchetto plugin dal core o da
+  un'altra estensione.
+- Suddivisione dei punti di ingresso del repo:
+  `<plugin-package-root>/api.js` è il barrel di helper/tipi,
+  `<plugin-package-root>/runtime-api.js` è il barrel solo runtime,
+  `<plugin-package-root>/index.js` è il punto di ingresso del plugin incluso,
+  e `<plugin-package-root>/setup-entry.js` è il punto di ingresso del plugin di setup.
+- Esempi attuali di provider inclusi:
   - Anthropic usa `api.js` / `contract-api.js` per helper di stream Claude come
     `wrapAnthropicProviderStream`, helper per header beta e parsing di `service_tier`.
-  - OpenAI usa `api.js` per builder provider, helper per il modello predefinito e
-    builder provider realtime.
-  - OpenRouter usa `api.js` per il proprio builder provider più helper di onboarding/configurazione,
-    mentre `register.runtime.js` può comunque riesportare helper generici
+  - OpenAI usa `api.js` per builder di provider, helper del modello predefinito e
+    builder di provider realtime.
+  - OpenRouter usa `api.js` per il proprio builder di provider più helper di onboarding/configurazione,
+    mentre `register.runtime.js` può ancora riesportare helper generici
     `plugin-sdk/provider-stream` per uso locale al repo.
-- Gli entry point pubblici caricati tramite facade preferiscono lo snapshot attivo della configurazione runtime
-  quando esiste, poi ricadono sul file di configurazione risolto su disco quando
-  OpenClaw non sta ancora servendo uno snapshot runtime.
-- Le primitive generiche condivise restano il contratto pubblico preferito dello SDK. Esiste ancora un piccolo insieme riservato di compatibilità di seam helper con marchio dei canali bundled. Trattali come seam di manutenzione/compatibilità dei bundled, non come nuovi target di import per terze parti; i nuovi contratti cross-channel dovrebbero comunque approdare su sottopercorsi generici `plugin-sdk/*` o sui barrel locali `api.js` / `runtime-api.js` del plugin.
+- I punti di ingresso pubblici caricati tramite facade preferiscono lo snapshot attivo della configurazione di runtime
+  quando esiste, e in caso contrario ripiegano sul file di configurazione risolto su disco quando
+  OpenClaw non sta ancora servendo uno snapshot di runtime.
+- Le primitive generiche condivise restano il contratto pubblico preferito dell'SDK. Esiste ancora un piccolo
+  insieme riservato di seam helper con marchio di canale incluso per compatibilità.
+  Trattale come seam di manutenzione/compatibilità dei bundle, non come nuovi target di import di terze parti; i nuovi contratti cross-channel dovrebbero comunque approdare su
+  sottopercorsi generici `plugin-sdk/*` o sui barrel locali al plugin `api.js` /
+  `runtime-api.js`.
 
-Nota di compatibilità:
+Nota sulla compatibilità:
 
-- Evita il barrel root `openclaw/plugin-sdk` per il nuovo codice.
-- Preferisci prima le primitive stabili ristrette. I più recenti sottopercorsi di setup/pairing/reply/
+- Evita il barrel root `openclaw/plugin-sdk` nel nuovo codice.
+- Preferisci prima le primitive stabili e ristrette. I più recenti sottopercorsi di setup/pairing/reply/
   feedback/contract/inbound/threading/command/secret-input/webhook/infra/
-  allowlist/status/message-tool sono il contratto previsto per il nuovo lavoro su plugin
-  bundled ed esterni.
+  allowlist/status/message-tool sono il contratto previsto per il nuovo
+  lavoro su plugin inclusi ed esterni.
   Il parsing/matching dei target appartiene a `openclaw/plugin-sdk/channel-targets`.
-  I gate per le azioni messaggio e gli helper per message-id delle reaction appartengono a
+  I gate delle azioni di messaggio e gli helper degli id messaggio per le reazioni appartengono a
   `openclaw/plugin-sdk/channel-actions`.
-- I barrel helper specifici delle estensioni bundled non sono stabili per impostazione predefinita. Se un
-  helper serve solo a un'estensione bundled, mantienilo dietro il seam locale
+- I barrel helper specifici delle estensioni incluse non sono stabili per impostazione predefinita. Se un
+  helper è necessario solo a un'estensione inclusa, tienilo dietro la seam locale
   `api.js` o `runtime-api.js` dell'estensione invece di promuoverlo in
   `openclaw/plugin-sdk/<extension>`.
-- I nuovi seam helper condivisi dovrebbero essere generici, non con marchio del canale. Il parsing condiviso dei target appartiene a `openclaw/plugin-sdk/channel-targets`; gli interni specifici del canale restano dietro il seam locale `api.js` o `runtime-api.js` del plugin proprietario.
-- Sottopercorsi specifici per capacità come `image-generation`,
-  `media-understanding` e `speech` esistono perché i plugin bundled/nativi li usano
+- Le nuove seam helper condivise dovrebbero essere generiche, non con marchio di canale. Il parsing condiviso dei
+  target appartiene a `openclaw/plugin-sdk/channel-targets`; gli interni specifici del canale
+  restano dietro la seam locale `api.js` o `runtime-api.js` del plugin proprietario.
+- Sottopercorsi specifici della capacità come `image-generation`,
+  `media-understanding` e `speech` esistono perché i plugin nativi/inclusi li usano
   oggi. La loro presenza non significa di per sé che ogni helper esportato sia un contratto esterno congelato a lungo termine.
 
-## Schema dello strumento `message`
+## Schemi dello strumento di messaggio
 
-I plugin dovrebbero possedere i contributi di schema specifici del canale di `describeMessageTool(...)`.
+I plugin dovrebbero possedere i contributi allo schema di `describeMessageTool(...)` specifici del canale.
 Mantieni i campi specifici del provider nel plugin, non nel core condiviso.
 
-Per frammenti di schema portabili condivisi, riusa gli helper generici esportati tramite
+Per frammenti di schema condivisi e portabili, riusa gli helper generici esportati tramite
 `openclaw/plugin-sdk/channel-actions`:
 
 - `createMessageToolButtonsSchema()` per payload in stile griglia di pulsanti
-- `createMessageToolCardSchema()` per payload di card strutturata
+- `createMessageToolCardSchema()` per payload di card strutturate
 
 Se una forma di schema ha senso solo per un provider, definiscila nel sorgente
-di quel plugin invece di promuoverla nello SDK condiviso.
+del plugin stesso invece di promuoverla nell'SDK condiviso.
 
-## Risoluzione del target del canale
+## Risoluzione dei target del canale
 
-I plugin di canale dovrebbero possedere la semantica dei target specifica del canale. Mantieni
-generico l'host outbound condiviso e usa la superficie dell'adapter di messaggistica per le regole del provider:
+I plugin di canale dovrebbero possedere la semantica dei target specifica del canale. Mantieni generico l'host
+di outbound condiviso e usa la superficie dell'adapter di messaggistica per le regole del provider:
 
 - `messaging.inferTargetChatType({ to })` decide se un target normalizzato
-  debba essere trattato come `direct`, `group` o `channel` prima del lookup di directory.
+  debba essere trattato come `direct`, `group` o `channel` prima della ricerca nella directory.
 - `messaging.targetResolver.looksLikeId(raw, normalized)` dice al core se un
-  input deve saltare direttamente alla risoluzione tipo-id invece che alla ricerca in directory.
+  input deve saltare direttamente alla risoluzione tipo id invece che alla ricerca nella directory.
 - `messaging.targetResolver.resolveTarget(...)` è il fallback del plugin quando
-  il core ha bisogno di una risoluzione finale posseduta dal provider dopo la normalizzazione o dopo un miss della directory.
-- `messaging.resolveOutboundSessionRoute(...)` possiede la costruzione della route di sessione outbound specifica del provider una volta che un target è stato risolto.
+  il core ha bisogno di una risoluzione finale posseduta dal provider dopo la normalizzazione o dopo un
+  mancato riscontro nella directory.
+- `messaging.resolveOutboundSessionRoute(...)` possiede la costruzione della route di sessione
+  specifica del provider una volta che un target è risolto.
 
 Suddivisione consigliata:
 
-- Usa `inferTargetChatType` per decisioni di categoria che devono avvenire prima
+- Usa `inferTargetChatType` per decisioni di categoria che dovrebbero avvenire prima
   della ricerca di peer/gruppi.
-- Usa `looksLikeId` per controlli tipo "tratta questo come un id target esplicito/nativo".
+- Usa `looksLikeId` per controlli del tipo "tratta questo come un id target esplicito/nativo".
 - Usa `resolveTarget` per fallback di normalizzazione specifici del provider, non per
-  ricerca ampia nella directory.
-- Mantieni id nativi del provider come chat id, thread id, JID, handle e room
-  id all'interno dei valori `target` o di parametri specifici del provider, non in campi generici dell'SDK.
+  ricerca generica nella directory.
+- Mantieni gli id nativi del provider come chat id, thread id, JID, handle e room id
+  dentro i valori `target` o nei parametri specifici del provider, non nei campi generici dell'SDK.
 
 ## Directory supportate da configurazione
 
@@ -1226,23 +1285,23 @@ I plugin che derivano voci di directory dalla configurazione dovrebbero mantener
 plugin e riutilizzare gli helper condivisi di
 `openclaw/plugin-sdk/directory-runtime`.
 
-Usa questo schema quando un canale ha peer/gruppi supportati da configurazione come:
+Usalo quando un canale ha bisogno di peer/gruppi supportati da configurazione, come:
 
 - peer DM guidati da allowlist
 - mappe configurate di canali/gruppi
-- fallback statici di directory con scope account
+- fallback statici di directory con ambito account
 
 Gli helper condivisi in `directory-runtime` gestiscono solo operazioni generiche:
 
-- filtraggio delle query
+- filtro delle query
 - applicazione dei limiti
-- deduplica/helper di normalizzazione
+- helper di deduplicazione/normalizzazione
 - costruzione di `ChannelDirectoryEntry[]`
 
-L'ispezione account specifica del canale e la normalizzazione degli id dovrebbero restare
-nell'implementazione del plugin.
+L'ispezione dell'account e la normalizzazione degli id specifiche del canale dovrebbero restare nell'implementazione
+del plugin.
 
-## Cataloghi provider
+## Cataloghi dei provider
 
 I plugin provider possono definire cataloghi di modelli per l'inferenza con
 `registerProvider({ catalog: { run(...) { ... } } })`.
@@ -1250,57 +1309,63 @@ I plugin provider possono definire cataloghi di modelli per l'inferenza con
 `catalog.run(...)` restituisce la stessa forma che OpenClaw scrive in
 `models.providers`:
 
-- `{ provider }` per una singola entry provider
-- `{ providers }` per più entry provider
+- `{ provider }` per una voce singola di provider
+- `{ providers }` per più voci di provider
 
-Usa `catalog` quando il plugin possiede model id specifici del provider, valori predefiniti di base URL o metadati dei modelli protetti da auth.
+Usa `catalog` quando il plugin possiede id modello specifici del provider, valori predefiniti di base URL
+o metadati di modello protetti da autenticazione.
 
-`catalog.order` controlla quando il catalogo di un plugin viene unito rispetto ai provider impliciti integrati di OpenClaw:
+`catalog.order` controlla quando il catalogo di un plugin viene unito rispetto ai
+provider impliciti integrati di OpenClaw:
 
-- `simple`: provider semplici con API key o guidati da env
-- `profile`: provider che compaiono quando esistono profili auth
-- `paired`: provider che sintetizzano più entry provider correlate
+- `simple`: provider semplici con chiave API o guidati da env
+- `profile`: provider che appaiono quando esistono profili di autenticazione
+- `paired`: provider che sintetizzano più voci di provider correlate
 - `late`: ultimo passaggio, dopo gli altri provider impliciti
 
-I provider successivi vincono in caso di collisione di chiave, quindi i plugin possono intenzionalmente
-sovrascrivere una entry provider integrata con lo stesso provider id.
+I provider successivi prevalgono in caso di collisione di chiave, quindi i plugin possono
+volontariamente sovrascrivere una voce di provider integrato con lo stesso id provider.
 
 Compatibilità:
 
 - `discovery` continua a funzionare come alias legacy
 - se sono registrati sia `catalog` sia `discovery`, OpenClaw usa `catalog`
 
-## Ispezione di canale in sola lettura
+## Ispezione in sola lettura del canale
 
 Se il tuo plugin registra un canale, preferisci implementare
 `plugin.config.inspectAccount(cfg, accountId)` insieme a `resolveAccount(...)`.
 
 Perché:
 
-- `resolveAccount(...)` è il percorso runtime. Può presumere che le credenziali
-  siano completamente materializzate e può fallire rapidamente quando mancano segreti richiesti.
+- `resolveAccount(...)` è il percorso di runtime. Può presumere che le credenziali
+  siano completamente materializzate e può fallire rapidamente quando mancano i secret richiesti.
 - I percorsi di comando in sola lettura come `openclaw status`, `openclaw status --all`,
-  `openclaw channels status`, `openclaw channels resolve` e i flussi doctor/config
-  repair non dovrebbero aver bisogno di materializzare credenziali di runtime solo per
+  `openclaw channels status`, `openclaw channels resolve` e i flussi di doctor/riparazione
+  della configurazione non dovrebbero dover materializzare credenziali di runtime solo per
   descrivere la configurazione.
 
 Comportamento consigliato per `inspectAccount(...)`:
 
 - Restituisci solo lo stato descrittivo dell'account.
-- Conserva `enabled` e `configured`.
-- Includi campi di origine/stato delle credenziali quando rilevanti, come:
+- Mantieni `enabled` e `configured`.
+- Includi campi di sorgente/stato delle credenziali quando rilevanti, come:
   - `tokenSource`, `tokenStatus`
   - `botTokenSource`, `botTokenStatus`
   - `appTokenSource`, `appTokenStatus`
   - `signingSecretSource`, `signingSecretStatus`
-- Non è necessario restituire i valori raw dei token solo per riportare la disponibilità in sola lettura. Restituire `tokenStatus: "available"` (e il campo di origine corrispondente) è sufficiente per comandi in stile status.
-- Usa `configured_unavailable` quando una credenziale è configurata tramite SecretRef ma non disponibile nel percorso di comando corrente.
+- Non è necessario restituire i valori raw dei token solo per riportare la
+  disponibilità in sola lettura. Restituire `tokenStatus: "available"` (e il relativo campo
+  di sorgente) è sufficiente per comandi in stile status.
+- Usa `configured_unavailable` quando una credenziale è configurata tramite SecretRef ma
+  non disponibile nel percorso di comando corrente.
 
-Questo consente ai comandi in sola lettura di riportare "configurato ma non disponibile in questo percorso di comando" invece di andare in crash o riportare in modo errato l'account come non configurato.
+Questo permette ai comandi in sola lettura di riportare "configurato ma non disponibile in questo percorso di comando"
+invece di andare in crash o riportare erroneamente l'account come non configurato.
 
 ## Package pack
 
-Una directory plugin può includere un `package.json` con `openclaw.extensions`:
+Una directory di plugin può includere un `package.json` con `openclaw.extensions`:
 
 ```json
 {
@@ -1312,64 +1377,65 @@ Una directory plugin può includere un `package.json` con `openclaw.extensions`:
 }
 ```
 
-Ogni entry diventa un plugin. Se il pack elenca più estensioni, l'id plugin
+Ogni voce diventa un plugin. Se il pack elenca più estensioni, l'id del plugin
 diventa `name/<fileBase>`.
 
-Se il tuo plugin importa dipendenze npm, installale in quella directory in modo che
-`node_modules` sia disponibile (`npm install` / `pnpm install`).
+Se il tuo plugin importa dipendenze npm, installale in quella directory così
+`node_modules` sarà disponibile (`npm install` / `pnpm install`).
 
-Guardrail di sicurezza: ogni entry `openclaw.extensions` deve restare all'interno della directory plugin
-dopo la risoluzione dei symlink. Le entry che escono dalla directory del pacchetto vengono
+Protezione di sicurezza: ogni voce `openclaw.extensions` deve restare all'interno della directory del plugin
+dopo la risoluzione dei symlink. Le voci che escono dalla directory del pacchetto vengono
 rifiutate.
 
-Nota di sicurezza: `openclaw plugins install` installa le dipendenze dei plugin con
-`npm install --omit=dev --ignore-scripts` (nessuno script di lifecycle, nessuna dipendenza dev a runtime). Mantieni gli alberi di dipendenze dei plugin "pure JS/TS" ed evita pacchetti che richiedono build in `postinstall`.
+Nota di sicurezza: `openclaw plugins install` installa le dipendenze del plugin con
+`npm install --omit=dev --ignore-scripts` (nessuno script lifecycle, nessuna dipendenza di sviluppo a runtime). Mantieni gli alberi delle dipendenze dei plugin "pure JS/TS" ed evita pacchetti che richiedono build in `postinstall`.
 
-Facoltativo: `openclaw.setupEntry` può puntare a un modulo leggero solo-setup.
+Facoltativo: `openclaw.setupEntry` può puntare a un modulo leggero dedicato solo al setup.
 Quando OpenClaw ha bisogno di superfici di setup per un plugin di canale disabilitato, oppure
 quando un plugin di canale è abilitato ma ancora non configurato, carica `setupEntry`
-invece dell'entry completa del plugin. Questo rende avvio e setup più leggeri
-quando l'entry principale del plugin collega anche strumenti, hook o altro codice
-solo-runtime.
+invece del punto di ingresso completo del plugin. Questo rende avvio e setup più leggeri
+quando il punto di ingresso principale del plugin collega anche strumenti, hook o altro codice
+solo runtime.
 
 Facoltativo: `openclaw.startup.deferConfiguredChannelFullLoadUntilAfterListen`
-può far aderire un plugin di canale allo stesso percorso `setupEntry` durante la fase
+può attivare per un plugin di canale lo stesso percorso `setupEntry` durante la fase
 di avvio pre-listen del gateway, anche quando il canale è già configurato.
 
-Usa questa opzione solo quando `setupEntry` copre completamente la superficie di avvio che deve esistere
-prima che il gateway inizi ad ascoltare. In pratica, ciò significa che l'entry di setup
-deve registrare ogni capacità posseduta dal canale da cui dipende l'avvio, come:
+Usalo solo quando `setupEntry` copre completamente la superficie di avvio che deve esistere
+prima che il gateway inizi ad ascoltare. In pratica, questo significa che il punto di ingresso di setup
+deve registrare ogni capacità posseduta dal canale da cui l'avvio dipende, come:
 
 - la registrazione del canale stesso
 - eventuali route HTTP che devono essere disponibili prima che il gateway inizi ad ascoltare
 - eventuali metodi Gateway, strumenti o servizi che devono esistere durante quella stessa finestra
 
-Se la tua entry completa possiede ancora una capacità di avvio richiesta, non abilitare
-questo flag. Mantieni il comportamento predefinito del plugin e lascia che OpenClaw carichi
-l'entry completa durante l'avvio.
+Se il punto di ingresso completo possiede ancora una qualsiasi capacità di avvio richiesta, non abilitare
+questo flag. Mantieni il comportamento predefinito del plugin e lascia che OpenClaw carichi il
+punto di ingresso completo durante l'avvio.
 
-I canali bundled possono anche pubblicare helper di superficie contrattuale solo-setup che il core
-può consultare prima che il runtime completo del canale venga caricato. L'attuale superficie
+I canali inclusi possono anche pubblicare helper di superficie contrattuale solo setup che il core
+può consultare prima che il runtime completo del canale sia caricato. L'attuale superficie
 di promozione del setup è:
 
 - `singleAccountKeysToMove`
 - `namedAccountPromotionKeys`
 - `resolveSingleAccountPromotionTarget(...)`
 
-Il core usa questa superficie quando ha bisogno di promuovere una configurazione legacy di canale
-single-account in `channels.<id>.accounts.*` senza caricare l'entry completa del plugin.
-Matrix è l'esempio bundled attuale: sposta solo chiavi di auth/bootstrap in un
+Il core usa questa superficie quando deve promuovere una configurazione legacy di canale a account singolo
+in `channels.<id>.accounts.*` senza caricare il punto di ingresso completo del plugin.
+Matrix è l'esempio incluso attuale: sposta solo le chiavi di autenticazione/bootstrap in un
 account promosso con nome quando esistono già account con nome, e può preservare una
-chiave default-account configurata non canonica invece di creare sempre
+chiave di account predefinito non canonica configurata invece di creare sempre
 `accounts.default`.
 
-Quegli adapter di patch di setup mantengono lazy il discovery della superficie contrattuale bundled. Il tempo
-di import resta leggero; la superficie di promozione viene caricata solo al primo uso invece di rientrare nell'avvio del canale bundled durante l'import del modulo.
+Questi adapter di patch del setup mantengono lazy il rilevamento della superficie contrattuale inclusa. Il tempo
+di import resta leggero; la superficie di promozione viene caricata solo al primo utilizzo invece di
+rientrare nell'avvio del canale incluso durante l'import del modulo.
 
-Quando quelle superfici di avvio includono metodi Gateway RPC, mantienile su un
-prefisso specifico del plugin. Gli spazi dei nomi admin del core (`config.*`,
+Quando queste superfici di avvio includono metodi RPC del Gateway, mantienili su un
+prefisso specifico del plugin. I namespace amministrativi del core (`config.*`,
 `exec.approvals.*`, `wizard.*`, `update.*`) restano riservati e si risolvono sempre
-a `operator.admin`, anche se un plugin richiede un ambito più ristretto.
+a `operator.admin`, anche se un plugin richiede uno scope più ristretto.
 
 Esempio:
 
@@ -1386,10 +1452,10 @@ Esempio:
 }
 ```
 
-### Metadati del catalogo canali
+### Metadati del catalogo dei canali
 
-I plugin di canale possono pubblicizzare metadati di setup/discovery tramite `openclaw.channel` e
-suggerimenti di installazione tramite `openclaw.install`. Questo mantiene i dati del catalogo liberi dal core.
+I plugin di canale possono pubblicizzare metadati di setup/rilevamento tramite `openclaw.channel` e
+suggerimenti di installazione tramite `openclaw.install`. Questo mantiene il catalogo del core privo di dati.
 
 Esempio:
 
@@ -1420,20 +1486,20 @@ Esempio:
 Campi utili di `openclaw.channel` oltre all'esempio minimo:
 
 - `detailLabel`: etichetta secondaria per superfici di catalogo/stato più ricche
-- `docsLabel`: sovrascrive il testo del link alla documentazione
-- `preferOver`: id di plugin/canale a priorità inferiore che questa entry di catalogo dovrebbe superare
-- `selectionDocsPrefix`, `selectionDocsOmitLabel`, `selectionExtras`: controlli di testo per la superficie di selezione
-- `markdownCapable`: contrassegna il canale come compatibile con Markdown per le decisioni di formattazione outbound
-- `exposure.configured`: nasconde il canale dalle superfici di elenco dei canali configurati quando è impostato a `false`
-- `exposure.setup`: nasconde il canale dai picker interattivi di setup/configurazione quando è impostato a `false`
+- `docsLabel`: sovrascrive il testo del link per il link alla documentazione
+- `preferOver`: id di plugin/canali a priorità inferiore che questa voce di catalogo dovrebbe superare
+- `selectionDocsPrefix`, `selectionDocsOmitLabel`, `selectionExtras`: controlli del testo per la superficie di selezione
+- `markdownCapable`: contrassegna il canale come compatibile con Markdown per le decisioni di formattazione in uscita
+- `exposure.configured`: nasconde il canale dalle superfici di elenco dei canali configurati quando impostato su `false`
+- `exposure.setup`: nasconde il canale dai selettori interattivi di setup/configurazione quando impostato su `false`
 - `exposure.docs`: contrassegna il canale come interno/privato per le superfici di navigazione della documentazione
 - `showConfigured` / `showInSetup`: alias legacy ancora accettati per compatibilità; preferisci `exposure`
-- `quickstartAllowFrom`: fa aderire il canale al flusso standard quickstart `allowFrom`
+- `quickstartAllowFrom`: abilita per il canale il flusso standard quickstart `allowFrom`
 - `forceAccountBinding`: richiede binding esplicito dell'account anche quando esiste un solo account
-- `preferSessionLookupForAnnounceTarget`: preferisce il lookup di sessione quando si risolvono target di annuncio
+- `preferSessionLookupForAnnounceTarget`: preferisce la ricerca della sessione durante la risoluzione dei target di annuncio
 
-OpenClaw può anche unire **cataloghi di canali esterni** (ad esempio un export di
-registry MPM). Inserisci un file JSON in uno di questi percorsi:
+OpenClaw può anche unire **cataloghi di canali esterni** (per esempio, un'esportazione del
+registro MPM). Inserisci un file JSON in uno di questi percorsi:
 
 - `~/.openclaw/mpm/plugins.json`
 - `~/.openclaw/mpm/catalog.json`
@@ -1446,11 +1512,12 @@ contenere `{ "entries": [ { "name": "@scope/pkg", "openclaw": { "channel": {...}
 ## Plugin del motore di contesto
 
 I plugin del motore di contesto possiedono l'orchestrazione del contesto di sessione per ingestione, assemblaggio
-e compattazione. Registrali dal tuo plugin con
-`api.registerContextEngine(id, factory)`, poi seleziona il motore attivo con
+e Compaction. Registrali dal tuo plugin con
+`api.registerContextEngine(id, factory)`, quindi seleziona il motore attivo con
 `plugins.slots.contextEngine`.
 
-Usa questo schema quando il tuo plugin deve sostituire o estendere la pipeline di contesto predefinita invece di limitarsi ad aggiungere memory search o hook.
+Usa questo quando il tuo plugin deve sostituire o estendere la pipeline di contesto predefinita
+invece di aggiungere solo ricerca in memoria o hook.
 
 ```ts
 import { buildMemorySystemPromptAddition } from "openclaw/plugin-sdk/core";
@@ -1478,7 +1545,7 @@ export default function (api) {
 }
 ```
 
-Se il tuo motore **non** possiede l'algoritmo di compattazione, mantieni `compact()`
+Se il tuo motore **non** possiede l'algoritmo di Compaction, mantieni `compact()`
 implementato e delegalo esplicitamente:
 
 ```ts
@@ -1514,28 +1581,29 @@ export default function (api) {
 }
 ```
 
-## Aggiunta di una nuova capacità
+## Aggiungere una nuova capacità
 
 Quando un plugin ha bisogno di un comportamento che non rientra nell'API attuale, non aggirare
-il sistema dei plugin con un accesso privato. Aggiungi la capacità mancante.
+il sistema di plugin con un accesso privato. Aggiungi la capacità mancante.
 
 Sequenza consigliata:
 
-1. definisci il contratto del core
-   Decidi quale comportamento condiviso debba possedere il core: policy, fallback, merge della configurazione,
-   lifecycle, semantica rivolta ai canali e forma dell'helper di runtime.
-2. aggiungi superfici tipizzate di registrazione/runtime dei plugin
-   Estendi `OpenClawPluginApi` e/o `api.runtime` con la superficie di capacità tipizzata più piccola utile.
-3. collega i consumer di core + canale/funzionalità
+1. definire il contratto core
+   Decidi quale comportamento condiviso il core dovrebbe possedere: policy, fallback, merge della configurazione,
+   ciclo di vita, semantica rivolta ai canali e forma dell'helper di runtime.
+2. aggiungere superfici tipizzate di registrazione/runtime del plugin
+   Estendi `OpenClawPluginApi` e/o `api.runtime` con la più piccola superficie di capacità tipizzata
+   utile.
+3. collegare core + consumer di canali/funzionalità
    I canali e i plugin di funzionalità dovrebbero consumare la nuova capacità tramite il core,
    non importando direttamente un'implementazione vendor.
-4. registra le implementazioni vendor
-   I plugin vendor registrano quindi i loro backend rispetto alla capacità.
-5. aggiungi copertura di contratto
-   Aggiungi test in modo che ownership e forma di registrazione restino esplicite nel tempo.
+4. registrare implementazioni vendor
+   I plugin dei vendor registrano quindi i loro backend rispetto alla capacità.
+5. aggiungere copertura di contratto
+   Aggiungi test così la forma di proprietà e registrazione resta esplicita nel tempo.
 
-È così che OpenClaw resta opinato senza diventare hardcoded secondo la visione del mondo di un
-singolo provider. Vedi il [Capability Cookbook](/it/plugins/architecture)
+È così che OpenClaw rimane orientato senza diventare hardcodato alla visione del mondo di
+un solo provider. Vedi il [Capability Cookbook](/it/plugins/architecture)
 per una checklist concreta dei file e un esempio completo.
 
 ### Checklist della capacità
@@ -1543,20 +1611,22 @@ per una checklist concreta dei file e un esempio completo.
 Quando aggiungi una nuova capacità, l'implementazione di solito dovrebbe toccare insieme
 queste superfici:
 
-- tipi di contratto core in `src/<capability>/types.ts`
+- tipi del contratto core in `src/<capability>/types.ts`
 - runner/helper di runtime core in `src/<capability>/runtime.ts`
 - superficie di registrazione dell'API plugin in `src/plugins/types.ts`
-- wiring del registry dei plugin in `src/plugins/registry.ts`
-- esposizione runtime dei plugin in `src/plugins/runtime/*` quando i plugin di funzionalità/canale hanno bisogno di consumarla
+- collegamento del registro dei plugin in `src/plugins/registry.ts`
+- esposizione del runtime dei plugin in `src/plugins/runtime/*` quando i plugin di funzionalità/canale
+  devono consumarla
 - helper di acquisizione/test in `src/test-utils/plugin-registration.ts`
-- asserzioni di ownership/contratto in `src/plugins/contracts/registry.ts`
+- asserzioni di proprietà/contratto in `src/plugins/contracts/registry.ts`
 - documentazione per operatori/plugin in `docs/`
 
-Se una di queste superfici manca, di solito è il segnale che la capacità non è ancora completamente integrata.
+Se una di queste superfici manca, di solito è un segno che la capacità
+non è ancora completamente integrata.
 
-### Modello di capacità
+### Template della capacità
 
-Schema minimo:
+Pattern minimo:
 
 ```ts
 // core contract
@@ -1582,7 +1652,7 @@ const clip = await api.runtime.videoGeneration.generate({
 });
 ```
 
-Schema del test di contratto:
+Pattern del test di contratto:
 
 ```ts
 expect(findVideoGenerationProviderIdsForPlugin("openai")).toEqual(["openai"]);
@@ -1591,6 +1661,6 @@ expect(findVideoGenerationProviderIdsForPlugin("openai")).toEqual(["openai"]);
 Questo mantiene semplice la regola:
 
 - il core possiede il contratto della capacità + l'orchestrazione
-- i plugin vendor possiedono le implementazioni del vendor
-- i plugin di funzionalità/canale consumano gli helper di runtime
-- i test di contratto mantengono esplicita l'ownership
+- i plugin dei vendor possiedono le implementazioni dei vendor
+- i plugin di funzionalità/canale consumano helper di runtime
+- i test di contratto mantengono esplicita la proprietà

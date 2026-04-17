@@ -4,53 +4,54 @@ read_when:
     - Chcesz wybrać dostawcę embeddingów
     - Chcesz dostroić jakość wyszukiwania
 summary: Jak wyszukiwanie pamięci znajduje odpowiednie notatki za pomocą embeddingów i wyszukiwania hybrydowego
-title: Wyszukiwanie w pamięci
+title: Wyszukiwanie pamięci
 x-i18n:
-    generated_at: "2026-04-06T03:06:39Z"
+    generated_at: "2026-04-15T09:51:03Z"
     model: gpt-5.4
     provider: openai
-    source_hash: b6541cd702bff41f9a468dad75ea438b70c44db7c65a4b793cbacaf9e583c7e9
+    source_hash: f5757aa8fe8f7fec30ef5c826f72230f591ce4cad591d81a091189d50d4262ed
     source_path: concepts/memory-search.md
     workflow: 15
 ---
 
-# Wyszukiwanie w pamięci
+# Wyszukiwanie pamięci
 
 `memory_search` znajduje odpowiednie notatki z Twoich plików pamięci, nawet gdy
-sformułowania różnią się od oryginalnego tekstu. Działa przez indeksowanie pamięci w małych
-fragmentach i przeszukiwanie ich za pomocą embeddingów, słów kluczowych lub obu tych metod.
+sformułowanie różni się od oryginalnego tekstu. Działa przez indeksowanie pamięci w małych
+fragmentach i przeszukiwanie ich za pomocą embeddingów, słów kluczowych albo obu metod naraz.
 
 ## Szybki start
 
-Jeśli masz skonfigurowany klucz API OpenAI, Gemini, Voyage lub Mistral, wyszukiwanie w pamięci
-działa automatycznie. Aby jawnie ustawić dostawcę:
+Jeśli masz subskrypcję GitHub Copilot albo skonfigurowany klucz API OpenAI, Gemini, Voyage lub Mistral,
+wyszukiwanie pamięci działa automatycznie. Aby jawnie ustawić dostawcę:
 
 ```json5
 {
   agents: {
     defaults: {
       memorySearch: {
-        provider: "openai", // or "gemini", "local", "ollama", etc.
+        provider: "openai", // lub "gemini", "local", "ollama" itd.
       },
     },
   },
 }
 ```
 
-W przypadku lokalnych embeddingów bez klucza API użyj `provider: "local"` (wymaga
-`node-llama-cpp`).
+Do lokalnych embeddingów bez klucza API użyj `provider: "local"` (wymaga
+node-llama-cpp).
 
 ## Obsługiwani dostawcy
 
-| Dostawca | ID        | Wymaga klucza API | Uwagi                                                |
-| -------- | --------- | ------------- | ---------------------------------------------------- |
-| OpenAI   | `openai`  | Tak           | Wykrywany automatycznie, szybki                                  |
-| Gemini   | `gemini`  | Tak           | Obsługuje indeksowanie obrazów i dźwięku                        |
-| Voyage   | `voyage`  | Tak           | Wykrywany automatycznie                                        |
-| Mistral  | `mistral` | Tak           | Wykrywany automatycznie                                        |
-| Bedrock  | `bedrock` | Nie            | Wykrywany automatycznie, gdy łańcuch poświadczeń AWS zostanie rozwiązany |
-| Ollama   | `ollama`  | Nie            | Lokalny, musi być ustawiony jawnie                           |
-| Local    | `local`   | Nie            | Model GGUF, pobieranie ~0.6 GB                         |
+| Dostawca       | ID               | Wymaga klucza API | Uwagi                                                |
+| -------------- | ---------------- | ----------------- | ---------------------------------------------------- |
+| Bedrock        | `bedrock`        | Nie               | Wykrywany automatycznie, gdy łańcuch poświadczeń AWS zostanie rozwiązany |
+| Gemini         | `gemini`         | Tak               | Obsługuje indeksowanie obrazów/dźwięku               |
+| GitHub Copilot | `github-copilot` | Nie               | Wykrywany automatycznie, używa subskrypcji Copilot   |
+| Local          | `local`          | Nie               | Model GGUF, pobranie ~0,6 GB                         |
+| Mistral        | `mistral`        | Tak               | Wykrywany automatycznie                              |
+| Ollama         | `ollama`         | Nie               | Lokalny, trzeba ustawić jawnie                       |
+| OpenAI         | `openai`         | Tak               | Wykrywany automatycznie, szybki                      |
+| Voyage         | `voyage`         | Tak               | Wykrywany automatycznie                              |
 
 ## Jak działa wyszukiwanie
 
@@ -67,35 +68,37 @@ flowchart LR
     M --> R["Top Results"]
 ```
 
-- **Wyszukiwanie wektorowe** znajduje notatki o podobnym znaczeniu („gateway host” pasuje do
-  „maszyna, na której działa OpenClaw”).
+- **Wyszukiwanie wektorowe** znajduje notatki o podobnym znaczeniu (`"gateway host"` pasuje
+  do `"the machine running OpenClaw"`).
 - **Wyszukiwanie słów kluczowych BM25** znajduje dokładne dopasowania (ID, ciągi błędów, klucze
   konfiguracji).
 
-Jeśli dostępna jest tylko jedna ścieżka (brak embeddingów lub brak FTS), druga działa samodzielnie.
+Jeśli dostępna jest tylko jedna ścieżka (brak embeddingów albo brak FTS), działa tylko ta druga.
 
-## Poprawianie jakości wyszukiwania
+Gdy embeddingi są niedostępne, OpenClaw nadal używa rankingu leksykalnego względem wyników FTS zamiast wracać wyłącznie do surowego porządku dokładnych dopasowań. Ten tryb obniżonej jakości wzmacnia fragmenty z lepszym pokryciem terminów zapytania i odpowiednimi ścieżkami plików, co pomaga zachować użyteczną trafność nawet bez `sqlite-vec` albo dostawcy embeddingów.
+
+## Poprawa jakości wyszukiwania
 
 Dwie opcjonalne funkcje pomagają, gdy masz dużą historię notatek:
 
 ### Zanikanie czasowe
 
-Stare notatki stopniowo tracą wagę w rankingu, dzięki czemu najpierw pojawiają się nowsze informacje.
-Przy domyślnym okresie półtrwania wynoszącym 30 dni notatka z zeszłego miesiąca uzyskuje wynik równy 50%
-swojej pierwotnej wagi. Stałe pliki, takie jak `MEMORY.md`, nigdy nie podlegają zanikaniu.
+Stare notatki stopniowo tracą wagę rankingową, dzięki czemu najpierw pojawiają się nowsze informacje.
+Przy domyślnym okresie połowicznego zaniku wynoszącym 30 dni notatka z zeszłego miesiąca ma wynik równy 50%
+swojej pierwotnej wagi. Pliki stałe, takie jak `MEMORY.md`, nigdy nie podlegają zanikaniu.
 
 <Tip>
-Włącz zanikanie czasowe, jeśli Twój agent ma wiele miesięcy codziennych notatek, a nieaktualne
-informacje wciąż są wyżej w rankingu niż nowszy kontekst.
+Włącz zanikanie czasowe, jeśli Twój agent ma miesiące codziennych notatek, a nieaktualne
+informacje stale wyprzedzają nowszy kontekst.
 </Tip>
 
 ### MMR (różnorodność)
 
-Ogranicza nadmiarowe wyniki. Jeśli pięć notatek wspomina tę samą konfigurację routera, MMR
+Ogranicza powtarzające się wyniki. Jeśli pięć notatek wspomina tę samą konfigurację routera, MMR
 sprawia, że najwyższe wyniki obejmują różne tematy zamiast się powtarzać.
 
 <Tip>
-Włącz MMR, jeśli `memory_search` ciągle zwraca niemal zduplikowane fragmenty z
+Włącz MMR, jeśli `memory_search` stale zwraca niemal identyczne fragmenty z
 różnych codziennych notatek.
 </Tip>
 
@@ -120,16 +123,17 @@ różnych codziennych notatek.
 
 ## Pamięć multimodalna
 
-Dzięki Gemini Embedding 2 możesz indeksować obrazy i pliki audio razem z
-Markdownem. Zapytania wyszukiwania nadal pozostają tekstowe, ale są dopasowywane do treści wizualnych i audio.
-Instrukcje konfiguracji znajdziesz w [Dokumentacji konfiguracji pamięci](/pl/reference/memory-config).
+Z Gemini Embedding 2 możesz indeksować obrazy i pliki audio razem z
+Markdownem. Zapytania wyszukiwania nadal pozostają tekstowe, ale dopasowują się do
+treści wizualnych i audio. Zobacz [odnośnik do konfiguracji pamięci](/pl/reference/memory-config), aby poznać
+konfigurację.
 
-## Wyszukiwanie pamięci sesji
+## Wyszukiwanie w pamięci sesji
 
-Opcjonalnie możesz indeksować transkrypcje sesji, aby `memory_search` mogło przypominać sobie
-wcześniejsze rozmowy. Jest to funkcja opcjonalna, włączana przez
+Możesz opcjonalnie indeksować transkrypty sesji, aby `memory_search` mógł przywoływać
+wcześniejsze rozmowy. To funkcja opt-in przez
 `memorySearch.experimental.sessionMemory`. Szczegóły znajdziesz w
-[dokumentacji konfiguracji](/pl/reference/memory-config).
+[odnośniku do konfiguracji](/pl/reference/memory-config).
 
 ## Rozwiązywanie problemów
 
@@ -139,10 +143,11 @@ wcześniejsze rozmowy. Jest to funkcja opcjonalna, włączana przez
 **Tylko dopasowania słów kluczowych?** Twój dostawca embeddingów może nie być skonfigurowany. Sprawdź
 `openclaw memory status --deep`.
 
-**Nie można znaleźć tekstu CJK?** Odbuduj indeks FTS za pomocą
+**Nie znajduje tekstu CJK?** Odbuduj indeks FTS za pomocą
 `openclaw memory index --force`.
 
 ## Dalsza lektura
 
+- [Active Memory](/pl/concepts/active-memory) -- pamięć subagenta dla interaktywnych sesji czatu
 - [Pamięć](/pl/concepts/memory) -- układ plików, backendy, narzędzia
-- [Dokumentacja konfiguracji pamięci](/pl/reference/memory-config) -- wszystkie opcje konfiguracji
+- [Odnośnik do konfiguracji pamięci](/pl/reference/memory-config) -- wszystkie opcje konfiguracji

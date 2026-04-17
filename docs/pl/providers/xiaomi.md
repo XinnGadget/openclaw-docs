@@ -1,14 +1,14 @@
 ---
 read_when:
     - Chcesz używać modeli Xiaomi MiMo w OpenClaw
-    - Potrzebujesz konfiguracji XIAOMI_API_KEY
+    - Potrzebujesz konfiguracji `XIAOMI_API_KEY`
 summary: Używaj modeli Xiaomi MiMo z OpenClaw
 title: Xiaomi MiMo
 x-i18n:
-    generated_at: "2026-04-05T14:04:12Z"
+    generated_at: "2026-04-12T23:33:51Z"
     model: gpt-5.4
     provider: openai
-    source_hash: a2533fa99b29070e26e0e1fbde924e1291c89b1fbc2537451bcc0eb677ea6949
+    source_hash: cd5a526764c796da7e1fff61301bc2ec618e1cf3857894ba2ef4b6dd9c4dc339
     source_path: providers/xiaomi.md
     workflow: 15
 ---
@@ -16,31 +16,53 @@ x-i18n:
 # Xiaomi MiMo
 
 Xiaomi MiMo to platforma API dla modeli **MiMo**. OpenClaw używa zgodnego z OpenAI
-endpointu Xiaomi z uwierzytelnianiem kluczem API. Utwórz swój klucz API w
-[konsoli Xiaomi MiMo](https://platform.xiaomimimo.com/#/console/api-keys), a następnie skonfiguruj
-dołączonego dostawcę `xiaomi` za pomocą tego klucza.
+endpointu Xiaomi z uwierzytelnianiem opartym na kluczu API.
 
-## Wbudowany katalog
+| Właściwość | Wartość                        |
+| ---------- | ------------------------------ |
+| Dostawca   | `xiaomi`                       |
+| Uwierzytelnianie | `XIAOMI_API_KEY`       |
+| API        | zgodne z OpenAI                |
+| Base URL   | `https://api.xiaomimimo.com/v1` |
 
-- Base URL: `https://api.xiaomimimo.com/v1`
-- API: `openai-completions`
-- Uwierzytelnianie: `Bearer $XIAOMI_API_KEY`
+## Pierwsze kroki
 
-| Model ref              | Wejście     | Kontekst  | Maks. wyjście | Uwagi                         |
-| ---------------------- | ----------- | --------- | ------------- | ----------------------------- |
-| `xiaomi/mimo-v2-flash` | text        | 262,144   | 8,192         | Model domyślny                |
-| `xiaomi/mimo-v2-pro`   | text        | 1,048,576 | 32,000        | Z włączonym reasoning         |
-| `xiaomi/mimo-v2-omni`  | text, image | 262,144   | 32,000        | Multimodalny z włączonym reasoning |
+<Steps>
+  <Step title="Pobierz klucz API">
+    Utwórz klucz API w [konsoli Xiaomi MiMo](https://platform.xiaomimimo.com/#/console/api-keys).
+  </Step>
+  <Step title="Uruchom onboarding">
+    ```bash
+    openclaw onboard --auth-choice xiaomi-api-key
+    ```
 
-## Konfiguracja CLI
+    Albo przekaż klucz bezpośrednio:
 
-```bash
-openclaw onboard --auth-choice xiaomi-api-key
-# lub nieinteraktywnie
-openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
-```
+    ```bash
+    openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
+    ```
 
-## Fragment konfiguracji
+  </Step>
+  <Step title="Sprawdź, czy model jest dostępny">
+    ```bash
+    openclaw models list --provider xiaomi
+    ```
+  </Step>
+</Steps>
+
+## Dostępne modele
+
+| Odwołanie do modelu    | Wejście     | Kontekst  | Maks. wyjście | Rozumowanie | Uwagi         |
+| ---------------------- | ----------- | --------- | ------------- | ----------- | ------------- |
+| `xiaomi/mimo-v2-flash` | text        | 262,144   | 8,192         | Nie         | Model domyślny |
+| `xiaomi/mimo-v2-pro`   | text        | 1,048,576 | 32,000        | Tak         | Duży kontekst |
+| `xiaomi/mimo-v2-omni`  | text, image | 262,144   | 32,000        | Tak         | Multimodalny  |
+
+<Tip>
+Domyślne odwołanie do modelu to `xiaomi/mimo-v2-flash`. Dostawca jest wstrzykiwany automatycznie, gdy ustawiono `XIAOMI_API_KEY` lub istnieje profil uwierzytelniania.
+</Tip>
+
+## Przykład konfiguracji
 
 ```json5
 {
@@ -88,9 +110,43 @@ openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
 }
 ```
 
-## Uwagi
+<AccordionGroup>
+  <Accordion title="Zachowanie automatycznego wstrzykiwania">
+    Dostawca `xiaomi` jest wstrzykiwany automatycznie, gdy `XIAOMI_API_KEY` jest ustawione w środowisku lub istnieje profil uwierzytelniania. Nie musisz ręcznie konfigurować dostawcy, chyba że chcesz nadpisać metadane modelu lub `baseUrl`.
+  </Accordion>
 
-- Domyślny model ref: `xiaomi/mimo-v2-flash`.
-- Dodatkowe wbudowane modele: `xiaomi/mimo-v2-pro`, `xiaomi/mimo-v2-omni`.
-- Dostawca jest wstrzykiwany automatycznie, gdy ustawiono `XIAOMI_API_KEY` (lub istnieje profil uwierzytelniania).
-- Zobacz [/concepts/model-providers](/pl/concepts/model-providers), aby poznać zasady dotyczące dostawców.
+  <Accordion title="Szczegóły modeli">
+    - **mimo-v2-flash** — lekki i szybki, idealny do ogólnych zadań tekstowych. Bez obsługi rozumowania.
+    - **mimo-v2-pro** — obsługuje rozumowanie z oknem kontekstu 1M tokenów dla obciążeń z długimi dokumentami.
+    - **mimo-v2-omni** — multimodalny model z obsługą rozumowania, który akceptuje zarówno wejście tekstowe, jak i obrazy.
+
+    <Note>
+    Wszystkie modele używają prefiksu `xiaomi/` (na przykład `xiaomi/mimo-v2-pro`).
+    </Note>
+
+  </Accordion>
+
+  <Accordion title="Rozwiązywanie problemów">
+    - Jeśli modele się nie pojawiają, potwierdź, że `XIAOMI_API_KEY` jest ustawione i prawidłowe.
+    - Gdy Gateway działa jako demon, upewnij się, że klucz jest dostępny dla tego procesu (na przykład w `~/.openclaw/.env` lub przez `env.shellEnv`).
+
+    <Warning>
+    Klucze ustawione tylko w interaktywnej powłoce nie są widoczne dla procesów Gateway zarządzanych przez demona. Użyj `~/.openclaw/.env` lub konfiguracji `env.shellEnv`, aby zapewnić trwałą dostępność.
+    </Warning>
+
+  </Accordion>
+</AccordionGroup>
+
+## Powiązane
+
+<CardGroup cols={2}>
+  <Card title="Wybór modelu" href="/pl/concepts/model-providers" icon="layers">
+    Wybór dostawców, odwołań do modeli i zachowania failover.
+  </Card>
+  <Card title="Dokumentacja konfiguracji" href="/pl/gateway/configuration" icon="gear">
+    Pełna dokumentacja konfiguracji OpenClaw.
+  </Card>
+  <Card title="Konsola Xiaomi MiMo" href="https://platform.xiaomimimo.com" icon="arrow-up-right-from-square">
+    Panel Xiaomi MiMo i zarządzanie kluczami API.
+  </Card>
+</CardGroup>

@@ -1,14 +1,14 @@
 ---
 read_when:
     - تريد استخدام نماذج Amazon Bedrock مع OpenClaw
-    - تحتاج إلى إعداد بيانات اعتماد/منطقة AWS لاستدعاءات النماذج
+    - تحتاج إلى إعداد بيانات اعتماد AWS/المنطقة لإجراء استدعاءات النماذج
 summary: استخدم نماذج Amazon Bedrock ‏(Converse API) مع OpenClaw
 title: Amazon Bedrock
 x-i18n:
-    generated_at: "2026-04-06T03:11:17Z"
+    generated_at: "2026-04-12T23:29:33Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 70bb29fe9199084b1179ced60935b5908318f5b80ced490bf44a45e0467c4929
+    source_hash: 88e7e24907ec26af098b648e2eeca32add090a9e381c818693169ab80aeccc47
     source_path: providers/bedrock.md
     workflow: 15
 ---
@@ -16,158 +16,197 @@ x-i18n:
 # Amazon Bedrock
 
 يمكن لـ OpenClaw استخدام نماذج **Amazon Bedrock** عبر مزود البث **Bedrock Converse**
-من pi‑ai. تستخدم مصادقة Bedrock **سلسلة بيانات الاعتماد الافتراضية لـ AWS SDK**،
+الخاص بـ pi-ai. تستخدم مصادقة Bedrock **سلسلة بيانات الاعتماد الافتراضية في AWS SDK**،
 وليس مفتاح API.
 
-## ما الذي يدعمه pi-ai
+| الخاصية | القيمة                                                        |
+| -------- | ------------------------------------------------------------- |
+| المزود | `amazon-bedrock`                                              |
+| API      | `bedrock-converse-stream`                                     |
+| المصادقة | بيانات اعتماد AWS (متغيرات البيئة، أو الإعدادات المشتركة، أو دور المثيل) |
+| المنطقة | `AWS_REGION` أو `AWS_DEFAULT_REGION` (الافتراضي: `us-east-1`) |
 
-- المزود: `amazon-bedrock`
-- API: ‏`bedrock-converse-stream`
-- المصادقة: بيانات اعتماد AWS ‏(متغيرات البيئة أو الإعدادات المشتركة أو دور المثيل)
-- المنطقة: `AWS_REGION` أو `AWS_DEFAULT_REGION` (الافتراضي: `us-east-1`)
+## البدء
+
+اختر طريقة المصادقة المفضلة لديك واتبع خطوات الإعداد.
+
+<Tabs>
+  <Tab title="مفاتيح الوصول / متغيرات البيئة">
+    **الأفضل لـ:** أجهزة المطورين، وCI، أو المضيفين الذين تدير عليهم بيانات اعتماد AWS مباشرة.
+
+    <Steps>
+      <Step title="تعيين بيانات اعتماد AWS على مضيف Gateway">
+        ```bash
+        export AWS_ACCESS_KEY_ID="AKIA..."
+        export AWS_SECRET_ACCESS_KEY="..."
+        export AWS_REGION="us-east-1"
+        # اختياري:
+        export AWS_SESSION_TOKEN="..."
+        export AWS_PROFILE="your-profile"
+        # اختياري (مفتاح API/رمز Bearer لـ Bedrock):
+        export AWS_BEARER_TOKEN_BEDROCK="..."
+        ```
+      </Step>
+      <Step title="إضافة مزود Bedrock ونموذج إلى إعداداتك">
+        لا يلزم `apiKey`. قم بإعداد المزود باستخدام `auth: "aws-sdk"`:
+
+        ```json5
+        {
+          models: {
+            providers: {
+              "amazon-bedrock": {
+                baseUrl: "https://bedrock-runtime.us-east-1.amazonaws.com",
+                api: "bedrock-converse-stream",
+                auth: "aws-sdk",
+                models: [
+                  {
+                    id: "us.anthropic.claude-opus-4-6-v1:0",
+                    name: "Claude Opus 4.6 (Bedrock)",
+                    reasoning: true,
+                    input: ["text", "image"],
+                    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+                    contextWindow: 200000,
+                    maxTokens: 8192,
+                  },
+                ],
+              },
+            },
+          },
+          agents: {
+            defaults: {
+              model: { primary: "amazon-bedrock/us.anthropic.claude-opus-4-6-v1:0" },
+            },
+          },
+        }
+        ```
+      </Step>
+      <Step title="التحقق من توفر النماذج">
+        ```bash
+        openclaw models list
+        ```
+      </Step>
+    </Steps>
+
+    <Tip>
+    مع مصادقة علامات البيئة (`AWS_ACCESS_KEY_ID` أو `AWS_PROFILE` أو `AWS_BEARER_TOKEN_BEDROCK`)، يقوم OpenClaw بتمكين مزود Bedrock الضمني تلقائيًا لاكتشاف النماذج دون إعدادات إضافية.
+    </Tip>
+
+  </Tab>
+
+  <Tab title="أدوار مثيلات EC2 ‏(IMDS)">
+    **الأفضل لـ:** مثيلات EC2 التي تم إرفاق دور IAM بها، باستخدام خدمة بيانات تعريف المثيل للمصادقة.
+
+    <Steps>
+      <Step title="تمكين الاكتشاف صراحةً">
+        عند استخدام IMDS، لا يستطيع OpenClaw اكتشاف مصادقة AWS من علامات البيئة وحدها، لذلك يجب عليك الاشتراك صراحةً:
+
+        ```bash
+        openclaw config set plugins.entries.amazon-bedrock.config.discovery.enabled true
+        openclaw config set plugins.entries.amazon-bedrock.config.discovery.region us-east-1
+        ```
+      </Step>
+      <Step title="إضافة علامة بيئة اختياريًا لوضع الاكتشاف التلقائي">
+        إذا كنت تريد أيضًا أن يعمل مسار الاكتشاف التلقائي بعلامات البيئة (على سبيل المثال، لواجهات `openclaw status`):
+
+        ```bash
+        export AWS_PROFILE=default
+        export AWS_REGION=us-east-1
+        ```
+
+        **لا** تحتاج إلى مفتاح API وهمي.
+      </Step>
+      <Step title="التحقق من اكتشاف النماذج">
+        ```bash
+        openclaw models list
+        ```
+      </Step>
+    </Steps>
+
+    <Warning>
+    يجب أن يمتلك دور IAM المرفق بمثيل EC2 الأذونات التالية:
+
+    - `bedrock:InvokeModel`
+    - `bedrock:InvokeModelWithResponseStream`
+    - `bedrock:ListFoundationModels` (للاكتشاف التلقائي)
+    - `bedrock:ListInferenceProfiles` (لاكتشاف ملفات تعريف الاستدلال)
+
+    أو قم بإرفاق السياسة المُدارة `AmazonBedrockFullAccess`.
+    </Warning>
+
+    <Note>
+    تحتاج إلى `AWS_PROFILE=default` فقط إذا كنت تريد تحديدًا علامة بيئة لوضع الاكتشاف التلقائي أو لواجهات الحالة. أما مسار مصادقة Bedrock الفعلي أثناء التشغيل فيستخدم سلسلة AWS SDK الافتراضية، لذلك تعمل مصادقة دور المثيل عبر IMDS حتى بدون علامات بيئة.
+    </Note>
+
+  </Tab>
+</Tabs>
 
 ## الاكتشاف التلقائي للنماذج
 
 يمكن لـ OpenClaw اكتشاف نماذج Bedrock التي تدعم **البث**
 و**إخراج النص** تلقائيًا. يستخدم الاكتشاف `bedrock:ListFoundationModels` و
-`bedrock:ListInferenceProfiles`، وتُخزَّن النتائج مؤقتًا (الافتراضي: ساعة واحدة).
+`bedrock:ListInferenceProfiles`، ويتم تخزين النتائج مؤقتًا (الافتراضي: ساعة واحدة).
 
 كيفية تمكين المزود الضمني:
 
 - إذا كانت `plugins.entries.amazon-bedrock.config.discovery.enabled` تساوي `true`،
-  فسيحاول OpenClaw الاكتشاف حتى عند عدم وجود أي مؤشر بيئة AWS.
-- إذا لم تكن `plugins.entries.amazon-bedrock.config.discovery.enabled` مضبوطة،
-  فإن OpenClaw يضيف تلقائيًا مزود Bedrock
-  الضمني فقط عندما يرى أحد مؤشرات مصادقة AWS التالية:
+  فسيحاول OpenClaw الاكتشاف حتى عند عدم وجود علامة بيئة AWS.
+- إذا لم يتم تعيين `plugins.entries.amazon-bedrock.config.discovery.enabled`،
+  فلن يضيف OpenClaw
+  مزود Bedrock الضمني تلقائيًا إلا عندما يرى أحد علامات مصادقة AWS التالية:
   `AWS_BEARER_TOKEN_BEDROCK`، أو `AWS_ACCESS_KEY_ID` +
   `AWS_SECRET_ACCESS_KEY`، أو `AWS_PROFILE`.
-- ما يزال مسار مصادقة Bedrock الفعلي في وقت التشغيل يستخدم السلسلة الافتراضية لـ AWS SDK، لذا
-  يمكن أن تعمل الإعدادات المشتركة وSSO ومصادقة دور المثيل عبر IMDS حتى عندما يحتاج الاكتشاف
-  إلى `enabled: true` للاشتراك الصريح.
+- لا يزال مسار مصادقة Bedrock الفعلي أثناء التشغيل يستخدم سلسلة AWS SDK الافتراضية، لذلك
+  يمكن أن تعمل الإعدادات المشتركة، وSSO، ومصادقة دور المثيل عبر IMDS حتى عندما كان
+  الاكتشاف يحتاج إلى `enabled: true` للاشتراك.
 
-توجد خيارات الإعدادات تحت `plugins.entries.amazon-bedrock.config.discovery`:
+<Note>
+بالنسبة إلى إدخالات `models.providers["amazon-bedrock"]` الصريحة، لا يزال بإمكان OpenClaw حل مصادقة Bedrock المبكرة القائمة على علامات البيئة من متغيرات AWS البيئية مثل `AWS_BEARER_TOKEN_BEDROCK` دون فرض تحميل مصادقة التشغيل الكاملة. أما مسار مصادقة استدعاء النموذج الفعلي فيستخدم سلسلة AWS SDK الافتراضية.
+</Note>
 
-```json5
-{
-  plugins: {
-    entries: {
-      "amazon-bedrock": {
-        config: {
-          discovery: {
-            enabled: true,
-            region: "us-east-1",
-            providerFilter: ["anthropic", "amazon"],
-            refreshInterval: 3600,
-            defaultContextWindow: 32000,
-            defaultMaxTokens: 4096,
+<AccordionGroup>
+  <Accordion title="خيارات إعدادات الاكتشاف">
+    توجد خيارات الإعداد ضمن `plugins.entries.amazon-bedrock.config.discovery`:
+
+    ```json5
+    {
+      plugins: {
+        entries: {
+          "amazon-bedrock": {
+            config: {
+              discovery: {
+                enabled: true,
+                region: "us-east-1",
+                providerFilter: ["anthropic", "amazon"],
+                refreshInterval: 3600,
+                defaultContextWindow: 32000,
+                defaultMaxTokens: 4096,
+              },
+            },
           },
         },
       },
-    },
-  },
-}
-```
+    }
+    ```
 
-ملاحظات:
+    | الخيار | الافتراضي | الوصف |
+    | ------ | --------- | ------ |
+    | `enabled` | auto | في الوضع التلقائي، لا يفعّل OpenClaw مزود Bedrock الضمني إلا عندما يرى علامة بيئة AWS مدعومة. عيّنه إلى `true` لفرض الاكتشاف. |
+    | `region` | `AWS_REGION` / `AWS_DEFAULT_REGION` / `us-east-1` | منطقة AWS المستخدمة في استدعاءات API الخاصة بالاكتشاف. |
+    | `providerFilter` | (الكل) | يطابق أسماء مزودي Bedrock (على سبيل المثال `anthropic`، `amazon`). |
+    | `refreshInterval` | `3600` | مدة التخزين المؤقت بالثواني. عيّنه إلى `0` لتعطيل التخزين المؤقت. |
+    | `defaultContextWindow` | `32000` | نافذة السياق المستخدمة للنماذج المكتشفة (جاوزها إذا كنت تعرف حدود نموذجك). |
+    | `defaultMaxTokens` | `4096` | الحد الأقصى لرموز الإخراج المستخدمة للنماذج المكتشفة (جاوزها إذا كنت تعرف حدود نموذجك). |
 
-- تكون `enabled` افتراضيًا في وضع auto. وفي وضع auto، لا يفعّل OpenClaw
-  مزود Bedrock الضمني إلا عندما يرى مؤشر بيئة AWS مدعومًا.
-- تكون `region` افتراضيًا من `AWS_REGION` أو `AWS_DEFAULT_REGION`، ثم `us-east-1`.
-- تطابق `providerFilter` أسماء مزودي Bedrock (على سبيل المثال `anthropic`).
-- `refreshInterval` بالثواني؛ اضبطه على `0` لتعطيل التخزين المؤقت.
-- تُستخدم `defaultContextWindow` (الافتراضي: `32000`) و`defaultMaxTokens` (الافتراضي: `4096`)
-  للنماذج المكتشفة (يمكنك تجاوزهما إذا كنت تعرف حدود نموذجك).
-- بالنسبة إلى إدخالات `models.providers["amazon-bedrock"]` الصريحة، لا يزال OpenClaw قادرًا على
-  حل مصادقة مؤشرات بيئة Bedrock مبكرًا من مؤشرات بيئة AWS مثل
-  `AWS_BEARER_TOKEN_BEDROCK` دون فرض تحميل كامل لمصادقة وقت التشغيل. ولا يزال
-  مسار مصادقة استدعاء النموذج الفعلي يستخدم السلسلة الافتراضية لـ AWS SDK.
-
-## الإعداد الأولي
-
-1. تأكد من توفر بيانات اعتماد AWS على **gateway host**:
-
-```bash
-export AWS_ACCESS_KEY_ID="AKIA..."
-export AWS_SECRET_ACCESS_KEY="..."
-export AWS_REGION="us-east-1"
-# اختياري:
-export AWS_SESSION_TOKEN="..."
-export AWS_PROFILE="your-profile"
-# اختياري (مفتاح API / bearer token لـ Bedrock):
-export AWS_BEARER_TOKEN_BEDROCK="..."
-```
-
-2. أضف مزود Bedrock ونموذجًا إلى إعداداتك (لا حاجة إلى `apiKey`):
-
-```json5
-{
-  models: {
-    providers: {
-      "amazon-bedrock": {
-        baseUrl: "https://bedrock-runtime.us-east-1.amazonaws.com",
-        api: "bedrock-converse-stream",
-        auth: "aws-sdk",
-        models: [
-          {
-            id: "us.anthropic.claude-opus-4-6-v1:0",
-            name: "Claude Opus 4.6 (Bedrock)",
-            reasoning: true,
-            input: ["text", "image"],
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-            contextWindow: 200000,
-            maxTokens: 8192,
-          },
-        ],
-      },
-    },
-  },
-  agents: {
-    defaults: {
-      model: { primary: "amazon-bedrock/us.anthropic.claude-opus-4-6-v1:0" },
-    },
-  },
-}
-```
-
-## أدوار مثيل EC2
-
-عند تشغيل OpenClaw على مثيل EC2 مع إرفاق دور IAM، يمكن لـ AWS SDK
-استخدام خدمة بيانات تعريف المثيل (IMDS) للمصادقة. بالنسبة إلى اكتشاف نماذج Bedrock،
-لا يفعّل OpenClaw المزود الضمني تلقائيًا إلا من خلال مؤشرات بيئة AWS
-ما لم تقم صراحةً بضبط
-`plugins.entries.amazon-bedrock.config.discovery.enabled: true`.
-
-الإعداد الموصى به للمضيفين المعتمدين على IMDS:
-
-- اضبط `plugins.entries.amazon-bedrock.config.discovery.enabled` على `true`.
-- اضبط `plugins.entries.amazon-bedrock.config.discovery.region` (أو صدّر `AWS_REGION`).
-- **لا** تحتاج إلى مفتاح API وهمي.
-- تحتاج إلى `AWS_PROFILE=default` فقط إذا كنت تريد تحديدًا مؤشر بيئة
-  لوضع auto أو لأسطح الحالة.
-
-```bash
-# موصى به: تمكين صريح للاكتشاف + المنطقة
-openclaw config set plugins.entries.amazon-bedrock.config.discovery.enabled true
-openclaw config set plugins.entries.amazon-bedrock.config.discovery.region us-east-1
-
-# اختياري: أضف مؤشر بيئة إذا كنت تريد وضع auto بدون تمكين صريح
-export AWS_PROFILE=default
-export AWS_REGION=us-east-1
-```
-
-**أذونات IAM المطلوبة** لدور مثيل EC2:
-
-- `bedrock:InvokeModel`
-- `bedrock:InvokeModelWithResponseStream`
-- `bedrock:ListFoundationModels` (للاكتشاف التلقائي)
-- `bedrock:ListInferenceProfiles` (لاكتشاف ملفات تعريف الاستدلال)
-
-أو قم بإرفاق السياسة المُدارة `AmazonBedrockFullAccess`.
+  </Accordion>
+</AccordionGroup>
 
 ## إعداد سريع (مسار AWS)
 
+ينشئ هذا الدليل دور IAM، ويرفق أذونات Bedrock، ويربط
+ملف تعريف المثيل، ويمكّن اكتشاف OpenClaw على مضيف EC2.
+
 ```bash
-# 1. أنشئ دور IAM وملف تعريف مثيل
+# 1. Create IAM role and instance profile
 aws iam create-role --role-name EC2-Bedrock-Access \
   --assume-role-policy-document '{
     "Version": "2012-10-17",
@@ -186,124 +225,145 @@ aws iam add-role-to-instance-profile \
   --instance-profile-name EC2-Bedrock-Access \
   --role-name EC2-Bedrock-Access
 
-# 2. أرفقه بمثيل EC2 الخاص بك
+# 2. Attach to your EC2 instance
 aws ec2 associate-iam-instance-profile \
   --instance-id i-xxxxx \
   --iam-instance-profile Name=EC2-Bedrock-Access
 
-# 3. على مثيل EC2، فعّل الاكتشاف صراحةً
+# 3. On the EC2 instance, enable discovery explicitly
 openclaw config set plugins.entries.amazon-bedrock.config.discovery.enabled true
 openclaw config set plugins.entries.amazon-bedrock.config.discovery.region us-east-1
 
-# 4. اختياري: أضف مؤشر بيئة إذا كنت تريد وضع auto بدون تمكين صريح
+# 4. Optional: add an env marker if you want auto mode without explicit enable
 echo 'export AWS_PROFILE=default' >> ~/.bashrc
 echo 'export AWS_REGION=us-east-1' >> ~/.bashrc
 source ~/.bashrc
 
-# 5. تحقق من اكتشاف النماذج
+# 5. Verify models are discovered
 openclaw models list
 ```
 
-## ملفات تعريف الاستدلال
+## إعدادات متقدمة
 
-يكتشف OpenClaw **ملفات تعريف الاستدلال الإقليمية والعالمية** إلى جانب
-النماذج الأساسية. عندما يطابق ملف تعريف نموذجًا أساسيًا معروفًا، فإن
-ملف التعريف يرث قدرات ذلك النموذج (نافذة السياق، الحد الأقصى للرموز،
-الاستدلال، الرؤية) وتُحقن منطقة طلب Bedrock الصحيحة
-تلقائيًا. وهذا يعني أن ملفات تعريف Claude عبر المناطق تعمل دون تجاوزات
-يدوية للمزود.
+<AccordionGroup>
+  <Accordion title="ملفات تعريف الاستدلال">
+    يكتشف OpenClaw **ملفات تعريف الاستدلال الإقليمية والعالمية** إلى جانب
+    النماذج الأساسية. عندما يطابق ملف تعريف نموذجًا أساسيًا معروفًا، يرث
+    ملف التعريف إمكانات ذلك النموذج (نافذة السياق، الحد الأقصى للرموز،
+    التفكير، والرؤية) ويتم حقن منطقة طلب Bedrock الصحيحة
+    تلقائيًا. وهذا يعني أن ملفات تعريف Claude عبر المناطق تعمل دون
+    تجاوزات يدوية للمزود.
 
-تبدو معرّفات ملفات تعريف الاستدلال مثل `us.anthropic.claude-opus-4-6-v1:0` (إقليمي)
-أو `anthropic.claude-opus-4-6-v1:0` (عالمي). إذا كان النموذج الخلفي موجودًا بالفعل
-في نتائج الاكتشاف، فإن ملف التعريف يرث مجموعة قدراته الكاملة؛
-وإلا فستُطبق قيم افتراضية آمنة.
+    تبدو معرّفات ملفات تعريف الاستدلال مثل `us.anthropic.claude-opus-4-6-v1:0` (إقليمي)
+    أو `anthropic.claude-opus-4-6-v1:0` (عالمي). إذا كان النموذج الداعم موجودًا بالفعل
+    في نتائج الاكتشاف، فإن ملف التعريف يرث مجموعة إمكاناته الكاملة؛
+    وإلا تُطبَّق افتراضيات آمنة.
 
-لا حاجة إلى أي إعداد إضافي. ما دام الاكتشاف مفعّلًا وكان كيان IAM
-يملك الإذن `bedrock:ListInferenceProfiles`، فستظهر ملفات التعريف إلى جانب
-النماذج الأساسية في `openclaw models list`.
+    لا حاجة إلى إعدادات إضافية. طالما أن الاكتشاف مفعّل وأن كيان IAM
+    يمتلك `bedrock:ListInferenceProfiles`، فستظهر ملفات التعريف إلى جانب
+    النماذج الأساسية في `openclaw models list`.
 
-## ملاحظات
+  </Accordion>
 
-- يتطلب Bedrock تفعيل **الوصول إلى النموذج** في حسابك/منطقتك على AWS.
-- يحتاج الاكتشاف التلقائي إلى الإذنين `bedrock:ListFoundationModels` و
-  `bedrock:ListInferenceProfiles`.
-- إذا كنت تعتمد على وضع auto، فاضبط أحد مؤشرات بيئة مصادقة AWS المدعومة على
-  gateway host. وإذا كنت تفضل مصادقة IMDS/الإعدادات المشتركة بدون مؤشرات بيئة، فاضبط
-  `plugins.entries.amazon-bedrock.config.discovery.enabled: true`.
-- يعرض OpenClaw مصدر بيانات الاعتماد بهذا الترتيب: `AWS_BEARER_TOKEN_BEDROCK`،
-  ثم `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`، ثم `AWS_PROFILE`، ثم
-  السلسلة الافتراضية لـ AWS SDK.
-- يعتمد دعم الاستدلال على النموذج؛ تحقّق من بطاقة نموذج Bedrock للاطلاع على
-  الإمكانات الحالية.
-- إذا كنت تفضّل تدفقًا مُدارًا للمفاتيح، فيمكنك أيضًا وضع وكيل
-  متوافق مع OpenAI أمام Bedrock وتهيئته بدلًا من ذلك كمزود OpenAI.
+  <Accordion title="Guardrails">
+    يمكنك تطبيق [Amazon Bedrock Guardrails](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html)
+    على جميع استدعاءات نماذج Bedrock عن طريق إضافة كائن `guardrail` إلى
+    إعدادات Plugin ‏`amazon-bedrock`. تتيح لك Guardrails فرض تصفية المحتوى،
+    وحظر الموضوعات، ومرشحات الكلمات، ومرشحات المعلومات الحساسة، وعمليات التحقق
+    من الارتكاز السياقي.
 
-## الحواجز الوقائية
-
-يمكنك تطبيق [Amazon Bedrock Guardrails](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html)
-على جميع استدعاءات نماذج Bedrock بإضافة كائن `guardrail` إلى
-إعدادات إضافة `amazon-bedrock`. تتيح لك Guardrails فرض تصفية المحتوى،
-ورفض الموضوعات، وفلاتر الكلمات، وفلاتر المعلومات الحساسة، وفحوصات
-الاستناد السياقي.
-
-```json5
-{
-  plugins: {
-    entries: {
-      "amazon-bedrock": {
-        config: {
-          guardrail: {
-            guardrailIdentifier: "abc123", // معرّف guardrail أو ARN كامل
-            guardrailVersion: "1", // رقم الإصدار أو "DRAFT"
-            streamProcessingMode: "sync", // اختياري: "sync" أو "async"
-            trace: "enabled", // اختياري: "enabled" أو "disabled" أو "enabled_full"
+    ```json5
+    {
+      plugins: {
+        entries: {
+          "amazon-bedrock": {
+            config: {
+              guardrail: {
+                guardrailIdentifier: "abc123", // guardrail ID or full ARN
+                guardrailVersion: "1", // version number or "DRAFT"
+                streamProcessingMode: "sync", // optional: "sync" or "async"
+                trace: "enabled", // optional: "enabled", "disabled", or "enabled_full"
+              },
+            },
           },
         },
       },
-    },
-  },
-}
-```
+    }
+    ```
 
-- يقبل `guardrailIdentifier` (مطلوب) معرّف guardrail (مثل `abc123`) أو
-  ARN كاملًا (مثل `arn:aws:bedrock:us-east-1:123456789012:guardrail/abc123`).
-- يحدد `guardrailVersion` (مطلوب) أي إصدار منشور يجب استخدامه، أو
-  `"DRAFT"` للمسودة العاملة.
-- يتحكم `streamProcessingMode` (اختياري) في ما إذا كان تقييم guardrail يُنفّذ
-  بشكل متزامن (`"sync"`) أو غير متزامن (`"async"`) أثناء البث. وإذا
-  أُهمل، يستخدم Bedrock سلوكه الافتراضي.
-- يفعّل `trace` (اختياري) مخرجات تتبع guardrail في استجابة API. اضبطه على
-  `"enabled"` أو `"enabled_full"` لأغراض التصحيح؛ واحذفه أو اضبطه على `"disabled"` في
-  الإنتاج.
+    | الخيار | مطلوب | الوصف |
+    | ------ | ------ | ------ |
+    | `guardrailIdentifier` | نعم | معرّف Guardrail (مثل `abc123`) أو ARN كامل (مثل `arn:aws:bedrock:us-east-1:123456789012:guardrail/abc123`). |
+    | `guardrailVersion` | نعم | رقم الإصدار المنشور، أو `"DRAFT"` لمسودة العمل. |
+    | `streamProcessingMode` | لا | `"sync"` أو `"async"` لتقييم Guardrail أثناء البث. إذا تم حذفه، يستخدم Bedrock الإعداد الافتراضي الخاص به. |
+    | `trace` | لا | `"enabled"` أو `"enabled_full"` لأغراض التصحيح؛ احذفه أو عيّنه إلى `"disabled"` في بيئات الإنتاج. |
 
-يجب أن يملك كيان IAM الذي تستخدمه البوابة الإذن `bedrock:ApplyGuardrail`
-بالإضافة إلى أذونات الاستدعاء القياسية.
+    <Warning>
+    يجب أن يمتلك كيان IAM الذي يستخدمه Gateway الإذن `bedrock:ApplyGuardrail` بالإضافة إلى أذونات الاستدعاء القياسية.
+    </Warning>
 
-## التضمينات لبحث الذاكرة
+  </Accordion>
 
-يمكن أن يعمل Bedrock أيضًا كمزود تضمينات لـ
-[بحث الذاكرة](/ar/concepts/memory-search). ويتم إعداد هذا بشكل منفصل عن
-مزود الاستدلال — اضبط `agents.defaults.memorySearch.provider` على `"bedrock"`:
+  <Accordion title="التضمينات للبحث في الذاكرة">
+    يمكن لـ Bedrock أن يعمل أيضًا كمزود تضمين من أجل
+    [البحث في الذاكرة](/ar/concepts/memory-search). ويتم إعداد ذلك بشكل منفصل عن
+    مزود الاستدلال -- عيّن `agents.defaults.memorySearch.provider` إلى `"bedrock"`:
 
-```json5
-{
-  agents: {
-    defaults: {
-      memorySearch: {
-        provider: "bedrock",
-        model: "amazon.titan-embed-text-v2:0", // الافتراضي
+    ```json5
+    {
+      agents: {
+        defaults: {
+          memorySearch: {
+            provider: "bedrock",
+            model: "amazon.titan-embed-text-v2:0", // default
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
 
-تستخدم تضمينات Bedrock السلسلة نفسها لبيانات الاعتماد في AWS SDK كما في الاستدلال (أدوار
-المثيل، وSSO، ومفاتيح الوصول، والإعدادات المشتركة، وweb identity). لا
-توجد حاجة إلى مفتاح API. عندما تكون `provider` هي `"auto"`، يتم
-اكتشاف Bedrock تلقائيًا إذا تم حل سلسلة بيانات الاعتماد هذه بنجاح.
+    تستخدم تضمينات Bedrock سلسلة بيانات الاعتماد نفسها في AWS SDK مثل الاستدلال (أدوار
+    المثيل، وSSO، ومفاتيح الوصول، والإعدادات المشتركة، وهوية الويب). لا حاجة إلى مفتاح API.
+    عندما تكون `provider` هي `"auto"`، يتم اكتشاف Bedrock تلقائيًا إذا أمكن
+    حل سلسلة بيانات الاعتماد تلك بنجاح.
 
-تشمل نماذج التضمين المدعومة Amazon Titan Embed ‏(v1 وv2)، وAmazon Nova
-Embed، وCohere Embed ‏(v3 وv4)، وTwelveLabs Marengo. راجع
-[مرجع إعدادات الذاكرة — Bedrock](/ar/reference/memory-config#bedrock-embedding-config)
-للحصول على قائمة النماذج الكاملة وخيارات الأبعاد.
+    تشمل نماذج التضمين المدعومة Amazon Titan Embed ‏(v1 وv2)، وAmazon Nova
+    Embed، وCohere Embed ‏(v3 وv4)، وTwelveLabs Marengo. راجع
+    [مرجع إعدادات الذاكرة -- Bedrock](/ar/reference/memory-config#bedrock-embedding-config)
+    للاطلاع على القائمة الكاملة للنماذج وخيارات الأبعاد.
+
+  </Accordion>
+
+  <Accordion title="ملاحظات ومحاذير">
+    - يتطلب Bedrock تمكين **الوصول إلى النموذج** في حساب/منطقة AWS الخاصة بك.
+    - يتطلب الاكتشاف التلقائي الإذنين `bedrock:ListFoundationModels` و
+      `bedrock:ListInferenceProfiles`.
+    - إذا كنت تعتمد على الوضع التلقائي، فعيّن أحد علامات بيئة مصادقة AWS المدعومة على
+      مضيف Gateway. وإذا كنت تفضّل مصادقة IMDS/الإعدادات المشتركة دون علامات بيئة، فعيّن
+      `plugins.entries.amazon-bedrock.config.discovery.enabled: true`.
+    - يكشف OpenClaw عن مصدر بيانات الاعتماد بهذا الترتيب: `AWS_BEARER_TOKEN_BEDROCK`,
+      ثم `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`، ثم `AWS_PROFILE`، ثم
+      سلسلة AWS SDK الافتراضية.
+    - يعتمد دعم التفكير على النموذج؛ تحقّق من بطاقة نموذج Bedrock لمعرفة
+      الإمكانات الحالية.
+    - إذا كنت تفضّل تدفق مفتاح مُدار، فيمكنك أيضًا وضع
+      proxy متوافق مع OpenAI أمام Bedrock وإعداده بدلًا من ذلك كمزود OpenAI.
+  </Accordion>
+</AccordionGroup>
+
+## ذو صلة
+
+<CardGroup cols={2}>
+  <Card title="اختيار النموذج" href="/ar/concepts/model-providers" icon="layers">
+    اختيار المزودات، ومراجع النماذج، وسلوك التحويل الاحتياطي.
+  </Card>
+  <Card title="البحث في الذاكرة" href="/ar/concepts/memory-search" icon="magnifying-glass">
+    إعداد تضمينات Bedrock للبحث في الذاكرة.
+  </Card>
+  <Card title="مرجع إعدادات الذاكرة" href="/ar/reference/memory-config#bedrock-embedding-config" icon="database">
+    القائمة الكاملة لنماذج تضمين Bedrock وخيارات الأبعاد.
+  </Card>
+  <Card title="استكشاف الأخطاء وإصلاحها" href="/ar/help/troubleshooting" icon="wrench">
+    استكشاف الأخطاء وإصلاحها العام والأسئلة الشائعة.
+  </Card>
+</CardGroup>

@@ -1,43 +1,63 @@
 ---
 read_when:
-    - Anda menginginkan satu API key untuk banyak LLM
-    - Anda memerlukan panduan setup Baidu Qianfan
+    - Anda menginginkan satu kunci API untuk banyak LLM
+    - Anda memerlukan panduan penyiapan Baidu Qianfan
 summary: Gunakan API terpadu Qianfan untuk mengakses banyak model di OpenClaw
 title: Qianfan
 x-i18n:
-    generated_at: "2026-04-05T14:03:58Z"
+    generated_at: "2026-04-12T23:32:34Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 965d83dd968563447ce3571a73bd71c6876275caff8664311a852b2f9827e55b
+    source_hash: 1d0eeee9ec24b335c2fb8ac5e985a9edc35cfc5b2641c545cb295dd2de619f50
     source_path: providers/qianfan.md
     workflow: 15
 ---
 
-# Panduan Provider Qianfan
+# Qianfan
 
-Qianfan adalah platform MaaS milik Baidu, yang menyediakan **API terpadu** untuk merutekan permintaan ke banyak model di balik satu
-endpoint dan API key. API ini kompatibel dengan OpenAI, jadi sebagian besar SDK OpenAI dapat digunakan dengan mengganti base URL.
+Qianfan adalah platform MaaS milik Baidu yang menyediakan **API terpadu** yang merutekan permintaan ke banyak model di balik satu
+endpoint dan kunci API. API ini kompatibel dengan OpenAI, sehingga sebagian besar SDK OpenAI dapat digunakan hanya dengan mengganti base URL.
 
-## Prasyarat
+| Property | Value                             |
+| -------- | --------------------------------- |
+| Provider | `qianfan`                         |
+| Autentikasi | `QIANFAN_API_KEY`              |
+| API      | Kompatibel OpenAI                 |
+| Base URL | `https://qianfan.baidubce.com/v2` |
 
-1. Akun Baidu Cloud dengan akses API Qianfan
-2. API key dari konsol Qianfan
-3. OpenClaw terinstal di sistem Anda
+## Memulai
 
-## Mendapatkan API key Anda
+<Steps>
+  <Step title="Buat akun Baidu Cloud">
+    Daftar atau masuk di [Qianfan Console](https://console.bce.baidu.com/qianfan/ais/console/apiKey) dan pastikan akses API Qianfan sudah diaktifkan.
+  </Step>
+  <Step title="Buat kunci API">
+    Buat aplikasi baru atau pilih yang sudah ada, lalu buat kunci API. Format key adalah `bce-v3/ALTAK-...`.
+  </Step>
+  <Step title="Jalankan onboarding">
+    ```bash
+    openclaw onboard --auth-choice qianfan-api-key
+    ```
+  </Step>
+  <Step title="Verifikasi bahwa model tersedia">
+    ```bash
+    openclaw models list --provider qianfan
+    ```
+  </Step>
+</Steps>
 
-1. Kunjungi [Konsol Qianfan](https://console.bce.baidu.com/qianfan/ais/console/apiKey)
-2. Buat aplikasi baru atau pilih aplikasi yang sudah ada
-3. Buat API key (format: `bce-v3/ALTAK-...`)
-4. Salin API key untuk digunakan dengan OpenClaw
+## Model yang tersedia
 
-## Setup CLI
+| Ref model                            | Input       | Konteks | Output maks | Reasoning | Catatan       |
+| ------------------------------------ | ----------- | ------- | ----------- | --------- | ------------- |
+| `qianfan/deepseek-v3.2`              | teks        | 98,304  | 32,768      | Ya        | Model default |
+| `qianfan/ernie-5.0-thinking-preview` | teks, gambar | 119,000 | 64,000     | Ya        | Multimodal    |
 
-```bash
-openclaw onboard --auth-choice qianfan-api-key
-```
+<Tip>
+Ref model bawaan default adalah `qianfan/deepseek-v3.2`. Anda hanya perlu mengoverride `models.providers.qianfan` jika memerlukan base URL atau metadata model kustom.
+</Tip>
 
-## Cuplikan konfigurasi
+## Contoh config
 
 ```json5
 {
@@ -81,17 +101,40 @@ openclaw onboard --auth-choice qianfan-api-key
 }
 ```
 
-## Catatan
+<AccordionGroup>
+  <Accordion title="Transport dan kompatibilitas">
+    Qianfan berjalan melalui jalur transport yang kompatibel dengan OpenAI, bukan pembentukan permintaan OpenAI native. Ini berarti fitur SDK OpenAI standar tetap berfungsi, tetapi parameter khusus provider mungkin tidak diteruskan.
+  </Accordion>
 
-- Ref model bawaan default: `qianfan/deepseek-v3.2`
-- Base URL default: `https://qianfan.baidubce.com/v2`
-- Katalog bawaan saat ini mencakup `deepseek-v3.2` dan `ernie-5.0-thinking-preview`
-- Tambahkan atau override `models.providers.qianfan` hanya jika Anda memerlukan base URL atau metadata model kustom
-- Qianfan berjalan melalui jalur transport yang kompatibel dengan OpenAI, bukan pembentukan permintaan OpenAI native
+  <Accordion title="Katalog dan override">
+    Katalog bawaan saat ini mencakup `deepseek-v3.2` dan `ernie-5.0-thinking-preview`. Tambahkan atau override `models.providers.qianfan` hanya jika Anda memerlukan base URL atau metadata model kustom.
 
-## Dokumentasi Terkait
+    <Note>
+    Ref model menggunakan prefiks `qianfan/` (misalnya `qianfan/deepseek-v3.2`).
+    </Note>
 
-- [Konfigurasi OpenClaw](/id/gateway/configuration)
-- [Provider Model](/id/concepts/model-providers)
-- [Setup Agen](/id/concepts/agent)
-- [Dokumentasi API Qianfan](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)
+  </Accordion>
+
+  <Accordion title="Pemecahan masalah">
+    - Pastikan kunci API Anda diawali dengan `bce-v3/ALTAK-` dan akses API Qianfan sudah diaktifkan di konsol Baidu Cloud.
+    - Jika model tidak tercantum, pastikan akun Anda telah mengaktifkan layanan Qianfan.
+    - Base URL default adalah `https://qianfan.baidubce.com/v2`. Ubah hanya jika Anda menggunakan endpoint atau proxy kustom.
+  </Accordion>
+</AccordionGroup>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="Pemilihan model" href="/id/concepts/model-providers" icon="layers">
+    Memilih provider, ref model, dan perilaku failover.
+  </Card>
+  <Card title="Referensi konfigurasi" href="/id/gateway/configuration" icon="gear">
+    Referensi konfigurasi OpenClaw lengkap.
+  </Card>
+  <Card title="Penyiapan agent" href="/id/concepts/agent" icon="robot">
+    Mengonfigurasi default agent dan penetapan model.
+  </Card>
+  <Card title="Dokumentasi API Qianfan" href="https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb" icon="arrow-up-right-from-square">
+    Dokumentasi API Qianfan resmi.
+  </Card>
+</CardGroup>

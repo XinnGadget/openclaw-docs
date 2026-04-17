@@ -2,58 +2,67 @@
 read_when:
     - Chcesz używać generowania obrazów fal w OpenClaw
     - Potrzebujesz przepływu uwierzytelniania `FAL_KEY`
-    - Chcesz używać domyślnych ustawień fal dla `image_generate` lub `video_generate`
-summary: Konfiguracja generowania obrazów i wideo fal w OpenClaw
+    - Chcesz poznać domyślne ustawienia fal dla `image_generate` lub `video_generate`
+summary: konfiguracja generowania obrazów i wideo fal w OpenClaw
 title: fal
 x-i18n:
-    generated_at: "2026-04-06T03:11:31Z"
+    generated_at: "2026-04-12T23:30:35Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 1922907d2c8360c5877a56495323d54bd846d47c27a801155e3d11e3f5706fbd
+    source_hash: ff275233179b4808d625383efe04189ad9e92af09944ba39f1e953e77378e347
     source_path: providers/fal.md
     workflow: 15
 ---
 
 # fal
 
-OpenClaw dostarcza wbudowanego dostawcę `fal` do hostowanego generowania obrazów i wideo.
+OpenClaw dostarcza dołączonego dostawcę `fal` do hostowanego generowania obrazów i wideo.
 
-- Dostawca: `fal`
-- Uwierzytelnianie: `FAL_KEY` (kanoniczne; `FAL_API_KEY` działa również jako awaryjne)
-- API: endpointy modeli fal
+| Właściwość | Wartość                                                        |
+| ---------- | -------------------------------------------------------------- |
+| Dostawca   | `fal`                                                          |
+| Uwierzytelnianie | `FAL_KEY` (kanoniczne; `FAL_API_KEY` działa także jako fallback) |
+| API        | endpointy modeli fal                                           |
 
-## Szybki start
+## Pierwsze kroki
 
-1. Ustaw klucz API:
-
-```bash
-openclaw onboard --auth-choice fal-api-key
-```
-
-2. Ustaw domyślny model obrazu:
-
-```json5
-{
-  agents: {
-    defaults: {
-      imageGenerationModel: {
-        primary: "fal/fal-ai/flux/dev",
+<Steps>
+  <Step title="Ustaw klucz API">
+    ```bash
+    openclaw onboard --auth-choice fal-api-key
+    ```
+  </Step>
+  <Step title="Ustaw domyślny model obrazu">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          imageGenerationModel: {
+            primary: "fal/fal-ai/flux/dev",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Step>
+</Steps>
 
 ## Generowanie obrazów
 
-Wbudowany dostawca generowania obrazów `fal` domyślnie używa
+Dołączony dostawca generowania obrazów `fal` domyślnie używa
 `fal/fal-ai/flux/dev`.
 
-- Generowanie: maksymalnie 4 obrazy na żądanie
-- Tryb edycji: włączony, 1 obraz referencyjny
-- Obsługuje `size`, `aspectRatio` i `resolution`
-- Aktualne ograniczenie edycji: endpoint edycji obrazów fal **nie** obsługuje
-  nadpisywania `aspectRatio`
+| Możliwość     | Wartość                    |
+| ------------- | -------------------------- |
+| Maks. liczba obrazów | 4 na żądanie         |
+| Tryb edycji   | Włączony, 1 obraz referencyjny |
+| Nadpisania rozmiaru | Obsługiwane           |
+| Proporcje obrazu | Obsługiwane             |
+| Rozdzielczość | Obsługiwana                |
+
+<Warning>
+Endpoint edycji obrazów fal **nie** obsługuje nadpisań `aspectRatio`.
+</Warning>
 
 Aby używać fal jako domyślnego dostawcy obrazów:
 
@@ -71,28 +80,73 @@ Aby używać fal jako domyślnego dostawcy obrazów:
 
 ## Generowanie wideo
 
-Wbudowany dostawca generowania wideo `fal` domyślnie używa
+Dołączony dostawca generowania wideo `fal` domyślnie używa
 `fal/fal-ai/minimax/video-01-live`.
 
-- Tryby: text-to-video oraz przepływy z pojedynczym obrazem referencyjnym
-- Runtime: przepływ submit/status/result oparty na kolejce dla długotrwałych zadań
+| Możliwość | Wartość                                                      |
+| --------- | ------------------------------------------------------------ |
+| Tryby     | Tekst-na-wideo, pojedynczy obraz referencyjny                |
+| Runtime   | Przepływ submit/status/result oparty na kolejce dla długotrwałych zadań |
 
-Aby używać fal jako domyślnego dostawcy wideo:
+<AccordionGroup>
+  <Accordion title="Dostępne modele wideo">
+    **HeyGen video-agent:**
 
-```json5
-{
-  agents: {
-    defaults: {
-      videoGenerationModel: {
-        primary: "fal/fal-ai/minimax/video-01-live",
+    - `fal/fal-ai/heygen/v2/video-agent`
+
+    **Seedance 2.0:**
+
+    - `fal/bytedance/seedance-2.0/fast/text-to-video`
+    - `fal/bytedance/seedance-2.0/fast/image-to-video`
+    - `fal/bytedance/seedance-2.0/text-to-video`
+    - `fal/bytedance/seedance-2.0/image-to-video`
+
+  </Accordion>
+
+  <Accordion title="Przykład konfiguracji Seedance 2.0">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/bytedance/seedance-2.0/fast/text-to-video",
+          },
+        },
       },
-    },
-  },
-}
-```
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Przykład konfiguracji HeyGen video-agent">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          videoGenerationModel: {
+            primary: "fal/fal-ai/heygen/v2/video-agent",
+          },
+        },
+      },
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Użyj `openclaw models list --provider fal`, aby zobaczyć pełną listę dostępnych modeli fal,
+w tym wszelkie ostatnio dodane pozycje.
+</Tip>
 
 ## Powiązane
 
-- [Generowanie obrazów](/pl/tools/image-generation)
-- [Generowanie wideo](/tools/video-generation)
-- [Dokumentacja konfiguracji](/pl/gateway/configuration-reference#agent-defaults)
+<CardGroup cols={2}>
+  <Card title="Generowanie obrazów" href="/pl/tools/image-generation" icon="image">
+    Wspólne parametry narzędzia obrazów i wybór dostawcy.
+  </Card>
+  <Card title="Generowanie wideo" href="/pl/tools/video-generation" icon="video">
+    Wspólne parametry narzędzia wideo i wybór dostawcy.
+  </Card>
+  <Card title="Dokumentacja konfiguracji" href="/pl/gateway/configuration-reference#agent-defaults" icon="gear">
+    Domyślne ustawienia agenta, w tym wybór modelu obrazu i wideo.
+  </Card>
+</CardGroup>

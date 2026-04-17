@@ -1,49 +1,63 @@
 ---
 read_when:
-    - Chcesz używać Volcano Engine lub modeli Doubao z OpenClaw
+    - Chcesz używać modeli Volcano Engine lub Doubao z OpenClaw
     - Potrzebujesz konfiguracji klucza API Volcengine
-summary: Konfiguracja Volcano Engine (modele Doubao, endpointy ogólne i do kodowania)
+summary: Konfiguracja Volcano Engine (modele Doubao, endpointy ogólne + do kodowania)
 title: Volcengine (Doubao)
 x-i18n:
-    generated_at: "2026-04-05T14:04:09Z"
+    generated_at: "2026-04-12T23:33:36Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 85d9e737e906cd705fb31479d6b78d92b68c9218795ea9667516c1571dcaaf3a
+    source_hash: a21f390da719f79c88c6d55a7d952d35c2ce5ff26d910c9f10020132cd7d2f4c
     source_path: providers/volcengine.md
     workflow: 15
 ---
 
 # Volcengine (Doubao)
 
-Provider Volcengine zapewnia dostęp do modeli Doubao i modeli innych firm
-hostowanych w Volcano Engine, z oddzielnymi endpointami dla ogólnych
-obciążeń i zadań związanych z kodowaniem.
+Dostawca Volcengine zapewnia dostęp do modeli Doubao i modeli zewnętrznych
+hostowanych na Volcano Engine, z oddzielnymi endpointami dla obciążeń ogólnych i związanych z kodowaniem.
 
-- Providery: `volcengine` (ogólny) + `volcengine-plan` (kodowanie)
-- Uwierzytelnianie: `VOLCANO_ENGINE_API_KEY`
-- API: zgodne z OpenAI
+| Szczegół   | Wartość                                             |
+| ---------- | --------------------------------------------------- |
+| Dostawcy   | `volcengine` (ogólne) + `volcengine-plan` (kodowanie) |
+| Uwierzytelnianie | `VOLCANO_ENGINE_API_KEY`                      |
+| API        | Zgodne z OpenAI                                     |
 
-## Szybki start
+## Pierwsze kroki
 
-1. Ustaw klucz API:
+<Steps>
+  <Step title="Ustaw klucz API">
+    Uruchom interaktywny onboarding:
 
-```bash
-openclaw onboard --auth-choice volcengine-api-key
-```
+    ```bash
+    openclaw onboard --auth-choice volcengine-api-key
+    ```
 
-2. Ustaw model domyślny:
+    To rejestruje zarówno dostawcę ogólnego (`volcengine`), jak i dostawcę do kodowania (`volcengine-plan`) przy użyciu jednego klucza API.
 
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "volcengine-plan/ark-code-latest" },
-    },
-  },
-}
-```
+  </Step>
+  <Step title="Ustaw model domyślny">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          model: { primary: "volcengine-plan/ark-code-latest" },
+        },
+      },
+    }
+    ```
+  </Step>
+  <Step title="Sprawdź, czy model jest dostępny">
+    ```bash
+    openclaw models list --provider volcengine
+    openclaw models list --provider volcengine-plan
+    ```
+  </Step>
+</Steps>
 
-## Przykład nieinteraktywny
+<Tip>
+W przypadku konfiguracji nieinteraktywnej (CI, skrypty) przekaż klucz bezpośrednio:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -52,50 +66,84 @@ openclaw onboard --non-interactive \
   --volcengine-api-key "$VOLCANO_ENGINE_API_KEY"
 ```
 
-## Providery i endpointy
+</Tip>
 
-| Provider          | Endpoint                                  | Przypadek użycia       |
-| ----------------- | ----------------------------------------- | ---------------------- |
-| `volcengine`      | `ark.cn-beijing.volces.com/api/v3`        | Modele ogólne          |
-| `volcengine-plan` | `ark.cn-beijing.volces.com/api/coding/v3` | Modele do kodowania    |
+## Dostawcy i endpointy
 
-Oba providery są konfigurowane za pomocą jednego klucza API. Konfiguracja rejestruje oba
-automatycznie.
+| Dostawca          | Endpoint                                  | Przypadek użycia |
+| ----------------- | ----------------------------------------- | ---------------- |
+| `volcengine`      | `ark.cn-beijing.volces.com/api/v3`        | Modele ogólne    |
+| `volcengine-plan` | `ark.cn-beijing.volces.com/api/coding/v3` | Modele do kodowania |
+
+<Note>
+Obaj dostawcy są konfigurowani przy użyciu jednego klucza API. Konfiguracja rejestruje obu automatycznie.
+</Note>
 
 ## Dostępne modele
 
-Provider ogólny (`volcengine`):
+<Tabs>
+  <Tab title="Ogólne (volcengine)">
+    | Odwołanie modelu                            | Nazwa                           | Wejście     | Kontekst |
+    | ------------------------------------------- | ------------------------------- | ----------- | -------- |
+    | `volcengine/doubao-seed-1-8-251228`         | Doubao Seed 1.8                 | text, image | 256,000  |
+    | `volcengine/doubao-seed-code-preview-251028`| doubao-seed-code-preview-251028 | text, image | 256,000  |
+    | `volcengine/kimi-k2-5-260127`               | Kimi K2.5                       | text, image | 256,000  |
+    | `volcengine/glm-4-7-251222`                 | GLM 4.7                         | text, image | 200,000  |
+    | `volcengine/deepseek-v3-2-251201`           | DeepSeek V3.2                   | text, image | 128,000  |
+  </Tab>
+  <Tab title="Kodowanie (volcengine-plan)">
+    | Odwołanie modelu                                | Nazwa                    | Wejście | Kontekst |
+    | ------------------------------------------------ | ------------------------ | ------- | -------- |
+    | `volcengine-plan/ark-code-latest`                | Ark Coding Plan          | text    | 256,000  |
+    | `volcengine-plan/doubao-seed-code`               | Doubao Seed Code         | text    | 256,000  |
+    | `volcengine-plan/glm-4.7`                        | GLM 4.7 Coding           | text    | 200,000  |
+    | `volcengine-plan/kimi-k2-thinking`               | Kimi K2 Thinking         | text    | 256,000  |
+    | `volcengine-plan/kimi-k2.5`                      | Kimi K2.5 Coding         | text    | 256,000  |
+    | `volcengine-plan/doubao-seed-code-preview-251028`| Doubao Seed Code Preview | text    | 256,000  |
+  </Tab>
+</Tabs>
 
-| Model ref                                    | Nazwa                           | Wejście     | Kontekst |
-| -------------------------------------------- | ------------------------------- | ----------- | -------- |
-| `volcengine/doubao-seed-1-8-251228`          | Doubao Seed 1.8                 | text, image | 256,000  |
-| `volcengine/doubao-seed-code-preview-251028` | doubao-seed-code-preview-251028 | text, image | 256,000  |
-| `volcengine/kimi-k2-5-260127`                | Kimi K2.5                       | text, image | 256,000  |
-| `volcengine/glm-4-7-251222`                  | GLM 4.7                         | text, image | 200,000  |
-| `volcengine/deepseek-v3-2-251201`            | DeepSeek V3.2                   | text, image | 128,000  |
+## Uwagi zaawansowane
 
-Provider do kodowania (`volcengine-plan`):
+<AccordionGroup>
+  <Accordion title="Model domyślny po onboardingu">
+    `openclaw onboard --auth-choice volcengine-api-key` obecnie ustawia
+    `volcengine-plan/ark-code-latest` jako model domyślny, jednocześnie rejestrując
+    ogólny katalog `volcengine`.
+  </Accordion>
 
-| Model ref                                         | Nazwa                    | Wejście | Kontekst |
-| ------------------------------------------------- | ------------------------ | ------- | -------- |
-| `volcengine-plan/ark-code-latest`                 | Ark Coding Plan          | text    | 256,000  |
-| `volcengine-plan/doubao-seed-code`                | Doubao Seed Code         | text    | 256,000  |
-| `volcengine-plan/glm-4.7`                         | GLM 4.7 Coding           | text    | 200,000  |
-| `volcengine-plan/kimi-k2-thinking`                | Kimi K2 Thinking         | text    | 256,000  |
-| `volcengine-plan/kimi-k2.5`                       | Kimi K2.5 Coding         | text    | 256,000  |
-| `volcengine-plan/doubao-seed-code-preview-251028` | Doubao Seed Code Preview | text    | 256,000  |
+  <Accordion title="Zachowanie fallbacku selektora modeli">
+    Podczas wybierania modelu w onboardingu/konfiguracji opcja uwierzytelniania Volcengine preferuje
+    zarówno wiersze `volcengine/*`, jak i `volcengine-plan/*`. Jeśli te modele nie są jeszcze
+    załadowane, OpenClaw wraca do niefiltrowanego katalogu zamiast pokazywać pusty
+    selektor ograniczony do dostawcy.
+  </Accordion>
 
-`openclaw onboard --auth-choice volcengine-api-key` obecnie ustawia
-`volcengine-plan/ark-code-latest` jako model domyślny, a jednocześnie rejestruje
-ogólny katalog `volcengine`.
+  <Accordion title="Zmienne środowiskowe dla procesów demona">
+    Jeśli Gateway działa jako demon (launchd/systemd), upewnij się, że
+    `VOLCANO_ENGINE_API_KEY` jest dostępne dla tego procesu (na przykład w
+    `~/.openclaw/.env` albo przez `env.shellEnv`).
+  </Accordion>
+</AccordionGroup>
 
-Podczas onboardingu/konfigurowania wyboru modelu opcja uwierzytelniania Volcengine preferuje
-zarówno wiersze `volcengine/*`, jak i `volcengine-plan/*`. Jeśli te modele nie
-zostały jeszcze załadowane, OpenClaw przechodzi do niefiltrowanego katalogu zamiast wyświetlać
-pusty selektor ograniczony do providera.
+<Warning>
+Podczas uruchamiania OpenClaw jako usługi w tle zmienne środowiskowe ustawione w Twojej
+interaktywnej powłoce nie są dziedziczone automatycznie. Zobacz uwagę o demonie powyżej.
+</Warning>
 
-## Uwaga dotycząca środowiska
+## Powiązane
 
-Jeśli Gateway działa jako demon (launchd/systemd), upewnij się, że
-`VOLCANO_ENGINE_API_KEY` jest dostępny dla tego procesu (na przykład w
-`~/.openclaw/.env` lub przez `env.shellEnv`).
+<CardGroup cols={2}>
+  <Card title="Wybór modelu" href="/pl/concepts/model-providers" icon="layers">
+    Wybór dostawców, odwołań do modeli i zachowania failover.
+  </Card>
+  <Card title="Konfiguracja" href="/pl/gateway/configuration" icon="gear">
+    Pełna referencja konfiguracji agentów, modeli i dostawców.
+  </Card>
+  <Card title="Rozwiązywanie problemów" href="/pl/help/troubleshooting" icon="wrench">
+    Typowe problemy i kroki debugowania.
+  </Card>
+  <Card title="FAQ" href="/pl/help/faq" icon="circle-question">
+    Najczęściej zadawane pytania dotyczące konfiguracji OpenClaw.
+  </Card>
+</CardGroup>

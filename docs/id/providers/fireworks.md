@@ -1,38 +1,51 @@
 ---
 read_when:
     - Anda ingin menggunakan Fireworks dengan OpenClaw
-    - Anda memerlukan variabel lingkungan Fireworks API key atau ID model default
+    - Anda memerlukan variabel env API key Fireworks atau ID model default
 summary: Penyiapan Fireworks (auth + pemilihan model)
+title: Fireworks
 x-i18n:
-    generated_at: "2026-04-05T14:03:16Z"
+    generated_at: "2026-04-12T23:30:39Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 20083d5c248abd9a7223e6d188f0265ae27381940ee0067dff6d1d46d908c552
+    source_hash: 1a85d9507c19e275fdd846a303d844eda8045d008774d4dde1eae408e8716b6f
     source_path: providers/fireworks.md
     workflow: 15
 ---
 
 # Fireworks
 
-[Fireworks](https://fireworks.ai) mengekspos model open-weight dan model yang dirutekan melalui API yang kompatibel dengan OpenAI. OpenClaw kini menyertakan plugin provider Fireworks bawaan.
+[Fireworks](https://fireworks.ai) menyediakan model open-weight dan model yang dirutekan melalui API yang kompatibel dengan OpenAI. OpenClaw menyertakan Plugin provider Fireworks bawaan.
 
-- Provider: `fireworks`
-- Auth: `FIREWORKS_API_KEY`
-- API: chat/completions yang kompatibel dengan OpenAI
-- Base URL: `https://api.fireworks.ai/inference/v1`
-- Model default: `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo`
+| Property      | Value                                                  |
+| ------------- | ------------------------------------------------------ |
+| Provider      | `fireworks`                                            |
+| Auth          | `FIREWORKS_API_KEY`                                    |
+| API           | Chat/completions yang kompatibel dengan OpenAI         |
+| Base URL      | `https://api.fireworks.ai/inference/v1`                |
+| Default model | `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` |
 
-## Mulai cepat
+## Memulai
 
-Siapkan auth Fireworks melalui onboarding:
+<Steps>
+  <Step title="Siapkan auth Fireworks melalui onboarding">
+    ```bash
+    openclaw onboard --auth-choice fireworks-api-key
+    ```
 
-```bash
-openclaw onboard --auth-choice fireworks-api-key
-```
+    Ini menyimpan key Fireworks Anda di konfigurasi OpenClaw dan menetapkan model awal Fire Pass sebagai default.
 
-Ini menyimpan key Fireworks Anda di config OpenClaw dan menetapkan model awal Fire Pass sebagai default.
+  </Step>
+  <Step title="Verifikasi model tersedia">
+    ```bash
+    openclaw models list --provider fireworks
+    ```
+  </Step>
+</Steps>
 
 ## Contoh non-interaktif
+
+Untuk penyiapan terotomatisasi atau CI, berikan semua nilai di command line:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -43,23 +56,19 @@ openclaw onboard --non-interactive \
   --accept-risk
 ```
 
-## Catatan lingkungan
-
-Jika Gateway berjalan di luar shell interaktif Anda, pastikan `FIREWORKS_API_KEY`
-juga tersedia untuk proses tersebut. Key yang hanya ada di `~/.profile` tidak akan
-membantu daemon launchd/systemd kecuali lingkungan itu juga diimpor di sana.
-
 ## Katalog bawaan
 
-| Referensi model                                       | Nama                         | Input      | Konteks | Output maks | Catatan                                      |
-| ----------------------------------------------------- | ---------------------------- | ---------- | ------- | ----------- | -------------------------------------------- |
-| `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` | Kimi K2.5 Turbo (Fire Pass) | text,image | 256,000 | 256,000     | Model awal bawaan default di Fireworks |
+| Model ref                                              | Name                        | Input      | Context | Max output | Notes                                      |
+| ------------------------------------------------------ | --------------------------- | ---------- | ------- | ---------- | ------------------------------------------ |
+| `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` | Kimi K2.5 Turbo (Fire Pass) | text,image | 256,000 | 256,000    | Model awal bawaan default di Fireworks     |
+
+<Tip>
+Jika Fireworks menerbitkan model yang lebih baru seperti rilis Qwen atau Gemma terbaru, Anda dapat langsung beralih ke model tersebut dengan menggunakan ID model Fireworks-nya tanpa harus menunggu pembaruan katalog bawaan.
+</Tip>
 
 ## ID model Fireworks kustom
 
-OpenClaw juga menerima ID model Fireworks dinamis. Gunakan ID model atau router persis seperti yang ditampilkan oleh Fireworks dan awali dengan `fireworks/`.
-
-Contoh:
+OpenClaw juga menerima ID model Fireworks dinamis. Gunakan ID model atau router persis seperti yang ditampilkan oleh Fireworks dan beri prefiks `fireworks/`.
 
 ```json5
 {
@@ -73,4 +82,34 @@ Contoh:
 }
 ```
 
-Jika Fireworks menerbitkan model yang lebih baru seperti rilis Qwen atau Gemma terbaru, Anda dapat langsung beralih ke model tersebut dengan menggunakan ID model Fireworks-nya tanpa menunggu pembaruan katalog bawaan.
+<AccordionGroup>
+  <Accordion title="Cara kerja prefiks ID model">
+    Setiap ref model Fireworks di OpenClaw dimulai dengan `fireworks/` lalu diikuti oleh ID atau path router persis dari platform Fireworks. Contohnya:
+
+    - Model router: `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo`
+    - Model langsung: `fireworks/accounts/fireworks/models/<model-name>`
+
+    OpenClaw menghapus prefiks `fireworks/` saat membangun permintaan API dan mengirim path sisanya ke endpoint Fireworks.
+
+  </Accordion>
+
+  <Accordion title="Catatan environment">
+    Jika Gateway berjalan di luar shell interaktif Anda, pastikan `FIREWORKS_API_KEY` juga tersedia untuk proses tersebut.
+
+    <Warning>
+    Key yang hanya ada di `~/.profile` tidak akan membantu daemon launchd/systemd kecuali environment tersebut juga diimpor ke sana. Setel key di `~/.openclaw/.env` atau melalui `env.shellEnv` untuk memastikan proses gateway dapat membacanya.
+    </Warning>
+
+  </Accordion>
+</AccordionGroup>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="Pemilihan model" href="/id/concepts/model-providers" icon="layers">
+    Memilih provider, ref model, dan perilaku failover.
+  </Card>
+  <Card title="Pemecahan masalah" href="/id/help/troubleshooting" icon="wrench">
+    Pemecahan masalah umum dan FAQ.
+  </Card>
+</CardGroup>

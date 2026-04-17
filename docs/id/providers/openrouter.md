@@ -1,14 +1,14 @@
 ---
 read_when:
-    - Anda ingin satu kunci API untuk banyak LLM
+    - Anda menginginkan satu kunci API untuk banyak LLM
     - Anda ingin menjalankan model melalui OpenRouter di OpenClaw
 summary: Gunakan API terpadu OpenRouter untuk mengakses banyak model di OpenClaw
 title: OpenRouter
 x-i18n:
-    generated_at: "2026-04-05T14:03:52Z"
+    generated_at: "2026-04-12T23:32:23Z"
     model: gpt-5.4
     provider: openai
-    source_hash: 8dd354ba060bcb47724c89ae17c8e2af8caecac4bd996fcddb584716c1840b87
+    source_hash: 9083c30b9e9846a9d4ef071c350576d4c3083475f4108871eabbef0b9bb9a368
     source_path: providers/openrouter.md
     workflow: 15
 ---
@@ -16,15 +16,30 @@ x-i18n:
 # OpenRouter
 
 OpenRouter menyediakan **API terpadu** yang merutekan permintaan ke banyak model di balik satu
-endpoint dan kunci API. API ini kompatibel dengan OpenAI, sehingga sebagian besar OpenAI SDK dapat berfungsi hanya dengan mengganti base URL.
+endpoint dan kunci API. OpenRouter kompatibel dengan OpenAI, sehingga sebagian besar SDK OpenAI dapat digunakan hanya dengan mengganti base URL.
 
-## Penyiapan CLI
+## Memulai
 
-```bash
-openclaw onboard --auth-choice openrouter-api-key
-```
+<Steps>
+  <Step title="Dapatkan kunci API Anda">
+    Buat kunci API di [openrouter.ai/keys](https://openrouter.ai/keys).
+  </Step>
+  <Step title="Jalankan onboarding">
+    ```bash
+    openclaw onboard --auth-choice openrouter-api-key
+    ```
+  </Step>
+  <Step title="(Opsional) Beralih ke model tertentu">
+    Onboarding secara default menggunakan `openrouter/auto`. Pilih model konkret nanti:
 
-## Cuplikan konfigurasi
+    ```bash
+    openclaw models set openrouter/<provider>/<model>
+    ```
+
+  </Step>
+</Steps>
+
+## Contoh config
 
 ```json5
 {
@@ -37,30 +52,70 @@ openclaw onboard --auth-choice openrouter-api-key
 }
 ```
 
-## Catatan
+## Referensi model
 
-- Ref model adalah `openrouter/<provider>/<model>`.
-- Onboarding default ke `openrouter/auto`. Ganti ke model konkret nanti dengan
-  `openclaw models set openrouter/<provider>/<model>`.
-- Untuk opsi model/provider lainnya, lihat [/concepts/model-providers](/id/concepts/model-providers).
-- OpenRouter menggunakan token Bearer dengan kunci API Anda di balik layar.
-- Pada permintaan OpenRouter nyata (`https://openrouter.ai/api/v1`), OpenClaw juga
-  menambahkan header atribusi aplikasi OpenRouter yang didokumentasikan:
-  `HTTP-Referer: https://openclaw.ai`, `X-OpenRouter-Title: OpenClaw`, dan
-  `X-OpenRouter-Categories: cli-agent`.
-- Pada rute OpenRouter yang terverifikasi, ref model Anthropic juga mempertahankan
-  marker `cache_control` Anthropic khusus OpenRouter yang digunakan OpenClaw untuk
-  penggunaan ulang prompt-cache yang lebih baik pada blok prompt system/developer.
-- Jika Anda mengarahkan ulang provider OpenRouter ke proxy/base URL lain, OpenClaw
-  tidak akan menyuntikkan header khusus OpenRouter atau marker cache Anthropic tersebut.
-- OpenRouter tetap berjalan melalui jalur kompatibel OpenAI bergaya proxy, sehingga
-  pembentukan permintaan native yang khusus OpenAI seperti `serviceTier`, Responses `store`,
-  payload kompatibilitas penalaran OpenAI, dan petunjuk prompt-cache tidak diteruskan.
-- Ref OpenRouter berbasis Gemini tetap berada di jalur proxy-Gemini: OpenClaw mempertahankan
-  sanitasi tanda tangan thought Gemini di sana, tetapi tidak mengaktifkan validasi replay Gemini native
-  atau penulisan ulang bootstrap.
-- Pada rute non-`auto` yang didukung, OpenClaw memetakan tingkat thinking yang dipilih ke
-  payload reasoning proxy OpenRouter. Petunjuk model yang tidak didukung dan
-  `openrouter/auto` melewati penyuntikan reasoning tersebut.
-- Jika Anda meneruskan routing provider OpenRouter di bawah parameter model, OpenClaw meneruskannya
-  sebagai metadata routing OpenRouter sebelum wrapper stream bersama dijalankan.
+<Note>
+Ref model mengikuti pola `openrouter/<provider>/<model>`. Untuk daftar lengkap
+provider dan model yang tersedia, lihat [/concepts/model-providers](/id/concepts/model-providers).
+</Note>
+
+## Auth dan header
+
+OpenRouter menggunakan token Bearer dengan kunci API Anda di balik layar.
+
+Pada permintaan OpenRouter nyata (`https://openrouter.ai/api/v1`), OpenClaw juga menambahkan
+header atribusi aplikasi OpenRouter yang terdokumentasi:
+
+| Header                    | Nilai                 |
+| ------------------------- | --------------------- |
+| `HTTP-Referer`            | `https://openclaw.ai` |
+| `X-OpenRouter-Title`      | `OpenClaw`            |
+| `X-OpenRouter-Categories` | `cli-agent`           |
+
+<Warning>
+Jika Anda mengarahkan ulang provider OpenRouter ke proxy atau base URL lain, OpenClaw
+**tidak** menyisipkan header khusus OpenRouter tersebut atau penanda cache Anthropic.
+</Warning>
+
+## Catatan lanjutan
+
+<AccordionGroup>
+  <Accordion title="Penanda cache Anthropic">
+    Pada rute OpenRouter yang terverifikasi, ref model Anthropic mempertahankan
+    penanda `cache_control` Anthropic khusus OpenRouter yang digunakan OpenClaw untuk
+    pemakaian ulang prompt-cache yang lebih baik pada blok prompt system/developer.
+  </Accordion>
+
+  <Accordion title="Penyisipan thinking / reasoning">
+    Pada rute non-`auto` yang didukung, OpenClaw memetakan level thinking yang dipilih ke
+    payload reasoning proxy OpenRouter. Petunjuk model yang tidak didukung dan
+    `openrouter/auto` melewati penyisipan reasoning tersebut.
+  </Accordion>
+
+  <Accordion title="Pembentukan permintaan khusus OpenAI">
+    OpenRouter tetap berjalan melalui jalur kompatibel OpenAI bergaya proxy, sehingga
+    pembentukan permintaan khusus OpenAI native seperti `serviceTier`, `store` pada Responses,
+    payload kompatibilitas reasoning OpenAI, dan petunjuk prompt-cache tidak diteruskan.
+  </Accordion>
+
+  <Accordion title="Rute berbasis Gemini">
+    Ref OpenRouter berbasis Gemini tetap berada di jalur proxy-Gemini: OpenClaw mempertahankan
+    sanitasi thought-signature Gemini di sana, tetapi tidak mengaktifkan validasi replay Gemini native atau penulisan ulang bootstrap.
+  </Accordion>
+
+  <Accordion title="Metadata perutean provider">
+    Jika Anda meneruskan perutean provider OpenRouter di bawah parameter model, OpenClaw akan meneruskannya
+    sebagai metadata perutean OpenRouter sebelum wrapper stream bersama dijalankan.
+  </Accordion>
+</AccordionGroup>
+
+## Terkait
+
+<CardGroup cols={2}>
+  <Card title="Pemilihan model" href="/id/concepts/model-providers" icon="layers">
+    Memilih provider, ref model, dan perilaku failover.
+  </Card>
+  <Card title="Referensi konfigurasi" href="/id/gateway/configuration-reference" icon="gear">
+    Referensi config lengkap untuk agen, model, dan provider.
+  </Card>
+</CardGroup>
